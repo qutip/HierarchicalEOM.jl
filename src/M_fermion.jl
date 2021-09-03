@@ -84,10 +84,13 @@ mutable struct M_fermion <: AbstractHEOMMatrix
             state = idx2he[idx]
             n_exc = sum(state)
             sum_ω = 0.0
-            for n in 1:N_bath
-                for k in 1:(N_exp_term)
-                    if n_exc >= 1
-                        sum_ω += state[k + (n - 1) * N_exp_term] * γ_list[n][k]
+            if n_exc >= 1
+                for n in 1:N_bath
+                    for k in 1:(N_exp_term)
+                        tmp = state[k + (n - 1) * N_exp_term]
+                        if tmp >= 1
+                            sum_ω += tmp * γ_list[n][k]
+                        end
                     end
                 end
             end
