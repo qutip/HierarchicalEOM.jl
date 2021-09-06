@@ -166,6 +166,7 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
             end
         end
 
+        # fermion (n+1 & n-1 tier) superoperator
         for idx_f in 1:N_he_f
             state_f = idx2he_f[idx_f]
             n_exc_f = sum(state_f)
@@ -174,7 +175,7 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
                 for k in 1:(N_exp_term_f)
                     n_k = state_f[k + (n - 1) * N_exp_term_f]
                     if n_k >= 1
-                        state_neigh[k + (n - 1) * N_exp_term] = n_k - 1
+                        state_neigh[k + (n - 1) * N_exp_term_f] = n_k - 1
                         idx_neigh = he2idx_f[state_neigh]
                         op = (-1) ^ spectral * η_list[n][k] * spreQ_f[n] - (-1.0) ^ (n_exc_f - 1) * conj(η_list[(n % 2 == 0) ? (n-1) : (n+1)][k]) * spostQ_f[n]
 
@@ -188,7 +189,7 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
                     end
                     tmp_exc = sum(state_neigh[1:(k + (n - 1) * N_exp_term_f - 1)])
                     op *= -1im * (-1) ^ (tmp_exc)
-                    state_neigh[k + (n - 1) * N_exp_term] = n_k
+                    state_neigh[k + (n - 1) * N_exp_term_f] = n_k
 
                     for idx_b in 1:N_he_b
                         idx = (idx_b - 1) * N_he_f
@@ -204,7 +205,7 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
         if liouville
             printstyled("Construct Liouvillian...", color=:green)
             flush(stdout)
-            L_he += kron(sparse(I, N_he, N_he), liouvillian(Hsys, Jump_Ops, progressBar))
+            L_he += kron(sparse(I, N_he_tot, N_he_tot), liouvillian(Hsys, Jump_Ops, progressBar))
         end
 
         println("[DONE]\n")
