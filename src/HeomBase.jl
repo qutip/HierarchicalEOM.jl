@@ -89,7 +89,7 @@ function evolution(
     )
     
     # start solving ode
-    print("Start solving hierachy equations of motions...")
+    print("Start solving hierachy equation of motions...")
     if progressBar
         print("\n")
         prog = Progress(length(tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
