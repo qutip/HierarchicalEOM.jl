@@ -1,6 +1,6 @@
 module Heom
     import Base: size
-    import LinearAlgebra: eigvals, I
+    import LinearAlgebra: eigvals, I, kron
     import DifferentialEquations: ODEProblem, init, Tsit5, step!
     import SparseArrays: sparse, spzeros, SparseMatrixCSC, SparseVector, AbstractSparseMatrix
     import QuantumOptics: AbstractOperator, dagger
