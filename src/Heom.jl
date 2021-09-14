@@ -6,7 +6,7 @@ module Heom
     import QuantumOptics: AbstractOperator, dagger
     import ProgressMeter: Progress, next!
 
-    export AbstractHEOMMatrix, M_fermion, M_boson, M_boson_fermion, evolution, pade_NmN, Correlation, spre, spost, liouvillian
+    export AbstractHEOMMatrix, M_fermion, M_boson, M_boson_fermion, M_CavBath, evolution, pade_NmN, Correlation, spre, spost, liouvillian
 
     PROGBAR_OPTIONS = Dict(:barlen=>20, :color=>:green, :showspeed=>true)
 
@@ -15,4 +15,5 @@ module Heom
     include("M_fermion.jl")
     include("M_boson.jl")
     include("M_boson_fermion.jl")
+    include("M_CavBath.jl")
 end
