@@ -15,7 +15,7 @@ Heom matrix with setting the single mode cavity as bosonic bath
 - `ados_f::OrderedDict{Vector{Int}, Int}`: the fermionic ados dictionary
 
 ## Constructor
-`M_fermion(Hsys, tier_b, tier_f, c_list, ν_list, η_list, γ_list, Coup_Op_b, Coup_Op_f; [Jump_Ops, spectral, liouville, progressBar])`
+`M_CavBath(Hsys, tier_b, tier_f, c_list, ν_list, η_list, γ_list, Coup_Op_b, Coup_Op_f; [Jump_Ops, spectral, liouville, progressBar])`
 
 - `Hsys::Union{AbstractMatrix, AbstractOperator}` : The system Hamiltonian
 - `tier_b::Int` : the tier (cutoff) for the bosonic bath
