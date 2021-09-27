@@ -8,6 +8,7 @@ Heom matrix for fermionic bath
 - `N_sys::Int`  : the dimension of system
 - `N_he::Int`   : the number of states
 - `sup_dim::Int`: the dimension of system superoperator
+- `ados::OrderedDict{Vector{Int}, Int}`: the ados dictionary
 
 ## Constructor
 `M_fermion(Hsys, tier, η_list, γ_list, Coup_Ops; [Jump_Ops, spectral, liouville, progressBar])`
@@ -28,6 +29,7 @@ mutable struct M_fermion <: AbstractHEOMMatrix
     N_sys::Int
     N_he::Int
     sup_dim::Int
+    ados::OrderedDict{Vector{Int}, Int}
     
     function M_fermion(        
             Hsys::Union{AbstractMatrix, AbstractOperator},
@@ -67,7 +69,8 @@ mutable struct M_fermion <: AbstractHEOMMatrix
         spostQd = spost.(dagger.(Coup_Ops))
 
         # get Ados dictionary
-        N_he, he2idx, idx2he = Ados_dictionary(dims, tier)
+        N_he, he2idx_ordered, idx2he = Ados_dictionary(dims, tier)
+        he2idx = Dict(he2idx_ordered)
 
         # start to construct the matrix L_he
         print("Start constructing process...")
@@ -132,6 +135,6 @@ mutable struct M_fermion <: AbstractHEOMMatrix
         
         println("[DONE]\n")
         flush(stdout)
-        return new(L_he, tier, Nsys, N_he, sup_dim)
+        return new(L_he, tier, Nsys, N_he, sup_dim, he2idx_ordered)
     end
 end

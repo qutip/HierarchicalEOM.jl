@@ -1,6 +1,6 @@
 """
-# `M_boson_fermion <: AbstractHEOMMatrix`
-Heom matrix for mixtured bath (boson and fermionic)
+# `M_CavBath <: AbstractHEOMMatrix`
+Heom matrix with setting the single mode cavity as bosonic bath
 
 ## Fields
 - `data::SparseMatrixCSC{ComplexF64, Int64}` : the sparse matrix
@@ -24,14 +24,14 @@ Heom matrix for mixtured bath (boson and fermionic)
 - `ν_list::Vector{Tj<:Number}` : the coefficient ``\\nu_i`` in bosonic bath correlation functions (``\\sum_i c_i e^{-\\nu_i t}``)
 - `η_list::Vector{Vector{Tk<:Number}}` : the coefficient ``\\eta_i`` in fermionic bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_list::Vector{Vector{Tl<:Number}}` : the coefficient ``\\gamma_i`` in fermionic bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
-- `Coup_Op_b` : Operator describing the coupling between system and bosonic bath.
+- `Coup_Op_b::Vector` : Operator list describing the coupling between system and bosonic bath.
 - `Coup_Op_f::Vector` : Operator list describing the coupling between system and fermionic bath.
 - `Jump_Ops::Vector` : The collapse (jump) operators to add when calculating liouvillian in lindblad term (only if `liouville=true`). Defaults to empty vector `[]`.
 - `spectral::Bool` : Decide whether to calculate spectral density or not. Defaults to `false`.
 - `liouville::Bool` : Add liouvillian to the matrix or not. Defaults to `true`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
-mutable struct M_boson_fermion <: AbstractHEOMMatrix
+mutable struct M_CavBath <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
     tier_b::Int
     tier_f::Int
@@ -43,7 +43,7 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
     ados_b::OrderedDict{Vector{Int}, Int}
     ados_f::OrderedDict{Vector{Int}, Int}
     
-    function M_boson_fermion(        
+    function M_CavBath(        
             Hsys::Union{AbstractMatrix, AbstractOperator},
             tier_b::Int,
             tier_f::Int,
@@ -51,7 +51,7 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
             ν_list::Vector{Tj},
             η_list::Vector{Vector{Tk}},
             γ_list::Vector{Vector{Tl}},
-            Coup_Op_b::Union{AbstractMatrix, AbstractOperator},
+            Coup_Op_b::Vector,
             Coup_Op_f::Vector;
             Jump_Ops::Vector=[],  # only when liouville is set to true
             spectral::Bool=false,
@@ -59,10 +59,10 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
             progressBar::Bool=true
         ) where {Ti,Tj,Tk,Tl <: Number}
 
-        # check if the length of c_list and ν_list are valid
-        N_exp_term_b = length(c_list)
-        if N_exp_term_b != length(ν_list)
-            error("The length of \'c_list\' and \'ν_list\' should be the same.")
+        # check if the length of c_list, ν_list, and Coup_Ops are valid
+        N_exp_term_b = length(Coup_Op_b)
+        if (N_exp_term_b != length(c_list)) || (N_exp_term_b != length(ν_list))
+            error("The length of \'Coup_Op_b\', \'c_list\', and \'ν_list\' should be the same.")
         end
 
         # check if the length of η_list, γ_list, and Coup_Ops are valid
@@ -87,9 +87,9 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
         dims_b    = [(tier_b + 1) for i in 1:N_exp_term_b]
         dims_f    = [2 for i in 1:(N_exp_term_f * N_bath_f)]
     
-        spreQ_b   = spre(Coup_Op_b)
-        spostQ_b  = spost(Coup_Op_b)
-        commQ_b   = spreQ_b - spostQ_b
+        spreQ_b   = spre.(Coup_Op_b)
+        spostQ_b  = spost.(Coup_Op_b)
+        commQ_b   = spreQ_b .- spostQ_b
         spreQ_f   = spre.(Coup_Op_f)
         spostQ_f  = spost.(Coup_Op_f)
         spreQd_f  = spre.(dagger.(Coup_Op_f))
@@ -151,7 +151,7 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
                 if n_k >= 1
                     state_neigh[k] = n_k - 1
                     idx_neigh = he2idx_b[state_neigh]
-                    op = -1im * n_k * (c_list[k] * spreQ_b - conj(c_list[k]) * spostQ_b)
+                    op = c_list[k] * spreQ_b[k] - c_list[(k % 2 == 0) ? (k-1) : (k+1)] * spostQ_b[k]
                     state_neigh[k] = n_k
                     for idx_f in 1:N_he_f
                         L_he += pad_csc(op, N_he_tot, N_he_tot, (idx + idx_f), (idx_neigh - 1) * N_he_f + idx_f)
@@ -160,7 +160,7 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
                 if n_exc_b <= tier_b - 1
                     state_neigh[k] = n_k + 1
                     idx_neigh = he2idx_b[state_neigh]
-                    op = -1im * commQ_b
+                    op = -1im * commQ_b[k]
                     state_neigh[k] = n_k
                     for idx_f in 1:N_he_f
                         L_he += pad_csc(op, N_he_tot, N_he_tot, (idx + idx_f), (idx_neigh - 1) * N_he_f + idx_f)
