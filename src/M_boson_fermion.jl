@@ -11,6 +11,8 @@ Heom matrix for mixtured bath (boson and fermionic)
 - `N_he_b::Int`   : the number of bosonic states
 - `N_he_f::Int`   : the number of fermionic states
 - `sup_dim::Int`: the dimension of system superoperator
+- `ados_b::OrderedDict{Vector{Int}, Int}`: the bosonic ados dictionary
+- `ados_f::OrderedDict{Vector{Int}, Int}`: the fermionic ados dictionary
 
 ## Constructor
 `M_fermion(Hsys, tier_b, tier_f, c_list, ν_list, η_list, γ_list, Coup_Op_b, Coup_Op_f; [Jump_Ops, spectral, liouville, progressBar])`
@@ -38,6 +40,8 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
     N_he_b::Int
     N_he_f::Int
     sup_dim::Int
+    ados_b::OrderedDict{Vector{Int}, Int}
+    ados_f::OrderedDict{Vector{Int}, Int}
     
     function M_boson_fermion(        
             Hsys::Union{AbstractMatrix, AbstractOperator},
@@ -92,9 +96,11 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
         spostQd_f = spost.(dagger.(Coup_Op_f))
 
         # get Ados dictionary
-        N_he_b, he2idx_b, idx2he_b = Ados_dictionary(dims_b, tier_b)
-        N_he_f, he2idx_f, idx2he_f = Ados_dictionary(dims_f, tier_f)
+        N_he_b, he2idx_b_ordered, idx2he_b = Ados_dictionary(dims_b, tier_b)
+        N_he_f, he2idx_f_ordered, idx2he_f = Ados_dictionary(dims_f, tier_f)
         N_he_tot = N_he_b * N_he_f
+        he2idx_b = Dict(he2idx_b_ordered)
+        he2idx_f = Dict(he2idx_f_ordered)
 
         # start to construct the matrix L_he
         print("Start constructing process...")
@@ -210,6 +216,6 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
 
         println("[DONE]\n")
         flush(stdout)
-        return new(L_he, tier_b, tier_f, Nsys, N_he_tot, N_he_b, N_he_f, sup_dim)
+        return new(L_he, tier_b, tier_f, Nsys, N_he_tot, N_he_b, N_he_f, sup_dim, he2idx_b_ordered, he2idx_f_ordered)
     end
 end
