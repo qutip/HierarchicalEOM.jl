@@ -11,7 +11,7 @@ spost(q::AbstractOperator)     = sparse(kron(transpose(q.data), sparse(I, size(q
 spost(q::AbstractSparseMatrix) = sparse(kron(transpose(q), sparse(I, size(q)[1], size(q)[1])))
 
 # generate liouvillian matrix
-function liouvillian(Hsys, Jump_Ops::Vector=[], progressBar::Bool=true)
+function liouvillian(Hsys, Jump_Ops::Vector=[], progressBar::Bool=false)
         
     N, = size(Hsys)
 

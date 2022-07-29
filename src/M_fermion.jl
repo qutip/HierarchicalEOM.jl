@@ -11,7 +11,7 @@ Heom matrix for fermionic bath
 - `ados::OrderedDict{Vector{Int}, Int}`: the ados dictionary
 
 ## Constructor
-`M_fermion(Hsys, tier, η_list, γ_list, Coup_Ops; [Jump_Ops, spectral, liouville, progressBar])`
+`M_fermion(Hsys, tier, η_list, γ_list, Coup_Ops; [Jump_Ops, spectral, liouville])`
 
 - `Hsys::Union{AbstractMatrix, AbstractOperator}` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
@@ -21,7 +21,6 @@ Heom matrix for fermionic bath
 - `Jump_Ops::Vector` : The collapse (jump) operators to add when calculating liouvillian in lindblad term (only if `liouville=true`). Defaults to empty vector `[]`.
 - `spectral::Bool` : Decide whether to calculate spectral density or not. Defaults to `false`.
 - `liouville::Bool` : Add liouvillian to the matrix or not. Defaults to `true`.
-- `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
 mutable struct M_fermion <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
@@ -39,8 +38,7 @@ mutable struct M_fermion <: AbstractHEOMMatrix
             Coup_Ops::Vector;
             Jump_Ops::Vector=[],  # only when liouville is set to true
             spectral::Bool=false,
-            liouville::Bool=true,
-            progressBar::Bool=true
+            liouville::Bool=true
         ) where {Ti,Tv <: Number}
 
         # check if the length of η_list, γ_list, and Coup_Ops are valid
@@ -73,16 +71,9 @@ mutable struct M_fermion <: AbstractHEOMMatrix
         he2idx = Dict(he2idx_ordered)
 
         # start to construct the matrix L_he
-        print("Start constructing process...")
+        println("Start constructing process...")
         L_he = spzeros(ComplexF64, N_he * sup_dim, N_he * sup_dim)
 
-        if liouville || progressBar
-            print("\n")
-        end
-        flush(stdout)
-        if progressBar
-            prog = Progress(N_he; desc="Construct hierarchy matrix: ", PROGBAR_OPTIONS...)
-        end
         for idx in 1:N_he
             state = idx2he[idx]
             n_exc = sum(state)
@@ -122,19 +113,14 @@ mutable struct M_fermion <: AbstractHEOMMatrix
                     state_neigh[k + (n - 1) * N_exp_term] = n_k
                 end
             end
-            if progressBar
-                next!(prog)
-            end
         end
 
         if liouville
-            printstyled("Construct Liouvillian...", color=:green)
-            flush(stdout)
-            L_he += kron(sparse(I, N_he, N_he), liouvillian(Hsys, Jump_Ops, progressBar))
+            println("Construct Liouvillian...")
+            L_he += kron(sparse(I, N_he, N_he), liouvillian(Hsys, Jump_Ops))
         end
         
-        println("[DONE]\n")
-        flush(stdout)
+        println("[DONE]")
         return new(L_he, tier, Nsys, N_he, sup_dim, he2idx_ordered)
     end
 end

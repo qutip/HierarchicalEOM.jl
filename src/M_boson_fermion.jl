@@ -15,7 +15,7 @@ Heom matrix for mixtured bath (boson and fermionic)
 - `ados_f::OrderedDict{Vector{Int}, Int}`: the fermionic ados dictionary
 
 ## Constructor
-`M_fermion(Hsys, tier_b, tier_f, c_list, ν_list, η_list, γ_list, Coup_Op_b, Coup_Op_f; [Jump_Ops, spectral, liouville, progressBar])`
+`M_fermion(Hsys, tier_b, tier_f, c_list, ν_list, η_list, γ_list, Coup_Op_b, Coup_Op_f; [Jump_Ops, spectral, liouville])`
 
 - `Hsys::Union{AbstractMatrix, AbstractOperator}` : The system Hamiltonian
 - `tier_b::Int` : the tier (cutoff) for the bosonic bath
@@ -29,7 +29,6 @@ Heom matrix for mixtured bath (boson and fermionic)
 - `Jump_Ops::Vector` : The collapse (jump) operators to add when calculating liouvillian in lindblad term (only if `liouville=true`). Defaults to empty vector `[]`.
 - `spectral::Bool` : Decide whether to calculate spectral density or not. Defaults to `false`.
 - `liouville::Bool` : Add liouvillian to the matrix or not. Defaults to `true`.
-- `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
 mutable struct M_boson_fermion <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
@@ -55,8 +54,7 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
             Coup_Op_f::Vector;
             Jump_Ops::Vector=[],  # only when liouville is set to true
             spectral::Bool=false,
-            liouville::Bool=true,
-            progressBar::Bool=true
+            liouville::Bool=true
         ) where {Ti,Tj,Tk,Tl <: Number}
 
         # check if the length of c_list and ν_list are valid
@@ -103,16 +101,9 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
         he2idx_f = Dict(he2idx_f_ordered)
 
         # start to construct the matrix L_he
-        print("Start constructing process...")
+        println("Start constructing process...")
         L_he = spzeros(ComplexF64, N_he_tot * sup_dim, N_he_tot * sup_dim)
 
-        if liouville || progressBar
-            print("\n")
-        end
-        flush(stdout)
-        if progressBar
-            prog = Progress(N_he_f; desc="Construct hierarchy matrix: ", PROGBAR_OPTIONS...)
-        end
         for idx_b in 1:N_he_b
             # diagonal (boson)
             sum_ω   = 0.0
@@ -167,9 +158,6 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
                     end
                 end
             end
-            if progressBar
-                next!(prog)
-            end
         end
 
         # fermion (n+1 & n-1 tier) superoperator
@@ -203,19 +191,14 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
                     end
                 end
             end
-            if progressBar
-                next!(prog)
-            end
         end
 
         if liouville
-            printstyled("Construct Liouvillian...", color=:green)
-            flush(stdout)
-            L_he += kron(sparse(I, N_he_tot, N_he_tot), liouvillian(Hsys, Jump_Ops, progressBar))
+            print("Construct Liouvillian...")
+            L_he += kron(sparse(I, N_he_tot, N_he_tot), liouvillian(Hsys, Jump_Ops))
         end
 
-        println("[DONE]\n")
-        flush(stdout)
+        println("[DONE]")
         return new(L_he, tier_b, tier_f, Nsys, N_he_tot, N_he_b, N_he_f, sup_dim, he2idx_b_ordered, he2idx_f_ordered)
     end
 end
