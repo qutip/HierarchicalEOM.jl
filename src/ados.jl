@@ -87,3 +87,46 @@ function pad_csc(A::SparseMatrixCSC{T, Int64}, row_scale::Int, col_scale::Int, r
         )
     end
 end
+
+function csc2coo(A)
+    len = length(A.nzval)
+
+    if len == 0
+        return A.m, A.n, [], [], []
+    else
+        colptr = A.colptr
+        colidx = Vector{Int}(undef, len)
+
+        @inbounds for i in 1:(length(A.colptr) - 1)
+            @inbounds for j in colptr[i] : (colptr[i + 1] - 1)
+                colidx[j] = i
+            end
+        end
+        return A.m, A.n, A.rowval, colidx, A.nzval
+    end
+end
+
+function pad_coo(A::SparseMatrixCSC{T, Int64}, row_scale::Int, col_scale::Int, row_idx=1::Int, col_idx=1::Int) where {T<:Number}
+    # transform matrix A's format from csc to coo
+    M, N, I, J, V = csc2coo(A)
+
+    # deal with values
+    if T != ComplexF64
+        V = convert.(ComplexF64, V)
+    end
+    
+    # deal with rowval
+    if (row_idx > row_scale) || (row_idx < 1)
+        error("row_idx must be \'>= 1\' and \'<= row_scale\'")
+    end
+
+    # deal with colval
+    if (col_idx > col_scale) || (col_idx < 1)
+        error("col_idx must be \'>= 1\' and \'<= col_scale\'")
+    end
+
+    @inbounds I .+= (M * (row_idx - 1))
+    @inbounds J .+= (N * (col_idx - 1))
+    
+    return I, J, V
+end

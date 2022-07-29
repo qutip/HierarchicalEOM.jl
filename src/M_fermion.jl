@@ -11,7 +11,7 @@ Heom matrix for fermionic bath
 - `ados::OrderedDict{Vector{Int}, Int}`: the ados dictionary
 
 ## Constructor
-`M_fermion(Hsys, tier, η_list, γ_list, Coup_Ops; [Jump_Ops, spectral, liouville, progressBar])`
+`M_fermion(Hsys, tier, η_list, γ_list, Coup_Ops; [Jump_Ops, spectral, liouville])`
 
 - `Hsys::Union{AbstractMatrix, AbstractOperator}` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
@@ -72,69 +72,88 @@ mutable struct M_fermion <: AbstractHEOMMatrix
         N_he, he2idx_ordered, idx2he = Ados_dictionary(dims, tier)
         he2idx = Dict(he2idx_ordered)
 
-        # start to construct the matrix L_he
-        print("Start constructing process...")
-        L_he = spzeros(ComplexF64, N_he * sup_dim, N_he * sup_dim)
-
-        if liouville || progressBar
-            print("\n")
-        end
-        flush(stdout)
+        # start to construct the matrix
+        println("Start constructing matrix...(using $(nprocs()) processors)")
+        L_row = distribute([Int[] for _ in procs()])
+        L_col = distribute([Int[] for _ in procs()])
+        L_val = distribute([ComplexF64[] for _ in procs()])
+        
+        channel = RemoteChannel(() -> Channel{Bool}(), 1)
         if progressBar
             prog = Progress(N_he; desc="Construct hierarchy matrix: ", PROGBAR_OPTIONS...)
-        end
-        for idx in 1:N_he
-            state = idx2he[idx]
-            n_exc = sum(state)
-            sum_ω = 0.0
-            if n_exc >= 1
-                for n in 1:N_bath
-                    for k in 1:(N_exp_term)
-                        tmp = state[k + (n - 1) * N_exp_term]
-                        if tmp >= 1
-                            sum_ω += tmp * γ_list[n][k]
+        end    
+        @sync begin # start two tasks which will be synced in the very end
+            # the first task updates the progress bar
+            @async while take!(channel)
+                if progressBar
+                    next!(prog)
+                end
+            end
+
+            # the second task does the computation
+            @async begin
+                @distributed (+) for idx in 1:N_he
+                    state = idx2he[idx]
+                    n_exc = sum(state)
+                    sum_ω = 0.0
+                    if n_exc >= 1
+                        for n in 1:N_bath
+                            for k in 1:(N_exp_term)
+                                tmp = state[k + (n - 1) * N_exp_term]
+                                if tmp >= 1
+                                    sum_ω += tmp * γ_list[n][k]
+                                end
+                            end
                         end
                     end
-                end
-            end
-            L_he += pad_csc(- sum_ω * I_sup, N_he, N_he, idx, idx)
+                    row, col, val = pad_coo(- sum_ω * I_sup, N_he, N_he, idx, idx)
+                    push!(localpart(L_row)[1], row...)
+                    push!(localpart(L_col)[1], col...)
+                    push!(localpart(L_val)[1], val...)
 
-            state_neigh = copy(state)
-            for n in 1:N_bath
-                for k in 1:(N_exp_term)
-                    n_k = state[k + (n - 1) * N_exp_term]
-                    if n_k >= 1
-                        state_neigh[k + (n - 1) * N_exp_term] = n_k - 1
-                        idx_neigh = he2idx[state_neigh]
-                        op = (-1) ^ spectral * η_list[n][k] * spreQ[n] - (-1.0) ^ (n_exc - 1) * conj(η_list[(n % 2 == 0) ? (n-1) : (n+1)][k]) * spostQ[n]
+                    state_neigh = copy(state)
+                    for n in 1:N_bath
+                        for k in 1:(N_exp_term)
+                            n_k = state[k + (n - 1) * N_exp_term]
+                            if n_k >= 1
+                                state_neigh[k + (n - 1) * N_exp_term] = n_k - 1
+                                idx_neigh = he2idx[state_neigh]
+                                op = (-1) ^ spectral * η_list[n][k] * spreQ[n] - (-1.0) ^ (n_exc - 1) * conj(η_list[(n % 2 == 0) ? (n-1) : (n+1)][k]) * spostQ[n]
 
-                    elseif n_exc <= tier - 1
-                        state_neigh[k + (n - 1) * N_exp_term] = n_k + 1
-                        idx_neigh = he2idx[state_neigh]
-                        op = (-1) ^ (spectral) * spreQd[n] + (-1.0) ^ (n_exc + 1) * spostQd[n]
+                            elseif n_exc <= tier - 1
+                                state_neigh[k + (n - 1) * N_exp_term] = n_k + 1
+                                idx_neigh = he2idx[state_neigh]
+                                op = (-1) ^ (spectral) * spreQd[n] + (-1.0) ^ (n_exc + 1) * spostQd[n]
 
-                    else
-                        continue
+                            else
+                                continue
+                            end
+
+                            tmp_exc = sum(state_neigh[1:(k + (n - 1) * N_exp_term - 1)])
+                            row, col, val = pad_coo(-1im * (-1) ^ (tmp_exc) * op, N_he, N_he, idx, idx_neigh)
+                            push!(localpart(L_row)[1], row...)
+                            push!(localpart(L_col)[1], col...)
+                            push!(localpart(L_val)[1], val...)
+
+                            state_neigh[k + (n - 1) * N_exp_term] = n_k
+                        end
                     end
-
-                    tmp_exc = sum(state_neigh[1:(k + (n - 1) * N_exp_term - 1)])
-                    L_he += pad_csc(-1im * (-1) ^ (tmp_exc) * op, N_he, N_he, idx, idx_neigh)
-                    state_neigh[k + (n - 1) * N_exp_term] = n_k
+                    if progressBar
+                        put!(channel, true) # trigger a progress bar update
+                    end
+                    idx + 1 # Here, returning some number i + 1 and reducing it somehow (+) is necessary to make the distribution happen.
                 end
-            end
-            if progressBar
-                next!(prog)
+                put!(channel, false) # this tells the printing task to finish
             end
         end
+        L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), N_he * sup_dim, N_he * sup_dim)
 
         if liouville
-            printstyled("Construct Liouvillian...", color=:green)
-            flush(stdout)
+            println("Construct Liouvillian...")
             L_he += kron(sparse(I, N_he, N_he), liouvillian(Hsys, Jump_Ops, progressBar))
         end
         
-        println("[DONE]\n")
-        flush(stdout)
+        println("[DONE]")
         return new(L_he, tier, Nsys, N_he, sup_dim, he2idx_ordered)
     end
 end
