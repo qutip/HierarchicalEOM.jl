@@ -70,11 +70,13 @@ mutable struct M_fermion <: AbstractHEOMMatrix
         N_he, he2idx_ordered, idx2he = Ados_dictionary(dims, tier)
         he2idx = Dict(he2idx_ordered)
 
-        # start to construct the matrix L_he
-        println("Start constructing process...")
-        L_he = spzeros(ComplexF64, N_he * sup_dim, N_he * sup_dim)
-
-        for idx in 1:N_he
+        # start to construct the matrix
+        println("Start constructing matrix...(using $(nprocs()) processors)")
+        L_row = distribute([Int[] for _ in procs()])
+        L_col = distribute([Int[] for _ in procs()])
+        L_val = distribute([ComplexF64[] for _ in procs()])
+        
+        @sync @distributed for idx in 1:N_he
             state = idx2he[idx]
             n_exc = sum(state)
             sum_ω = 0.0
@@ -88,7 +90,10 @@ mutable struct M_fermion <: AbstractHEOMMatrix
                     end
                 end
             end
-            L_he += pad_csc(- sum_ω * I_sup, N_he, N_he, idx, idx)
+            row, col, val = pad_coo(- sum_ω * I_sup, N_he, N_he, idx, idx)
+            push!(localpart(L_row)[1], row...)
+            push!(localpart(L_col)[1], col...)
+            push!(localpart(L_val)[1], val...)
 
             state_neigh = copy(state)
             for n in 1:N_bath
@@ -109,14 +114,20 @@ mutable struct M_fermion <: AbstractHEOMMatrix
                     end
 
                     tmp_exc = sum(state_neigh[1:(k + (n - 1) * N_exp_term - 1)])
-                    L_he += pad_csc(-1im * (-1) ^ (tmp_exc) * op, N_he, N_he, idx, idx_neigh)
+                    row, col, val = pad_coo(-1im * (-1) ^ (tmp_exc) * op, N_he, N_he, idx, idx_neigh)
+                    push!(localpart(L_row)[1], row...)
+                    push!(localpart(L_col)[1], col...)
+                    push!(localpart(L_val)[1], val...)
+
                     state_neigh[k + (n - 1) * N_exp_term] = n_k
                 end
             end
+            println("idx = $(idx)\t DONE")
         end
+        L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), N_he * sup_dim, N_he * sup_dim)
 
         if liouville
-            println("Construct Liouvillian...")
+            print("Construct Liouvillian...")
             L_he += kron(sparse(I, N_he, N_he), liouvillian(Hsys, Jump_Ops))
         end
         

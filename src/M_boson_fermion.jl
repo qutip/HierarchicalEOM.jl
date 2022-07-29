@@ -100,11 +100,13 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
         he2idx_b = Dict(he2idx_b_ordered)
         he2idx_f = Dict(he2idx_f_ordered)
 
-        # start to construct the matrix L_he
-        println("Start constructing process...")
-        L_he = spzeros(ComplexF64, N_he_tot * sup_dim, N_he_tot * sup_dim)
+        # start to construct the matrix
+        println("Start constructing matrix...(using $(nprocs()) processors)")
+        L_row = distribute([Int[] for _ in procs()])
+        L_col = distribute([Int[] for _ in procs()])
+        L_val = distribute([ComplexF64[] for _ in procs()])
 
-        for idx_b in 1:N_he_b
+        @sync @distributed for idx_b in 1:N_he_b
             # diagonal (boson)
             sum_ω   = 0.0
             state_b = idx2he_b[idx_b]
@@ -132,7 +134,10 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
                         end
                     end
                 end
-                L_he += pad_csc(- sum_ω * I_sup, N_he_tot, N_he_tot, idx + idx_f, idx + idx_f)
+                row, col, val = pad_coo(- sum_ω * I_sup, N_he_tot, N_he_tot, idx + idx_f, idx + idx_f)
+                push!(localpart(L_row)[1], row...)
+                push!(localpart(L_col)[1], col...)
+                push!(localpart(L_val)[1], val...)
             end
             
             # off-diagonal (boson)
@@ -145,7 +150,10 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
                     op = -1im * n_k * (c_list[k] * spreQ_b - conj(c_list[k]) * spostQ_b)
                     state_neigh[k] = n_k
                     for idx_f in 1:N_he_f
-                        L_he += pad_csc(op, N_he_tot, N_he_tot, (idx + idx_f), (idx_neigh - 1) * N_he_f + idx_f)
+                        row, col, val = pad_coo(op, N_he_tot, N_he_tot, (idx + idx_f), (idx_neigh - 1) * N_he_f + idx_f)
+                        push!(localpart(L_row)[1], row...)
+                        push!(localpart(L_col)[1], col...)
+                        push!(localpart(L_val)[1], val...)
                     end
                 end
                 if n_exc_b <= tier_b - 1
@@ -154,14 +162,18 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
                     op = -1im * commQ_b
                     state_neigh[k] = n_k
                     for idx_f in 1:N_he_f
-                        L_he += pad_csc(op, N_he_tot, N_he_tot, (idx + idx_f), (idx_neigh - 1) * N_he_f + idx_f)
+                        row, col, val = pad_coo(op, N_he_tot, N_he_tot, (idx + idx_f), (idx_neigh - 1) * N_he_f + idx_f)
+                        push!(localpart(L_row)[1], row...)
+                        push!(localpart(L_col)[1], col...)
+                        push!(localpart(L_val)[1], val...)
                     end
                 end
             end
+            println("idx_b = $(idx_b)\t DONE")
         end
 
         # fermion (n+1 & n-1 tier) superoperator
-        for idx_f in 1:N_he_f
+        @sync @distributed for idx_f in 1:N_he_f
             state_f = idx2he_f[idx_f]
             n_exc_f = sum(state_f)
             state_neigh = copy(state_f)
@@ -187,12 +199,17 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
 
                     for idx_b in 1:N_he_b
                         idx = (idx_b - 1) * N_he_f
-                        L_he += pad_csc(op, N_he_tot, N_he_tot, idx + idx_f, idx + idx_neigh)
+                        row, col, val = pad_coo(op, N_he_tot, N_he_tot, idx + idx_f, idx + idx_neigh)
+                        push!(localpart(L_row)[1], row...)
+                        push!(localpart(L_col)[1], col...)
+                        push!(localpart(L_val)[1], val...)
                     end
                 end
             end
+            println("idx_f = $(idx_f)\t DONE")
         end
-
+        L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), N_he_tot * sup_dim, N_he_tot * sup_dim)
+        
         if liouville
             print("Construct Liouvillian...")
             L_he += kron(sparse(I, N_he_tot, N_he_tot), liouvillian(Hsys, Jump_Ops))
