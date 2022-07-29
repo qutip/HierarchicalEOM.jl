@@ -6,7 +6,7 @@ module Heom
     import SparseArrays: sparse, spzeros, SparseMatrixCSC, SparseVector, AbstractSparseMatrix
     import QuantumOptics: AbstractOperator, dagger
     import ProgressMeter: Progress, next!
-    import Distributed: @everywhere, @distributed, addprocs, procs, nprocs
+    import Distributed: @everywhere, @distributed, addprocs, procs, nprocs, RemoteChannel, Channel
     import DistributedArrays: distribute, localpart
     
     export AbstractHEOMMatrix, M_fermion, M_boson, M_boson_fermion, M_CavBath, evolution, pade_NmN, Correlation, spre, spost, liouvillian

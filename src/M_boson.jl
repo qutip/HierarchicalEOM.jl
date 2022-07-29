@@ -20,6 +20,7 @@ Heom matrix for bosonic bath
 - `Coup_Op::Union{AbstractMatrix, AbstractOperator}` : Operator describing the coupling between system and bath.
 - `Jump_Ops::Vector` : The collapse (jump) operators to add when calculating liouvillian in lindblad term (only if `liouville=true`). Defaults to empty vector `[]`.
 - `liouville::Bool` : Add liouvillian to the matrix or not. Defaults to `true`.
+- `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
 mutable struct M_boson <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
@@ -36,7 +37,8 @@ mutable struct M_boson <: AbstractHEOMMatrix
             γ_list::Vector{Ti},
             Coup_Op::Union{AbstractMatrix, AbstractOperator};
             Jump_Ops::Vector=[],   # only when liouville is set to true
-            liouville::Bool=true
+            liouville::Bool=true,
+            progressBar::Bool=true
         ) where {Ti,Tv <: Number}
 
         # check if the length of η_list and γ_list are valid
@@ -64,55 +66,75 @@ mutable struct M_boson <: AbstractHEOMMatrix
         L_col = distribute([Int[] for _ in procs()])
         L_val = distribute([ComplexF64[] for _ in procs()])
 
-        @sync @distributed for idx in 1:N_he
-            state = idx2he[idx]
-            n_exc = sum(state)
-            sum_ω = 0.0
-            if n_exc >= 1
-                for k in 1:N_exp_term
-                    if state[k] > 0
-                        sum_ω += state[k] * γ_list[k]
-                    end
+        channel = RemoteChannel(() -> Channel{Bool}(), 1)
+        if progressBar
+            prog = Progress(N_he; desc="Construct hierarchy matrix: ", PROGBAR_OPTIONS...)
+        end
+        @sync begin # start two tasks which will be synced in the very end
+            # the first task updates the progress bar
+            @async while take!(channel)
+                if progressBar
+                    next!(prog)
                 end
             end
-            row, col, val = pad_coo(- sum_ω * I_sup, N_he, N_he, idx, idx)
-            push!(localpart(L_row)[1], row...)
-            push!(localpart(L_col)[1], col...)
-            push!(localpart(L_val)[1], val...)
 
-            state_neigh = copy(state)
-            for k in 1:N_exp_term
-                n_k = state[k]
-                if n_k >= 1
-                    state_neigh[k] = n_k - 1
-                    idx_neigh = he2idx[state_neigh]
-                    op = -1im * n_k * (η_list[k] * spreQ - conj(η_list[k]) * spostQ)
-                    row, col, val = pad_coo(op, N_he, N_he, idx, idx_neigh)
+            # the second task does the computation
+            @async begin
+                @distributed (+) for idx in 1:N_he
+                    state = idx2he[idx]
+                    n_exc = sum(state)
+                    sum_ω = 0.0
+                    if n_exc >= 1
+                        for k in 1:N_exp_term
+                            if state[k] > 0
+                                sum_ω += state[k] * γ_list[k]
+                            end
+                        end
+                    end
+                    row, col, val = pad_coo(- sum_ω * I_sup, N_he, N_he, idx, idx)
                     push!(localpart(L_row)[1], row...)
                     push!(localpart(L_col)[1], col...)
                     push!(localpart(L_val)[1], val...)
-                    
-                    state_neigh[k] = n_k
+
+                    state_neigh = copy(state)
+                    for k in 1:N_exp_term
+                        n_k = state[k]
+                        if n_k >= 1
+                            state_neigh[k] = n_k - 1
+                            idx_neigh = he2idx[state_neigh]
+                            op = -1im * n_k * (η_list[k] * spreQ - conj(η_list[k]) * spostQ)
+                            row, col, val = pad_coo(op, N_he, N_he, idx, idx_neigh)
+                            push!(localpart(L_row)[1], row...)
+                            push!(localpart(L_col)[1], col...)
+                            push!(localpart(L_val)[1], val...)
+                            
+                            state_neigh[k] = n_k
+                        end
+                        if n_exc <= tier - 1
+                            state_neigh[k] = n_k + 1
+                            idx_neigh = he2idx[state_neigh]
+                            op = -1im * commQ
+                            row, col, val = pad_coo(op, N_he, N_he, idx, idx_neigh)
+                            push!(localpart(L_row)[1], row...)
+                            push!(localpart(L_col)[1], col...)
+                            push!(localpart(L_val)[1], val...)
+                            
+                            state_neigh[k] = n_k
+                        end
+                    end
+                    if progressBar
+                        put!(channel, true) # trigger a progress bar update
+                    end
+                    idx + 1 # Here, returning some number i + 1 and reducing it somehow (+) is necessary to make the distribution happen.
                 end
-                if n_exc <= tier - 1
-                    state_neigh[k] = n_k + 1
-                    idx_neigh = he2idx[state_neigh]
-                    op = -1im * commQ
-                    row, col, val = pad_coo(op, N_he, N_he, idx, idx_neigh)
-                    push!(localpart(L_row)[1], row...)
-                    push!(localpart(L_col)[1], col...)
-                    push!(localpart(L_val)[1], val...)
-                    
-                    state_neigh[k] = n_k
-                end
+                put!(channel, false) # this tells the printing task to finish
             end
-            println("idx = $(idx)\t DONE")
         end
         L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), N_he * sup_dim, N_he * sup_dim)
 
         if liouville
-            print("Construct Liouvillian...")
-            L_he += kron(sparse(I, N_he, N_he), liouvillian(Hsys, Jump_Ops))
+            println("Construct Liouvillian...")
+            L_he += kron(sparse(I, N_he, N_he), liouvillian(Hsys, Jump_Ops, progressBar))
         end
         
         println("[DONE]")

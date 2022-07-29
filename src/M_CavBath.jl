@@ -29,6 +29,7 @@ Heom matrix with setting the single mode cavity as bosonic bath
 - `Jump_Ops::Vector` : The collapse (jump) operators to add when calculating liouvillian in lindblad term (only if `liouville=true`). Defaults to empty vector `[]`.
 - `spectral::Bool` : Decide whether to calculate spectral density or not. Defaults to `false`.
 - `liouville::Bool` : Add liouvillian to the matrix or not. Defaults to `true`.
+- `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
 mutable struct M_CavBath <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
@@ -54,7 +55,8 @@ mutable struct M_CavBath <: AbstractHEOMMatrix
             Coup_Op_f::Vector;
             Jump_Ops::Vector=[],  # only when liouville is set to true
             spectral::Bool=false,
-            liouville::Bool=true
+            liouville::Bool=true,
+            progressBar::Bool=true
         ) where {Ti,Tj,Tk,Tl <: Number}
 
         # check if the length of c_list, ν_list, and Coup_Ops are valid
@@ -106,113 +108,136 @@ mutable struct M_CavBath <: AbstractHEOMMatrix
         L_col = distribute([Int[] for _ in procs()])
         L_val = distribute([ComplexF64[] for _ in procs()])
 
-        @sync @distributed for idx_b in 1:N_he_b
-            # diagonal (boson)
-            sum_ω   = 0.0
-            state_b = idx2he_b[idx_b]
-            n_exc_b = sum(state_b) 
-            idx = (idx_b - 1) * N_he_f
-            if n_exc_b >= 1
-                for k in 1:N_exp_term_b
-                    if state_b[k] > 0
-                        sum_ω += state_b[k] * ν_list[k]
-                    end
+        channel = RemoteChannel(() -> Channel{Bool}(), 1)
+        if progressBar
+            prog = Progress(N_he_b + N_he_f; desc="Construct hierarchy matrix: ", PROGBAR_OPTIONS...)
+        end    
+        @sync begin # start two tasks which will be synced in the very end
+            # the first task updates the progress bar
+            @async while take!(channel)
+                if progressBar
+                    next!(prog)
                 end
             end
 
-            # diagonal (fermion)
-            for idx_f in 1:N_he_f
-                state_f = idx2he_f[idx_f]
-                n_exc_f = sum(state_f)
-                if n_exc_f >= 1
-                    for n in 1:N_bath_f
-                        for k in 1:N_exp_term_f
-                            tmp = state_f[k + (n - 1) * N_exp_term_f]
-                            if tmp >= 1
-                                sum_ω += tmp * γ_list[n][k]
+            # the second task does the computation
+            @async begin
+                @distributed (+) for idx_b in 1:N_he_b
+                    # diagonal (boson)
+                    sum_ω   = 0.0
+                    state_b = idx2he_b[idx_b]
+                    n_exc_b = sum(state_b) 
+                    idx = (idx_b - 1) * N_he_f
+                    if n_exc_b >= 1
+                        for k in 1:N_exp_term_b
+                            if state_b[k] > 0
+                                sum_ω += state_b[k] * ν_list[k]
                             end
                         end
                     end
-                end
-                row, col, val = pad_coo(- sum_ω * I_sup, N_he_tot, N_he_tot, idx + idx_f, idx + idx_f)
-                push!(localpart(L_row)[1], row...)
-                push!(localpart(L_col)[1], col...)
-                push!(localpart(L_val)[1], val...)
-            end
-            
-            # off-diagonal (boson)
-            state_neigh = copy(state_b)
-            for k in 1:N_exp_term_b
-                n_k = state_b[k]
-                if n_k >= 1
-                    state_neigh[k] = n_k - 1
-                    idx_neigh = he2idx_b[state_neigh]
-                    op = c_list[k] * spreQ_b[k] - c_list[(k % 2 == 0) ? (k-1) : (k+1)] * spostQ_b[k]
-                    state_neigh[k] = n_k
+
+                    # diagonal (fermion)
                     for idx_f in 1:N_he_f
-                        row, col, val = pad_coo(op, N_he_tot, N_he_tot, (idx + idx_f), (idx_neigh - 1) * N_he_f + idx_f)
+                        state_f = idx2he_f[idx_f]
+                        n_exc_f = sum(state_f)
+                        if n_exc_f >= 1
+                            for n in 1:N_bath_f
+                                for k in 1:N_exp_term_f
+                                    tmp = state_f[k + (n - 1) * N_exp_term_f]
+                                    if tmp >= 1
+                                        sum_ω += tmp * γ_list[n][k]
+                                    end
+                                end
+                            end
+                        end
+                        row, col, val = pad_coo(- sum_ω * I_sup, N_he_tot, N_he_tot, idx + idx_f, idx + idx_f)
                         push!(localpart(L_row)[1], row...)
                         push!(localpart(L_col)[1], col...)
                         push!(localpart(L_val)[1], val...)
                     end
-                end
-                if n_exc_b <= tier_b - 1
-                    state_neigh[k] = n_k + 1
-                    idx_neigh = he2idx_b[state_neigh]
-                    op = -1im * commQ_b[k]
-                    state_neigh[k] = n_k
-                    for idx_f in 1:N_he_f
-                        row, col, val = pad_coo(op, N_he_tot, N_he_tot, (idx + idx_f), (idx_neigh - 1) * N_he_f + idx_f)
-                        push!(localpart(L_row)[1], row...)
-                        push!(localpart(L_col)[1], col...)
-                        push!(localpart(L_val)[1], val...)
+                    
+                    # off-diagonal (boson)
+                    state_neigh = copy(state_b)
+                    for k in 1:N_exp_term_b
+                        n_k = state_b[k]
+                        if n_k >= 1
+                            state_neigh[k] = n_k - 1
+                            idx_neigh = he2idx_b[state_neigh]
+                            op = c_list[k] * spreQ_b[k] - c_list[(k % 2 == 0) ? (k-1) : (k+1)] * spostQ_b[k]
+                            state_neigh[k] = n_k
+                            for idx_f in 1:N_he_f
+                                row, col, val = pad_coo(op, N_he_tot, N_he_tot, (idx + idx_f), (idx_neigh - 1) * N_he_f + idx_f)
+                                push!(localpart(L_row)[1], row...)
+                                push!(localpart(L_col)[1], col...)
+                                push!(localpart(L_val)[1], val...)
+                            end
+                        end
+                        if n_exc_b <= tier_b - 1
+                            state_neigh[k] = n_k + 1
+                            idx_neigh = he2idx_b[state_neigh]
+                            op = -1im * commQ_b[k]
+                            state_neigh[k] = n_k
+                            for idx_f in 1:N_he_f
+                                row, col, val = pad_coo(op, N_he_tot, N_he_tot, (idx + idx_f), (idx_neigh - 1) * N_he_f + idx_f)
+                                push!(localpart(L_row)[1], row...)
+                                push!(localpart(L_col)[1], col...)
+                                push!(localpart(L_val)[1], val...)
+                            end
+                        end
                     end
+                    if progressBar
+                        put!(channel, true) # trigger a progress bar update
+                    end
+                    idx_b + 1 # Here, returning some number i + 1 and reducing it somehow (+) is necessary to make the distribution happen.
                 end
+
+                # fermion (n+1 & n-1 tier) superoperator
+                @distributed (+) for idx_f in 1:N_he_f
+                    state_f = idx2he_f[idx_f]
+                    n_exc_f = sum(state_f)
+                    state_neigh = copy(state_f)
+                    for n in 1:N_bath_f
+                        for k in 1:(N_exp_term_f)
+                            n_k = state_f[k + (n - 1) * N_exp_term_f]
+                            if n_k >= 1
+                                state_neigh[k + (n - 1) * N_exp_term_f] = n_k - 1
+                                idx_neigh = he2idx_f[state_neigh]
+                                op = (-1) ^ spectral * η_list[n][k] * spreQ_f[n] - (-1.0) ^ (n_exc_f - 1) * conj(η_list[(n % 2 == 0) ? (n-1) : (n+1)][k]) * spostQ_f[n]
+
+                            elseif n_exc_f <= tier_f - 1
+                                state_neigh[k + (n - 1) * N_exp_term_f] = n_k + 1
+                                idx_neigh = he2idx_f[state_neigh]
+                                op = (-1) ^ (spectral) * spreQd_f[n] + (-1.0) ^ (n_exc_f + 1) * spostQd_f[n]
+
+                            else
+                                continue
+                            end
+                            tmp_exc = sum(state_neigh[1:(k + (n - 1) * N_exp_term_f - 1)])
+                            op *= -1im * (-1) ^ (tmp_exc)
+                            state_neigh[k + (n - 1) * N_exp_term_f] = n_k
+
+                            for idx_b in 1:N_he_b
+                                idx = (idx_b - 1) * N_he_f
+                                row, col, val = pad_coo(op, N_he_tot, N_he_tot, idx + idx_f, idx + idx_neigh)
+                                push!(localpart(L_row)[1], row...)
+                                push!(localpart(L_col)[1], col...)
+                                push!(localpart(L_val)[1], val...)
+                            end
+                        end
+                    end
+                    if progressBar
+                        put!(channel, true) # trigger a progress bar update
+                    end
+                    idx_f + 1 # Here, returning some number i + 1 and reducing it somehow (+) is necessary to make the distribution happen.
+                end
+                put!(channel, false) # this tells the printing task to finish
             end
-            println("idx_b = $(idx_b)\t DONE")
-        end
-
-        # fermion (n+1 & n-1 tier) superoperator
-        @sync @distributed for idx_f in 1:N_he_f
-            state_f = idx2he_f[idx_f]
-            n_exc_f = sum(state_f)
-            state_neigh = copy(state_f)
-            for n in 1:N_bath_f
-                for k in 1:(N_exp_term_f)
-                    n_k = state_f[k + (n - 1) * N_exp_term_f]
-                    if n_k >= 1
-                        state_neigh[k + (n - 1) * N_exp_term_f] = n_k - 1
-                        idx_neigh = he2idx_f[state_neigh]
-                        op = (-1) ^ spectral * η_list[n][k] * spreQ_f[n] - (-1.0) ^ (n_exc_f - 1) * conj(η_list[(n % 2 == 0) ? (n-1) : (n+1)][k]) * spostQ_f[n]
-
-                    elseif n_exc_f <= tier_f - 1
-                        state_neigh[k + (n - 1) * N_exp_term_f] = n_k + 1
-                        idx_neigh = he2idx_f[state_neigh]
-                        op = (-1) ^ (spectral) * spreQd_f[n] + (-1.0) ^ (n_exc_f + 1) * spostQd_f[n]
-
-                    else
-                        continue
-                    end
-                    tmp_exc = sum(state_neigh[1:(k + (n - 1) * N_exp_term_f - 1)])
-                    op *= -1im * (-1) ^ (tmp_exc)
-                    state_neigh[k + (n - 1) * N_exp_term_f] = n_k
-
-                    for idx_b in 1:N_he_b
-                        idx = (idx_b - 1) * N_he_f
-                        row, col, val = pad_coo(op, N_he_tot, N_he_tot, idx + idx_f, idx + idx_neigh)
-                        push!(localpart(L_row)[1], row...)
-                        push!(localpart(L_col)[1], col...)
-                        push!(localpart(L_val)[1], val...)
-                    end
-                end
-            end
-            println("idx_f = $(idx_f)\t DONE")
         end
         L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), N_he_tot * sup_dim, N_he_tot * sup_dim)
 
         if liouville
-            print("Construct Liouvillian...")
-            L_he += kron(sparse(I, N_he_tot, N_he_tot), liouvillian(Hsys, Jump_Ops))
+            println("Construct Liouvillian...")
+            L_he += kron(sparse(I, N_he_tot, N_he_tot), liouvillian(Hsys, Jump_Ops, progressBar))
         end
 
         println("[DONE]")
