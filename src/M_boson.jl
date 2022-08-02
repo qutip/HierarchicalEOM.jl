@@ -61,20 +61,24 @@ mutable struct M_boson <: AbstractHEOMMatrix
         he2idx = Dict(he2idx_ordered)
 
         # start to construct the matrix
-        println("Start constructing matrix...(using $(nprocs()) processors)")
         L_row = distribute([Int[] for _ in procs()])
         L_col = distribute([Int[] for _ in procs()])
         L_val = distribute([ComplexF64[] for _ in procs()])
-
-        channel = RemoteChannel(() -> Channel{Bool}(), 1)
+        channel = RemoteChannel(() -> Channel{Bool}(), 1) # for updating the progress bar
+        
+        println("Start constructing hierarchy matrix...(using $(nprocs()) processors)")
         if progressBar
-            prog = Progress(N_he; desc="Construct hierarchy matrix: ", PROGBAR_OPTIONS...)
+            prog = Progress(N_he; desc="Processing: ", PROGBAR_OPTIONS...)
+        else
+            println("Processing...")
         end
         @sync begin # start two tasks which will be synced in the very end
             # the first task updates the progress bar
             @async while take!(channel)
                 if progressBar
                     next!(prog)
+                else
+                    put!(channel, false) # this tells the printing task to finish
                 end
             end
 
@@ -125,15 +129,16 @@ mutable struct M_boson <: AbstractHEOMMatrix
                     if progressBar
                         put!(channel, true) # trigger a progress bar update
                     end
-                    idx + 1 # Here, returning some number i + 1 and reducing it somehow (+) is necessary to make the distribution happen.
+                    1 # Here, returning some number 1 and reducing it somehow (+) is necessary to make the distribution happen.
                 end
                 put!(channel, false) # this tells the printing task to finish
             end
         end
+        println("Constructing matrix...")
         L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), N_he * sup_dim, N_he * sup_dim)
 
         if liouville
-            println("Construct Liouvillian...")
+            println("Adding liouvillian...")
             L_he += kron(sparse(I, N_he, N_he), liouvillian(Hsys, Jump_Ops, progressBar))
         end
         
