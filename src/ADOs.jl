@@ -29,7 +29,7 @@ function state_number(dims::Vector{Int}, N_exc::Int)
     end
 end
 
-function Ados_dictionary(dims::Vector{Int}, N_exc::Int)
+function ADOs_dictionary(dims::Vector{Int}, N_exc::Int)
     state2idx = OrderedDict{Vector{Int}, Int}()
     idx2state = state_number(dims, N_exc)
     for (idx, state) in enumerate(idx2state)

@@ -1,7 +1,7 @@
 abstract type AbstractHEOMMatrix end
 size(A::AbstractHEOMMatrix) = size(A.data)
 
-include("ados.jl")
+include("ADOs.jl")
 
 spre(q::AbstractMatrix)        = kron(Matrix(I, size(q)[1], size(q)[1]), q)
 spre(q::AbstractOperator)      = sparse(kron(sparse(I, size(q)[1], size(q)[1]), q.data))
@@ -30,33 +30,37 @@ end
 
 # func. for solving evolution ODE
 function hierachy!(dρ, ρ, L, t)
-    dρ .= L * ρ
+    @inbounds dρ .= L * ρ
 end
 
 """
-# `evolution(M, ρ0, tlist; [solver, returnAdos, progressBar, SOLVEROptions...])`
+# `evolution(M, ρ0, tlist; [solver, reltol, abstol, maxiters, progressBar, SOLVEROptions...])`
 Solve the evolution (ODE problem) using HEOM model.
 
 ## Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
 - `ρ0::Union{AbstractMatrix, AbstractOperator}` : initial state (density matrix)
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
-- `solver` : solver in package `DifferentialEquations.jl`. Default to `Tsit5()`.
-- `returnAdos::Bool` : Decide to return the entire Ados vector or not. Default as `false`.
+- `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `reltol` : Relative tolerance in adaptive timestepping. Default to 1.0e-6.
+- `abstol` : Absolute tolerance in adaptive timestepping. Default to 1.0e-8.
+- `maxiters` : Maximum number of iterations before stopping. Default to 1e5.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver 
 
 ## Returns
-- `ρ_list` : The reduced density matrices in each time point.
-- `Ados_vec` : The Ados vector in each time point (only return when `returnAdos=true`).
+- `ρ_list`    : The reduced density matrices in each time point.
+- `ADOs_list` : The auxiliary density operators in each time point.
 """
 function evolution(
         M::AbstractHEOMMatrix, 
         ρ0::Union{AbstractMatrix, AbstractOperator}, 
         tlist::AbstractVector;
-        solver=Tsit5(),
-        returnAdos::Bool=false,
-        progressBar::Bool=true,
+        solver = DP5(),
+        reltol = 1.0e-6,
+        abstol = 1.0e-8,
+        maxiters = 1e5,
+        progressBar::Bool = true,
         SOLVEROptions...
     )
 
@@ -66,25 +70,28 @@ function evolution(
     end
 
     # setup ρ_he and ρlist
-    ρlist::Vector{SparseMatrixCSC{ComplexF64, Int64}} = []
+    ρ_list::Vector{SparseMatrixCSC{ComplexF64, Int64}} = []
+    ADOs_list::Vector{SparseMatrixCSC{ComplexF64, Int64}} = []
     ρ_he::SparseVector{ComplexF64, Int64} = spzeros(M.N_he * M.sup_dim)
     if typeof(ρ0) <: AbstractMatrix
-        push!(ρlist, ρ0)
-        ρ_he[1:(M.sup_dim)] .= vec(ρ0)
-    else
-        push!(ρlist, ρ0.data)
-        ρ_he[1:(M.sup_dim)] .= vec(ρ0.data)
-    end
+        push!(ρ_list, ρ0)
 
-    if returnAdos
-        Ados = [ρ_he]
+        ρ_he[1:(M.sup_dim)] .= sparsevec(ρ0)
+    else
+        push!(ρ_list, ρ0.data)
+
+        ρ_he[1:(M.sup_dim)] .= sparsevec(ρ0.data)
     end
+    push!(ADOs_list, reshape(ρ_he, M.sup_dim, M.N_he))
     
     # setup integrator
     dt_list = diff(tlist)
     integrator = init(
             ODEProblem(hierachy!, ρ_he, (tlist[1], tlist[end]), M.data),
             solver;
+            reltol = reltol,
+            abstol = abstol,
+            maxiters = maxiters,
             SOLVEROptions...
     )
     
@@ -98,11 +105,10 @@ function evolution(
     for dt in dt_list
         step!(integrator, dt, true)
         
-        # save the reduced density matrix and current ados vector (if \'returnAdos\' is specified)
-        push!(ρlist, reshape(integrator.u[1:(M.sup_dim)], M.N_sys, M.N_sys))
-        if returnAdos
-            push!(Ados, integrator.u)
-        end
+        # save the reduced density matrix and ADOs
+        ρ_ADOs = reshape(integrator.u, M.sup_dim, M.N_he)
+        push!(ρ_list, reshape(ρ_ADOs[:,1], M.N_sys, M.N_sys))
+        push!(ADOs_list, ρ_ADOs)
     
         if progressBar
             next!(prog)
@@ -112,9 +118,5 @@ function evolution(
     println("[DONE]\n")
     flush(stdout)
 
-    if returnAdos
-        return ρlist, Ados
-    else
-        return ρlist
-    end
+    return ρ_list, ADOs_list
 end

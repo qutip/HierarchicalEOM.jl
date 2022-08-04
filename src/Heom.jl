@@ -2,11 +2,11 @@ module Heom
     import Base: size
     import LinearAlgebra: eigvals, I, kron
     import OrderedCollections: OrderedDict
-    import DifferentialEquations: ODEProblem, init, Tsit5, step!
-    import SparseArrays: sparse, spzeros, SparseMatrixCSC, SparseVector, AbstractSparseMatrix
+    import OrdinaryDiffEq: ODEProblem, init, DP5, step!
+    import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseMatrixCSC, SparseVector, AbstractSparseMatrix
     import QuantumOptics: AbstractOperator, dagger
     import ProgressMeter: Progress, next!
-    import Distributed: @everywhere, @distributed, addprocs, procs, nprocs, RemoteChannel, Channel
+    import Distributed: @everywhere, @distributed, procs, nprocs, RemoteChannel, Channel
     import DistributedArrays: distribute, localpart
     
     export AbstractHEOMMatrix, M_fermion, M_boson, M_boson_fermion, M_CavBath, evolution, pade_NmN, Correlation, spre, spost, liouvillian

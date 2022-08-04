@@ -11,8 +11,8 @@ Heom matrix with setting the single mode cavity as bosonic bath
 - `N_he_b::Int`   : the number of bosonic states
 - `N_he_f::Int`   : the number of fermionic states
 - `sup_dim::Int`: the dimension of system superoperator
-- `ados_b::OrderedDict{Vector{Int}, Int}`: the bosonic ados dictionary
-- `ados_f::OrderedDict{Vector{Int}, Int}`: the fermionic ados dictionary
+- `ADOs_b::OrderedDict{Vector{Int}, Int}`: the bosonic ADOs dictionary
+- `ADOs_f::OrderedDict{Vector{Int}, Int}`: the fermionic ADOs dictionary
 
 ## Constructor
 `M_CavBath(Hsys, tier_b, tier_f, c_list, ν_list, η_list, γ_list, Coup_Op_b, Coup_Op_f; [Jump_Ops, spectral, liouville])`
@@ -40,8 +40,8 @@ mutable struct M_CavBath <: AbstractHEOMMatrix
     N_he_b::Int
     N_he_f::Int
     sup_dim::Int
-    ados_b::OrderedDict{Vector{Int}, Int}
-    ados_f::OrderedDict{Vector{Int}, Int}
+    ADOs_b::OrderedDict{Vector{Int}, Int}
+    ADOs_f::OrderedDict{Vector{Int}, Int}
     
     function M_CavBath(        
             Hsys::Union{AbstractMatrix, AbstractOperator},
@@ -95,9 +95,9 @@ mutable struct M_CavBath <: AbstractHEOMMatrix
         spreQd_f  = spre.(dagger.(Coup_Op_f))
         spostQd_f = spost.(dagger.(Coup_Op_f))
 
-        # get Ados dictionary
-        N_he_b, he2idx_b_ordered, idx2he_b = Ados_dictionary(dims_b, tier_b)
-        N_he_f, he2idx_f_ordered, idx2he_f = Ados_dictionary(dims_f, tier_f)
+        # get ADOs dictionary
+        N_he_b, he2idx_b_ordered, idx2he_b = ADOs_dictionary(dims_b, tier_b)
+        N_he_f, he2idx_f_ordered, idx2he_f = ADOs_dictionary(dims_f, tier_f)
         N_he_tot = N_he_b * N_he_f
         he2idx_b = Dict(he2idx_b_ordered)
         he2idx_f = Dict(he2idx_f_ordered)
