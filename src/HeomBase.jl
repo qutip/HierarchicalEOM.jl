@@ -35,7 +35,7 @@ Solve the evolution (ODE problem) using HEOM model.
 
 ## Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
-- `ρ0::Union{AbstractMatrix, AbstractOperator}` : initial state (density matrix)
+- `ρ0::AbstractMatrix` : initial state (density matrix)
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol` : Relative tolerance in adaptive timestepping. Default to 1.0e-6.
@@ -50,7 +50,7 @@ Solve the evolution (ODE problem) using HEOM model.
 """
 function evolution(
         M::AbstractHEOMMatrix, 
-        ρ0::Union{AbstractMatrix, AbstractOperator}, 
+        ρ0::AbstractMatrix, 
         tlist::AbstractVector;
         solver = DP5(),
         reltol = 1.0e-6,
