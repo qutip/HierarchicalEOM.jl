@@ -17,7 +17,7 @@ Heom matrix for mixtured bath (boson and fermionic)
 ## Constructor
 `M_fermion(Hsys, tier_b, tier_f, c_list, ν_list, η_list, γ_list, Coup_Op_b, Coup_Op_f; [Jump_Ops, spectral, liouville])`
 
-- `Hsys::Union{AbstractMatrix, AbstractOperator}` : The system Hamiltonian
+- `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier_b::Int` : the tier (cutoff) for the bosonic bath
 - `tier_f::Int` : the tier (cutoff) for the fermionic bath
 - `c_list::Vector{Ti<:Number}` : the coefficient ``c_i`` in bosonic bath correlation functions (``\\sum_i c_i e^{-\\nu_i t}``).
@@ -44,14 +44,14 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
     ADOs_f::OrderedDict{Vector{Int}, Int}
     
     function M_boson_fermion(        
-            Hsys::Union{AbstractMatrix, AbstractOperator},
+            Hsys::AbstractMatrix,
             tier_b::Int,
             tier_f::Int,
             c_list::Vector{Ti},
             ν_list::Vector{Tj},
             η_list::Vector{Vector{Tk}},
             γ_list::Vector{Vector{Tl}},
-            Coup_Op_b::Union{AbstractMatrix, AbstractOperator},
+            Coup_Op_b::AbstractMatrix,
             Coup_Op_f::Vector;
             Jump_Ops::Vector=[],  # only when liouville is set to true
             spectral::Bool=false,
@@ -92,8 +92,8 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
         commQ_b   = spreQ_b - spostQ_b
         spreQ_f   = spre.(Coup_Op_f)
         spostQ_f  = spost.(Coup_Op_f)
-        spreQd_f  = spre.(dagger.(Coup_Op_f))
-        spostQd_f = spost.(dagger.(Coup_Op_f))
+        spreQd_f  = spre.(adjoint.(Coup_Op_f))
+        spostQd_f = spost.(adjoint.(Coup_Op_f))
 
         # get ADOs dictionary
         N_he_b, he2idx_b_ordered, idx2he_b = ADOs_dictionary(dims_b, tier_b)

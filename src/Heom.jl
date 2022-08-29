@@ -4,7 +4,6 @@ module Heom
     import OrderedCollections: OrderedDict
     import OrdinaryDiffEq: ODEProblem, init, DP5, step!
     import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseMatrixCSC, SparseVector, AbstractSparseMatrix
-    import QuantumOptics: AbstractOperator, dagger
     import ProgressMeter: Progress, next!
     import Distributed: @everywhere, @distributed, procs, nprocs, RemoteChannel, Channel
     import DistributedArrays: distribute, localpart

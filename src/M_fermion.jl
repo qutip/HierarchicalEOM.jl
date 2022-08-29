@@ -13,7 +13,7 @@ Heom matrix for fermionic bath
 ## Constructor
 `M_fermion(Hsys, tier, η_list, γ_list, Coup_Ops; [Jump_Ops, spectral, liouville])`
 
-- `Hsys::Union{AbstractMatrix, AbstractOperator}` : The system Hamiltonian
+- `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
 - `η_list::Vector{Vector{Tv<:Number}}` : the coefficient ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_list::Vector{Vector{Ti<:Number}}` : the coefficient ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
@@ -32,7 +32,7 @@ mutable struct M_fermion <: AbstractHEOMMatrix
     ADOs::OrderedDict{Vector{Int}, Int}
     
     function M_fermion(        
-            Hsys::Union{AbstractMatrix, AbstractOperator},
+            Hsys::AbstractMatrix,
             tier::Int,
             η_list::Vector{Vector{Tv}},
             γ_list::Vector{Vector{Ti}},
@@ -65,8 +65,8 @@ mutable struct M_fermion <: AbstractHEOMMatrix
     
         spreQ   = spre.(Coup_Ops)
         spostQ  = spost.(Coup_Ops)
-        spreQd  = spre.(dagger.(Coup_Ops))
-        spostQd = spost.(dagger.(Coup_Ops))
+        spreQd  = spre.(adjoint.(Coup_Ops))
+        spostQd = spost.(adjoint.(Coup_Ops))
 
         # get ADOs dictionary
         N_he, he2idx_ordered, idx2he = ADOs_dictionary(dims, tier)

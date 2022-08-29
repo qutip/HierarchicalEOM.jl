@@ -17,7 +17,7 @@ Heom matrix with setting the single mode cavity as bosonic bath
 ## Constructor
 `M_CavBath(Hsys, tier_b, tier_f, c_list, ν_list, η_list, γ_list, Coup_Op_b, Coup_Op_f; [Jump_Ops, spectral, liouville])`
 
-- `Hsys::Union{AbstractMatrix, AbstractOperator}` : The system Hamiltonian
+- `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier_b::Int` : the tier (cutoff) for the bosonic bath
 - `tier_f::Int` : the tier (cutoff) for the fermionic bath
 - `c_list::Vector{Ti<:Number}` : the coefficient ``c_i`` in bosonic bath correlation functions (``\\sum_i c_i e^{-\\nu_i t}``).
@@ -44,7 +44,7 @@ mutable struct M_CavBath <: AbstractHEOMMatrix
     ADOs_f::OrderedDict{Vector{Int}, Int}
     
     function M_CavBath(        
-            Hsys::Union{AbstractMatrix, AbstractOperator},
+            Hsys::AbstractMatrix,
             tier_b::Int,
             tier_f::Int,
             c_list::Vector{Ti},
@@ -92,8 +92,8 @@ mutable struct M_CavBath <: AbstractHEOMMatrix
         commQ_b   = spreQ_b .- spostQ_b
         spreQ_f   = spre.(Coup_Op_f)
         spostQ_f  = spost.(Coup_Op_f)
-        spreQd_f  = spre.(dagger.(Coup_Op_f))
-        spostQd_f = spost.(dagger.(Coup_Op_f))
+        spreQd_f  = spre.(adjoint.(Coup_Op_f))
+        spostQd_f = spost.(adjoint.(Coup_Op_f))
 
         # get ADOs dictionary
         N_he_b, he2idx_b_ordered, idx2he_b = ADOs_dictionary(dims_b, tier_b)

@@ -4,16 +4,12 @@ size(A::AbstractHEOMMatrix) = size(A.data)
 include("ADOs.jl")
 
 spre(q::AbstractMatrix)        = kron(Matrix(I, size(q)[1], size(q)[1]), q)
-spre(q::AbstractOperator)      = sparse(kron(sparse(I, size(q)[1], size(q)[1]), q.data))
 spre(q::AbstractSparseMatrix)  = sparse(kron(sparse(I, size(q)[1], size(q)[1]), q))
 spost(q::AbstractMatrix)       = kron(transpose(q), Matrix(I, size(q)[1], size(q)[1]))
-spost(q::AbstractOperator)     = sparse(kron(transpose(q.data), sparse(I, size(q)[1], size(q)[1])))
 spost(q::AbstractSparseMatrix) = sparse(kron(transpose(q), sparse(I, size(q)[1], size(q)[1])))
 
 # generate liouvillian matrix
 function liouvillian(Hsys, Jump_Ops::Vector=[], progressBar::Bool=false)
-        
-    N, = size(Hsys)
 
     L = -1im * (spre(Hsys) - spost(Hsys))
     if progressBar
