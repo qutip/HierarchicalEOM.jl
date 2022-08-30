@@ -20,8 +20,8 @@ Heom matrix for mixtured bath (boson and fermionic)
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier_b::Int` : the tier (cutoff) for the bosonic bath
 - `tier_f::Int` : the tier (cutoff) for the fermionic bath
-- `bath_b::BosonicBath` : an object construct for the bosonic bath correlation
-- `bath_f::FermionicBath` : an object construct for the fermionic bath correlation
+- `bath_b::BosonicBath` : an object for the bosonic bath correlation
+- `bath_f::FermionicBath` : an object for the fermionic bath correlation
 - `spectral::Bool` : Decide whether to calculate spectral density or not. Defaults to `false`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
@@ -42,7 +42,7 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
             tier_b::Int,
             tier_f::Int,
             bath_b::BosonicBath,
-            bath_f::FermionicBath,
+            bath_f::FermionicBath;
             spectral::Bool=false,
             progressBar::Bool=true
         )
