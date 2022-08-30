@@ -1,5 +1,5 @@
 """
-# `M_boson_fermion <: AbstractHEOMMatrix`
+# `M_Boson_Fermion <: AbstractHEOMMatrix`
 Heom matrix for mixtured bath (boson and fermionic)
 
 ## Fields
@@ -15,7 +15,7 @@ Heom matrix for mixtured bath (boson and fermionic)
 - `ado2idx_f::OrderedDict{Vector{Int}, Int}`: the fermionic ADO-to-index dictionary
 
 ## Constructor
-`M_fermion(Hsys, tier_b, tier_f, c_list, ν_list, η_list, γ_list, Coup_Op_b, Coup_Op_f; [spectral, progressBar])`
+`M_Boson_Fermion(Hsys, tier_b, tier_f, c_list, ν_list, η_list, γ_list, Coup_Op_b, Coup_Op_f; [spectral, progressBar])`
 
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier_b::Int` : the tier (cutoff) for the bosonic bath
@@ -29,7 +29,7 @@ Heom matrix for mixtured bath (boson and fermionic)
 - `spectral::Bool` : Decide whether to calculate spectral density or not. Defaults to `false`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
-mutable struct M_boson_fermion <: AbstractHEOMMatrix
+mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
     tier_b::Int
     tier_f::Int
@@ -41,7 +41,7 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
     ado2idx_b::OrderedDict{Vector{Int}, Int}
     ado2idx_f::OrderedDict{Vector{Int}, Int}
     
-    function M_boson_fermion(        
+    function M_Boson_Fermion(        
             Hsys::AbstractMatrix,
             tier_b::Int,
             tier_f::Int,

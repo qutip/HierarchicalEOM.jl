@@ -1,5 +1,5 @@
 """
-# `M_fermion <: AbstractHEOMMatrix`
+# `M_Fermion <: AbstractHEOMMatrix`
 Heom matrix for fermionic bath
 
 ## Fields
@@ -11,7 +11,7 @@ Heom matrix for fermionic bath
 - `ado2idx::OrderedDict{Vector{Int}, Int}`: the ADO-to-index dictionary
 
 ## Constructor
-`M_fermion(Hsys, tier, η_list, γ_list, Coup_Ops; [spectral, progressBar])`
+`M_Fermion(Hsys, tier, η_list, γ_list, Coup_Ops; [spectral, progressBar])`
 
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
@@ -21,7 +21,7 @@ Heom matrix for fermionic bath
 - `spectral::Bool` : Decide whether to calculate spectral density or not. Defaults to `false`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
-mutable struct M_fermion <: AbstractHEOMMatrix
+mutable struct M_Fermion <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
     tier::Int
     N_sys::Int
@@ -29,7 +29,7 @@ mutable struct M_fermion <: AbstractHEOMMatrix
     sup_dim::Int
     ado2idx::OrderedDict{Vector{Int}, Int}
     
-    function M_fermion(        
+    function M_Fermion(        
             Hsys::AbstractMatrix,
             tier::Int,
             η_list::Vector{Vector{Tv}},

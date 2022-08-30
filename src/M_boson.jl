@@ -1,5 +1,5 @@
 """
-# `M_boson <: AbstractHEOMMatrix`
+# `M_Boson <: AbstractHEOMMatrix`
 Heom matrix for bosonic bath
 
 ## Fields
@@ -11,7 +11,7 @@ Heom matrix for bosonic bath
 - `ado2idx::OrderedDict{Vector{Int}, Int}`: the ADO-to-index dictionary
 
 ## Constructor
-`M_boson(Hsys, tier, η_list, γ_list, Coup_Op; [progressBar])`
+`M_Boson(Hsys, tier, η_list, γ_list, Coup_Op; [progressBar])`
 
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
@@ -20,7 +20,7 @@ Heom matrix for bosonic bath
 - `Coup_Op::AbstractMatrix` : Operator describing the coupling between system and bath.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
-mutable struct M_boson <: AbstractHEOMMatrix
+mutable struct M_Boson <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
     tier::Int
     N_sys::Int
@@ -28,7 +28,7 @@ mutable struct M_boson <: AbstractHEOMMatrix
     sup_dim::Int
     ado2idx::OrderedDict{Vector{Int}, Int}
     
-    function M_boson(        
+    function M_Boson(        
             Hsys::AbstractMatrix,
             tier::Int,
             η_list::Vector{Tv},
