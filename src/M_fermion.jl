@@ -8,7 +8,7 @@ Heom matrix for fermionic bath
 - `N_sys::Int`  : the dimension of system
 - `N_he::Int`   : the number of states
 - `sup_dim::Int`: the dimension of system superoperator
-- `ADOs::OrderedDict{Vector{Int}, Int}`: the ADOs dictionary
+- `ado2idx::OrderedDict{Vector{Int}, Int}`: the ADO-to-index dictionary
 
 ## Constructor
 `M_fermion(Hsys, tier, η_list, γ_list, Coup_Ops; [spectral, progressBar])`
@@ -27,7 +27,7 @@ mutable struct M_fermion <: AbstractHEOMMatrix
     N_sys::Int
     N_he::Int
     sup_dim::Int
-    ADOs::OrderedDict{Vector{Int}, Int}
+    ado2idx::OrderedDict{Vector{Int}, Int}
     
     function M_fermion(        
             Hsys::AbstractMatrix,
@@ -65,8 +65,8 @@ mutable struct M_fermion <: AbstractHEOMMatrix
         spostQd = spost.(adjoint.(Coup_Ops))
 
         # get ADOs dictionary
-        N_he, he2idx_ordered, idx2he = ADOs_dictionary(dims, tier)
-        he2idx = Dict(he2idx_ordered)
+        N_he, ado2idx_ordered, idx2ado = ADOs_dictionary(dims, tier)
+        ado2idx = Dict(ado2idx_ordered)
 
         # start to construct the matrix
         L_row = distribute([Int[] for _ in procs()])
@@ -93,7 +93,7 @@ mutable struct M_fermion <: AbstractHEOMMatrix
             # the second task does the computation
             @async begin
                 @distributed (+) for idx in 1:N_he
-                    state = idx2he[idx]
+                    state = idx2ado[idx]
                     n_exc = sum(state)
                     sum_ω = 0.0
                     if n_exc >= 1
@@ -117,12 +117,12 @@ mutable struct M_fermion <: AbstractHEOMMatrix
                             n_k = state[k + (n - 1) * N_exp_term]
                             if n_k >= 1
                                 state_neigh[k + (n - 1) * N_exp_term] = n_k - 1
-                                idx_neigh = he2idx[state_neigh]
+                                idx_neigh = ado2idx[state_neigh]
                                 op = (-1) ^ spectral * η_list[n][k] * spreQ[n] - (-1.0) ^ (n_exc - 1) * conj(η_list[(n % 2 == 0) ? (n-1) : (n+1)][k]) * spostQ[n]
 
                             elseif n_exc <= tier - 1
                                 state_neigh[k + (n - 1) * N_exp_term] = n_k + 1
-                                idx_neigh = he2idx[state_neigh]
+                                idx_neigh = ado2idx[state_neigh]
                                 op = (-1) ^ (spectral) * spreQd[n] + (-1.0) ^ (n_exc + 1) * spostQd[n]
 
                             else
@@ -153,6 +153,6 @@ mutable struct M_fermion <: AbstractHEOMMatrix
         L_he += kron(sparse(I, N_he_tot, N_he_tot), -1im * (spre(Hsys) - spost(Hsys)))
         
         println("[DONE]")
-        return new(L_he, tier, Nsys, N_he, sup_dim, he2idx_ordered)
+        return new(L_he, tier, Nsys, N_he, sup_dim, ado2idx_ordered)
     end
 end

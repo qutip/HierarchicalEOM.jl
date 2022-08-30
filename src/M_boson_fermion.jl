@@ -11,8 +11,8 @@ Heom matrix for mixtured bath (boson and fermionic)
 - `N_he_b::Int`   : the number of bosonic states
 - `N_he_f::Int`   : the number of fermionic states
 - `sup_dim::Int`: the dimension of system superoperator
-- `ADOs_b::OrderedDict{Vector{Int}, Int}`: the bosonic ADOs dictionary
-- `ADOs_f::OrderedDict{Vector{Int}, Int}`: the fermionic ADOs dictionary
+- `ado2idx_b::OrderedDict{Vector{Int}, Int}`: the bosonic ADO-to-index dictionary
+- `ado2idx_f::OrderedDict{Vector{Int}, Int}`: the fermionic ADO-to-index dictionary
 
 ## Constructor
 `M_fermion(Hsys, tier_b, tier_f, c_list, ν_list, η_list, γ_list, Coup_Op_b, Coup_Op_f; [spectral, progressBar])`
@@ -38,8 +38,8 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
     N_he_b::Int
     N_he_f::Int
     sup_dim::Int
-    ADOs_b::OrderedDict{Vector{Int}, Int}
-    ADOs_f::OrderedDict{Vector{Int}, Int}
+    ado2idx_b::OrderedDict{Vector{Int}, Int}
+    ado2idx_f::OrderedDict{Vector{Int}, Int}
     
     function M_boson_fermion(        
             Hsys::AbstractMatrix,
@@ -92,11 +92,11 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
         spostQd_f = spost.(adjoint.(Coup_Op_f))
 
         # get ADOs dictionary
-        N_he_b, he2idx_b_ordered, idx2he_b = ADOs_dictionary(dims_b, tier_b)
-        N_he_f, he2idx_f_ordered, idx2he_f = ADOs_dictionary(dims_f, tier_f)
+        N_he_b, ado2idx_b_ordered, idx2ado_b = ADOs_dictionary(dims_b, tier_b)
+        N_he_f, ado2idx_f_ordered, idx2ado_f = ADOs_dictionary(dims_f, tier_f)
         N_he_tot = N_he_b * N_he_f
-        he2idx_b = Dict(he2idx_b_ordered)
-        he2idx_f = Dict(he2idx_f_ordered)
+        ado2idx_b = Dict(ado2idx_b_ordered)
+        ado2idx_f = Dict(ado2idx_f_ordered)
 
         # start to construct the matrix
         L_row = distribute([Int[] for _ in procs()])
@@ -125,7 +125,7 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
                 @distributed (+) for idx_b in 1:N_he_b
                     # diagonal (boson)
                     sum_ω   = 0.0
-                    state_b = idx2he_b[idx_b]
+                    state_b = idx2ado_b[idx_b]
                     n_exc_b = sum(state_b) 
                     idx = (idx_b - 1) * N_he_f
                     if n_exc_b >= 1
@@ -138,7 +138,7 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
 
                     # diagonal (fermion)
                     for idx_f in 1:N_he_f
-                        state_f = idx2he_f[idx_f]
+                        state_f = idx2ado_f[idx_f]
                         n_exc_f = sum(state_f)
                         if n_exc_f >= 1
                             for n in 1:N_bath_f
@@ -162,7 +162,7 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
                         n_k = state_b[k]
                         if n_k >= 1
                             state_neigh[k] = n_k - 1
-                            idx_neigh = he2idx_b[state_neigh]
+                            idx_neigh = ado2idx_b[state_neigh]
                             op = -1im * n_k * (c_list[k] * spreQ_b - conj(c_list[k]) * spostQ_b)
                             state_neigh[k] = n_k
                             for idx_f in 1:N_he_f
@@ -174,7 +174,7 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
                         end
                         if n_exc_b <= tier_b - 1
                             state_neigh[k] = n_k + 1
-                            idx_neigh = he2idx_b[state_neigh]
+                            idx_neigh = ado2idx_b[state_neigh]
                             op = -1im * commQ_b
                             state_neigh[k] = n_k
                             for idx_f in 1:N_he_f
@@ -193,7 +193,7 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
 
                 # fermion (n+1 & n-1 tier) superoperator
                 @distributed (+) for idx_f in 1:N_he_f
-                    state_f = idx2he_f[idx_f]
+                    state_f = idx2ado_f[idx_f]
                     n_exc_f = sum(state_f)
                     state_neigh = copy(state_f)
                     for n in 1:N_bath_f
@@ -201,12 +201,12 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
                             n_k = state_f[k + (n - 1) * N_exp_term_f]
                             if n_k >= 1
                                 state_neigh[k + (n - 1) * N_exp_term_f] = n_k - 1
-                                idx_neigh = he2idx_f[state_neigh]
+                                idx_neigh = ado2idx_f[state_neigh]
                                 op = (-1) ^ spectral * η_list[n][k] * spreQ_f[n] - (-1.0) ^ (n_exc_f - 1) * conj(η_list[(n % 2 == 0) ? (n-1) : (n+1)][k]) * spostQ_f[n]
 
                             elseif n_exc_f <= tier_f - 1
                                 state_neigh[k + (n - 1) * N_exp_term_f] = n_k + 1
-                                idx_neigh = he2idx_f[state_neigh]
+                                idx_neigh = ado2idx_f[state_neigh]
                                 op = (-1) ^ (spectral) * spreQd_f[n] + (-1.0) ^ (n_exc_f + 1) * spostQd_f[n]
 
                             else
@@ -240,6 +240,6 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
         L_he += kron(sparse(I, N_he_tot, N_he_tot), -1im * (spre(Hsys) - spost(Hsys)))
 
         println("[DONE]")
-        return new(L_he, tier_b, tier_f, Nsys, N_he_tot, N_he_b, N_he_f, sup_dim, he2idx_b_ordered, he2idx_f_ordered)
+        return new(L_he, tier_b, tier_f, Nsys, N_he_tot, N_he_b, N_he_f, sup_dim, ado2idx_b_ordered, ado2idx_f_ordered)
     end
 end

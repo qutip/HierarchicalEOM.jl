@@ -1,5 +1,5 @@
-# generate index to state vector
-function state_number(dims::Vector{Int}, N_exc::Int)
+# generate index to ado vector
+function ADO_number(dims::Vector{Int}, N_exc::Int)
     len = length(dims)
     state = zeros(Int, len)
     result = [copy(state)]
@@ -30,13 +30,13 @@ function state_number(dims::Vector{Int}, N_exc::Int)
 end
 
 function ADOs_dictionary(dims::Vector{Int}, N_exc::Int)
-    state2idx = OrderedDict{Vector{Int}, Int}()
-    idx2state = state_number(dims, N_exc)
-    for (idx, state) in enumerate(idx2state)
-        state2idx[state] = idx
+    ado2idx = OrderedDict{Vector{Int}, Int}()
+    idx2ado = ADO_number(dims, N_exc)
+    for (idx, ado) in enumerate(idx2ado)
+        ado2idx[ado] = idx
     end
 
-    return length(idx2state), state2idx, idx2state
+    return length(idx2ado), ado2idx, idx2ado
 end
 
 function pad_csc(A::SparseMatrixCSC{T, Int64}, row_scale::Int, col_scale::Int, row_idx=1::Int, col_idx=1::Int) where {T<:Number}
