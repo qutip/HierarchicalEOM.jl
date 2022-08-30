@@ -53,7 +53,7 @@ An object for fermionic bath correlation
 - `N_oper`: the number of coupling operators
 
 ## Constructor
-`FermionicBath(c_list, ν_list, coupOP)`
+`FermionicBath(η_list, γ_list, coupOP)`
 """
 mutable struct FermionicBath <: AbstractEnvBath
     η_list
