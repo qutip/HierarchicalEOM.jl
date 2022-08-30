@@ -1,7 +1,7 @@
 abstract type AbstractHEOMMatrix end
 size(A::AbstractHEOMMatrix) = size(A.data)
 
-include("ADOs.jl")
+# include("ADOs.jl")
 
 spre(q::AbstractMatrix)        = kron(Matrix(I, size(q)[1], size(q)[1]), q)
 spre(q::AbstractSparseMatrix)  = sparse(kron(sparse(I, size(q)[1], size(q)[1]), q))
