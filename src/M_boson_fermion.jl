@@ -15,7 +15,7 @@ Heom matrix for mixtured bath (boson and fermionic)
 - `ADOs_f::OrderedDict{Vector{Int}, Int}`: the fermionic ADOs dictionary
 
 ## Constructor
-`M_fermion(Hsys, tier_b, tier_f, c_list, ν_list, η_list, γ_list, Coup_Op_b, Coup_Op_f; [Jump_Ops, spectral, liouville])`
+`M_fermion(Hsys, tier_b, tier_f, c_list, ν_list, η_list, γ_list, Coup_Op_b, Coup_Op_f; [spectral, progressBar])`
 
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier_b::Int` : the tier (cutoff) for the bosonic bath
@@ -26,9 +26,7 @@ Heom matrix for mixtured bath (boson and fermionic)
 - `γ_list::Vector{Vector{Tl<:Number}}` : the coefficient ``\\gamma_i`` in fermionic bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `Coup_Op_b` : Operator describing the coupling between system and bosonic bath.
 - `Coup_Op_f::Vector` : Operator list describing the coupling between system and fermionic bath.
-- `Jump_Ops::Vector` : The collapse (jump) operators to add when calculating liouvillian in lindblad term (only if `liouville=true`). Defaults to empty vector `[]`.
 - `spectral::Bool` : Decide whether to calculate spectral density or not. Defaults to `false`.
-- `liouville::Bool` : Add liouvillian to the matrix or not. Defaults to `true`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
 mutable struct M_boson_fermion <: AbstractHEOMMatrix
@@ -53,9 +51,7 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
             γ_list::Vector{Vector{Tl}},
             Coup_Op_b::AbstractMatrix,
             Coup_Op_f::Vector;
-            Jump_Ops::Vector=[],  # only when liouville is set to true
             spectral::Bool=false,
-            liouville::Bool=true,
             progressBar::Bool=true
         ) where {Ti,Tj,Tk,Tl <: Number}
 
@@ -239,11 +235,9 @@ mutable struct M_boson_fermion <: AbstractHEOMMatrix
         end
         println("Constructing matrix...")
         L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), N_he_tot * sup_dim, N_he_tot * sup_dim)
-        
-        if liouville
-            println("Adding liouvillian...")
-            L_he += kron(sparse(I, N_he_tot, N_he_tot), liouvillian(Hsys, Jump_Ops, progressBar))
-        end
+
+        # add the free Hamiltonian evolution term
+        L_he += kron(sparse(I, N_he_tot, N_he_tot), -1im * (spre(Hsys) - spost(Hsys)))
 
         println("[DONE]")
         return new(L_he, tier_b, tier_f, Nsys, N_he_tot, N_he_b, N_he_f, sup_dim, he2idx_b_ordered, he2idx_f_ordered)

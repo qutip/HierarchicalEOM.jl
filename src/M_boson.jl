@@ -11,15 +11,13 @@ Heom matrix for bosonic bath
 - `ADOs::OrderedDict{Vector{Int}, Int}`: the ADOs dictionary
 
 ## Constructor
-`M_boson(Hsys, tier, η_list, γ_list, Coup_Op; [Jump_Ops, liouville])`
+`M_boson(Hsys, tier, η_list, γ_list, Coup_Op; [progressBar])`
 
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
 - `η_list::Vector{Tv<:Number}` : the coefficient ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_list::Vector{Ti<:Number}` : the coefficient ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `Coup_Op::AbstractMatrix` : Operator describing the coupling between system and bath.
-- `Jump_Ops::Vector` : The collapse (jump) operators to add when calculating liouvillian in lindblad term (only if `liouville=true`). Defaults to empty vector `[]`.
-- `liouville::Bool` : Add liouvillian to the matrix or not. Defaults to `true`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
 mutable struct M_boson <: AbstractHEOMMatrix
@@ -36,8 +34,6 @@ mutable struct M_boson <: AbstractHEOMMatrix
             η_list::Vector{Tv},
             γ_list::Vector{Ti},
             Coup_Op::AbstractMatrix;
-            Jump_Ops::Vector=[],   # only when liouville is set to true
-            liouville::Bool=true,
             progressBar::Bool=true
         ) where {Ti,Tv <: Number}
 
@@ -137,10 +133,8 @@ mutable struct M_boson <: AbstractHEOMMatrix
         println("Constructing matrix...")
         L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), N_he * sup_dim, N_he * sup_dim)
 
-        if liouville
-            println("Adding liouvillian...")
-            L_he += kron(sparse(I, N_he, N_he), liouvillian(Hsys, Jump_Ops, progressBar))
-        end
+        # add the free Hamiltonian evolution term
+        L_he += kron(sparse(I, N_he, N_he), -1im * (spre(Hsys) - spost(Hsys)))
         
         println("[DONE]")
         return new(L_he, tier, Nsys, N_he, sup_dim, he2idx_ordered)

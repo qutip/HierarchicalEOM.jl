@@ -11,16 +11,14 @@ Heom matrix for fermionic bath
 - `ADOs::OrderedDict{Vector{Int}, Int}`: the ADOs dictionary
 
 ## Constructor
-`M_fermion(Hsys, tier, η_list, γ_list, Coup_Ops; [Jump_Ops, spectral, liouville])`
+`M_fermion(Hsys, tier, η_list, γ_list, Coup_Ops; [spectral, progressBar])`
 
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
 - `η_list::Vector{Vector{Tv<:Number}}` : the coefficient ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_list::Vector{Vector{Ti<:Number}}` : the coefficient ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `Coup_Ops::Vector` : Operator list describing the coupling between system and bath.
-- `Jump_Ops::Vector` : The collapse (jump) operators to add when calculating liouvillian in lindblad term (only if `liouville=true`). Defaults to empty vector `[]`.
 - `spectral::Bool` : Decide whether to calculate spectral density or not. Defaults to `false`.
-- `liouville::Bool` : Add liouvillian to the matrix or not. Defaults to `true`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
 mutable struct M_fermion <: AbstractHEOMMatrix
@@ -37,9 +35,7 @@ mutable struct M_fermion <: AbstractHEOMMatrix
             η_list::Vector{Vector{Tv}},
             γ_list::Vector{Vector{Ti}},
             Coup_Ops::Vector;
-            Jump_Ops::Vector=[],  # only when liouville is set to true
             spectral::Bool=false,
-            liouville::Bool=true,
             progressBar::Bool=true
         ) where {Ti,Tv <: Number}
 
@@ -153,10 +149,8 @@ mutable struct M_fermion <: AbstractHEOMMatrix
         println("Constructing matrix...")
         L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), N_he * sup_dim, N_he * sup_dim)
 
-        if liouville
-            println("Adding liouvillian...")
-            L_he += kron(sparse(I, N_he, N_he), liouvillian(Hsys, Jump_Ops, progressBar))
-        end
+        # add the free Hamiltonian evolution term
+        L_he += kron(sparse(I, N_he_tot, N_he_tot), -1im * (spre(Hsys) - spost(Hsys)))
         
         println("[DONE]")
         return new(L_he, tier, Nsys, N_he, sup_dim, he2idx_ordered)

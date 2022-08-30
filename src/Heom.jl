@@ -8,7 +8,7 @@ module Heom
     import Distributed: @everywhere, @distributed, procs, nprocs, RemoteChannel, Channel
     import DistributedArrays: distribute, localpart
     
-    export AbstractHEOMMatrix, M_fermion, M_boson, M_boson_fermion, M_CavBath, evolution, pade_NmN, Correlation, spre, spost, liouvillian
+    export AbstractHEOMMatrix, M_fermion, M_boson, M_boson_fermion, M_CavBath, evolution, pade_NmN, Correlation, spre, spost, addDissipator!
 
     PROGBAR_OPTIONS = Dict(:barlen=>20, :color=>:green, :showspeed=>true)
 
