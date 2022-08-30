@@ -15,17 +15,13 @@ Heom matrix for mixtured bath (boson and fermionic)
 - `ado2idx_f::OrderedDict{Vector{Int}, Int}`: the fermionic ADO-to-index dictionary
 
 ## Constructor
-`M_Boson_Fermion(Hsys, tier_b, tier_f, c_list, ν_list, η_list, γ_list, Coup_Op_b, Coup_Op_f; [spectral, progressBar])`
+`M_Boson_Fermion(Hsys, tier_b, tier_f, bath_b, bath_f; [spectral, progressBar])`
 
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier_b::Int` : the tier (cutoff) for the bosonic bath
 - `tier_f::Int` : the tier (cutoff) for the fermionic bath
-- `c_list::Vector{Ti<:Number}` : the coefficient ``c_i`` in bosonic bath correlation functions (``\\sum_i c_i e^{-\\nu_i t}``).
-- `ν_list::Vector{Tj<:Number}` : the coefficient ``\\nu_i`` in bosonic bath correlation functions (``\\sum_i c_i e^{-\\nu_i t}``)
-- `η_list::Vector{Vector{Tk<:Number}}` : the coefficient ``\\eta_i`` in fermionic bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
-- `γ_list::Vector{Vector{Tl<:Number}}` : the coefficient ``\\gamma_i`` in fermionic bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
-- `Coup_Op_b` : Operator describing the coupling between system and bosonic bath.
-- `Coup_Op_f::Vector` : Operator list describing the coupling between system and fermionic bath.
+- `bath_b::BosonicBath` : an object construct for the bosonic bath correlation
+- `bath_f::FermionicBath` : an object construct for the fermionic bath correlation
 - `spectral::Bool` : Decide whether to calculate spectral density or not. Defaults to `false`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
@@ -45,43 +41,28 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
             Hsys::AbstractMatrix,
             tier_b::Int,
             tier_f::Int,
-            c_list::Vector{Ti},
-            ν_list::Vector{Tj},
-            η_list::Vector{Vector{Tk}},
-            γ_list::Vector{Vector{Tl}},
-            Coup_Op_b::AbstractMatrix,
-            Coup_Op_f::Vector;
+            bath_b::BosonicBath,
+            bath_f::FermionicBath,
             spectral::Bool=false,
             progressBar::Bool=true
-        ) where {Ti,Tj,Tk,Tl <: Number}
-
-        # check if the length of c_list and ν_list are valid
-        N_exp_term_b = length(c_list)
-        if N_exp_term_b != length(ν_list)
-            error("The length of \'c_list\' and \'ν_list\' should be the same.")
-        end
-
-        # check if the length of η_list, γ_list, and Coup_Ops are valid
-        N_bath_f  = length(Coup_Op_f)
-        N_exp_term_f = length(η_list[1])
-        if (N_bath_f != length(η_list)) || (N_bath_f != length(γ_list))
-            error("The length of \'η_list\', \'γ_list\', and \'f_Coup_Op\' should all be the same.")
-        end
-        for i in 1:N_bath_f
-            if N_exp_term_f != length(η_list[i]) 
-                error("The length of each vector in \'η_list\' are wrong.")
-            end
-            if N_exp_term_f != length(γ_list[i]) 
-                error("The length of each vector in \'γ_list\' are wrong.")
-            end
-        end
+        )
             
         Nsys,   = size(Hsys)
         sup_dim = Nsys ^ 2
         I_sup   = sparse(I, sup_dim, sup_dim)
 
+        c_list = bath_b.c_list
+        ν_list = bath_b.ν_list
+        η_list = bath_f.η_list
+        γ_list = bath_f.γ_list
+        Coup_Op_b = bath_b.coupOP
+        Coup_Op_f = bath_f.coupOP
+        N_oper_f  = bath_f.N_oper
+        N_exp_term_b = bath_b.N_term
+        N_exp_term_f = bath_f.N_term
+
         dims_b    = [(tier_b + 1) for i in 1:N_exp_term_b]
-        dims_f    = [2 for i in 1:(N_exp_term_f * N_bath_f)]
+        dims_f    = [2 for i in 1:(N_exp_term_f * N_oper_f)]
     
         spreQ_b   = spre(Coup_Op_b)
         spostQ_b  = spost(Coup_Op_b)
@@ -141,7 +122,7 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
                         state_f = idx2ado_f[idx_f]
                         n_exc_f = sum(state_f)
                         if n_exc_f >= 1
-                            for n in 1:N_bath_f
+                            for n in 1:N_oper_f
                                 for k in 1:N_exp_term_f
                                     tmp = state_f[k + (n - 1) * N_exp_term_f]
                                     if tmp >= 1
@@ -196,7 +177,7 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
                     state_f = idx2ado_f[idx_f]
                     n_exc_f = sum(state_f)
                     state_neigh = copy(state_f)
-                    for n in 1:N_bath_f
+                    for n in 1:N_oper_f
                         for k in 1:(N_exp_term_f)
                             n_k = state_f[k + (n - 1) * N_exp_term_f]
                             if n_k >= 1
@@ -236,7 +217,7 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
         println("Constructing matrix...")
         L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), N_he_tot * sup_dim, N_he_tot * sup_dim)
 
-        # add the free Hamiltonian evolution term
+        # add the liouville of system Hamiltonian term
         L_he += kron(sparse(I, N_he_tot, N_he_tot), -1im * (spre(Hsys) - spost(Hsys)))
 
         println("[DONE]")

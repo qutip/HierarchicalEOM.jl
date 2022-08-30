@@ -11,13 +11,11 @@ Heom matrix for bosonic bath
 - `ado2idx::OrderedDict{Vector{Int}, Int}`: the ADO-to-index dictionary
 
 ## Constructor
-`M_Boson(Hsys, tier, η_list, γ_list, Coup_Op; [progressBar])`
+`M_Boson(Hsys, tier, bath; [progressBar])`
 
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
-- `η_list::Vector{Tv<:Number}` : the coefficient ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
-- `γ_list::Vector{Ti<:Number}` : the coefficient ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
-- `Coup_Op::AbstractMatrix` : Operator describing the coupling between system and bath.
+- `bath::BosonicBath` : an object for the bosonic bath correlation
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
 mutable struct M_Boson <: AbstractHEOMMatrix
@@ -31,17 +29,14 @@ mutable struct M_Boson <: AbstractHEOMMatrix
     function M_Boson(        
             Hsys::AbstractMatrix,
             tier::Int,
-            η_list::Vector{Tv},
-            γ_list::Vector{Ti},
-            Coup_Op::AbstractMatrix;
+            bath::BosonicBath;
             progressBar::Bool=true
-        ) where {Ti,Tv <: Number}
+        )
 
-        # check if the length of η_list and γ_list are valid
-        N_exp_term = length(η_list)
-        if N_exp_term != length(γ_list)
-            error("The length of \'η_list\' and \'γ_list\' should be the same.")
-        end
+        c_list = bath.c_list
+        ν_list = bath.ν_list
+        Coup_Op = bath.coupOP
+        N_exp_term = bath.N_term
     
         Nsys,   = size(Hsys)
         dims    = [(tier + 1) for i in 1:N_exp_term]
@@ -87,7 +82,7 @@ mutable struct M_Boson <: AbstractHEOMMatrix
                     if n_exc >= 1
                         for k in 1:N_exp_term
                             if state[k] > 0
-                                sum_ω += state[k] * γ_list[k]
+                                sum_ω += state[k] * ν_list[k]
                             end
                         end
                     end
@@ -102,7 +97,7 @@ mutable struct M_Boson <: AbstractHEOMMatrix
                         if n_k >= 1
                             state_neigh[k] = n_k - 1
                             idx_neigh = ado2idx[state_neigh]
-                            op = -1im * n_k * (η_list[k] * spreQ - conj(η_list[k]) * spostQ)
+                            op = -1im * n_k * (c_list[k] * spreQ - conj(c_list[k]) * spostQ)
                             row, col, val = pad_coo(op, N_he, N_he, idx, idx_neigh)
                             push!(localpart(L_row)[1], row...)
                             push!(localpart(L_col)[1], col...)
@@ -133,7 +128,7 @@ mutable struct M_Boson <: AbstractHEOMMatrix
         println("Constructing matrix...")
         L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), N_he * sup_dim, N_he * sup_dim)
 
-        # add the free Hamiltonian evolution term
+        # add the liouville of system Hamiltonian term
         L_he += kron(sparse(I, N_he, N_he), -1im * (spre(Hsys) - spost(Hsys)))
         
         println("[DONE]")
