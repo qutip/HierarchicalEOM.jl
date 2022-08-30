@@ -8,20 +8,20 @@ spre(q::AbstractSparseMatrix)  = sparse(kron(sparse(I, size(q)[1], size(q)[1]), 
 spost(q::AbstractMatrix)       = kron(transpose(q), Matrix(I, size(q)[1], size(q)[1]))
 spost(q::AbstractSparseMatrix) = sparse(kron(transpose(q), sparse(I, size(q)[1], size(q)[1])))
 
-# generate liouvillian matrix
-function liouvillian(Hsys, Jump_Ops::Vector=[], progressBar::Bool=false)
+"""
+# `addDissipator!(M, jumpOP)`
+Adding dissipator to a given HEOM matrix.
 
-    L = -1im * (spre(Hsys) - spost(Hsys))
-    if progressBar
-        prog = Progress(length(Jump_Ops) + 1, start=1; desc="Construct Liouvillian     : ", PROGBAR_OPTIONS...)
-    end
-    for J in Jump_Ops
-        L += spre(J) * spost(J') - 0.5 * (spre(J' * J) + spost(J' * J))
-        if progressBar
-            next!(prog)
+## Parameters
+- `M::AbstractHEOMMatrix` : the matrix given from HEOM model
+- `jumpOP::Vector{T<:AbstractMatrix}` : The collapse (jump) operators to add. Defaults to empty vector `[]`.
+"""
+function addDissipator!(M::AbstractHEOMMatrix, jumpOP::Vector{T}=[]) where T <: AbstractMatrix
+    if length(jumpOP) > 0
+        for J in jumpOP
+            M.data += spre(J) * spost(J') - 0.5 * (spre(J' * J) + spost(J' * J))
         end
     end
-    return L
 end
 
 # func. for solving evolution ODE
