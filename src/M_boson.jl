@@ -8,6 +8,7 @@ Heom matrix for bosonic bath
 - `N_sys::Int`  : the dimension of system
 - `N_he::Int`   : the number of states
 - `sup_dim::Int`: the dimension of system superoperator
+- `parity::Symbol`: the parity of the density matrix
 - `ado2idx::OrderedDict{Vector{Int}, Int}`: the ADO-to-index dictionary
 
 ## Constructor
@@ -24,6 +25,7 @@ mutable struct M_Boson <: AbstractHEOMMatrix
     N_sys::Int
     N_he::Int
     sup_dim::Int
+    parity::Symbol
     ado2idx::OrderedDict{Vector{Int}, Int}
     
     function M_Boson(        
@@ -132,6 +134,6 @@ mutable struct M_Boson <: AbstractHEOMMatrix
         L_he += kron(sparse(I, N_he, N_he), -1im * (spre(Hsys) - spost(Hsys)))
         
         println("[DONE]")
-        return new(L_he, tier, Nsys, N_he, sup_dim, ado2idx_ordered)
+        return new(L_he, tier, Nsys, N_he, sup_dim, :none, ado2idx_ordered)
     end
 end

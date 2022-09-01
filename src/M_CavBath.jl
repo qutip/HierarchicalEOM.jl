@@ -1,6 +1,6 @@
 """
 # `M_CavBath <: AbstractHEOMMatrix`
-Heom matrix with setting the single mode cavity as bosonic bath
+Heom matrix for mixtured bath (boson and fermionic) but setting the bosonic bath as single mode cavity
 
 ## Fields
 - `data::SparseMatrixCSC{ComplexF64, Int64}` : the sparse matrix
@@ -11,18 +11,19 @@ Heom matrix with setting the single mode cavity as bosonic bath
 - `N_he_b::Int`   : the number of bosonic states
 - `N_he_f::Int`   : the number of fermionic states
 - `sup_dim::Int`: the dimension of system superoperator
+- `parity::Symbol`: the parity of the density matrix
 - `ado2idx_b::OrderedDict{Vector{Int}, Int}`: the bosonic ADO-to-index dictionary
 - `ado2idx_f::OrderedDict{Vector{Int}, Int}`: the fermionic ADO-to-index dictionary
 
 ## Constructor
-`M_CavBath(Hsys, tier_b, tier_f, bath_b, bath_f; [spectral, progressBar])`
+`M_CavBath(Hsys, tier_b, tier_f, bath_b, bath_f, parity; [progressBar])`
 
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier_b::Int` : the tier (cutoff) for the bosonic bath
 - `tier_f::Int` : the tier (cutoff) for the fermionic bath
 - `bath_b::BosonicBath` : an object for the bosonic bath correlation
 - `bath_f::FermionicBath` : an object for the fermionic bath correlation
-- `spectral::Bool` : Decide whether to calculate spectral density or not. Defaults to `false`.
+- `parity::Symbol` : The parity symbol of the density matrix (either `:odd` or `:even`). Defaults to `:even`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
 mutable struct M_CavBath <: AbstractHEOMMatrix
@@ -34,6 +35,7 @@ mutable struct M_CavBath <: AbstractHEOMMatrix
     N_he_b::Int
     N_he_f::Int
     sup_dim::Int
+    parity::Symbol
     ado2idx_b::OrderedDict{Vector{Int}, Int}
     ado2idx_f::OrderedDict{Vector{Int}, Int}
     
@@ -42,10 +44,14 @@ mutable struct M_CavBath <: AbstractHEOMMatrix
             tier_b::Int,
             tier_f::Int,
             bath_b::BosonicBath,
-            bath_f::FermionicBath;
-            spectral::Bool=false,
+            bath_f::FermionicBath,
+            parity::Symbol=:even;
             progressBar::Bool=true
         )
+
+        if (parity != :even) || (parity != :odd)
+            error("The parity symbol of density matrix should be either \":odd\" or \":even\".")
+        end
 
         Nsys,   = size(Hsys)
         sup_dim = Nsys ^ 2
@@ -183,12 +189,12 @@ mutable struct M_CavBath <: AbstractHEOMMatrix
                             if n_k >= 1
                                 state_neigh[k + (n - 1) * N_exp_term_f] = n_k - 1
                                 idx_neigh = ado2idx_f[state_neigh]
-                                op = (-1) ^ spectral * η_list[n][k] * spreQ_f[n] - (-1.0) ^ (n_exc_f - 1) * conj(η_list[(n % 2 == 0) ? (n-1) : (n+1)][k]) * spostQ_f[n]
+                                op = (-1) ^ eval(parity) * η_list[n][k] * spreQ_f[n] - (-1.0) ^ (n_exc_f - 1) * conj(η_list[(n % 2 == 0) ? (n-1) : (n+1)][k]) * spostQ_f[n]
 
                             elseif n_exc_f <= tier_f - 1
                                 state_neigh[k + (n - 1) * N_exp_term_f] = n_k + 1
                                 idx_neigh = ado2idx_f[state_neigh]
-                                op = (-1) ^ (spectral) * spreQd_f[n] + (-1.0) ^ (n_exc_f + 1) * spostQd_f[n]
+                                op = (-1) ^ eval(parity) * spreQd_f[n] + (-1.0) ^ (n_exc_f + 1) * spostQd_f[n]
 
                             else
                                 continue
@@ -221,6 +227,6 @@ mutable struct M_CavBath <: AbstractHEOMMatrix
         L_he += kron(sparse(I, N_he_tot, N_he_tot), -1im * (spre(Hsys) - spost(Hsys)))
 
         println("[DONE]")
-        return new(L_he, tier_b, tier_f, Nsys, N_he_tot, N_he_b, N_he_f, sup_dim, ado2idx_b_ordered, ado2idx_f_ordered)
+        return new(L_he, tier_b, tier_f, Nsys, N_he_tot, N_he_b, N_he_f, sup_dim, parity, ado2idx_b_ordered, ado2idx_f_ordered)
     end
 end

@@ -1,4 +1,10 @@
 abstract type AbstractHEOMMatrix end
+
+# Parity for fermionic heom matrices
+const odd  = 1;
+const even = 0;
+const none = nothing;
+
 size(A::AbstractHEOMMatrix) = size(A.data)
 
 spre(q::AbstractMatrix)        = kron(Matrix(I, size(q)[1], size(q)[1]), q)

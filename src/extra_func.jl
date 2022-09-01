@@ -1,5 +1,3 @@
-import LinearAlgebra: eigvals
-
 fb(m) = 2 * m + 1
 
 function δ(j, k)

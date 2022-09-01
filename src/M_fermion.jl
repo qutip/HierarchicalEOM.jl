@@ -8,15 +8,16 @@ Heom matrix for fermionic bath
 - `N_sys::Int`  : the dimension of system
 - `N_he::Int`   : the number of states
 - `sup_dim::Int`: the dimension of system superoperator
+- `parity::Symbol`: the parity of the density matrix
 - `ado2idx::OrderedDict{Vector{Int}, Int}`: the ADO-to-index dictionary
 
 ## Constructor
-`M_Fermion(Hsys, tier, bath; [spectral, progressBar])`
+`M_Fermion(Hsys, tier, bath, parity; [progressBar])`
 
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
 - `bath::FermionicBath` : an object for the fermionic bath correlation
-- `spectral::Bool` : Decide whether to calculate spectral density or not. Defaults to `false`.
+- `parity::Symbol` : The parity symbol of the density matrix (either `:odd` or `:even`). Defaults to `:even`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
 mutable struct M_Fermion <: AbstractHEOMMatrix
@@ -25,15 +26,24 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
     N_sys::Int
     N_he::Int
     sup_dim::Int
+    parity::Symbol
     ado2idx::OrderedDict{Vector{Int}, Int}
     
     function M_Fermion(        
             Hsys::AbstractMatrix,
             tier::Int,
-            bath::FermionicBath;
-            spectral::Bool=false,
+            bath::FermionicBath,
+            parity::Symbol=:even;
             progressBar::Bool=true
         )
+
+        if (parity != :even) || (parity != :odd)
+            error("The parity symbol of density matrix should be either \":odd\" or \":even\".")
+        end
+
+        Nsys,   = size(Hsys)
+        sup_dim = Nsys ^ 2
+        I_sup   = sparse(I, sup_dim, sup_dim)
 
         η_list = bath.η_list
         γ_list = bath.γ_list
@@ -41,10 +51,7 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
         N_oper     = bath.N_oper
         N_exp_term = bath.N_term
             
-        Nsys,   = size(Hsys)
         dims    = [2 for i in 1:(N_exp_term * N_oper)]
-        sup_dim = Nsys ^ 2
-        I_sup   = sparse(I, sup_dim, sup_dim)
     
         spreQ   = spre.(Coup_Ops)
         spostQ  = spost.(Coup_Ops)
@@ -105,12 +112,12 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
                             if n_k >= 1
                                 state_neigh[k + (n - 1) * N_exp_term] = n_k - 1
                                 idx_neigh = ado2idx[state_neigh]
-                                op = (-1) ^ spectral * η_list[n][k] * spreQ[n] - (-1.0) ^ (n_exc - 1) * conj(η_list[(n % 2 == 0) ? (n-1) : (n+1)][k]) * spostQ[n]
+                                op = (-1) ^ eval(parity) * η_list[n][k] * spreQ[n] - (-1.0) ^ (n_exc - 1) * conj(η_list[(n % 2 == 0) ? (n-1) : (n+1)][k]) * spostQ[n]
 
                             elseif n_exc <= tier - 1
                                 state_neigh[k + (n - 1) * N_exp_term] = n_k + 1
                                 idx_neigh = ado2idx[state_neigh]
-                                op = (-1) ^ (spectral) * spreQd[n] + (-1.0) ^ (n_exc + 1) * spostQd[n]
+                                op = (-1) ^ eval(parity) * spreQd[n] + (-1.0) ^ (n_exc + 1) * spostQd[n]
 
                             else
                                 continue
@@ -140,6 +147,6 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
         L_he += kron(sparse(I, N_he_tot, N_he_tot), -1im * (spre(Hsys) - spost(Hsys)))
         
         println("[DONE]")
-        return new(L_he, tier, Nsys, N_he, sup_dim, ado2idx_ordered)
+        return new(L_he, tier, Nsys, N_he, sup_dim, parity, ado2idx_ordered)
     end
 end
