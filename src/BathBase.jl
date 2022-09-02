@@ -1,7 +1,7 @@
-abstract type AbstractEnvBath end
+abstract type AbstractBath end
 
 """
-# `BosonicBath <: AbstractEnvBath`
+# `BosonicBath <: AbstractBath`
 An object for bosonic bath correlation
 
 ## Fields
@@ -14,7 +14,7 @@ An object for bosonic bath correlation
 ## Constructor
 `BosonicBath(c_list, ν_list, coupOP)`
 """
-mutable struct BosonicBath <: AbstractEnvBath
+mutable struct BosonicBath <: AbstractBath
     c_list
     ν_list
     coupOP
@@ -42,7 +42,7 @@ mutable struct BosonicBath <: AbstractEnvBath
 end
 
 """
-# `FermionicBath <: AbstractEnvBath`
+# `FermionicBath <: AbstractBath`
 An object for fermionic bath correlation
 
 ## Fields
@@ -55,7 +55,7 @@ An object for fermionic bath correlation
 ## Constructor
 `FermionicBath(η_list, γ_list, coupOP)`
 """
-mutable struct FermionicBath <: AbstractEnvBath
+mutable struct FermionicBath <: AbstractBath
     η_list
     γ_list
     coupOP
