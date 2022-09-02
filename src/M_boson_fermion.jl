@@ -1,15 +1,15 @@
 """
 # `M_Boson_Fermion <: AbstractHEOMMatrix`
-Heom matrix for mixtured bath (boson and fermionic)
+Heom matrix for mixtured (bosonic and fermionic) bath 
 
 ## Fields
 - `data::SparseMatrixCSC{ComplexF64, Int64}` : the sparse matrix
 - `tier_b::Int`   : the tier (cutoff) for bosonic bath
 - `tier_f::Int`   : the tier (cutoff) for fermionic bath
-- `N_sys::Int`  : the dimension of system
-- `N_he::Int`   : the number of total states
-- `N_he_b::Int`   : the number of bosonic states
-- `N_he_f::Int`   : the number of fermionic states
+- `dim::Int`  : the dimension of system
+- `N::Int`   : the number of total states
+- `Nb::Int`   : the number of bosonic states
+- `Nf::Int`   : the number of fermionic states
 - `sup_dim::Int`: the dimension of system superoperator
 - `parity::Symbol`: the parity of the density matrix
 - `ado2idx_b::OrderedDict{Vector{Int}, Int}`: the bosonic ADO-to-index dictionary
@@ -30,10 +30,10 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
     tier_b::Int
     tier_f::Int
-    N_sys::Int
-    N_he::Int
-    N_he_b::Int
-    N_he_f::Int
+    dim::Int
+    N::Int
+    Nb::Int
+    Nf::Int
     sup_dim::Int
     parity::Symbol
     ado2idx_b::OrderedDict{Vector{Int}, Int}

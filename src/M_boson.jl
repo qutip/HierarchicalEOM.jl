@@ -5,8 +5,10 @@ Heom matrix for bosonic bath
 ## Fields
 - `data::SparseMatrixCSC{ComplexF64, Int64}` : the sparse matrix
 - `tier::Int`   : the tier (cutoff) for the bath
-- `N_sys::Int`  : the dimension of system
-- `N_he::Int`   : the number of states
+- `dim::Int`  : the dimension of system
+- `N::Int`   : the number of total states
+- `Nb::Int`   : the number of bosonic states
+- `Nf::Int`   : the number of fermionic states (should be zero)
 - `sup_dim::Int`: the dimension of system superoperator
 - `parity::Symbol`: the parity of the density matrix
 - `ado2idx::OrderedDict{Vector{Int}, Int}`: the ADO-to-index dictionary
@@ -22,8 +24,10 @@ Heom matrix for bosonic bath
 mutable struct M_Boson <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
     tier::Int
-    N_sys::Int
-    N_he::Int
+    dim::Int
+    N::Int
+    Nb::Int
+    Nf::Int
     sup_dim::Int
     parity::Symbol
     ado2idx::OrderedDict{Vector{Int}, Int}
@@ -134,6 +138,6 @@ mutable struct M_Boson <: AbstractHEOMMatrix
         L_he += kron(sparse(I, N_he, N_he), -1im * (spre(Hsys) - spost(Hsys)))
         
         println("[DONE]")
-        return new(L_he, tier, Nsys, N_he, sup_dim, :none, ado2idx_ordered)
+        return new(L_he, tier, Nsys, N_he, N_he, 0, sup_dim, :none, ado2idx_ordered)
     end
 end
