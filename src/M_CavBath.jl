@@ -28,16 +28,16 @@ Heom matrix for mixtured bath (boson and fermionic) but setting the bosonic bath
 """
 mutable struct M_CavBath <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
-    tier_b::Int
-    tier_f::Int
-    dim::Int
-    N::Int
-    Nb::Int
-    Nf::Int
-    sup_dim::Int
-    parity::Symbol
-    ado2idx_b::OrderedDict{Vector{Int}, Int}
-    ado2idx_f::OrderedDict{Vector{Int}, Int}
+    const tier_b::Int
+    const tier_f::Int
+    const dim::Int
+    const N::Int
+    const Nb::Int
+    const Nf::Int
+    const sup_dim::Int
+    const parity::Symbol
+    const ado2idx_b::OrderedDict{Vector{Int}, Int}
+    const ado2idx_f::OrderedDict{Vector{Int}, Int}
     
     function M_CavBath(        
             Hsys::AbstractMatrix,

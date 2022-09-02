@@ -18,9 +18,9 @@ The Auxiliary Density Operators for Heom model.
 """
 mutable struct ADOs 
     data::SparseVector{ComplexF64, Int64}
-    dim::Int
-    Nb::Int
-    Nf::Int
+    const dim::Int
+    const Nb::Int
+    const Nf::Int
 
     function ADOs(        
             V::AbstractVector,
