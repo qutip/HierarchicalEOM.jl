@@ -9,7 +9,7 @@ Solve the evolution (ODE problem) using HEOM model.
 
 ## Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
-- `ρ0::AbstractMatrix` : initial state (density matrix)
+- `ρ0::AbstractMatrix` : system initial state (density matrix)
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol::Float64` : Relative tolerance in adaptive timestepping. Default to 1.0e-6.
@@ -19,7 +19,6 @@ Solve the evolution (ODE problem) using HEOM model.
 - `SOLVEROptions` : extra options for solver 
 
 ## Returns
-- `ρ_list`    : The reduced density matrices in each time point.
 - `ADOs_list` : The auxiliary density operators in each time point.
 """
 function evolution(
@@ -35,38 +34,31 @@ function evolution(
     ) where Ti <: Integer where Tj <: AbstractFloat
 
     (N1, N2) = size(ρ0)
-    if (N1 != M.N_sys) || (N2 != M.N_sys)
+    if (N1 != M.dim) || (N2 != M.dim)
         error("The initial state ρ0 should be a density (squared) matrix.")
     end
 
-    # setup ρ_he and ρlist
-    ρ_list::Vector{SparseMatrixCSC{ComplexF64, Int64}} = []
-    ADOs_list::Vector{SparseMatrixCSC{ComplexF64, Int64}} = []
-    ρ_he::SparseVector{ComplexF64, Int64} = spzeros(M.N_he * M.sup_dim)
-    if typeof(ρ0) <: AbstractMatrix
-        push!(ρ_list, ρ0)
+    # setup ρ_he 
+    ADOs_list::Vector{ADOs} = []
 
-        ρ_he[1:(M.sup_dim)] .= sparsevec(ρ0)
-    else
-        push!(ρ_list, ρ0.data)
-
-        ρ_he[1:(M.sup_dim)] .= sparsevec(ρ0.data)
-    end
-    push!(ADOs_list, reshape(ρ_he, M.sup_dim, M.N_he))
+    # vectorize initial state
+    ρ0 = sparse(sparsevec(ρ0))
+    ρ_he::SparseVector{ComplexF64, Int64} = sparsevec(ρ0.nzind, ρ0.nzval, M.N * M.sup_dim)
+    push!(ADOs_list, ADOs(ρ_he, M.dim, M.Nb, M.Nf))
     
     # setup integrator
     dt_list = diff(tlist)
     integrator = init(
-            ODEProblem(integrate!, ρ_he, (tlist[1], tlist[end]), M.data),
-            solver;
-            reltol = reltol,
-            abstol = abstol,
-            maxiters = maxiters,
-            SOLVEROptions...
+        ODEProblem(integrate!, ρ_he, (tlist[1], tlist[end]), M.data),
+        solver;
+        reltol = reltol,
+        abstol = abstol,
+        maxiters = maxiters,
+        SOLVEROptions...
     )
     
     # start solving ode
-    print("Start solving hierachy equation of motions...")
+    print("Start solving evolution...")
     if progressBar
         print("\n")
         prog = Progress(length(tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
@@ -75,10 +67,8 @@ function evolution(
     for dt in dt_list
         step!(integrator, dt, true)
         
-        # save the reduced density matrix and ADOs
-        ρ_ADOs = reshape(integrator.u, M.sup_dim, M.N_he)
-        push!(ρ_list, reshape(ρ_ADOs[:,1], M.N_sys, M.N_sys))
-        push!(ADOs_list, ρ_ADOs)
+        # save the ADOs
+        push!(ADOs_list, ADOs(integrator.u, M.dim, M.Nb, M.Nf))
     
         if progressBar
             next!(prog)
@@ -88,5 +78,84 @@ function evolution(
     println("[DONE]\n")
     flush(stdout)
 
-    return ρ_list, ADOs_list
+    return ADOs_list
+end
+
+"""
+# `evolution(M, ados, tlist; [solver, reltol, abstol, maxiters, progressBar, SOLVEROptions...])`
+Solve the evolution (ODE problem) using HEOM model.
+
+## Parameters
+- `M::AbstractHEOMMatrix` : the matrix given from HEOM model
+- `ados::ADOs` : initial auxiliary density operators
+- `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
+- `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `reltol::Float64` : Relative tolerance in adaptive timestepping. Default to 1.0e-6.
+- `abstol::Float64` : Absolute tolerance in adaptive timestepping. Default to 1.0e-8.
+- `maxiters` : Maximum number of iterations before stopping. Default to 1e5.
+- `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
+- `SOLVEROptions` : extra options for solver 
+
+## Returns
+- `ADOs_list` : The auxiliary density operators in each time point.
+"""
+function evolution(
+        M::AbstractHEOMMatrix, 
+        ados::ADOs, 
+        tlist::AbstractVector;
+        solver = DP5(),
+        reltol::Float64 = 1.0e-6,
+        abstol::Float64 = 1.0e-8,
+        maxiters::Union{Ti, Tj} = 1e5,
+        progressBar::Bool = true,
+        SOLVEROptions...
+    ) where Ti <: Integer where Tj <: AbstractFloat
+
+    if (M.dim != ados.dim)
+        error("The system dimension between M and ados are not consistent.")
+    end
+
+    if (M.Nb != ados.Nb)
+        error("The number of bosonic states between M and ados are not consistent.")
+    end
+
+    if (M.Nf != ados.Nf)
+        error("The number of fermionic states between M and ados are not consistent.")
+    end
+
+    ADOs_list::Vector{ADOs} = [ados]
+    
+    # setup integrator
+    dt_list = diff(tlist)
+    integrator = init(
+        ODEProblem(integrate!, ados.data, (tlist[1], tlist[end]), M.data),
+        solver;
+        reltol = reltol,
+        abstol = abstol,
+        maxiters = maxiters,
+        SOLVEROptions...
+    )
+    
+    # start solving ode
+    print("Start solving evolution...")
+    if progressBar
+        print("\n")
+        prog = Progress(length(tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
+    end
+    flush(stdout)
+    for dt in dt_list
+        step!(integrator, dt, true)
+        
+        # save the ADOs
+        push!(ADOs_list, ADOs(integrator.u, M.dim, M.Nb, M.Nf))
+    
+        if progressBar
+            next!(prog)
+        end
+    end
+
+    println("[DONE]\n")
+    flush(stdout)
+
+    return ADOs_list
 end
