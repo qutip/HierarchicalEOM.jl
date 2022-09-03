@@ -37,7 +37,7 @@ function DOS(
         error("The parity of M must be \":odd\".")
     end    
 
-    local b::SparseVector{ComplexF64, Int64}
+    local b::AbstractVector
 
     # check ρ
     if T <: AbstractMatrix
@@ -72,8 +72,8 @@ function DOS(
     I_total = sparse(I, Size, Size)
     I_heom  = sparse(I, M.N, M.N)
 
-    # transpose(sparse(vec(system_identity_matrix)))
-    I_dual_vec = transpose(sparsevec([1 + n * (M.dim + 1) for n in 0:(M.dim - 1)], ones(M.dim), (M.dim) ^ 2))
+    # equal to : transpose(sparse(vec(system_identity_matrix)))
+    I_dual_vec = transpose(sparsevec([1 + n * (M.dim + 1) for n in 0:(M.dim - 1)], ones(M.dim), M.sup_dim))
 
     # operators for calculating two-time correlation functions in frequency domain
     C_normal = kron(I_heom, spre(OP))
