@@ -23,7 +23,11 @@ Adding dissipator to a given HEOM matrix.
 function addDissipator!(M::AbstractHEOMMatrix, jumpOP::Vector{T}=[]) where T <: AbstractMatrix
     if length(jumpOP) > 0
         for J in jumpOP
-            M.data += spre(J) * spost(J') - 0.5 * (spre(J' * J) + spost(J' * J))
+            if size(J) == (M.dim, M.dim)
+                M.data += spre(J) * spost(J') - 0.5 * (spre(J' * J) + spost(J' * J))
+            else
+                error("The dimension of each jumpOP should be equal to \"($(M.dim), $(M.dim))\".")
+            end
         end
     end
 end
