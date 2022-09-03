@@ -3,7 +3,7 @@
 The Auxiliary Density Operators for Heom model.
 
 ## Fields
-- `data::SparseVector{ComplexF64, Int64}` : the sparse vector
+- `data::Vector{ComplexF64}` : the sparse vector
 - `dim::Int` : the dimension of the system
 - `Nb::Int` : the number of bosonic states
 - `Nf::Int` : the number of fermionic states
@@ -11,13 +11,13 @@ The Auxiliary Density Operators for Heom model.
 ## Constructor
 `ADOs(V, dim, Nb, Nf)`
 
-- `data::SparseVector{ComplexF64, Int64}` : the sparse vector
+- `data::Vector{ComplexF64}` : the sparse vector
 - `dim::Int` : the dimension of the system
 - `Nb::Int` : the number of bosonic states. Defaults to 0.
 - `Nf::Int` : the number of fermionic states Defaults to 0.
 """
 mutable struct ADOs 
-    data::SparseVector{ComplexF64, Int64}
+    data::Vector{ComplexF64}
     const dim::Int
     const Nb::Int
     const Nf::Int
@@ -51,13 +51,11 @@ mutable struct ADOs
             error("The dimension is not consistent, the size of \"V\" should be equal to \"(dim ^ 2) * Nb * Nf\".")
         end
 
-        # make V match the type: SparseVector{ComplexF64, Int64}
-        V = sparse(V)
+        # make eltype of V: ComplexF64
         if eltype(V) != ComplexF64
             V = convert.(ComplexF64, V)
         end
-
-        return new(V, dim, Nb, Nf)
+        return new(Vector(V), dim, Nb, Nf)
     end
 end
 

@@ -2,7 +2,7 @@ module Heom
     import Reexport: @reexport
     
     export 
-        Bath, HeomBase
+        Bath, HeomBase, Spectrum
 
     const PROGBAR_OPTIONS = Dict(:barlen=>20, :color=>:green, :showspeed=>true)
     
@@ -55,4 +55,30 @@ module Heom
         include("evolution.jl")
     end
     @reexport using .Evolution
+
+    # sub-module SteadyState for Heom
+    module SteadyState
+        import ..HeomBase: AbstractHEOMMatrix, ADOs
+        import SparseArrays: sparse, sparsevec
+        import LinearSolve: LinearProblem, solve, KLUFactorization
+
+        export steadystate
+
+        include("SteadyState.jl")
+    end
+    @reexport using .SteadyState
+
+    # sub-module Spectrum for Heom
+    module Spectrum
+        import ..HeomBase: AbstractHEOMMatrix, ADOs, spre
+        import LinearAlgebra: I, kron
+        import SparseArrays: sparse, sparsevec, SparseVector
+        import LinearSolve: LinearProblem, solve, set_A, KLUFactorization
+        import ProgressMeter: Progress, next!
+
+        export DOS
+
+        include("DensityOfStates.jl")
+    end
+    @reexport using .Spectrum
 end
