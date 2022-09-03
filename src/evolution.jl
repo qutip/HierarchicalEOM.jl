@@ -33,9 +33,8 @@ function evolution(
         SOLVEROptions...
     ) where Ti <: Integer where Tj <: AbstractFloat
 
-    (N1, N2) = size(ρ0)
-    if (N1 != M.dim) || (N2 != M.dim)
-        error("The initial state ρ0 should be a density (squared) matrix.")
+    if size(ρ0) == (M.dim, M.dim) 
+        error("The dimension of ρ0 should be equal to \"($(M.dim), $(M.dim))\".")
     end
 
     # setup ρ_he 
