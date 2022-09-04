@@ -12,7 +12,7 @@ Solve the steady state of the given Heom matrix.
 """
 function steadystate(M::AbstractHEOMMatrix; solver=KLUFactorization(), SOLVEROptions...)
     # check parity
-    if (M.parity != :even) || (M.parity != :none)
+    if (M.parity != :even) && (M.parity != :none)
         error("The parity of M should be either \":none (bonson)\" or \":even (fermion)\".")
     end    
 

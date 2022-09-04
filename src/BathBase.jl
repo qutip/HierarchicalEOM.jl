@@ -63,31 +63,29 @@ mutable struct FermionicBath <: AbstractBath
     N_oper::Int
 
     function FermionicBath(
-            η_list::Vector{Ti},
-            γ_list::Vector{Tj},
-            coupOP::T
-        ) where {Ti, Tj, T}
+        η_list::Vector{Ti},
+        γ_list::Vector{Tj},
+        coupOP::Vector{Tk}
+    ) where {Ti, Tj, Tk}
 
-        if (Ti <: Vector) && (Tj <: Vector) && (T <: Vector)
-            if (eltype(Ti) <: Number) && (eltype(Tj) <: Number) && (T == AbstractMatrix)
-                # check if the length of η_list, γ_list, and coupOP are valid
-                N_operator = length(coupOP)
-                N_exp_term = length(η_list[1])
-                if (N_operator != length(η_list)) || (N_operator != length(γ_list))
-                    error("The length of \'η_list\', \'γ_list\', and \'Coup_Ops\' should all be the same.")
-                end
-                for i in 1:N_operator
-                    if length(η_list[i]) != N_exp_term
-                        error("The length of each vector in \'η_list\' are wrong.")
-                    end
-                    if length(γ_list[i]) != N_exp_term
-                        error("The length of each vector in \'γ_list\' are wrong.")
-                    end
-                end
-            end
-        else
-            error("The type of \'η_list\', \'γ_list\', and coupOP are not correct.")
+    if (Ti <: AbstractVector) && (eltype(Ti) <: Number) && (Tj <: AbstractVector) && (eltype(Tj) <: Number) && (Tk <: AbstractMatrix)
+        # check if the length of η_list, γ_list, and coupOP are valid
+        N_operator = length(coupOP)
+        N_exp_term = length(η_list[1])
+        if (N_operator != length(η_list)) || (N_operator != length(γ_list))
+            error("The length of \'η_list\', \'γ_list\', and \'Coup_Ops\' should all be the same.")
         end
-        return new(η_list, γ_list, coupOP, N_exp_term, N_operator)
+        for i in 1:N_operator
+            if length(η_list[i]) != N_exp_term
+                error("The length of each vector in \'η_list\' are wrong.")
+            end
+            if length(γ_list[i]) != N_exp_term
+                error("The length of each vector in \'γ_list\' are wrong.")
+            end
+        end
+    else
+        error("The type of \'η_list\', \'γ_list\', and coupOP are not correct.")
     end
+    return new(η_list, γ_list, coupOP, N_exp_term, N_operator)
+end
 end

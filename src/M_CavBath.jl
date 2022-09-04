@@ -49,7 +49,7 @@ mutable struct M_CavBath <: AbstractHEOMMatrix
             progressBar::Bool=true
         )
 
-        if (parity != :even) || (parity != :odd)
+        if (parity != :even) && (parity != :odd)
             error("The parity symbol of density matrix should be either \":odd\" or \":even\".")
         end
 

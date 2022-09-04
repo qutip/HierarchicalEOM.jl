@@ -28,6 +28,8 @@ module Heom
         import SparseArrays: sparse, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
         import Distributed: @everywhere, @distributed, procs, nprocs, RemoteChannel, Channel
         import DistributedArrays: distribute, localpart
+        import ProgressMeter: Progress, next!
+        import ..Heom: PROGBAR_OPTIONS
 
         export
             AbstractHEOMMatrix, M_Fermion, M_Boson, M_Boson_Fermion, M_CavBath, 
@@ -49,6 +51,7 @@ module Heom
         import OrdinaryDiffEq: ODEProblem, init, DP5, step!
         import SparseArrays: sparse, sparsevec, SparseVector
         import ProgressMeter: Progress, next!
+        import ..Heom: PROGBAR_OPTIONS
 
         export evolution
 
@@ -74,7 +77,8 @@ module Heom
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, sparsevec, SparseVector
         import LinearSolve: LinearProblem, solve, set_A, KLUFactorization
-        import ProgressMeter: Progress, next!
+        import ProgressMeter: Progress, next!        
+        import ..Heom: PROGBAR_OPTIONS
 
         export DOS
 
