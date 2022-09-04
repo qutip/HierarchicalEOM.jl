@@ -103,10 +103,10 @@ function DOS(
     # take the cache to solve for the rest of the ω in ω_list
     for ω in ω_list[2:end]
 
-        sol_m    = solve(set_A(cache_m, A_minus(ω, M.data, I_total)), solver, SOLVEROPTIONS...)
+        sol_m    = solve(set_A(cache_m, A_minus(ω, M.data, I_total)), solver, SOLVEROptions...)
         Cω_minus = C_dagger * sol_m.u
         
-        sol_p    = solve(set_A(cache_p,  A_plus(ω, M.data, I_total)), solver, SOLVEROPTIONS...)
+        sol_p    = solve(set_A(cache_p,  A_plus(ω, M.data, I_total)), solver, SOLVEROptions...)
         Cω_plus  = C_normal * sol_p.u
 
         # trace over the hilbert space of system (expectation value)
