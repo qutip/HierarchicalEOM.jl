@@ -7,10 +7,8 @@ const none = nothing;
 
 size(A::AbstractHEOMMatrix) = size(A.data)
 
-spre(q::AbstractMatrix)        = kron(Matrix(I, size(q)[1], size(q)[1]), q)
-spre(q::AbstractSparseMatrix)  = sparse(kron(sparse(I, size(q)[1], size(q)[1]), q))
-spost(q::AbstractMatrix)       = kron(transpose(q), Matrix(I, size(q)[1], size(q)[1]))
-spost(q::AbstractSparseMatrix) = sparse(kron(transpose(q), sparse(I, size(q)[1], size(q)[1])))
+spre(q::AbstractMatrix)  = sparse(kron(Matrix(I, size(q)[1], size(q)[1]), q))
+spost(q::AbstractMatrix) = sparse(kron(transpose(q), Matrix(I, size(q)[1], size(q)[1])))
 
 """
 # `addDissipator!(M, jumpOP)`

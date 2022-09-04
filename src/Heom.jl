@@ -65,7 +65,7 @@ module Heom
         import SparseArrays: sparse, sparsevec
         import LinearSolve: LinearProblem, solve, KLUFactorization
 
-        export steadystate
+        export Steadystate
 
         include("SteadyState.jl")
     end

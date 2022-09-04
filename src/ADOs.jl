@@ -72,7 +72,7 @@ Return the density matrix of the reduced state (system) from a given auxiliary d
 - `ρ` : The density matrix of the reduced state
 """
 function getRho(ados::ADOs)
-    return sparse(reshape(ados.data[1:((ados.dim) ^ 2)], ados.dim, ados.dim))
+    return Matrix(reshape(ados.data[1:((ados.dim) ^ 2)], ados.dim, ados.dim))
 end
 
 """
@@ -99,7 +99,7 @@ function getADO(ados::ADOs, idx::Int)
     if ((ados.Nb == 0) && (idx <= ados.Nf)) || ((ados.Nf == 0) && (idx <= ados.Nb)) || (idx <= (ados.Nb * ados.Nf))
         sup_dim = ados.dim ^ 2
         back    = sup_dim * idx
-        return sparse(reshape(ados.data[(back - sup_dim + 1):back], ados.dim, ados.dim))
+        return Matrix(reshape(ados.data[(back - sup_dim + 1):back], ados.dim, ados.dim))
     
     else
         error("idx is not available.")
@@ -112,13 +112,13 @@ Return the auxiliary density operator with specific indices *[only for mixtured 
 
 ## Parameters
 - `ados::ADOs` : the auxiliary density operators for Heom model
-- `idx_b::Int`   : the bosonic-state index of the auxiliary density operator. Defaults to 1
-- `idx_f::Int`   : the fermionic-state index of the auxiliary density operator. Defaults to 1
+- `idx_b::Int`   : the bosonic-state index of the auxiliary density operator.
+- `idx_f::Int`   : the fermionic-state index of the auxiliary density operator.
 
 ## Returns
 - `ρ_idx` : The auxiliary density operator
 """
-function getADO(ados::ADOs, idx_b::Int=1, idx_f::Int=1)
+function getADO(ados::ADOs, idx_b::Int, idx_f::Int)
     if ados.Nb == 0
         error("The given ADOs is from pure fermionic bath, use function \"getADO(ados, idx)\" instead.")
     
@@ -133,7 +133,7 @@ function getADO(ados::ADOs, idx_b::Int=1, idx_f::Int=1)
             idx     = (idx_b - 1) * ados.Nf + idx_f
             sup_dim = ados.dim ^ 2
             back    = sup_dim * idx
-            return sparse(reshape(ados.data[(back - sup_dim + 1):back], ados.dim, ados.dim))
+            return Matrix(reshape(ados.data[(back - sup_dim + 1):back], ados.dim, ados.dim))
 
         else
             error("idx_b and idx_f are not available.")

@@ -1,5 +1,5 @@
 """
-# `steadystate(M::AbstractHEOMMatrix; [solver, SOLVEROptions...])`
+# `Steadystate(M::AbstractHEOMMatrix; [solver, SOLVEROptions...])`
 Solve the steady state of the given Heom matrix.
 
 ## Parameters
@@ -10,7 +10,7 @@ Solve the steady state of the given Heom matrix.
 ## Returns
 - `ADOs` : The auxiliary density operators of the steady state.
 """
-function steadystate(M::AbstractHEOMMatrix; solver=KLUFactorization(), SOLVEROptions...)
+function Steadystate(M::AbstractHEOMMatrix; solver=KLUFactorization(), SOLVEROptions...)
     # check parity
     if (M.parity != :even) && (M.parity != :none)
         error("The parity of M should be either \":none (bonson)\" or \":even (fermion)\".")
@@ -23,7 +23,7 @@ function steadystate(M::AbstractHEOMMatrix; solver=KLUFactorization(), SOLVEROpt
     # sparse(row_idx, col_idx, values, row_dims, col_dims)
     A += sparse(fill(1, M.dim), [(n - 1) * (M.dim + 1) + 1 for n in 1:(M.dim)], fill(1, M.dim), S, S)
     
-    b = sparsevec([1], [1. + 0.0im], s)
+    b = sparsevec([1], [1. + 0.0im], S)
     
     # solving x where A * x = b
     sol = solve(LinearProblem(A, Vector(b)), solver, SOLVEROptions...)

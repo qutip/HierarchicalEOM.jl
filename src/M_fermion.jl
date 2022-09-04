@@ -148,7 +148,7 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
         L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), N_he * sup_dim, N_he * sup_dim)
 
         # add the liouville of system Hamiltonian term
-        L_he += kron(sparse(I, N_he_tot, N_he_tot), -1im * (spre(Hsys) - spost(Hsys)))
+        L_he += kron(sparse(I, N_he, N_he), -1im * (spre(Hsys) - spost(Hsys)))
         
         println("[DONE]")
         return new(L_he, tier, Nsys, N_he, 0, N_he, sup_dim, parity, ado2idx_ordered)
