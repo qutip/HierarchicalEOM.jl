@@ -4,14 +4,14 @@ Heom matrix for fermionic bath
 
 ## Fields
 - `data::SparseMatrixCSC{ComplexF64, Int64}` : the sparse matrix
-- `tier::Int`   : the tier (cutoff) for the bath
+- `tier::Int` : the tier (cutoff) for the bath
 - `dim::Int`  : the dimension of system
-- `N::Int`   : the number of total states
-- `Nb::Int`   : the number of bosonic states (should be zero)
-- `Nf::Int`   : the number of fermionic states
-- `sup_dim::Int`: the dimension of system superoperator
-- `parity::Symbol`: the parity of the density matrix
-- `ado2idx::OrderedDict{Vector{Int}, Int}`: the ADO-to-index dictionary
+- `N::Int`  : the number of total states
+- `Nb::Int` : the number of bosonic states (should be zero)
+- `Nf::Int` : the number of fermionic states
+- `sup_dim::Int` : the dimension of system superoperator
+- `parity::Symbol` : the parity of the density matrix
+- `ado2idx::OrderedDict{Vector{Int}, Int}` : the ADO-to-index dictionary
 
 ## Constructor
 `M_Fermion(Hsys, tier, bath, parity; [progressBar])`

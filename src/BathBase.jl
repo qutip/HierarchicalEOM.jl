@@ -5,11 +5,11 @@ abstract type AbstractBath end
 An object for bosonic bath correlation
 
 ## Fields
-- `c_list`: the coefficient ``c_i`` in bosonic bath correlation functions (``\\sum_i c_i e^{-\\nu_i t}``).
-- `ν_list`: the coefficient ``\\nu_i`` in bosonic bath correlation functions (``\\sum_i c_i e^{-\\nu_i t}``).
-- `coupOP`: the operator(s) describing the coupling between system and bosonic bath.
-- `N_term`: the number of exponential-expansion term of correlation function
-- `N_oper`: the number of coupling operators
+- `c_list` : the coefficient ``c_i`` in bosonic bath correlation functions (``\\sum_i c_i e^{-\\nu_i t}``).
+- `ν_list` : the coefficient ``\\nu_i`` in bosonic bath correlation functions (``\\sum_i c_i e^{-\\nu_i t}``).
+- `coupOP` : the operator(s) describing the coupling between system and bosonic bath.
+- `N_term` : the number of exponential-expansion term of correlation function
+- `N_oper` : the number of coupling operators
 
 ## Constructor
 `BosonicBath(c_list, ν_list, coupOP)`
@@ -46,11 +46,11 @@ end
 An object for fermionic bath correlation
 
 ## Fields
-- `η_list`: the coefficient ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
-- `γ_list`: the coefficient ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
-- `coupOP`: the operator(s) describing the coupling between system and fermionic bath.
-- `N_term`: the number of exponential-expansion term of correlation function
-- `N_oper`: the number of coupling operators
+- `η_list` : the coefficient ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
+- `γ_list` : the coefficient ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
+- `coupOP` : the operator(s) describing the coupling between system and fermionic bath.
+- `N_term` : the number of exponential-expansion term of correlation function
+- `N_oper` : the number of coupling operators
 
 ## Constructor
 `FermionicBath(η_list, γ_list, coupOP)`

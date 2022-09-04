@@ -3,18 +3,18 @@
 The Auxiliary Density Operators for Heom model.
 
 ## Fields
-- `data::Vector{ComplexF64}` : the sparse vector
+- `data::Vector{ComplexF64}` : the vectorized auxiliary density operators
 - `dim::Int` : the dimension of the system
-- `Nb::Int` : the number of bosonic states
-- `Nf::Int` : the number of fermionic states
+- `Nb::Int`  : the number of bosonic states
+- `Nf::Int`  : the number of fermionic states
 
 ## Constructor
 `ADOs(V, dim, Nb, Nf)`
 
-- `data::Vector{ComplexF64}` : the sparse vector
+- `data::Vector{ComplexF64}` : the vectorized auxiliary density operators
 - `dim::Int` : the dimension of the system
-- `Nb::Int` : the number of bosonic states. Defaults to 0.
-- `Nf::Int` : the number of fermionic states Defaults to 0.
+- `Nb::Int`  : the number of bosonic states. Defaults to 0.
+- `Nf::Int`  : the number of fermionic states Defaults to 0.
 """
 mutable struct ADOs 
     data::Vector{ComplexF64}
@@ -112,8 +112,8 @@ Return the auxiliary density operator with specific indices *[only for mixtured 
 
 ## Parameters
 - `ados::ADOs` : the auxiliary density operators for Heom model
-- `idx_b::Int`   : the bosonic-state index of the auxiliary density operator.
-- `idx_f::Int`   : the fermionic-state index of the auxiliary density operator.
+- `idx_b::Int` : the bosonic-state index of the auxiliary density operator.
+- `idx_f::Int` : the fermionic-state index of the auxiliary density operator.
 
 ## Returns
 - `ρ_idx` : The auxiliary density operator
