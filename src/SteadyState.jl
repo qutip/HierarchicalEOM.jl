@@ -3,7 +3,7 @@
 Solve the steady state of the given Heom matrix.
 
 ## Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model (the parity should be either \":none (boson)\" or \":even (fermion)\".)
+- `M::AbstractHEOMMatrix` : the matrix given from HEOM model, where the parity should be either `:none` (boson) or `:even` (fermion).
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `SOLVEROptions` : extra options for solver 
 
@@ -13,7 +13,7 @@ Solve the steady state of the given Heom matrix.
 function Steadystate(M::AbstractHEOMMatrix; solver=UMFPACKFactorization(), SOLVEROptions...)
     # check parity
     if (M.parity != :even) && (M.parity != :none)
-        error("The parity of M should be either \":none (bonson)\" or \":even (fermion)\".")
+        error("The parity of M should be either \":none\" (bonson) or \":even\" (fermion).")
     end    
 
     A = copy(M.data)

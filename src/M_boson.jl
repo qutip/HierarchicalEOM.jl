@@ -10,7 +10,7 @@ Heom matrix for bosonic bath
 - `Nb::Int` : the number of bosonic states
 - `Nf::Int` : the number of fermionic states (should be zero)
 - `sup_dim::Int` : the dimension of system superoperator
-- `parity::Symbol` : the parity of the density matrix
+- `parity::Symbol` : the parity of the density matrix (restrict to `:none` for boson)
 - `ado2idx::OrderedDict{Vector{Int}, Int}` : the ADO-to-index dictionary
 
 ## Constructor
