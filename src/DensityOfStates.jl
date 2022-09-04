@@ -82,6 +82,7 @@ function DOS(
     local b_plus ::Vector{ComplexF64} = -1 * C_dagger * b
 
     print("Start calculating density of states...")
+    dos::Vector{Float64} = []
     if progressBar
         print("\n")
         prog = Progress(length(ω_list); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
