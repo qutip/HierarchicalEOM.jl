@@ -82,34 +82,17 @@ function DOS(
     local b_plus ::Vector{ComplexF64} = -1 * C_dagger * b
 
     print("Start calculating density of states...")
-    
-    # solve for the first ω in ω_list to obtain the cache from the LinearSolve solution
     if progressBar
         print("\n")
         prog = Progress(length(ω_list); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
     end
-    ω = ω_list[1]
-    sol_m = solve(LinearProblem(A_minus(ω, M.data, I_total), b_minus), solver, SOLVEROptions...)
-    sol_p = solve(LinearProblem( A_plus(ω, M.data, I_total), b_plus ), solver, SOLVEROptions...)
-    cache_m  = sol_m.cache
-    cache_p  = sol_p.cache
-    Cω_minus = C_dagger * sol_m.u
-    Cω_plus  = C_normal * sol_p.u
-    dos = [real(I_dual_vec * Cω_minus[1:(M.sup_dim)]) + real(I_dual_vec * Cω_plus[1:(M.sup_dim)])]
-    if progressBar
-        next!(prog)
-    end 
-
-    # take the cache to solve for the rest of the ω in ω_list
-    for ω in ω_list[2:end]
-
-        sol_m    = solve(set_A(cache_m, A_minus(ω, M.data, I_total)), solver, SOLVEROptions...)
+    for ω in ω_list
+        sol_m = solve(LinearProblem(A_minus(ω, M.data, I_total), b_minus), solver, SOLVEROptions...)
+        sol_p = solve(LinearProblem( A_plus(ω, M.data, I_total), b_plus ), solver, SOLVEROptions...)
         Cω_minus = C_dagger * sol_m.u
-        
-        sol_p    = solve(set_A(cache_p,  A_plus(ω, M.data, I_total)), solver, SOLVEROptions...)
         Cω_plus  = C_normal * sol_p.u
 
-        # trace over the hilbert space of system (expectation value)
+        # trace over the Hilbert space of system (expectation value)
         push!(dos, real(I_dual_vec * Cω_minus[1:(M.sup_dim)]) + real(I_dual_vec * Cω_plus[1:(M.sup_dim)]))
 
         if progressBar
