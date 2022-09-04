@@ -63,7 +63,7 @@ module Heom
     module SteadyState
         import ..HeomBase: AbstractHEOMMatrix, ADOs
         import SparseArrays: sparse, sparsevec
-        import LinearSolve: LinearProblem, solve, KLUFactorization
+        import LinearSolve: LinearProblem, solve, UMFPACKFactorization
 
         export Steadystate
 
@@ -76,7 +76,7 @@ module Heom
         import ..HeomBase: AbstractHEOMMatrix, ADOs, spre
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, sparsevec, SparseVector
-        import LinearSolve: LinearProblem, solve, set_A, KLUFactorization
+        import LinearSolve: LinearProblem, solve, set_A, UMFPACKFactorization
         import ProgressMeter: Progress, next!        
         import ..Heom: PROGBAR_OPTIONS
 

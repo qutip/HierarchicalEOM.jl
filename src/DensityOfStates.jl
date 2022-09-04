@@ -15,7 +15,7 @@ Calculate density of states.
 - `ρ::Union{AbstractMatrix, ADOs}` :  the system density matrix or the auxiliary density operators.
 - `ω_list::AbstractVector` : the specific frequency points to solve.
 - `OP::AbstractMatrix` : The system operator for the two-time correlation function in frequency domain.
-- `solver` : solver in package `LinearSolve.jl`. Default to `KLUFactorization(;reuse_symbolic=true)`.
+- `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver 
 
@@ -27,7 +27,7 @@ function DOS(
         ρ::T, 
         ω_list::AbstractVector, 
         OP::AbstractMatrix; 
-        solver=KLUFactorization(;reuse_symbolic=true), 
+        solver=UMFPACKFactorization(), 
         progressBar::Bool = true,
         SOLVEROptions...
     ) where T <: Union{AbstractMatrix, ADOs}
