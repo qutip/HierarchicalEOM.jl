@@ -33,6 +33,7 @@ module Heom
 
         export
             AbstractHEOMMatrix, M_Fermion, M_Boson, M_Boson_Fermion, M_CavBath, 
+            odd, even, none,
             ADOs, getRho, getADO,
             addDissipator!, spre, spost
 
