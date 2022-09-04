@@ -87,6 +87,10 @@ Return the auxiliary density operator with a specific index from auxiliary densi
 - `ρ_idx` : The auxiliary density operator
 """
 function getADO(ados::ADOs, idx::Int)
+    if (ados.Nb != 0) && (ados.Nf != 0)
+        error("The given ADOs is from mixed (bosonic and fermionic) bath, use function \"getADO(ados, idx_b, idx_f)\" instead.")
+    end
+
     if idx < 1
         error("idx must be greater than 0")
     end
