@@ -82,19 +82,20 @@ function DOS(
     local b_plus ::Vector{ComplexF64} = -1 * C_dagger * b
 
     print("Start calculating density of states...")
-    dos::Vector{Float64} = []
+    Length = length(ω_list)
+    dos    = Vector{Float64}(undef, length(Length))
     if progressBar
         print("\n")
-        prog = Progress(length(ω_list); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
+        prog = Progress(Length; start=1, desc="Progress : ", PROGBAR_OPTIONS...)
     end
-    for ω in ω_list
-        sol_m = solve(LinearProblem(A_minus(ω, M.data, I_total), b_minus), solver, SOLVEROptions...)
-        sol_p = solve(LinearProblem( A_plus(ω, M.data, I_total), b_plus ), solver, SOLVEROptions...)
+    @inbounds for i in 1:Length
+        sol_m = solve(LinearProblem(A_minus(ω_list[i], M.data, I_total), b_minus), solver, SOLVEROptions...)
+        sol_p = solve(LinearProblem( A_plus(ω_list[i], M.data, I_total), b_plus ), solver, SOLVEROptions...)
         Cω_minus = C_dagger * sol_m.u
         Cω_plus  = C_normal * sol_p.u
 
         # trace over the Hilbert space of system (expectation value)
-        push!(dos, real(I_dual_vec * Cω_minus[1:(M.sup_dim)]) + real(I_dual_vec * Cω_plus[1:(M.sup_dim)]))
+        dos[i] = real(I_dual_vec * Cω_minus[1:(M.sup_dim)]) + real(I_dual_vec * Cω_plus[1:(M.sup_dim)])
 
         if progressBar
             next!(prog)
