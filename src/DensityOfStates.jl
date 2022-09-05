@@ -37,12 +37,17 @@ function DOS(
         error("The parity of M must be \":odd\".")
     end    
 
+    Size, = size(M)
+    I_total = sparse(I, Size, Size)
+    I_heom  = sparse(I, M.N, M.N)
+
     local b::AbstractVector
 
     # check ρ
     if T <: AbstractMatrix
         if size(ρ) == (M.dim, M.dim) 
-            b = sparse(sparsevec(ρ))
+            v = sparsevec(ρ)
+            b = sparsevec(v.nzind, v.nzval, Size)
         else
             error("The dimension of ρ should be equal to \"($(M.dim), $(M.dim))\".")
         end
@@ -67,10 +72,6 @@ function DOS(
     if size(OP) != (M.dim, M.dim)
         error("The dimension of OP should be equal to \"($(M.dim), $(M.dim))\".")
     end
-
-    Size, = size(M)
-    I_total = sparse(I, Size, Size)
-    I_heom  = sparse(I, M.N, M.N)
 
     # equal to : transpose(sparse(vec(system_identity_matrix)))
     I_dual_vec = transpose(sparsevec([1 + n * (M.dim + 1) for n in 0:(M.dim - 1)], ones(M.dim), M.sup_dim))
