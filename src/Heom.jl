@@ -77,12 +77,13 @@ module Heom
         import ..HeomBase: AbstractHEOMMatrix, ADOs, spre
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, sparsevec, SparseVector
-        import LinearSolve: LinearProblem, solve, UMFPACKFactorization
+        import LinearSolve: LinearProblem, solve, LinearCache, set_A, set_b, UMFPACKFactorization
         import ProgressMeter: Progress, next!        
         import ..Heom: PROGBAR_OPTIONS
 
-        export DOS
+        export PSD, DOS
 
+        include("PowerSpectralDensity.jl")
         include("DensityOfStates.jl")
     end
     @reexport using .Spectrum

@@ -1,6 +1,6 @@
 """
-# `DOS(M, ρ, ω_list, OP; [solver, progressBar, SOLVEROptions...])`
-Calculate density of states.
+# `PSD(M, ρ, ω_list, OP; [solver, progressBar, SOLVEROptions...])`
+Calculate power spectral density.
 
 ## Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model (the parity must be `:odd`.)
@@ -12,9 +12,9 @@ Calculate density of states.
 - `SOLVEROptions` : extra options for solver 
 
 ## Returns
-- `dos::AbstractVector` : density of state
+- `psd::AbstractVector` : power spectral density
 """
-function DOS(
+function PSD(
         M::AbstractHEOMMatrix, 
         ρ::T, 
         ω_list::AbstractVector, 
@@ -24,10 +24,14 @@ function DOS(
         SOLVEROptions...
     ) where T <: Union{AbstractMatrix, ADOs}
 
-    # check parity
-    if (M.parity != :odd)
-        error("The parity of M must be \":odd\".")
-    end    
+    # check number of bosonic states
+    if (M.Nb == 0)
+        error("The number of bosonic states must be greater than zero, i.e., \"M.Nb > 0\".")
+
+    # if the bath encludes fermion states, check parity
+    elseif (M.parity == :odd)
+        error("The parity of M must be \":none\" (bosonic) or \":even\" (mixed) bath.")
+    end
 
     Size, = size(M)
     I_total = sparse(I, Size, Size)
@@ -68,17 +72,15 @@ function DOS(
     # equal to : transpose(sparse(vec(system_identity_matrix)))
     I_dual_vec = transpose(sparsevec([1 + n * (M.dim + 1) for n in 0:(M.dim - 1)], ones(M.dim), M.sup_dim))
 
-    # operators for calculating two-time correlation functions in frequency domain
+    # operator for calculating two-time correlation functions in frequency domain
     C_normal = kron(I_heom, spre(OP))
     C_dagger = kron(I_heom, spre(OP'))
-    local b_minus::Vector{ComplexF64} = -1 * C_normal * b
-    local b_plus ::Vector{ComplexF64} = -1 * C_dagger * b
+    local Cb::Vector{ComplexF64} = -1 * C_normal * b
 
-    print("Start calculating density of states...")
+    print("Start calculating power spectral density...")
     Length = length(ω_list)
-    dos    = Vector{Float64}(undef, length(Length))
-    local cache_minus::LinearCache
-    local cache_plus ::LinearCache
+    psd    = Vector{Float64}(undef, length(Length))
+    local cache::LinearCache
     local NoCache::Bool = true
     if progressBar
         print("\n")
@@ -86,27 +88,22 @@ function DOS(
     end
     @inbounds for (i, ω) in enumerate(ω_list)
         if ω == 0
-            sol_m = solve(LinearProblem(M.data, b_minus), solver, SOLVEROptions...)
-            sol_p = solve(set_b(sol_m.cache, b_plus),     solver, SOLVEROptions...)
+            sol = solve(LinearProblem(M.data, Cb), solver, SOLVEROptions...)
         
         else
             Iω = 1im * ω * I_total
             if NoCache
-                sol_m = solve(LinearProblem(M.data - Iω, b_minus), solver, SOLVEROptions...)
-                sol_p = solve(LinearProblem(M.data + Iω,  b_plus), solver, SOLVEROptions...)
-                cache_minus = sol_m.cache
-                cache_plus  = sol_p.cache
+                sol = solve(LinearProblem(M.data - Iω, Cb), solver, SOLVEROptions...)
+                cache = sol.cache
                 NoCache = false
             else
-                sol_m = solve(set_A(cache_minus, M.data - Iω), solver, SOLVEROptions...)
-                sol_p = solve(set_A(cache_plus,  M.data + Iω), solver, SOLVEROptions...)
+                sol = solve(set_A(cache, M.data - Iω), solver, SOLVEROptions...)
             end
         end
-        Cω_minus = C_dagger * sol_m.u
-        Cω_plus  = C_normal * sol_p.u
-        
+        Cω = C_dagger * sol.u
+
         # trace over the Hilbert space of system (expectation value)
-        dos[i] = real(I_dual_vec * Cω_minus[1:(M.sup_dim)]) + real(I_dual_vec * Cω_plus[1:(M.sup_dim)])
+        psd[i] = real(I_dual_vec * Cω[1:(M.sup_dim)])
 
         if progressBar
             next!(prog)
