@@ -77,9 +77,6 @@ function DOS(
     print("Start calculating density of states...")
     Length = length(ω_list)
     dos    = Vector{Float64}(undef, length(Length))
-    local cache_minus::LinearCache
-    local cache_plus ::LinearCache
-    local NoCache::Bool = true
     if progressBar
         print("\n")
         prog = Progress(Length; start=1, desc="Progress : ", PROGBAR_OPTIONS...)
@@ -88,19 +85,10 @@ function DOS(
         if ω == 0
             sol_m = solve(LinearProblem(M.data, b_minus), solver, SOLVEROptions...)
             sol_p = solve(set_b(sol_m.cache, b_plus),     solver, SOLVEROptions...)
-        
         else
             Iω = 1im * ω * I_total
-            if NoCache
-                sol_m = solve(LinearProblem(M.data - Iω, b_minus), solver, SOLVEROptions...)
-                sol_p = solve(LinearProblem(M.data + Iω,  b_plus), solver, SOLVEROptions...)
-                cache_minus = sol_m.cache
-                cache_plus  = sol_p.cache
-                NoCache = false
-            else
-                sol_m = solve(set_A(cache_minus, M.data - Iω), solver, SOLVEROptions...)
-                sol_p = solve(set_A(cache_plus,  M.data + Iω), solver, SOLVEROptions...)
-            end
+            sol_m = solve(LinearProblem(M.data - Iω, b_minus), solver, SOLVEROptions...)
+            sol_p = solve(LinearProblem(M.data + Iω, b_plus),  solver, SOLVEROptions...)
         end
         Cω_minus = C_dagger * sol_m.u
         Cω_plus  = C_normal * sol_p.u

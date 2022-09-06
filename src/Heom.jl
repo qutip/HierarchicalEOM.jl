@@ -77,7 +77,7 @@ module Heom
         import ..HeomBase: AbstractHEOMMatrix, ADOs, spre
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, sparsevec, SparseVector
-        import LinearSolve: LinearProblem, solve, LinearCache, set_A, set_b, UMFPACKFactorization
+        import LinearSolve: LinearProblem, solve, set_b, UMFPACKFactorization
         import ProgressMeter: Progress, next!        
         import ..Heom: PROGBAR_OPTIONS
 

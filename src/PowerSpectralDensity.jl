@@ -80,8 +80,6 @@ function PSD(
     print("Start calculating power spectral density...")
     Length = length(ω_list)
     psd    = Vector{Float64}(undef, length(Length))
-    local cache::LinearCache
-    local NoCache::Bool = true
     if progressBar
         print("\n")
         prog = Progress(Length; start=1, desc="Progress : ", PROGBAR_OPTIONS...)
@@ -89,16 +87,9 @@ function PSD(
     @inbounds for (i, ω) in enumerate(ω_list)
         if ω == 0
             sol = solve(LinearProblem(M.data, Cb), solver, SOLVEROptions...)
-        
         else
             Iω = 1im * ω * I_total
-            if NoCache
-                sol = solve(LinearProblem(M.data - Iω, Cb), solver, SOLVEROptions...)
-                cache = sol.cache
-                NoCache = false
-            else
-                sol = solve(set_A(cache, M.data - Iω), solver, SOLVEROptions...)
-            end
+            sol = solve(LinearProblem(M.data - Iω, Cb), solver, SOLVEROptions...)
         end
         Cω = C_dagger * sol.u
 
