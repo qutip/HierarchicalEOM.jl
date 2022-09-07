@@ -9,6 +9,7 @@ Calculate power spectral density.
 - `OP::AbstractMatrix` : The system operator for the two-time correlation function in frequency domain.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
+- `filename::String` : If filename was specified, the value of psd for each ω will be saved into the file.
 - `SOLVEROptions` : extra options for solver 
 
 ## Returns
@@ -21,8 +22,14 @@ function PSD(
         OP::AbstractMatrix; 
         solver=UMFPACKFactorization(), 
         progressBar::Bool = true,
+        filename::String = "",
         SOLVEROptions...
     ) where T <: Union{AbstractMatrix, ADOs}
+
+    SAVE::Bool = (filename != "")
+    if SAVE && isfile(filename)
+        error("FILE: $(filename) already exist.")
+    end
 
     # check number of bosonic states
     if (M.Nb == 0)
@@ -95,6 +102,12 @@ function PSD(
 
         # trace over the Hilbert space of system (expectation value)
         psd[i] = real(I_dual_vec * Cω[1:(M.sup_dim)])
+
+        if SAVE
+            open(filename, "a") do file
+                write(file, "$(psd[i]),\n")
+            end
+        end
 
         if progressBar
             next!(prog)

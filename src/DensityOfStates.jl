@@ -9,6 +9,7 @@ Calculate density of states.
 - `OP::AbstractMatrix` : The system operator for the two-time correlation function in frequency domain.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
+- `filename::String` : If filename was specified, the value of dos for each ω will be saved into the file.
 - `SOLVEROptions` : extra options for solver 
 
 ## Returns
@@ -21,8 +22,14 @@ function DOS(
         OP::AbstractMatrix; 
         solver=UMFPACKFactorization(), 
         progressBar::Bool = true,
+        filename::String = "",
         SOLVEROptions...
     ) where T <: Union{AbstractMatrix, ADOs}
+
+    SAVE::Bool = (filename != "")
+    if SAVE && isfile(filename)
+        error("FILE: $(filename) already exist.")
+    end
 
     # check parity
     if (M.parity != :odd)
@@ -95,6 +102,12 @@ function DOS(
         
         # trace over the Hilbert space of system (expectation value)
         dos[i] = real(I_dual_vec * Cω_minus[1:(M.sup_dim)]) + real(I_dual_vec * Cω_plus[1:(M.sup_dim)])
+
+        if SAVE
+            open(filename, "a") do file
+                write(file, "$(dos[i]),\n")
+            end
+        end
 
         if progressBar
             next!(prog)
