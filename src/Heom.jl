@@ -15,7 +15,7 @@ module Heom
             pade_NmN
 
         include("BathBase.jl")
-        include("extra_func.jl")
+        include("correlation_utils.jl")
     end
     @reexport using .Bath
     
