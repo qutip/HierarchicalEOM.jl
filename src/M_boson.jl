@@ -39,8 +39,8 @@ mutable struct M_Boson <: AbstractHEOMMatrix
             progressBar::Bool=true
         )
 
-        c_list = bath.c_list
-        ν_list = bath.ν_list
+        c_list = bath.η_list
+        ν_list = bath.γ_list
         Coup_Op = bath.coupOP
         N_exp_term = bath.N_term
     

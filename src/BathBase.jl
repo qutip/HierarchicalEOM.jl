@@ -5,39 +5,38 @@ abstract type AbstractBath end
 An object for bosonic bath correlation
 
 ## Fields
-- `c_list` : the coefficient ``c_i`` in bosonic bath correlation functions (``\\sum_i c_i e^{-\\nu_i t}``).
-- `ν_list` : the coefficient ``\\nu_i`` in bosonic bath correlation functions (``\\sum_i c_i e^{-\\nu_i t}``).
-- `coupOP` : the operator(s) describing the coupling between system and bosonic bath.
+- `η_list` : the coefficient ``\\eta_i`` in bosonic bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
+- `γ_list` : the coefficient ``\\gamma_i`` in bosonic bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
+- `coupOP` : the operator describing the coupling between system and bosonic bath.
 - `N_term` : the number of exponential-expansion term of correlation function
-- `N_oper` : the number of coupling operators
+- `N_oper` : the number of coupling operator (should be 1 for boson)
 
 ## Constructor
-`BosonicBath(c_list, ν_list, coupOP)`
+`BosonicBath(η_list, γ_list, coupOP)`
 """
 mutable struct BosonicBath <: AbstractBath
-    c_list
-    ν_list
+    η_list
+    γ_list
     coupOP
     N_term::Int
     N_oper::Int
 
     function BosonicBath(
-            c_list::Vector{Ti},
-            ν_list::Vector{Tj},
+            η_list::Vector{Ti},
+            γ_list::Vector{Tj},
             coupOP::T
         ) where {Ti, Tj, T}
 
         if (Ti <: Number) && (Tj <: Number) && (T <: AbstractMatrix)
-            # check if the length of c_list and ν_list are valid
-            N_exp_term = length(c_list)
-            N_operator = 1
-            if N_exp_term != length(ν_list)
-                error("The length of \'c_list\' and \'ν_list\' should be the same.")
+            # check if the length of η_list and γ_list are valid
+            N_exp_term = length(η_list)
+            if N_exp_term != length(γ_list)
+                error("The length of \'η_list\' and \'γ_list\' should be the same.")
             end
         else
-            error("The type of \'c_list\', \'ν_list\', and coupOP are not correct.")
+            error("The type of \'η_list\', \'γ_list\', and coupOP are not correct.")
         end
-        return new(c_list, ν_list, coupOP, N_exp_term, N_operator)
+        return new(η_list, γ_list, coupOP, N_exp_term, 1)
     end
 end
 
@@ -48,7 +47,7 @@ An object for fermionic bath correlation
 ## Fields
 - `η_list` : the coefficient ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_list` : the coefficient ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
-- `coupOP` : the operator(s) describing the coupling between system and fermionic bath.
+- `coupOP` : the operators describing the coupling between system and fermionic bath.
 - `N_term` : the number of exponential-expansion term of correlation function
 - `N_oper` : the number of coupling operators
 

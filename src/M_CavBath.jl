@@ -57,8 +57,8 @@ mutable struct M_CavBath <: AbstractHEOMMatrix
         sup_dim = Nsys ^ 2
         I_sup   = sparse(I, sup_dim, sup_dim)
 
-        c_list = bath_b.c_list
-        ν_list = bath_b.ν_list
+        c_list = bath_b.η_list
+        ν_list = bath_b.γ_list
         η_list = bath_f.η_list
         γ_list = bath_f.γ_list
         Coup_Op_b = bath_b.coupOP
