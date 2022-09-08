@@ -9,19 +9,20 @@ module Heom
     # sub-module Bath for Heom
     module Bath
         import LinearAlgebra: eigvals
+        import SparseArrays: sparse
 
         export 
-            AbstractBath, BosonicBath, FermionicBath,
+            AbstractBath, BosonBath, FermionBath, CoupOp,
             pade_NmN
 
-        include("BathBase.jl")
+        include("Bath.jl")
         include("correlation_utils.jl")
     end
     @reexport using .Bath
     
     # sub-module HeomBase for Heom
     module HeomBase
-        import ..Bath: AbstractBath, BosonicBath, FermionicBath
+        import ..Bath: AbstractBath, BosonBath, FermionBath
         import Base: size
         import LinearAlgebra: I, kron
         import OrderedCollections: OrderedDict

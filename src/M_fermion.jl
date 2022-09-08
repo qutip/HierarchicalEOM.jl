@@ -18,7 +18,7 @@ Heom matrix for fermionic bath
 
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
-- `bath::FermionicBath` : an object for the fermionic bath correlation
+- `bath::FermionBath` : an object for the fermionic bath correlation
 - `parity::Symbol` : The parity symbol of the density matrix (either `:odd` or `:even`). Defaults to `:even`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
@@ -36,7 +36,7 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
     function M_Fermion(        
             Hsys::AbstractMatrix,
             tier::Int,
-            bath::FermionicBath,
+            bath::FermionBath,
             parity::Symbol=:even;
             progressBar::Bool=true
         )
@@ -49,13 +49,16 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
         sup_dim = Nsys ^ 2
         I_sup   = sparse(I, sup_dim, sup_dim)
 
+        if bath.dim != Nsys
+            error("The dimension of system is not consistent with bath coupling operators.")
+        end
         η_list = bath.η_list
         γ_list = bath.γ_list
-        Coup_Ops   = bath.coupOP
-        N_oper     = bath.N_oper
+        Coup_Ops   = bath.Op
+        N_oper     = length(Coup_Ops)
         N_exp_term = bath.N_term
             
-        dims    = [2 for i in 1:(N_exp_term * N_oper)]
+        dims    = fill(2, N_exp_term * N_oper)
     
         spreQ   = spre.(Coup_Ops)
         spostQ  = spost.(Coup_Ops)

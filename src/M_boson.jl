@@ -18,7 +18,7 @@ Heom matrix for bosonic bath
 
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
-- `bath::BosonicBath` : an object for the bosonic bath correlation
+- `bath::BosonBath` : an object for the bosonic bath correlation
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
 mutable struct M_Boson <: AbstractHEOMMatrix
@@ -35,19 +35,23 @@ mutable struct M_Boson <: AbstractHEOMMatrix
     function M_Boson(        
             Hsys::AbstractMatrix,
             tier::Int,
-            bath::BosonicBath;
+            bath::BosonBath;
             progressBar::Bool=true
         )
 
-        c_list = bath.η_list
-        ν_list = bath.γ_list
-        Coup_Op = bath.coupOP
-        N_exp_term = bath.N_term
-    
         Nsys,   = size(Hsys)
-        dims    = [(tier + 1) for i in 1:N_exp_term]
         sup_dim = Nsys ^ 2
         I_sup   = sparse(I, sup_dim, sup_dim)
+        
+        if bath.dim != Nsys
+            error("The dimension of system is not consistent with bath coupling operators.")
+        end
+        c_list = bath.η_list
+        ν_list = bath.γ_list
+        Coup_Op = bath.Op
+        N_exp_term = bath.N_term
+
+        dims    = fill((tier + 1), N_exp_term)
 
         spreQ  = spre(Coup_Op)
         spostQ = spost(Coup_Op)

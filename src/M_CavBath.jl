@@ -21,8 +21,8 @@ Heom matrix for mixtured bath (boson and fermionic) but setting the bosonic bath
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier_b::Int` : the tier (cutoff) for the bosonic bath
 - `tier_f::Int` : the tier (cutoff) for the fermionic bath
-- `bath_b::BosonicBath` : an object for the bosonic bath correlation
-- `bath_f::FermionicBath` : an object for the fermionic bath correlation
+- `bath_b::BosonBath` : an object for the bosonic bath correlation
+- `bath_f::FermionBath` : an object for the fermionic bath correlation
 - `parity::Symbol` : The parity symbol of the density matrix (either `:odd` or `:even`). Defaults to `:even`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
@@ -43,8 +43,8 @@ mutable struct M_CavBath <: AbstractHEOMMatrix
             Hsys::AbstractMatrix,
             tier_b::Int,
             tier_f::Int,
-            bath_b::BosonicBath,
-            bath_f::FermionicBath,
+            bath_b::BosonBath,
+            bath_f::FermionBath,
             parity::Symbol=:even;
             progressBar::Bool=true
         )
@@ -57,18 +57,23 @@ mutable struct M_CavBath <: AbstractHEOMMatrix
         sup_dim = Nsys ^ 2
         I_sup   = sparse(I, sup_dim, sup_dim)
 
+        if bath_b.dim != Nsys
+            error("The dimension of system is not consistent with bosonic bath coupling operators.")
+        elseif bath_f.dim != Nsys
+            error("The dimension of system is not consistent with fermionic bath coupling operators.")
+        end
         c_list = bath_b.η_list
         ν_list = bath_b.γ_list
         η_list = bath_f.η_list
         γ_list = bath_f.γ_list
-        Coup_Op_b = bath_b.coupOP
-        Coup_Op_f = bath_f.coupOP
-        N_oper_f  = bath_f.N_oper
+        Coup_Op_b = bath_b.Op
+        Coup_Op_f = bath_f.Op
+        N_oper_f  = length(Coup_Op_f)
         N_exp_term_b = bath_b.N_term
         N_exp_term_f = bath_f.N_term
 
-        dims_b    = [(tier_b + 1) for i in 1:N_exp_term_b]
-        dims_f    = [2 for i in 1:(N_exp_term_f * N_oper_f)]
+        dims_b    = fill((tier_b + 1), N_exp_term_b)
+        dims_f    = fill(2, (N_exp_term_f * N_oper_f))
     
         spreQ_b   = spre.(Coup_Op_b)
         spostQ_b  = spost.(Coup_Op_b)
