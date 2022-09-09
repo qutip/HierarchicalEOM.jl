@@ -7,9 +7,6 @@ const none = nothing;
 
 size(A::AbstractHEOMMatrix) = size(A.data)
 
-spre(q::AbstractMatrix)  = sparse(kron(Matrix(I, size(q)[1], size(q)[1]), q))
-spost(q::AbstractMatrix) = sparse(kron(transpose(q), Matrix(I, size(q)[1], size(q)[1])))
-
 """
 # `addDissipator!(M, jumpOP)`
 Adding dissipator to a given HEOM matrix.

@@ -1,31 +1,38 @@
 abstract type AbstractBath end
 
+spre(q::AbstractMatrix)  = sparse(kron(Matrix(I, size(q)[1], size(q)[1]), q))
+spost(q::AbstractMatrix) = sparse(kron(transpose(q), Matrix(I, size(q)[1], size(q)[1])))
+
 """
-# `CoupOp`
-An object which describes the specific coupling operator between system and bath
+# `bosonOP`
+An object which describes the coupling operator between system and bosonic bath
 
 ## Fields
-- `Op` : the operator acting on system which describes the coupling between system and bath.
+- `spre`  : the super-operator (right side operator multiplication) for the operator.
+- `spost` : the super-operator (left side operator multiplication) for the operator.
+- `comm`  : the super-operator (commutator) for the operator.
 - `dim` : the dimension of the operator (should be equal to the system dimension).
 - `η_list` : the coefficient ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_list` : the coefficient ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `N_term` : the number of exponential-expansion term of correlation function
 
 ## Constructor
-`CoupOp(Op, η_list, γ_list)`
+`bosonOp(Op, η_list, γ_list)`
 
-- `Op::AbstractMatrix` : the operator acting on system which describes the coupling between system and bath.
+- `Op::AbstractMatrix` : The system operator according to the system-bosonic-bath interaction.
 - `η_list::Vector{Ti<:Number}` : the coefficient ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_list::Vector{Tj<:Number}` : the coefficient ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 """
-struct CoupOp
-    Op::AbstractMatrix
+struct bosonOP
+    spre::AbstractMatrix
+    spost::AbstractMatrix
+    comm::AbstractMatrix
     dim::Int
     η_list::AbstractVector
     γ_list::AbstractVector
     N_term::Int
     
-    function CoupOp(
+    function bosonOP(
             Op::AbstractMatrix,
             η_list::Vector{Ti},
             γ_list::Vector{Tj}
@@ -41,7 +48,9 @@ struct CoupOp
         if N_exp_term != length(γ_list)
             error("The length of \'η_list\' and \'γ_list\' should be the same.")
         end
-        return new(Op, N1, η_list, γ_list, N_exp_term)
+        spreQ  = spre(Op)
+        spostQ = spost(Op)
+        return new(spreQ, spostQ, spreQ - spostQ, N1, η_list, γ_list, N_exp_term)
     end
 end
 
@@ -50,23 +59,65 @@ end
 An object describing the interaction between system and bosonic bath
 
 ## Fields
-- `Op` : the operator acting on system which describes the coupling between system and bosonic bath.
+- `coup::bosonOP` : the object which describes the coupling operator between system and bosonic bath
+- `dim` : the dimension of the system dimension.
+- `N_term` : the total number of exponential-expansion term of correlation function
+
+## Constructor
+`BosonBath(coup::bosonOP)`
+"""
+struct BosonBath <: AbstractBath
+    coup::bosonOP
+    dim::Int
+    N_term::Int
+    
+    function BosonBath(
+            Op::AbstractMatrix,
+            η_list::Vector{Ti},
+            γ_list::Vector{Tj}
+        ) where {Ti, Tj <: Number}
+
+        bop = bosonOP(Op, η_list, γ_list)
+        return new(bop, bop.dim, bop.N_term)
+    end
+
+    function BosonBath(coup::bosonOP)
+        new(coup, coup.dim, coup.N_term)
+    end
+end
+
+"""
+# `fermionOP`
+An object which describes the coupling operator between system and fermionic bath
+
+## Fields
+- `spre`   : the super-operator (right side operator multiplication) for the operator.
+- `spost`  : the super-operator (left side operator multiplication) for the operator.
+- `spreD`  : the super-operator (right side operator multiplication) for the adjoint of the operator.
+- `spostD` : the super-operator (left side operator multiplication) for the adjoint of the operator.
 - `dim` : the dimension of the operator (should be equal to the system dimension).
 - `η_list` : the coefficient ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_list` : the coefficient ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `N_term` : the number of exponential-expansion term of correlation function
 
 ## Constructor
-`BosonBath(coup::CoupOp)`
+`fermionOP(Op, η_list, γ_list)`
+
+- `Op::AbstractMatrix` : The system operator according to the system-fermionic-bath interaction.
+- `η_list::Vector{Ti<:Number}` : the coefficient ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
+- `γ_list::Vector{Tj<:Number}` : the coefficient ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 """
-struct BosonBath <: AbstractBath
-    Op::AbstractMatrix
+struct fermionOP
+    spre::AbstractMatrix
+    spost::AbstractMatrix
+    spreD::AbstractMatrix
+    sposD::AbstractMatrix
     dim::Int
     η_list::AbstractVector
     γ_list::AbstractVector
     N_term::Int
     
-    function BosonBath(
+    function fermionOP(
             Op::AbstractMatrix,
             η_list::Vector{Ti},
             γ_list::Vector{Tj}
@@ -82,11 +133,7 @@ struct BosonBath <: AbstractBath
         if N_exp_term != length(γ_list)
             error("The length of \'η_list\' and \'γ_list\' should be the same.")
         end
-        return new(sparse(Op), N1, η_list, γ_list, N_exp_term)
-    end
-
-    function BosonBath(coup::CoupOp)
-        new(sparse(coup.Op), coup.dim, coup.η_list, coup.γ_list, coup.N_term)
+        return new(spre(Op), spost(Op), spre(adjoint(Op)), spost(adjoint(Op)), N1, η_list, γ_list, N_exp_term)
     end
 end
 
@@ -95,21 +142,17 @@ end
 An object describing the interaction between system and fermionic bath
 
 ## Fields
-- `Op` : the operators acting on system which describes the coupling between system and fermionic bath.
-- `dim` : the dimension of the operator (should be equal to the system dimension).
-- `η_list` : the coefficient ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
-- `γ_list` : the coefficient ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
-- `N_term` : the number of exponential-expansion term of correlation function
+- `coup::Vector{fermionOP}` : the operators acting on system which describes the coupling between system and fermionic bath.
+- `dim` : the dimension of system.
+- `N_term` : the total number of exponential-expansion term of correlation function
 
 ## Constructor
-- `FermionBath(coup::CoupOp...)`
-- `FermionBath(coup::Vector{CoupOp})`
+- `FermionBath(coup::fermionOP...)`
+- `FermionBath(coup::Vector{fermionOP})`
 """
 struct FermionBath <: AbstractBath
-    Op::AbstractVector
+    coup::Vector{fermionOP}
     dim::Int
-    η_list::AbstractVector
-    γ_list::AbstractVector
     N_term::Int
     
     function FermionBath(
@@ -119,52 +162,41 @@ struct FermionBath <: AbstractBath
         ) where {Ti, Tj, Tk}
 
         if (Ti <: AbstractMatrix) && (Tj <: AbstractVector) && (eltype(Tj) <: Number) && (Tk <: AbstractVector) && (eltype(Tk) <: Number)
-            # check if the length of η_list, γ_list, and Op are valid
-            N, N1 = size(Op[1])
-            if N != N1
-                error("All the operators \"Op\" should be squared matrices with same dimension.")
-            end
+            dim, = size(Op[1])
             N_operator = length(Op)
-            N_exp_term = length(η_list[1])
             if (N_operator != length(η_list)) || (N_operator != length(γ_list))
                 error("The length of \'η_list\', \'γ_list\', and \'Coup_Ops\' should all be the same.")
             end
+
+            Coup = []
+            N_exp_term = 0
             for i in 1:N_operator
-                if (N, N) != size(Op[i])
-                    error("All the operators \"Op\" should be squared matrices with same dimension.")
+                coup = fermionOP(Op[i], η_list[i], γ_list[i])
+                if coup.dim != dim
+                    error("All the dimensions of operators should be the same.")
                 end
-                if length(η_list[i]) != N_exp_term
-                    error("The length of each vector in \'η_list\' are wrong.")
-                end
-                if length(γ_list[i]) != N_exp_term
-                    error("The length of each vector in \'γ_list\' are wrong.")
-                end
+                push!(Coup, coup)
+                N_exp_term += coup.N_term
             end
         else
-            error("The type of \'η_list\', \'γ_list\', and Op are not correct.")
+            error("The type of \'η_list\', \'γ_list\', and \'Op\' are not correct.")
         end
-        return new(Op, N, η_list, γ_list, N_exp_term)
+        return new(Coup, dim, N_exp_term)
     end
 
-    function FermionBath(coup::CoupOp...) FermionBath([coup...]) end
+    function FermionBath(coup::fermionOP...) FermionBath([coup...]) end
 
-    function FermionBath(coup::Vector{CoupOp})
-        Op = [sparse(coup[1].Op)]
+    function FermionBath(coup::Vector{fermionOP})
         dim = coup[1].dim
-        η_list = [coup[1].η_list]
-        γ_list = [coup[1].γ_list]
-        N_term = coup[1].N_term
-        
-        for i in 2:length(coup)
+        N_exp_term = 0
+        N_operator = length(coup)
+        for i in 1:N_operator
             if coup[i].dim != dim
-                error("The system dimension of the coupling operators should be equal.")
-            elseif coup[i].N_term != N_term
-                error("The number of exponential-expansion terms of correlation function should be equal.")
+                error("All the dimensions of operators should be the same.")
             end
-            push!(Op, sparse(coup[i].Op))
-            push!(η_list, coup[i].η_list)
-            push!(γ_list, coup[i].γ_list)
+            N_exp_term += coup.N_term
         end
-        return new(Op, dim, η_list, γ_list, N_term)
+
+        return new(coup, dim, N_exp_term)
     end
 end

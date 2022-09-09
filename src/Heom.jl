@@ -8,11 +8,12 @@ module Heom
     
     # sub-module Bath for Heom
     module Bath
-        import LinearAlgebra: eigvals
+        import LinearAlgebra: I, kron, eigvals
         import SparseArrays: sparse
 
         export 
-            AbstractBath, BosonBath, FermionBath, CoupOp,
+            AbstractBath, BosonBath, FermionBath, 
+            bosonOP, fermionOP, spre, spost,
             pade_NmN
 
         include("Bath.jl")
@@ -22,7 +23,7 @@ module Heom
     
     # sub-module HeomBase for Heom
     module HeomBase
-        import ..Bath: AbstractBath, BosonBath, FermionBath
+        import ..Bath: AbstractBath, BosonBath, FermionBath, spre, spost
         import Base: size
         import LinearAlgebra: I, kron
         import OrderedCollections: OrderedDict
@@ -36,7 +37,7 @@ module Heom
             AbstractHEOMMatrix, M_Fermion, M_Boson, M_Boson_Fermion, M_CavBath, 
             odd, even, none,
             ADOs, getRho, getADO,
-            addDissipator!, spre, spost
+            addDissipator!
 
         include("HeomBase.jl")
         include("ADOs.jl")
