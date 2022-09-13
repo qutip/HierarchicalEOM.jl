@@ -17,7 +17,7 @@ An object which describes the coupling operator between system and bosonic bath
 - `N_term` : the number of exponential-expansion term of correlation function
 
 ## Constructor
-`bosonOp(Op, η_list, γ_list)`
+`bosonOP(Op, η_list, γ_list)`
 
 - `Op::AbstractMatrix` : The system operator according to the system-bosonic-bath interaction.
 - `η_list::Vector{Ti<:Number}` : the coefficient ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
@@ -189,12 +189,11 @@ struct FermionBath <: AbstractBath
     function FermionBath(coup::Vector{fermionOP})
         dim = coup[1].dim
         N_exp_term = 0
-        N_operator = length(coup)
-        for i in 1:N_operator
-            if coup[i].dim != dim
+        for op in coup
+            if op.dim != dim
                 error("All the dimensions of operators should be the same.")
             end
-            N_exp_term += coup.N_term
+            N_exp_term += op.N_term
         end
 
         return new(coup, dim, N_exp_term)
