@@ -13,7 +13,7 @@ module Heom
 
         export 
             AbstractBath, BosonBath, FermionBath, 
-            bosonOP, fermionOP, spre, spost,
+            spre, spost,
             pade_NmN
 
         include("Bath.jl")
