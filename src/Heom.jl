@@ -34,7 +34,7 @@ module Heom
         import ..Heom: PROGBAR_OPTIONS
 
         export
-            AbstractHEOMMatrix, M_Fermion, M_Boson, M_Boson_Fermion, M_CavBath, 
+            AbstractHEOMMatrix, M_Fermion, M_Boson, M_Boson_Fermion,
             odd, even, none,
             ADOs, getRho, getADO,
             addDissipator!
@@ -44,7 +44,6 @@ module Heom
         include("M_fermion.jl")
         include("M_boson.jl")
         include("M_boson_fermion.jl")
-        include("M_CavBath.jl")
     end
     @reexport using .HeomBase
 
