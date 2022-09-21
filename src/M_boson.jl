@@ -18,7 +18,7 @@ Heom matrix for bosonic bath
 
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
-- `bath::BosonBath` : an object for the bosonic bath correlation
+- `bath::Vector{BosonBath}` : objects for different bosonic baths
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
 mutable struct M_Boson <: AbstractHEOMMatrix
@@ -32,10 +32,14 @@ mutable struct M_Boson <: AbstractHEOMMatrix
     const parity::Symbol
     const ado2idx::OrderedDict{Vector{Int}, Int}
     
+    function M_Boson(Hsys::AbstractMatrix, tier::Int, bath::BosonBath; progressBar::Bool=true)
+        return M_Boson(Hsys, tier, [bath], progressBar = progressBar)
+    end
+    
     function M_Boson(        
             Hsys::AbstractMatrix,
             tier::Int,
-            bath::BosonBath;
+            bath::Vector{BosonBath};
             progressBar::Bool=true
         )
 
@@ -43,22 +47,19 @@ mutable struct M_Boson <: AbstractHEOMMatrix
         sup_dim = Nsys ^ 2
         I_sup   = sparse(I, sup_dim, sup_dim)
         
-        if bath.dim != Nsys
-            error("The dimension of system is not consistent with bath coupling operators.")
-        end
-        c_list = bath.η_list
-        ν_list = bath.γ_list
-        Coup_Op = bath.Op
-        N_exp_term = bath.N_term
+        # the liouvillian operator for free Hamiltonian term
+        Lsys = -1im * (spre(Hsys) - spost(Hsys))
 
-        dims    = fill((tier + 1), N_exp_term)
-
-        spreQ  = spre(Coup_Op)
-        spostQ = spost(Coup_Op)
-        commQ  = spreQ - spostQ
+        N_exp_term = 0
+        for bB in bath
+            if bB.dim != Nsys
+                error("The dimension of system Hamiltonian is not consistent with bath coupling operators.")
+            end
+            N_exp_term += bB.Nterm
+        end 
 
         # get ADOs dictionary
-        N_he, ado2idx_ordered, idx2ado = ADOs_dictionary(dims, tier)
+        N_he, ado2idx_ordered, idx2ado = ADOs_dictionary(fill((tier + 1), N_exp_term), tier)
         ado2idx = Dict(ado2idx_ordered)
 
         # start to construct the matrix
@@ -67,7 +68,7 @@ mutable struct M_Boson <: AbstractHEOMMatrix
         L_val = distribute([ComplexF64[] for _ in procs()])
         channel = RemoteChannel(() -> Channel{Bool}(), 1) # for updating the progress bar
         
-        println("Start constructing hierarchy matrix...(using $(nprocs()) processors)")
+        println("Start constructing hierarchy matrix (using $(nprocs()) processors)...")
         if progressBar
             prog = Progress(N_he; desc="Processing: ", PROGBAR_OPTIONS...)
         else
@@ -88,43 +89,38 @@ mutable struct M_Boson <: AbstractHEOMMatrix
                 @distributed (+) for idx in 1:N_he
                     state = idx2ado[idx]
                     n_exc = sum(state)
-                    sum_ω = 0.0
                     if n_exc >= 1
-                        for k in 1:N_exp_term
-                            if state[k] > 0
-                                sum_ω += state[k] * ν_list[k]
-                            end
-                        end
+                        sum_ω = sum_ω_boson(state, bath)
+                        op = Lsys - sum_ω * I_sup
+                    else
+                        op = Lsys
                     end
-                    row, col, val = pad_coo(- sum_ω * I_sup, N_he, N_he, idx, idx)
-                    push!(localpart(L_row)[1], row...)
-                    push!(localpart(L_col)[1], col...)
-                    push!(localpart(L_val)[1], val...)
+                    add_operator!(op, L_row, L_col, L_val, N_he, idx, idx)
 
+                    count = 0
                     state_neigh = copy(state)
-                    for k in 1:N_exp_term
-                        n_k = state[k]
-                        if n_k >= 1
-                            state_neigh[k] = n_k - 1
-                            idx_neigh = ado2idx[state_neigh]
-                            op = -1im * n_k * (c_list[k] * spreQ - conj(c_list[k]) * spostQ)
-                            row, col, val = pad_coo(op, N_he, N_he, idx, idx_neigh)
-                            push!(localpart(L_row)[1], row...)
-                            push!(localpart(L_col)[1], col...)
-                            push!(localpart(L_val)[1], val...)
-                            
-                            state_neigh[k] = n_k
-                        end
-                        if n_exc <= tier - 1
-                            state_neigh[k] = n_k + 1
-                            idx_neigh = ado2idx[state_neigh]
-                            op = -1im * commQ
-                            row, col, val = pad_coo(op, N_he, N_he, idx, idx_neigh)
-                            push!(localpart(L_row)[1], row...)
-                            push!(localpart(L_col)[1], col...)
-                            push!(localpart(L_val)[1], val...)
-                            
-                            state_neigh[k] = n_k
+                    for bB in bath
+                        for k in 1:bB.Nterm
+                            count += 1
+                            n_k = state[count]
+                            if n_k >= 1
+                                state_neigh[count] = n_k - 1
+                                idx_neigh = ado2idx[state_neigh]
+                                
+                                op = prev_grad_boson(bB, k, n_k)
+                                add_operator!(op, L_row, L_col, L_val, N_he, idx, idx_neigh)
+
+                                state_neigh[count] = n_k
+                            end
+                            if n_exc <= tier - 1
+                                state_neigh[count] = n_k + 1
+                                idx_neigh = ado2idx[state_neigh]
+                                
+                                op = next_grad_boson(bB)
+                                add_operator!(op, L_row, L_col, L_val, N_he, idx, idx_neigh)
+                                
+                                state_neigh[count] = n_k
+                            end
                         end
                     end
                     if progressBar
@@ -135,13 +131,10 @@ mutable struct M_Boson <: AbstractHEOMMatrix
                 put!(channel, false) # this tells the printing task to finish
             end
         end
-        println("Constructing matrix...")
+        print("Constructing matrix...")
         L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), N_he * sup_dim, N_he * sup_dim)
-
-        # add the liouville of system Hamiltonian term
-        L_he += kron(sparse(I, N_he, N_he), -1im * (spre(Hsys) - spost(Hsys)))
-        
         println("[DONE]")
+
         return new(L_he, tier, Nsys, N_he, N_he, 0, sup_dim, :none, ado2idx_ordered)
     end
 end

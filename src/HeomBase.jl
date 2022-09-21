@@ -159,3 +159,99 @@ function pad_coo(A::SparseMatrixCSC{T, Int64}, row_scale::Int, col_scale::Int, r
     
     return I, J, V
 end
+
+function add_operator!(op, I, J, V, N_he, row_idx, col_idx)
+    row, col, val = pad_coo(op, N_he, N_he, row_idx, col_idx)
+    push!(localpart(I)[1], row...)
+    push!(localpart(J)[1], col...)
+    push!(localpart(V)[1], val...)
+end
+
+# sum ω of bosonic bath for current gradient
+function sum_ω_boson(adoLabel, bath::Vector{BosonBath})
+    count = 0
+    sum_ω = 0.0
+    for b in bath
+        for k in 1:b.Nterm
+            count += 1
+            if adoLabel[count] > 0
+                sum_ω += adoLabel[count] * b.γ[k]
+            end
+        end
+    end
+    return sum_ω
+end
+
+# sum ω of fermionic bath for current gradient
+function sum_ω_fermion(adoLabel, bath::Vector{FermionBath})
+    count = 0
+    sum_ω = 0.0
+    for b in bath
+        # absorption
+        for k in 1:b.Nterm
+            count += 1
+            if adoLabel[count] > 0
+                sum_ω += adoLabel[count] * b.γ_absorb[k]
+            end
+        end
+
+        # emission
+        for k in 1:b.Nterm
+            count += 1
+            if adoLabel[count] > 0
+                sum_ω += adoLabel[count] * b.γ_emit[k]
+            end
+        end
+    end
+    return sum_ω
+end
+
+# boson operator for previous gradient
+function prev_grad_boson(bath::BosonBath, k, n_k)
+    pre  = bath.η[k] * bath.spre
+    post = conj(bath.η[k]) * bath.spost
+    return -1im * n_k * (pre - post)
+end
+
+# fermion operator for previous gradient
+function prev_grad_fermion(bath::FermionBath, k, n_exc, n_exc_before, parity, isAbsorb)
+    # absorption
+    if isAbsorb
+        pre  = bath.η_absorb[k] * bath.spreD 
+        post = conj(bath.η_emit[k]) * bath.spostD
+
+    # emission
+    else
+        pre  = bath.η_emit[k] * bath.spre
+        post = conj(bath.η_absorb[k]) * bath.spost
+    end
+
+    return -1im * ((-1) ^ n_exc_before) * (
+        (-1) ^ eval(parity) * pre - 
+        (-1) ^ (n_exc - 1)  * post
+    )
+end
+
+# boson operator for next gradient
+function next_grad_boson(bath::BosonBath)
+    return -1im * bath.comm
+end
+
+# fermion operator for next gradient
+function next_grad_fermion(bath::FermionBath, n_exc, n_exc_before, parity, isAbsorb)
+    # absorption
+    if isAbsorb
+        pre  = bath.spre
+        post = bath.spost
+
+    # emission
+    else
+        pre  = bath.spreD
+        post = bath.spostD
+    end
+    
+    return -1im * ((-1) ^ n_exc_before) * (
+        (-1) ^ eval(parity) * pre +
+        (-1) ^ (n_exc - 1)  * post
+    )
+end

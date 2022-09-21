@@ -18,7 +18,7 @@ Heom matrix for fermionic bath
 
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
-- `bath::FermionBath` : an object for the fermionic bath correlation
+- `bath::Vector{FermionBath}` : objects for different fermionic baths
 - `parity::Symbol` : The parity symbol of the density matrix (either `:odd` or `:even`). Defaults to `:even`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
@@ -33,10 +33,14 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
     const parity::Symbol
     const ado2idx::OrderedDict{Vector{Int}, Int}
     
+    function M_Fermion(Hsys::AbstractMatrix, tier::Int, bath::FermionBath, parity::Symbol=:even; progressBar::Bool=true)
+        return M_Fermion(Hsys, tier, [bath], parity, progressBar = progressBar)
+    end
+
     function M_Fermion(        
             Hsys::AbstractMatrix,
             tier::Int,
-            bath::FermionBath,
+            bath::Vector{FermionBath},
             parity::Symbol=:even;
             progressBar::Bool=true
         )
@@ -48,25 +52,20 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
         Nsys,   = size(Hsys)
         sup_dim = Nsys ^ 2
         I_sup   = sparse(I, sup_dim, sup_dim)
+        
+        # the liouvillian operator for free Hamiltonian term
+        Lsys = -1im * (spre(Hsys) - spost(Hsys))
 
-        if bath.dim != Nsys
-            error("The dimension of system is not consistent with bath coupling operators.")
-        end
-        η_list = bath.η_list
-        γ_list = bath.γ_list
-        Coup_Ops   = bath.Op
-        N_oper     = length(Coup_Ops)
-        N_exp_term = bath.N_term
-            
-        dims    = fill(2, N_exp_term * N_oper)
-    
-        spreQ   = spre.(Coup_Ops)
-        spostQ  = spost.(Coup_Ops)
-        spreQd  = spre.(adjoint.(Coup_Ops))
-        spostQd = spost.(adjoint.(Coup_Ops))
+        N_exp_term = 0
+        for fB in bath
+            if fB.dim != Nsys
+                error("The dimension of system Hamiltonian is not consistent with bath coupling operators.")
+            end
+            N_exp_term += 2 * fB.Nterm
+        end 
 
         # get ADOs dictionary
-        N_he, ado2idx_ordered, idx2ado = ADOs_dictionary(dims, tier)
+        N_he, ado2idx_ordered, idx2ado = ADOs_dictionary(fill(2, N_exp_term), tier)
         ado2idx = Dict(ado2idx_ordered)
 
         # start to construct the matrix
@@ -75,7 +74,7 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
         L_val = distribute([ComplexF64[] for _ in procs()])
         channel = RemoteChannel(() -> Channel{Bool}(), 1) # for updating the progress bar
 
-        println("Start constructing hierarchy matrix...(using $(nprocs()) processors)")
+        println("Start constructing hierarchy matrix (using $(nprocs()) processors)...")
         if progressBar
             prog = Progress(N_he; desc="Processing: ", PROGBAR_OPTIONS...)
         else
@@ -96,47 +95,38 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
                 @distributed (+) for idx in 1:N_he
                     state = idx2ado[idx]
                     n_exc = sum(state)
-                    sum_ω = 0.0
                     if n_exc >= 1
-                        for n in 1:N_oper
-                            for k in 1:(N_exp_term)
-                                tmp = state[k + (n - 1) * N_exp_term]
-                                if tmp >= 1
-                                    sum_ω += tmp * γ_list[n][k]
-                                end
-                            end
-                        end
+                        sum_ω = sum_ω_fermion(state, bath)
+                        op = Lsys - sum_ω * I_sup                
+                    else
+                        op = Lsys
                     end
-                    row, col, val = pad_coo(- sum_ω * I_sup, N_he, N_he, idx, idx)
-                    push!(localpart(L_row)[1], row...)
-                    push!(localpart(L_col)[1], col...)
-                    push!(localpart(L_val)[1], val...)
+                    add_operator!(op, L_row, L_col, L_val, N_he, idx, idx)
 
+                    count = 0
                     state_neigh = copy(state)
-                    for n in 1:N_oper
-                        for k in 1:(N_exp_term)
-                            n_k = state[k + (n - 1) * N_exp_term]
-                            if n_k >= 1
-                                state_neigh[k + (n - 1) * N_exp_term] = n_k - 1
-                                idx_neigh = ado2idx[state_neigh]
-                                op = (-1) ^ eval(parity) * η_list[n][k] * spreQ[n] - (-1.0) ^ (n_exc - 1) * conj(η_list[(n % 2 == 0) ? (n-1) : (n+1)][k]) * spostQ[n]
+                    for fB in bath
+                        for isAbsorb in [true, false]  # true means absorption, false means emission
+                            for k in 1:fB.Nterm
+                                count += 1
+                                n_k = state[count]
+                                if n_k >= 1
+                                    state_neigh[count] = n_k - 1
+                                    idx_neigh = ado2idx[state_neigh]
+                                    op = prev_grad_fermion(fB, k, n_exc, sum(state_neigh[1:(count - 1)]), parity, isAbsorb)
 
-                            elseif n_exc <= tier - 1
-                                state_neigh[k + (n - 1) * N_exp_term] = n_k + 1
-                                idx_neigh = ado2idx[state_neigh]
-                                op = (-1) ^ eval(parity) * spreQd[n] + (-1.0) ^ (n_exc + 1) * spostQd[n]
-
-                            else
-                                continue
+                                elseif n_exc <= tier - 1
+                                    state_neigh[count] = n_k + 1
+                                    idx_neigh = ado2idx[state_neigh]
+                                    op = next_grad_fermion(fB, n_exc, sum(state_neigh[1:(count - 1)]), parity, isAbsorb)
+                                
+                                else
+                                    continue
+                                end
+                                add_operator!(op, L_row, L_col, L_val, N_he, idx, idx_neigh)
+                                
+                                state_neigh[count] = n_k
                             end
-
-                            tmp_exc = sum(state_neigh[1:(k + (n - 1) * N_exp_term - 1)])
-                            row, col, val = pad_coo(-1im * (-1) ^ (tmp_exc) * op, N_he, N_he, idx, idx_neigh)
-                            push!(localpart(L_row)[1], row...)
-                            push!(localpart(L_col)[1], col...)
-                            push!(localpart(L_val)[1], val...)
-
-                            state_neigh[k + (n - 1) * N_exp_term] = n_k
                         end
                     end
                     if progressBar
@@ -147,13 +137,10 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
                 put!(channel, false) # this tells the printing task to finish
             end
         end
-        println("Constructing matrix...")
+        print("Constructing matrix...")
         L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), N_he * sup_dim, N_he * sup_dim)
-
-        # add the liouville of system Hamiltonian term
-        L_he += kron(sparse(I, N_he, N_he), -1im * (spre(Hsys) - spost(Hsys)))
-        
         println("[DONE]")
+
         return new(L_he, tier, Nsys, N_he, 0, N_he, sup_dim, parity, ado2idx_ordered)
     end
 end

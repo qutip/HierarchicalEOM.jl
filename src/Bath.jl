@@ -64,39 +64,39 @@ An object which describes the interaction between system and fermionic bath
 - `spreD`  : the super-operator (right side operator multiplication) for the adjoint of the coupling operator.
 - `spostD` : the super-operator (left side operator multiplication) for the adjoint of the coupling operator.
 - `dim` : the dimension of the coupling operator (should be equal to the system dimension).
-- `η_emit` : the coefficients ``\\eta_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
-- `γ_emit` : the coefficients ``\\gamma_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `η_absorb` : the coefficients ``\\eta_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_absorb` : the coefficients ``\\gamma_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
+- `η_emit` : the coefficients ``\\eta_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
+- `γ_emit` : the coefficients ``\\gamma_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `Nterm` : the number of exponential-expansion term of correlation function
 
 ## Constructor
 `FermionBath(Op, η_list, γ_list)`
 
 - `Op::AbstractMatrix` : The system operator according to the system-fermionic-bath interaction.
-- `η_emit` : the coefficients ``\\eta_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
-- `γ_emit` : the coefficients ``\\gamma_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `η_absorb` : the coefficients ``\\eta_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_absorb` : the coefficients ``\\gamma_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
+- `η_emit` : the coefficients ``\\eta_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
+- `γ_emit` : the coefficients ``\\gamma_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 """
 struct FermionBath <: AbstractBath
     spre::AbstractMatrix
     spost::AbstractMatrix
     spreD::AbstractMatrix
-    sposD::AbstractMatrix
+    spostD::AbstractMatrix
     dim::Int
-    η_emit::AbstractVector
-    γ_emit::AbstractVector
     η_absorb::AbstractVector
     γ_absorb::AbstractVector
+    η_emit::AbstractVector
+    γ_emit::AbstractVector
     Nterm::Int
     
     function FermionBath(
             Op::AbstractMatrix,
-            η_emit::Vector{Ti},
-            γ_emit::Vector{Tj},
             η_absorb::Vector{Tk},
-            γ_absorb::Vector{Tl}
+            γ_absorb::Vector{Tl},
+            η_emit::Vector{Ti},
+            γ_emit::Vector{Tj}
         ) where {Ti, Tj, Tk, Tl <: Number}
 
         N1, N2 = size(Op)
@@ -109,6 +109,6 @@ struct FermionBath <: AbstractBath
         if (N_exp_term != length(γ_emit)) || (N_exp_term != length(η_absorb)) || (N_exp_term != length(γ_absorb))
             error("The length of \'η_emit\', \'γ_emit\', \'η_absorb\' and \'γ_absorb\' should all be the same.")
         end
-        return new(spre(Op), spost(Op), spre(adjoint(Op)), spost(adjoint(Op)), N1, η_emit, γ_emit, η_absorb, γ_absorb, 2 * N_exp_term)
+        return new(spre(Op), spost(Op), spre(adjoint(Op)), spost(adjoint(Op)), N1, η_absorb, γ_absorb, η_emit, γ_emit, N_exp_term)
     end
 end
