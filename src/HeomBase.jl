@@ -122,12 +122,10 @@ function csc2coo(A)
 
     if len == 0
         return A.m, A.n, [], [], []
-    else
-        colptr = A.colptr
+    else        
         colidx = Vector{Int}(undef, len)
-
         @inbounds for i in 1:(length(A.colptr) - 1)
-            @inbounds for j in colptr[i] : (colptr[i + 1] - 1)
+            @inbounds for j in A.colptr[i] : (A.colptr[i + 1] - 1)
                 colidx[j] = i
             end
         end
@@ -154,10 +152,10 @@ function pad_coo(A::SparseMatrixCSC{T, Int64}, row_scale::Int, col_scale::Int, r
         error("col_idx must be \'>= 1\' and \'<= col_scale\'")
     end
 
-    @inbounds I .+= (M * (row_idx - 1))
-    @inbounds J .+= (N * (col_idx - 1))
+    @inbounds Inew = I .+ (M * (row_idx - 1))
+    @inbounds Jnew = J .+ (N * (col_idx - 1))
     
-    return I, J, V
+    return Inew, Jnew, V
 end
 
 function add_operator!(op, I, J, V, N_he, row_idx, col_idx)
