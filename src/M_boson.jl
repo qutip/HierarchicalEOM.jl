@@ -73,6 +73,7 @@ mutable struct M_Boson <: AbstractHEOMMatrix
             prog = Progress(N_he; desc="Processing: ", PROGBAR_OPTIONS...)
         else
             println("Processing...")
+            flush(stdout)
         end
         @sync begin # start two tasks which will be synced in the very end
             # the first task updates the progress bar
@@ -132,6 +133,7 @@ mutable struct M_Boson <: AbstractHEOMMatrix
             end
         end
         print("Constructing matrix...")
+        flush(stdout)
         L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), N_he * sup_dim, N_he * sup_dim)
         println("[DONE]")
 
