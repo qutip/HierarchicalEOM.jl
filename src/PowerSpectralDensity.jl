@@ -3,7 +3,7 @@
 Calculate power spectral density.
 
 ## Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model (the parity must be `:odd`.)
+- `M::AbstractHEOMMatrix` : the matrix given from HEOM model (the parity must be `:none` or `:even`.)
 - `ρ::Union{AbstractMatrix, ADOs}` :  the system density matrix or the auxiliary density operators.
 - `ω_list::AbstractVector` : the specific frequency points to solve.
 - `OP::AbstractMatrix` : The system operator for the two-time correlation function in frequency domain.

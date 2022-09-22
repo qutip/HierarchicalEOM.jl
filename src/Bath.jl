@@ -71,7 +71,7 @@ An object which describes the interaction between system and fermionic bath
 - `Nterm` : the number of exponential-expansion term of correlation function
 
 ## Constructor
-`FermionBath(Op, η_list, γ_list)`
+`FermionBath(Op, η_absorb, γ_absorb, η_emit, γ_emit)`
 
 - `Op::AbstractMatrix` : The system operator according to the system-fermionic-bath interaction.
 - `η_absorb` : the coefficients ``\\eta_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
