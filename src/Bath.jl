@@ -1,10 +1,11 @@
-abstract type AbstractBath end
+abstract type AbstractBosonBath end
+abstract type AbstractFermionBath end
 
 spre(q::AbstractMatrix)  = sparse(kron(Matrix(I, size(q)[1], size(q)[1]), q))
 spost(q::AbstractMatrix) = sparse(kron(transpose(q), Matrix(I, size(q)[1], size(q)[1])))
 
 """
-# `BosonBath <: AbstractBath`
+# `BosonBath <: AbstractBosonBath`
 An object which describes the interaction between system and bosonic bath
 
 ## Fields
@@ -23,7 +24,7 @@ An object which describes the interaction between system and bosonic bath
 - `η::Vector{Ti<:Number}` : the coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ::Vector{Tj<:Number}` : the coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 """
-struct BosonBath <: AbstractBath
+struct BosonBath <: AbstractBosonBath
     spre::AbstractMatrix
     spost::AbstractMatrix
     comm::AbstractMatrix
@@ -55,7 +56,7 @@ struct BosonBath <: AbstractBath
 end
 
 """
-# `FermionBath <: AbstractBath`
+# `FermionBath <: AbstractFermionBath`
 An object which describes the interaction between system and fermionic bath
 
 ## Fields
@@ -79,7 +80,7 @@ An object which describes the interaction between system and fermionic bath
 - `η_emit` : the coefficients ``\\eta_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_emit` : the coefficients ``\\gamma_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 """
-struct FermionBath <: AbstractBath
+struct FermionBath <: AbstractFermionBath
     spre::AbstractMatrix
     spost::AbstractMatrix
     spreD::AbstractMatrix

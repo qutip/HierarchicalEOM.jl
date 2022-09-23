@@ -21,8 +21,8 @@ Heom matrix for mixtured (bosonic and fermionic) bath
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier_b::Int` : the tier (cutoff) for the bosonic bath
 - `tier_f::Int` : the tier (cutoff) for the fermionic bath
-- `bath_b::Vector{BosonBath}` : objects for different bosonic baths
-- `bath_f::Vector{FermionBath}` : objects for different fermionic baths
+- `bath_b::Vector{AbstractBosonBath}` : objects for different bosonic baths
+- `bath_f::Vector{AbstractFermionBath}` : objects for different fermionic baths
 - `parity::Symbol` : The parity symbol of the density matrix (either `:odd` or `:even`). Defaults to `:even`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
@@ -39,15 +39,15 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
     const ado2idx_b::OrderedDict{Vector{Int}, Int}
     const ado2idx_f::OrderedDict{Vector{Int}, Int}
     
-    function M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, bath_b::BosonBath, bath_f::FermionBath, parity::Symbol=:even; progressBar::Bool=true)
+    function M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, bath_b::AbstractBosonBath, bath_f::AbstractFermionBath, parity::Symbol=:even; progressBar::Bool=true)
         return M_Boson_Fermion(Hsys, tier_b, tier_f, [bath_b], [bath_f], parity, progressBar = progressBar)
     end
 
-    function M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, bath_b::Vector{BosonBath}, bath_f::FermionBath, parity::Symbol=:even; progressBar::Bool=true)
+    function M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, bath_b::Vector{AbstractBosonBath}, bath_f::AbstractFermionBath, parity::Symbol=:even; progressBar::Bool=true)
         return M_Boson_Fermion(Hsys, tier_b, tier_f, bath_b, [bath_f], parity, progressBar = progressBar)
     end
 
-    function M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, bath_b::BosonBath, bath_f::Vector{FermionBath}, parity::Symbol=:even; progressBar::Bool=true)
+    function M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, bath_b::AbstractBosonBath, bath_f::Vector{AbstractFermionBath}, parity::Symbol=:even; progressBar::Bool=true)
         return M_Boson_Fermion(Hsys, tier_b, tier_f, [bath_b], bath_f, parity, progressBar = progressBar)
     end
 
@@ -55,8 +55,8 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
             Hsys::AbstractMatrix,
             tier_b::Int,
             tier_f::Int,
-            bath_b::Vector{BosonBath},
-            bath_f::Vector{FermionBath},
+            bath_b::Vector{AbstractBosonBath},
+            bath_f::Vector{AbstractFermionBath},
             parity::Symbol=:even;
             progressBar::Bool=true
         )

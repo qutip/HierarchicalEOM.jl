@@ -18,7 +18,7 @@ Heom matrix for bosonic bath
 
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
-- `bath::Vector{BosonBath}` : objects for different bosonic baths
+- `bath::Vector{AbstractBosonBath}` : objects for different bosonic baths
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
 mutable struct M_Boson <: AbstractHEOMMatrix
@@ -32,14 +32,14 @@ mutable struct M_Boson <: AbstractHEOMMatrix
     const parity::Symbol
     const ado2idx::OrderedDict{Vector{Int}, Int}
     
-    function M_Boson(Hsys::AbstractMatrix, tier::Int, bath::BosonBath; progressBar::Bool=true)
+    function M_Boson(Hsys::AbstractMatrix, tier::Int, bath::AbstractBosonBath; progressBar::Bool=true)
         return M_Boson(Hsys, tier, [bath], progressBar = progressBar)
     end
     
     function M_Boson(        
             Hsys::AbstractMatrix,
             tier::Int,
-            bath::Vector{BosonBath};
+            bath::Vector{AbstractBosonBath};
             progressBar::Bool=true
         )
 
