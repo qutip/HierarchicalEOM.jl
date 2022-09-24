@@ -24,7 +24,7 @@ module Heom
     # sub-module HeomBase for Heom
     module HeomBase
         import ..Bath: AbstractBosonBath, AbstractFermionBath, BosonBath, FermionBath, spre, spost
-        import Base: size
+        import Base: size, show
         import LinearAlgebra: I, kron
         import OrderedCollections: OrderedDict
         import SparseArrays: sparse, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix

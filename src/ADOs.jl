@@ -61,6 +61,18 @@ end
 
 size(A::ADOs) = size(A.data)
 
+function show(io::IO, V::ADOs)
+    print(io, 
+        "Auxiliary Density Operators with (system) dim = $(V.dim)\n",
+        "bosonic-state   number Nb = $(V.Nb)\n",
+        "fermionic-state number Nf = $(V.Nf)\n",
+        "data =\n"
+    )
+    show(io, MIME("text/plain"), V.data)
+end
+
+function show(io::IO, m::MIME"text/plain", V::ADOs) show(io, V) end
+
 """
 # `getRho(ados)`
 Return the density matrix of the reduced state (system) from a given auxiliary density operators

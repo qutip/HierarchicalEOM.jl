@@ -7,6 +7,28 @@ const none = nothing;
 
 size(A::AbstractHEOMMatrix) = size(A.data)
 
+function show(io::IO, M::AbstractHEOMMatrix)
+    T = typeof(M)
+    if T == M_Boson
+        type = "Boson"
+    elseif T == M_Fermion
+        type = "Fermion"
+    else
+        type = "Boson-Fermion"
+    end
+
+    print(io, 
+        type, " type HEOM matrix with (system) dim = $(M.dim) and parity = :$(M.parity)\n",
+        "total-state     number N  = $(M.N)\n",
+        "bosonic-state   number Nb = $(M.Nb)\n",
+        "fermionic-state number Nf = $(M.Nf)\n",
+        "data =\n"
+    )
+    show(io, MIME("text/plain"), M.data)
+end
+
+function show(io::IO, m::MIME"text/plain", M::AbstractHEOMMatrix) show(io, M) end
+
 """
 # `addDissipator!(M, jumpOP)`
 Adding dissipator to a given HEOM matrix.
