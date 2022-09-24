@@ -166,7 +166,7 @@ function add_operator!(op, I, J, V, N_he, row_idx, col_idx)
 end
 
 # sum ω of bosonic bath for current gradient
-function sum_ω_boson(adoLabel, bath::Vector{AbstractBosonBath})
+function sum_ω_boson(adoLabel, bath::Vector{T}) where T <: AbstractBosonBath
     count = 0
     sum_ω = 0.0
     for b in bath
@@ -181,7 +181,7 @@ function sum_ω_boson(adoLabel, bath::Vector{AbstractBosonBath})
 end
 
 # sum ω of fermionic bath for current gradient
-function sum_ω_fermion(adoLabel, bath::Vector{AbstractFermionBath})
+function sum_ω_fermion(adoLabel, bath::Vector{FermionBath})
     count = 0
     sum_ω = 0.0
     for b in bath
@@ -205,14 +205,14 @@ function sum_ω_fermion(adoLabel, bath::Vector{AbstractFermionBath})
 end
 
 # boson operator for previous gradient
-function prev_grad_boson(bath::AbstractBosonBath, k, n_k)
+function prev_grad_boson(bath::BosonBath, k, n_k)
     pre  = bath.η[k] * bath.spre
     post = conj(bath.η[k]) * bath.spost
     return -1im * n_k * (pre - post)
 end
 
 # fermion operator for previous gradient
-function prev_grad_fermion(bath::AbstractFermionBath, k, n_exc, n_exc_before, parity, isAbsorb)
+function prev_grad_fermion(bath::FermionBath, k, n_exc, n_exc_before, parity, isAbsorb)
     # absorption
     if isAbsorb
         pre  = bath.η_absorb[k] * bath.spreD 
@@ -231,12 +231,12 @@ function prev_grad_fermion(bath::AbstractFermionBath, k, n_exc, n_exc_before, pa
 end
 
 # boson operator for next gradient
-function next_grad_boson(bath::AbstractBosonBath)
+function next_grad_boson(bath::T) where T <: AbstractBosonBath
     return -1im * bath.comm
 end
 
 # fermion operator for next gradient
-function next_grad_fermion(bath::AbstractFermionBath, n_exc, n_exc_before, parity, isAbsorb)
+function next_grad_fermion(bath::FermionBath, n_exc, n_exc_before, parity, isAbsorb)
     # absorption
     if isAbsorb
         pre  = bath.spre

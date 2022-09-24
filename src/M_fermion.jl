@@ -18,7 +18,7 @@ Heom matrix for fermionic bath
 
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
-- `bath::Vector{AbstractFermionBath}` : objects for different fermionic baths
+- `bath::Vector{T<:AbstractFermionBath}` : objects for different fermionic baths
 - `parity::Symbol` : The parity symbol of the density matrix (either `:odd` or `:even`). Defaults to `:even`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
@@ -33,17 +33,17 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
     const parity::Symbol
     const ado2idx::OrderedDict{Vector{Int}, Int}
     
-    function M_Fermion(Hsys::AbstractMatrix, tier::Int, bath::AbstractFermionBath, parity::Symbol=:even; progressBar::Bool=true)
+    function M_Fermion(Hsys::AbstractMatrix, tier::Int, bath::T, parity::Symbol=:even; progressBar::Bool=true) where T <: AbstractFermionBath
         return M_Fermion(Hsys, tier, [bath], parity, progressBar = progressBar)
     end
 
     function M_Fermion(        
             Hsys::AbstractMatrix,
             tier::Int,
-            bath::Vector{AbstractFermionBath},
+            bath::Vector{T},
             parity::Symbol=:even;
             progressBar::Bool=true
-        )
+        ) where T <: AbstractFermionBath
 
         if (parity != :even) && (parity != :odd)
             error("The parity symbol of density matrix should be either \":odd\" or \":even\".")
