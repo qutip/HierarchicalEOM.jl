@@ -16,13 +16,13 @@ Heom matrix for mixtured (bosonic and fermionic) bath
 - `ado2idx_f::OrderedDict{Vector{Int}, Int}` : the fermionic ADO-to-index dictionary
 
 ## Constructor
-`M_Boson_Fermion(Hsys, tier_b, tier_f, bath_b, bath_f, parity; [progressBar])`
+`M_Boson_Fermion(Hsys, tier_b, tier_f, Bath_b, Bath_f, parity; [progressBar])`
 
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier_b::Int` : the tier (cutoff) for the bosonic bath
 - `tier_f::Int` : the tier (cutoff) for the fermionic bath
-- `bath_b::Vector{Ti<:AbstractBosonBath}` : objects for different bosonic baths
-- `bath_f::Vector{Tj<:AbstractFermionBath}` : objects for different fermionic baths
+- `Bath_b::Vector{BosonBath}` : objects for different bosonic baths
+- `Bath_f::Vector{FermionBath}` : objects for different fermionic baths
 - `parity::Symbol` : The parity symbol of the density matrix (either `:odd` or `:even`). Defaults to `:even`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
@@ -39,27 +39,27 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
     const ado2idx_b::OrderedDict{Vector{Int}, Int}
     const ado2idx_f::OrderedDict{Vector{Int}, Int}
     
-    function M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, bath_b::Ti, bath_f::Tj, parity::Symbol=:even; progressBar::Bool=true) where Ti <: AbstractBosonBath where Tj <: AbstractFermionBath
-        return M_Boson_Fermion(Hsys, tier_b, tier_f, [bath_b], [bath_f], parity, progressBar = progressBar)
+    function M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, Bath_b::BosonBath, Bath_f::FermionBath, parity::Symbol=:even; progressBar::Bool=true)
+        return M_Boson_Fermion(Hsys, tier_b, tier_f, [Bath_b], [Bath_f], parity, progressBar = progressBar)
     end
 
-    function M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, bath_b::Vector{Ti}, bath_f::Tj, parity::Symbol=:even; progressBar::Bool=true) where Ti <: AbstractBosonBath where Tj <: AbstractFermionBath
-        return M_Boson_Fermion(Hsys, tier_b, tier_f, bath_b, [bath_f], parity, progressBar = progressBar)
+    function M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::FermionBath, parity::Symbol=:even; progressBar::Bool=true)
+        return M_Boson_Fermion(Hsys, tier_b, tier_f, Bath_b, [Bath_f], parity, progressBar = progressBar)
     end
 
-    function M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, bath_b::Ti, bath_f::Vector{Tj}, parity::Symbol=:even; progressBar::Bool=true) where Ti <: AbstractBosonBath where Tj <: AbstractFermionBath
-        return M_Boson_Fermion(Hsys, tier_b, tier_f, [bath_b], bath_f, parity, progressBar = progressBar)
+    function M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, Bath_b::BosonBath, Bath_f::Vector{FermionBath}, parity::Symbol=:even; progressBar::Bool=true)
+        return M_Boson_Fermion(Hsys, tier_b, tier_f, [Bath_b], Bath_f, parity, progressBar = progressBar)
     end
 
     function M_Boson_Fermion(        
             Hsys::AbstractMatrix,
             tier_b::Int,
             tier_f::Int,
-            bath_b::Vector{Ti},
-            bath_f::Vector{Tj},
+            Bath_b::Vector{BosonBath},
+            Bath_f::Vector{FermionBath},
             parity::Symbol=:even;
             progressBar::Bool=true
-        ) where Ti <: AbstractBosonBath where Tj <: AbstractFermionBath
+        )
 
         if (parity != :even) && (parity != :odd)
             error("The parity symbol of density matrix should be either \":odd\" or \":even\".")
@@ -72,21 +72,13 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
         # the liouvillian operator for free Hamiltonian term
         Lsys = -1im * (spre(Hsys) - spost(Hsys))
 
-        N_exp_term_b = 0
-        for bB in bath_b
-            if bB.dim != Nsys
-                error("The dimension of system Hamiltonian is not consistent with bosonic bath coupling operators.")
-            end
-            N_exp_term_b += bB.Nterm
-        end
-
-        N_exp_term_f = 0
-        for fB in bath_f
-            if fB.dim != Nsys
-                error("The dimension of system Hamiltonian is not consistent with fermionic bath coupling operators.")
-            end
-            N_exp_term_f += 2 * fB.Nterm
-        end 
+        baths_b = combineBath(Bath_b)
+        bath_b  = baths_b.bath
+        N_exp_term_b = baths_b.Nterm
+        
+        baths_f = combineBath(Bath_f)
+        bath_f  = baths_f.bath
+        N_exp_term_f = baths_f.Nterm
 
         # get ADOs dictionary
         N_he_b, ado2idx_b_ordered, idx2ado_b = ADOs_dictionary(fill((tier_b + 1), N_exp_term_b), tier_b)
@@ -127,7 +119,7 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
                     n_exc_b = sum(state_b) 
                     idx = (idx_b - 1) * N_he_f
                     if n_exc_b >= 1
-                        sum_ω += sum_ω_boson(state_b, bath_b)
+                        sum_ω += bath_sum_ω(state_b, bath_b)
                     end
 
                     # diagonal (fermion)
@@ -135,7 +127,7 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
                         state_f = idx2ado_f[idx_f]
                         n_exc_f = sum(state_f)
                         if n_exc_f >= 1
-                            sum_ω += sum_ω_fermion(state_f, bath_f)
+                            sum_ω += bath_sum_ω(state_f, bath_f)
                         end
                         add_operator!(Lsys - sum_ω * I_sup, L_row, L_col, L_val, N_he_tot, idx + idx_f, idx + idx_f)
                     end
@@ -185,31 +177,29 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
                     count = 0
                     state_neigh = copy(state_f)
                     for fB in bath_f
-                        for isAbsorb in [true, false]  # true means absorption, false means emission
-                            for k in 1:fB.Nterm
-                                count += 1
-                                n_k = state_f[count]
-                                if n_k >= 1
-                                    state_neigh[count] = n_k - 1
-                                    idx_neigh = ado2idx_f[state_neigh]
-                                    op = prev_grad_fermion(fB, k, n_exc_f, sum(state_neigh[1:(count - 1)]), parity, isAbsorb)
+                        for k in 1:fB.Nterm
+                            count += 1
+                            n_k = state_f[count]
+                            if n_k >= 1
+                                state_neigh[count] = n_k - 1
+                                idx_neigh = ado2idx_f[state_neigh]
+                                op = prev_grad_fermion(fB, k, n_exc_f, sum(state_neigh[1:(count - 1)]), parity)
 
-                                elseif n_exc_f <= tier_f - 1
-                                    state_neigh[count] = n_k + 1
-                                    idx_neigh = ado2idx_f[state_neigh]
-                                    op = next_grad_fermion(fB, n_exc_f, sum(state_neigh[1:(count - 1)]), parity, isAbsorb)
+                            elseif n_exc_f <= tier_f - 1
+                                state_neigh[count] = n_k + 1
+                                idx_neigh = ado2idx_f[state_neigh]
+                                op = next_grad_fermion(fB, n_exc_f, sum(state_neigh[1:(count - 1)]), parity)
 
-                                else
-                                    continue
-                                end
-
-                                for idx_b in 1:N_he_b
-                                    idx = (idx_b - 1) * N_he_f
-                                    add_operator!(op, L_row, L_col, L_val, N_he_tot, idx + idx_f, idx + idx_neigh)
-                                end
-
-                                state_neigh[count] = n_k
+                            else
+                                continue
                             end
+
+                            for idx_b in 1:N_he_b
+                                idx = (idx_b - 1) * N_he_f
+                                add_operator!(op, L_row, L_col, L_val, N_he_tot, idx + idx_f, idx + idx_neigh)
+                            end
+
+                            state_neigh[count] = n_k
                         end
                     end
                     if progressBar

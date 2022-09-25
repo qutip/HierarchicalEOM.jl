@@ -187,11 +187,11 @@ function add_operator!(op, I, J, V, N_he, row_idx, col_idx)
     push!(localpart(V)[1], val...)
 end
 
-# sum ω of bosonic bath for current gradient
-function sum_ω_boson(adoLabel, bath::Vector{T}) where T <: AbstractBosonBath
+# sum ω of bath for current gradient
+function bath_sum_ω(adoLabel, bath::Union{BosonBath, FermionBath})
     count = 0
     sum_ω = 0.0
-    for b in bath
+    for b in bath.bath
         for k in 1:b.Nterm
             count += 1
             if adoLabel[count] > 0
@@ -202,53 +202,26 @@ function sum_ω_boson(adoLabel, bath::Vector{T}) where T <: AbstractBosonBath
     return sum_ω
 end
 
-# sum ω of fermionic bath for current gradient
-function sum_ω_fermion(adoLabel, bath::Vector{FermionBath})
-    count = 0
-    sum_ω = 0.0
-    for b in bath
-        # absorption
-        for k in 1:b.Nterm
-            count += 1
-            if adoLabel[count] > 0
-                sum_ω += adoLabel[count] * b.γ_absorb[k]
-            end
-        end
-
-        # emission
-        for k in 1:b.Nterm
-            count += 1
-            if adoLabel[count] > 0
-                sum_ω += adoLabel[count] * b.γ_emit[k]
-            end
-        end
-    end
-    return sum_ω
-end
-
 # boson operator for previous gradient
-function prev_grad_boson(bath::BosonBath, k, n_k)
+function prev_grad_boson(bath::bosonRealImag, k, n_k)
     pre  = bath.η[k] * bath.spre
     post = conj(bath.η[k]) * bath.spost
     return -1im * n_k * (pre - post)
 end
 
-# fermion operator for previous gradient
-function prev_grad_fermion(bath::FermionBath, k, n_exc, n_exc_before, parity, isAbsorb)
-    # absorption
-    if isAbsorb
-        pre  = bath.η_absorb[k] * bath.spreD 
-        post = conj(bath.η_emit[k]) * bath.spostD
-
-    # emission
-    else
-        pre  = bath.η_emit[k] * bath.spre
-        post = conj(bath.η_absorb[k]) * bath.spost
-    end
-
+# absorption fermion operator for previous gradient
+function prev_grad_fermion(bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
     return -1im * ((-1) ^ n_exc_before) * (
-        (-1) ^ eval(parity) * pre - 
-        (-1) ^ (n_exc - 1)  * post
+        (-1) ^ eval(parity) * bath.η[k] * bath.spre - 
+        (-1) ^ (n_exc - 1)  * conj(bath.η_emit[k]) * bath.spost
+    )
+end
+
+# emission fermion operator for previous gradient
+function prev_grad_fermion(bath::fermionEmit, k, n_exc, n_exc_before, parity)
+    return -1im * ((-1) ^ n_exc_before) * (
+        (-1) ^ eval(parity) * bath.η[k] * bath.spre - 
+        (-1) ^ (n_exc - 1)  * conj(bath.η_absorb[k]) * bath.spost
     )
 end
 
@@ -258,20 +231,9 @@ function next_grad_boson(bath::T) where T <: AbstractBosonBath
 end
 
 # fermion operator for next gradient
-function next_grad_fermion(bath::FermionBath, n_exc, n_exc_before, parity, isAbsorb)
-    # absorption
-    if isAbsorb
-        pre  = bath.spre
-        post = bath.spost
-
-    # emission
-    else
-        pre  = bath.spreD
-        post = bath.spostD
-    end
-    
+function next_grad_fermion(bath::T, n_exc, n_exc_before, parity) where T <: AbstractFermionBath
     return -1im * ((-1) ^ n_exc_before) * (
-        (-1) ^ eval(parity) * pre +
-        (-1) ^ (n_exc - 1)  * post
+        (-1) ^ eval(parity) * bath.spreD +
+        (-1) ^ (n_exc - 1)  * bath.spostD
     )
 end

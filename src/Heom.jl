@@ -12,8 +12,10 @@ module Heom
         import SparseArrays: sparse
 
         export 
-            AbstractBosonBath, AbstractFermionBath, BosonBath, FermionBath, 
-            spre, spost,
+            BosonBath, FermionBath,
+            AbstractBosonBath, bosonReal, bosonImag, bosonRealImag,
+            AbstractFermionBath, fermionAbsorb, fermionEmit,
+            spre, spost, combineBath,
             pade_NmN
 
         include("Bath.jl")
@@ -23,7 +25,7 @@ module Heom
     
     # sub-module HeomBase for Heom
     module HeomBase
-        import ..Bath: AbstractBosonBath, AbstractFermionBath, BosonBath, FermionBath, spre, spost
+        using ..Bath
         import Base: size, show
         import LinearAlgebra: I, kron
         import OrderedCollections: OrderedDict

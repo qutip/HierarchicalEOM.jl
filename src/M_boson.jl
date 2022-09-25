@@ -14,11 +14,11 @@ Heom matrix for bosonic bath
 - `ado2idx::OrderedDict{Vector{Int}, Int}` : the ADO-to-index dictionary
 
 ## Constructor
-`M_Boson(Hsys, tier, bath; [progressBar])`
+`M_Boson(Hsys, tier, Bath; [progressBar])`
 
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
-- `bath::Vector{T<:AbstractBosonBath}` : objects for different bosonic baths
+- `Bath::Vector{BosonBath}` : objects for different bosonic baths
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
 mutable struct M_Boson <: AbstractHEOMMatrix
@@ -32,16 +32,16 @@ mutable struct M_Boson <: AbstractHEOMMatrix
     const parity::Symbol
     const ado2idx::OrderedDict{Vector{Int}, Int}
     
-    function M_Boson(Hsys::AbstractMatrix, tier::Int, bath::T; progressBar::Bool=true) where T <: AbstractBosonBath
-        return M_Boson(Hsys, tier, [bath], progressBar = progressBar)
+    function M_Boson(Hsys::AbstractMatrix, tier::Int, Bath::BosonBath; progressBar::Bool=true)
+        return M_Boson(Hsys, tier, [Bath], progressBar = progressBar)
     end
     
     function M_Boson(        
             Hsys::AbstractMatrix,
             tier::Int,
-            bath::Vector{T};
+            Bath::Vector{BosonBath};
             progressBar::Bool=true
-        ) where T <: AbstractBosonBath
+        )
 
         Nsys,   = size(Hsys)
         sup_dim = Nsys ^ 2
@@ -50,13 +50,9 @@ mutable struct M_Boson <: AbstractHEOMMatrix
         # the liouvillian operator for free Hamiltonian term
         Lsys = -1im * (spre(Hsys) - spost(Hsys))
 
-        N_exp_term = 0
-        for bB in bath
-            if bB.dim != Nsys
-                error("The dimension of system Hamiltonian is not consistent with bath coupling operators.")
-            end
-            N_exp_term += bB.Nterm
-        end 
+        baths = combineBath(Bath)
+        bath  = baths.bath
+        N_exp_term = baths.Nterm
 
         # get ADOs dictionary
         N_he, ado2idx_ordered, idx2ado = ADOs_dictionary(fill((tier + 1), N_exp_term), tier)
@@ -91,7 +87,7 @@ mutable struct M_Boson <: AbstractHEOMMatrix
                     state = idx2ado[idx]
                     n_exc = sum(state)
                     if n_exc >= 1
-                        sum_ω = sum_ω_boson(state, bath)
+                        sum_ω = bath_sum_ω(state, bath)
                         op = Lsys - sum_ω * I_sup
                     else
                         op = Lsys
