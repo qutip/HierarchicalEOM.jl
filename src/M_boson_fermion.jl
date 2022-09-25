@@ -119,7 +119,7 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
                     n_exc_b = sum(state_b) 
                     idx = (idx_b - 1) * N_he_f
                     if n_exc_b >= 1
-                        sum_ω += bath_sum_ω(state_b, bath_b)
+                        sum_ω += bath_sum_ω(state_b, baths_b)
                     end
 
                     # diagonal (fermion)
@@ -127,7 +127,7 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
                         state_f = idx2ado_f[idx_f]
                         n_exc_f = sum(state_f)
                         if n_exc_f >= 1
-                            sum_ω += bath_sum_ω(state_f, bath_f)
+                            sum_ω += bath_sum_ω(state_f, baths_f)
                         end
                         add_operator!(Lsys - sum_ω * I_sup, L_row, L_col, L_val, N_he_tot, idx + idx_f, idx + idx_f)
                     end

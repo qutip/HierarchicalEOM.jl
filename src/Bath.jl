@@ -4,25 +4,6 @@ abstract type AbstractFermionBath end
 spre(q::AbstractMatrix)  = sparse(kron(Matrix(I, size(q)[1], size(q)[1]), q))
 spost(q::AbstractMatrix) = sparse(kron(transpose(q), Matrix(I, size(q)[1], size(q)[1])))
 
-combineBath(bath...::BosonBath) = combineBath([bath...])
-combineBath(bath...::FermionBath) = combineBath([bath...])
-
-function combineBath(bath::Vector{BosonBath})
-    baths = []
-    for b in bath
-        push!(baths, b.bath...)
-    end
-    return BosonBath(baths)
-end
-
-function combineBath(bath::Vector{FermionBath})
-    baths = []
-    for b in bath
-        push!(baths, b.bath...)
-    end
-    return FermionBath(baths)
-end
-
 """
 # `BosonBath`
 An object which describes the interaction between system and bosonic bath
@@ -92,6 +73,16 @@ struct BosonBath
         bI = bosonImag(op, η_imag, γ_imag)
         return new([bR, bI], bR.dim, bR.Nterm + bI.Nterm)
     end
+end
+
+combineBath(bath::BosonBath...) = combineBath([bath...])
+
+function combineBath(bath::Vector{BosonBath})
+    baths = AbstractBosonBath[]
+    for b in bath
+        push!(baths, b.bath...)
+    end
+    return BosonBath(baths)
 end
 
 """
@@ -298,6 +289,16 @@ struct FermionBath
         fE = fermionEmit(op, η_emit, γ_emit, η_absorb)
         return new([fA, fE], fA.dim, fA.Nterm + fE.Nterm)
     end
+end
+
+combineBath(bath::FermionBath...) = combineBath([bath...])
+
+function combineBath(bath::Vector{FermionBath})
+    baths = AbstractFermionBath[]
+    for b in bath
+        push!(baths, b.bath...)
+    end
+    return FermionBath(baths)
 end
 
 """

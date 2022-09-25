@@ -93,7 +93,7 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
                     state = idx2ado[idx]
                     n_exc = sum(state)
                     if n_exc >= 1
-                        sum_ω = bath_sum_ω(state, bath)
+                        sum_ω = bath_sum_ω(state, baths)
                         op = Lsys - sum_ω * I_sup                
                     else
                         op = Lsys
