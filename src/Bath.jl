@@ -1,11 +1,21 @@
+abstract type AbstractBath end
 abstract type AbstractBosonBath end
 abstract type AbstractFermionBath end
 
 spre(q::AbstractMatrix)  = sparse(kron(Matrix(I, size(q)[1], size(q)[1]), q))
 spost(q::AbstractMatrix) = sparse(kron(transpose(q), Matrix(I, size(q)[1], size(q)[1])))
 
+show(io::IO, B::AbstractBath) = print(io, "$(typeof(B)) object with (system) dim = $(B.dim) and $(B.Nterm) exponential-expansion terms\n")
+show(io::IO, m::MIME"text/plain", B::AbstractBath) =  show(io, B)
+
+show(io::IO, B::AbstractBosonBath) = print(io, "$(typeof(B))-type bath with (system) dim = $(B.dim) and $(B.Nterm) exponential-expansion terms\n")
+show(io::IO, m::MIME"text/plain", B::AbstractBosonBath) =  show(io, B)
+
+show(io::IO, B::AbstractFermionBath) = print(io, "$(typeof(B))-type bath with (system) dim = $(B.dim) and $(B.Nterm) exponential-expansion terms\n")
+show(io::IO, m::MIME"text/plain", B::AbstractFermionBath) =  show(io, B)
+
 """
-# `BosonBath`
+# `BosonBath <: AbstractBath`
 An object which describes the interaction between system and bosonic bath
 
 ## Fields
@@ -30,7 +40,7 @@ For the case where the correlation function splits into real part and imaginary 
 - `η_imag::Vector{Tk<:Number}` : the imaginary part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_imag::Vector{Tl<:Number}` : the imaginary part of coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 """
-struct BosonBath
+struct BosonBath <: AbstractBath
     bath::AbstractVector
     dim::Int
     Nterm::Int
@@ -239,7 +249,7 @@ struct bosonRealImag <: AbstractBosonBath
 end
 
 """
-# `FermionBath`
+# `FermionBath <: AbstractBath`
 An object which describes the interaction between system and fermionic bath
 
 ## Fields
@@ -256,7 +266,7 @@ An object which describes the interaction between system and fermionic bath
 - `η_emit` : the coefficients ``\\eta_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_emit` : the coefficients ``\\gamma_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 """
-struct FermionBath
+struct FermionBath <: AbstractBath
     bath::AbstractVector
     dim::Int
     Nterm::Int

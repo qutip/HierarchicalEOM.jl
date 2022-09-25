@@ -43,6 +43,7 @@ mutable struct M_Boson <: AbstractHEOMMatrix
             progressBar::Bool=true
         )
 
+        # check for system dimension
         Nsys,   = size(Hsys)
         sup_dim = Nsys ^ 2
         I_sup   = sparse(I, sup_dim, sup_dim)
@@ -50,8 +51,13 @@ mutable struct M_Boson <: AbstractHEOMMatrix
         # the liouvillian operator for free Hamiltonian term
         Lsys = -1im * (spre(Hsys) - spost(Hsys))
 
-        baths = combineBath(Bath)
-        bath  = baths.bath
+        # check for bosonic bath
+        if length(Bath) > 1
+            baths = combineBath(Bath)
+        else
+            baths = Bath[1]
+        end
+        bath       = baths.bath
         N_exp_term = baths.Nterm
 
         # get ADOs dictionary

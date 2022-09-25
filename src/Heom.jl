@@ -8,11 +8,12 @@ module Heom
     
     # sub-module Bath for Heom
     module Bath
+        import Base: show
         import LinearAlgebra: I, kron, eigvals
         import SparseArrays: sparse
 
         export 
-            BosonBath, FermionBath,
+            AbstractBath, BosonBath, FermionBath,
             AbstractBosonBath, bosonReal, bosonImag, bosonRealImag,
             AbstractFermionBath, fermionAbsorb, fermionEmit,
             spre, spost, combineBath,

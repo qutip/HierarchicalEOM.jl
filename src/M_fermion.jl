@@ -45,10 +45,12 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
             progressBar::Bool=true
         )
 
+        # check parity
         if (parity != :even) && (parity != :odd)
             error("The parity symbol of density matrix should be either \":odd\" or \":even\".")
         end
 
+        # check for system dimension
         Nsys,   = size(Hsys)
         sup_dim = Nsys ^ 2
         I_sup   = sparse(I, sup_dim, sup_dim)
@@ -56,8 +58,13 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
         # the liouvillian operator for free Hamiltonian term
         Lsys = -1im * (spre(Hsys) - spost(Hsys))
 
-        baths = combineBath(Bath)
-        bath  = baths.bath
+        # check for fermionic bath
+        if length(Bath) > 1
+            baths = combineBath(Bath)
+        else
+            baths = Bath[1]
+        end
+        bath       = baths.bath
         N_exp_term = baths.Nterm
 
         # get ADOs dictionary

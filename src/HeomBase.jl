@@ -188,7 +188,7 @@ function add_operator!(op, I, J, V, N_he, row_idx, col_idx)
 end
 
 # sum ω of bath for current gradient
-function bath_sum_ω(adoLabel, bath::Union{BosonBath, FermionBath})
+function bath_sum_ω(adoLabel, bath::AbstractBath)
     count = 0
     sum_ω = 0.0
     for b in bath.bath
