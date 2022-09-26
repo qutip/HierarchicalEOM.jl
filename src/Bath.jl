@@ -329,7 +329,7 @@ An object which describes the absorption of fermion in the interaction
 ## Constructor
 `fermionAbsorb(op, η_absorb, γ_absorb, η_emit)`
 
-- `op::AbstractMatrix` : The system operator according to the system-fermionic-bath interaction.
+- `op::AbstractMatrix` : The system absorption operator according to the system-fermionic-bath interaction.
 - `η_absorb` : the coefficients ``\\eta_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_absorb` : the coefficients ``\\gamma_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `η_emit` : the coefficients ``\\eta_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
@@ -384,7 +384,7 @@ An object which describes the emission of fermion in the interaction
 ## Constructor
 `fermionEmit(op, η_emit, γ_emit, η_absorb)`
 
-- `op::AbstractMatrix` : The system operator according to the system-fermionic-bath interaction.
+- `op::AbstractMatrix` : The system emission operator according to the system-fermionic-bath interaction.
 - `η_emit` : the coefficients ``\\eta_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_emit` : the coefficients ``\\gamma_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `η_absorb` : the coefficients ``\\eta_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).

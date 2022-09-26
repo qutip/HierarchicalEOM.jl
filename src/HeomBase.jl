@@ -202,11 +202,21 @@ function bath_sum_ω(adoLabel, bath::AbstractBath)
     return sum_ω
 end
 
-# boson operator for previous gradient
+# boson (Real & Imag combined) operator for previous gradient
 function prev_grad_boson(bath::bosonRealImag, k, n_k)
     pre  = bath.η[k] * bath.spre
     post = conj(bath.η[k]) * bath.spost
     return -1im * n_k * (pre - post)
+end
+
+# boson (Real) operator for previous gradient
+function prev_grad_boson(bath::bosonReal, k, n_k)
+    return -1im * n_k * bath.η[k] * bath.comm
+end
+
+# boson (Imag) operator for previous gradient
+function prev_grad_boson(bath::bosonImag, k, n_k)
+    return n_k * bath.η[k] * (bath.spre + bath.spost)
 end
 
 # absorption fermion operator for previous gradient
