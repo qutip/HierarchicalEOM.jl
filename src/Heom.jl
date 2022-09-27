@@ -9,20 +9,30 @@ module Heom
     # sub-module Bath for Heom
     module Bath
         import Base: show
-        import LinearAlgebra: I, kron, eigvals
+        import LinearAlgebra: I, kron
         import SparseArrays: sparse
 
         export 
             AbstractBath, BosonBath, FermionBath,
             AbstractBosonBath, bosonReal, bosonImag, bosonRealImag,
             AbstractFermionBath, fermionAbsorb, fermionEmit,
-            spre, spost, combineBath,
-            pade_NmN
+            spre, spost, combineBath
 
         include("Bath.jl")
-        include("correlation_utils.jl")
     end
     @reexport using .Bath
+
+    # sub-module CorrelationFunc for Heom
+    module CorrelationFunc
+        using ..Bath
+        import LinearAlgebra: eigvals
+
+        export 
+            pade_NmN, Correlation
+
+        include("correlations/CorrelationFunc.jl")
+    end
+    @reexport using .CorrelationFunc
     
     # sub-module HeomBase for Heom
     module HeomBase
