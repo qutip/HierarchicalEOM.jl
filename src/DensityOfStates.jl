@@ -83,7 +83,7 @@ function DOS(
 
     print("Start calculating density of states...")
     Length = length(ω_list)
-    dos    = Vector{Float64}(undef, length(Length))
+    dos    = Vector{Float64}(undef, Length)
     if progressBar
         print("\n")
         prog = Progress(Length; start=1, desc="Progress : ", PROGBAR_OPTIONS...)
