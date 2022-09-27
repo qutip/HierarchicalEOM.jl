@@ -204,19 +204,20 @@ end
 
 # boson (Real & Imag combined) operator for previous gradient
 function prev_grad_boson(bath::bosonRealImag, k, n_k)
-    pre  = bath.η[k] * bath.spre
-    post = conj(bath.η[k]) * bath.spost
-    return -1im * n_k * (pre - post)
+    return n_k * (
+        -1im * bath.η_real[k] * bath.Comm  +
+               bath.η_imag[k] * bath.anComm
+    )
 end
 
 # boson (Real) operator for previous gradient
 function prev_grad_boson(bath::bosonReal, k, n_k)
-    return -1im * n_k * bath.η[k] * bath.comm
+    return -1im * n_k * bath.η[k] * bath.Comm
 end
 
 # boson (Imag) operator for previous gradient
 function prev_grad_boson(bath::bosonImag, k, n_k)
-    return n_k * bath.η[k] * (bath.spre + bath.spost)
+    return n_k * bath.η[k] * bath.anComm
 end
 
 # absorption fermion operator for previous gradient
@@ -237,7 +238,7 @@ end
 
 # boson operator for next gradient
 function next_grad_boson(bath::T) where T <: AbstractBosonBath
-    return -1im * bath.comm
+    return -1im * bath.Comm
 end
 
 # fermion operator for next gradient

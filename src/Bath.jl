@@ -14,6 +14,31 @@ show(io::IO, m::MIME"text/plain", B::AbstractBosonBath) =  show(io, B)
 show(io::IO, B::AbstractFermionBath) = print(io, "$(typeof(B))-type bath with (system) dim = $(B.dim) and $(B.Nterm) exponential-expansion terms\n")
 show(io::IO, m::MIME"text/plain", B::AbstractFermionBath) =  show(io, B)
 
+isclose(a::Number, b::Number, rtol=1e-05, atol=1e-08) = abs(a - b) <= (atol + rtol * abs(b))
+
+function combine_same_gamma(η::Vector{Ti}, γ::Vector{Tj}) where {Ti, Tj <: Number}
+    if length(η) != length(γ)
+        error("The length of \'η\' and \'γ\' should be the same.")
+    end
+
+    ηnew  = ComplexF64[η[1]]
+    γnew  = ComplexF64[γ[1]]
+    for j in 2:length(γ)
+        valueDontExist = true
+        for k in 1:length(γnew)
+            if isclose(γnew[k], γ[j])
+                ηnew[k] += η[j]
+                valueDontExist = false
+            end
+        end
+        if valueDontExist
+            push!(ηnew, η[j])
+            push!(γnew, γ[j])
+        end
+    end
+    return ηnew, γnew
+end
+
 """
 # `BosonBath <: AbstractBath`
 An object which describes the interaction between system and bosonic bath
@@ -24,14 +49,15 @@ An object which describes the interaction between system and bosonic bath
 - `Nterm` : the number of exponential-expansion term of correlation functions
 
 ## Constructor
-### `BosonBath(op, η, γ)`
+### `BosonBath(op, η, γ, combine)`
 For the case where real part and imaginary part of the correlation function are combined.
 
 - `op::AbstractMatrix` : The system operator according to the system-bosonic-bath interaction.
 - `η::Vector{Ti<:Number}` : the coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ::Vector{Tj<:Number}` : the coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
+- `combine::Bool` : Whether to combine the exponential-expansion terms with the same frequency. Defaults to `true`.
 
-### `BosonBath(op, η_real, γ_real, η_imag, γ_imag)`
+### `BosonBath(op, η_real, γ_real, η_imag, γ_imag, combine)`
 For the case where the correlation function splits into real part and imaginary part.
 
 - `op::AbstractMatrix` : The system operator according to the system-bosonic-bath interaction.
@@ -39,6 +65,7 @@ For the case where the correlation function splits into real part and imaginary 
 - `γ_real::Vector{Tj<:Number}` : the real part of coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `η_imag::Vector{Tk<:Number}` : the imaginary part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_imag::Vector{Tl<:Number}` : the imaginary part of coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
+- `combine::Bool` : Whether to combine the exponential-expansion terms with the same frequency. Defaults to `true`.
 """
 struct BosonBath <: AbstractBath
     bath::AbstractVector
@@ -64,10 +91,15 @@ struct BosonBath <: AbstractBath
     function BosonBath(
             op::AbstractMatrix,
             η::Vector{Ti},
-            γ::Vector{Tj}
+            γ::Vector{Tj},
+            combine=true
         ) where {Ti, Tj <: Number}
-
-        bRI = bosonRealImag(op, η, γ)
+        if combine
+            ηnew, γnew = combine_same_gamma(η, γ)
+            bRI = bosonRealImag(op, real.(ηnew), imag.(ηnew), γnew)
+        else
+            bRI = bosonRealImag(op, real.(η), imag.(η), γ)
+        end
         return new([bRI], bRI.dim, bRI.Nterm)
     end
 
@@ -76,12 +108,58 @@ struct BosonBath <: AbstractBath
             η_real::Vector{Ti},
             γ_real::Vector{Tj},
             η_imag::Vector{Tk},
-            γ_imag::Vector{Tl}
+            γ_imag::Vector{Tl},
+            combine::Bool=true
         ) where {Ti, Tj, Tk, Tl <: Number}
 
-        bR = bosonReal(op, η_real, γ_real)
-        bI = bosonImag(op, η_imag, γ_imag)
-        return new([bR, bI], bR.dim, bR.Nterm + bI.Nterm)
+        if combine
+            ηR, γR = combine_same_gamma(η_real, γ_real)
+            ηI, γI = combine_same_gamma(η_imag, γ_imag)
+
+            NR = length(γR)
+            NI = length(γI)
+            Nterm = NR + NI
+
+            ηRI_real = ComplexF64[]
+            ηRI_imag = ComplexF64[]
+            γRI      = ComplexF64[]
+            real_idx = Int64[]
+            imag_idx = Int64[]
+            for j in 1:NR
+                for k in 1:NI
+                    if isclose(γR[j],  γI[k])
+                        # record index
+                        push!(real_idx, j)
+                        push!(imag_idx, k)
+
+                        # append combined coefficient vectors
+                        push!(ηRI_real, ηR[j])
+                        push!(ηRI_imag, ηI[k])
+                        push!(γRI, γR[j])
+                    end
+                end
+            end
+            sort!(real_idx)
+            sort!(imag_idx)
+            deleteat!(ηR, real_idx)
+            deleteat!(γR, real_idx)
+            deleteat!(ηI, imag_idx)
+            deleteat!(γI, imag_idx)
+            
+            bR  = bosonReal(op, ηR, γR)
+            bI  = bosonImag(op, ηI, γI)
+            bRI = bosonRealImag(op, ηRI_real, ηRI_imag, γRI)
+            Nterm_new = bR.Nterm + bI.Nterm + bRI.Nterm
+            if Nterm != (Nterm_new + bRI.Nterm)
+                error("Conflicts occur in combining real and imaginary parts of bath correlation function.")
+            end
+            return new([bR, bI, bRI], bR.dim, Nterm_new)
+
+        else
+            bR = bosonReal(op, η_real, γ_real)
+            bI = bosonImag(op, η_imag, γ_imag)
+            return new([bR, bI], bR.dim, bR.Nterm + bI.Nterm)
+        end
     end
 end
 
@@ -100,9 +178,7 @@ end
 A bosonic bath for the real part of bath correlation function
 
 ## Fields
-- `spre`  : the super-operator (right side operator multiplication) for the coupling operator.
-- `spost` : the super-operator (left side operator multiplication) for the coupling operator.
-- `comm`  : the super-operator (commutator) for the coupling operator.
+- `Comm`  : the super-operator (commutator) for the coupling operator.
 - `dim` : the dimension of the coupling operator (should be equal to the system dimension).
 - `η` : the real part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ` : the real part of coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
@@ -116,9 +192,7 @@ A bosonic bath for the real part of bath correlation function
 - `γ_real::Vector{Tj<:Number}` : the real part of coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 """
 struct bosonReal <: AbstractBosonBath
-    spre::AbstractMatrix
-    spost::AbstractMatrix
-    comm::AbstractMatrix
+    Comm::AbstractMatrix
     dim::Int
     η::AbstractVector
     γ::AbstractVector
@@ -140,9 +214,8 @@ struct bosonReal <: AbstractBosonBath
         if N_exp_term != length(γ_real)
             error("The length of \'η_real\' and \'γ_real\' should be the same.")
         end
-        spreQ  = spre(op)
-        spostQ = spost(op)
-        return new(spreQ, spostQ, spreQ - spostQ, N1, η_real, γ_real, N_exp_term)
+
+        return new(spre(op) - spost(op), N1, η_real, γ_real, N_exp_term)
     end
 end
 
@@ -151,9 +224,8 @@ end
 A bosonic bath for the imaginary part of bath correlation function
 
 ## Fields
-- `spre`  : the super-operator (right side operator multiplication) for the coupling operator.
-- `spost` : the super-operator (left side operator multiplication) for the coupling operator.
-- `comm`  : the super-operator (commutator) for the coupling operator.
+- `Comm`  : the super-operator (commutator) for the coupling operator.
+- `anComm`  : the super-operator (anti-commutator) for the coupling operator.
 - `dim` : the dimension of the coupling operator (should be equal to the system dimension).
 - `η` : the imaginary part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ` : the imaginary part of coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
@@ -167,9 +239,8 @@ A bosonic bath for the imaginary part of bath correlation function
 - `γ_imag::Vector{Tj<:Number}` : the imaginary part of coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 """
 struct bosonImag <: AbstractBosonBath
-    spre::AbstractMatrix
-    spost::AbstractMatrix
-    comm::AbstractMatrix
+    Comm::AbstractMatrix
+    anComm::AbstractMatrix
     dim::Int
     η::AbstractVector
     γ::AbstractVector
@@ -193,7 +264,7 @@ struct bosonImag <: AbstractBosonBath
         end
         spreQ  = spre(op)
         spostQ = spost(op)
-        return new(spreQ, spostQ, spreQ - spostQ, N1, η_imag, γ_imag, N_exp_term)
+        return new(spreQ - spostQ, spreQ + spostQ, N1, η_imag, γ_imag, N_exp_term)
     end
 end
 
@@ -202,35 +273,37 @@ end
 A bosonic bath which the real part and imaginary part of the bath correlation function are combined
 
 ## Fields
-- `spre`  : the super-operator (right side operator multiplication) for the coupling operator.
-- `spost` : the super-operator (left side operator multiplication) for the coupling operator.
-- `comm`  : the super-operator (commutator) for the coupling operator.
+- `Comm`  : the super-operator (commutator) for the coupling operator.
+- `anComm`  : the super-operator (anti-commutator) for the coupling operator.
 - `dim` : the dimension of the coupling operator (should be equal to the system dimension).
-- `η` : the coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
+- `η_real` : the real part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
+- `η_imag` : the imaginary part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ` : the coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `Nterm` : the number of exponential-expansion term of correlation function
 
 ## Constructor
-`bosonRealImag(op, η, γ)`
+`bosonRealImag(op, η_real, η_imag, γ)`
 
 - `op::AbstractMatrix` : The system operator according to the system-bosonic-bath interaction.
-- `η::Vector{Ti<:Number}` : the coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
+- `η_real` : the real part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
+- `η_imag` : the imaginary part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ::Vector{Tj<:Number}` : the coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 """
 struct bosonRealImag <: AbstractBosonBath
-    spre::AbstractMatrix
-    spost::AbstractMatrix
-    comm::AbstractMatrix
+    Comm::AbstractMatrix
+    anComm::AbstractMatrix
     dim::Int
-    η::AbstractVector
+    η_real::AbstractVector
+    η_imag::AbstractVector
     γ::AbstractVector
     Nterm::Int
     
     function bosonRealImag(
             op::AbstractMatrix,
-            η::Vector{Ti},
-            γ::Vector{Tj}
-        ) where {Ti, Tj <: Number}
+            η_real::Vector{Ti},
+            η_imag::Vector{Tj},
+            γ::Vector{Tk}
+        ) where {Ti, Tj, Tk <: Number}
 
         N1, N2 = size(op)
         if N1 != N2
@@ -238,13 +311,13 @@ struct bosonRealImag <: AbstractBosonBath
         end
 
         # check if the length of coefficients are valid
-        N_exp_term = length(η)
-        if N_exp_term != length(γ)
-            error("The length of \'η\' and \'γ\' should be the same.")
+        N_exp_term = length(η_real)
+        if (N_exp_term != length(η_imag)) || (N_exp_term != length(γ))
+            error("The length of \'η_real\', \'η_imag\' and \'γ\' should be the same.")
         end
         spreQ  = spre(op)
         spostQ = spost(op)
-        return new(spreQ, spostQ, spreQ - spostQ, N1, η, γ, N_exp_term)
+        return new(spreQ - spostQ, spreQ + spostQ, N1, η_real, η_imag, γ, N_exp_term)
     end
 end
 
