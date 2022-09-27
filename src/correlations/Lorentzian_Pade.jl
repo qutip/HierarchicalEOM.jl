@@ -43,7 +43,7 @@ The application of the Padé method to spectrum decompoisitions is described in 
 - `bath::FermionBath` : a fermionic bath object with describes the interaction between system and fermionic bath
 """
 function Lorentzian_Pade_Bath(
-        #op::AbstractMatrix,
+        op::AbstractMatrix,
         Γ::Real,
         μ::Real,
         W::Real,
@@ -53,8 +53,5 @@ function Lorentzian_Pade_Bath(
     η_ab, γ_ab = lorentzian_pade_corr( 1.0, Γ, μ, W, T, N)
     η_em, γ_em = lorentzian_pade_corr(-1.0, Γ, μ, W, T, N)
 
-    println(η_ab)
-    println(γ_ab)
-    println(η_em)
-    println(γ_em)
+    return FermionBath(op, η_ab, γ_ab, η_em, γ_em)
 end
