@@ -91,7 +91,7 @@ function DOS(
     @inbounds for (i, ω) in enumerate(ω_list)
         if ω == 0
             sol_m = solve(LinearProblem(M.data, b_minus), solver, SOLVEROptions...)
-            sol_p = solve(set_b(sol_m.cache, b_plus),     solver, SOLVEROptions...)
+            sol_p = solve(LinearProblem(M.data, b_plus),  solver, SOLVEROptions...)
         else
             Iω = 1im * ω * I_total
             sol_m = solve(LinearProblem(M.data - Iω, b_minus), solver, SOLVEROptions...)
