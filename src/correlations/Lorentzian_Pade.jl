@@ -8,7 +8,7 @@ end
 
 function lorentzian_pade_corr(σ::Real, Γ::Real, μ::Real, W::Real, T::Real, N::Int)
     β = 1. / T
-    κ, ϵ = pade_NmN(N);
+    κ, ϵ = pade_NmN(N, fermion=true);
     η_list = [0.5 * Γ * W * f_approx(1.0im * β * W, κ, ϵ, N)]
     γ_list = [W - σ * 1.0im * μ]
 

@@ -19,7 +19,7 @@ function i_eigval(N, M, p)
 end
 
 # thoss's spectral (N-1/N) pade
-function pade_NmN(N, fermion::Bool=true)
+function pade_NmN(N; fermion::Bool)
 
     if fermion
         local ϵ = i_eigval(N    , 2 * N    , 0)
