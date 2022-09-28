@@ -50,7 +50,7 @@ module Heom
             AbstractHEOMMatrix, M_Fermion, M_Boson, M_Boson_Fermion,
             odd, even, none,
             ADOs, getRho, getADO,
-            addDissipator!
+            addDissipator!, addTerminator!
 
         include("HeomBase.jl")
         include("ADOs.jl")

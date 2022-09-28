@@ -53,6 +53,33 @@ end
 
 function addDissipator!(M::AbstractHEOMMatrix, jumpOP::AbstractMatrix) addDissipator!(M, [jumpOP]) end
 
+"""
+# `addTerminator!(M, Bath)`
+Adding terminator to a given HEOM matrix.
+
+The terminator is a liouvillian term representing the contribution to 
+the system-bath dynamics of all exponential-expansion terms beyond `Bath.Nterm`
+
+The difference between the true correlation function and the sum of the 
+`Bath.Nterm`-exponential terms is approximately `2 * δ * dirac(t)`.
+Here, `δ` is the approximation discrepancy and `dirac(t)` denotes the Dirac-delta function.
+
+## Parameters
+- `M::AbstractHEOMMatrix` : the matrix given from HEOM model
+- `Bath::Union{BosonBath, FermionBath}` : The bath object which contains the approximation discrepancy δ
+"""
+function addTerminator!(M::AbstractHEOMMatrix, Bath::Union{BosonBath, FermionBath})
+    Btype = typeof(Bath)
+    Mtype = typeof(M)
+    if (Btype == BosonBath) && (Mtype == M_Fermion)
+        error("For $(Btype), the type of Heom matrix should be either M_Boson or M_Boson_Fermion.")
+    elseif (Btype == FermionBath) && (Mtype == M_Boson)
+        error("For $(Btype), the type of Heom matrix should be either M_Fermion or M_Boson_Fermion.")
+    end
+
+    addDissipator!(M, [√(Bath.δ) * Bath.op])
+end
+
 # generate index to ado vector
 function ADO_number(dims::Vector{Int}, N_exc::Int)
     len = length(dims)
