@@ -77,7 +77,16 @@ function addTerminator!(M::AbstractHEOMMatrix, Bath::Union{BosonBath, FermionBat
         error("For $(Btype), the type of Heom matrix should be either M_Fermion or M_Boson_Fermion.")
     end
 
-    addDissipator!(M, [√(Bath.δ) * Bath.op])
+    if M.dim != Bath.dim
+        error("The system dimension between the Heom matrix and Bath are not consistent.")
+    end
+
+    J = Bath.op
+    L = 2 * Bath.δ * (
+        spre(J) * spost(J') - 0.5 * (spre(J' * J) + spost(J' * J))
+    )
+
+    M.data += kron(sparse(I, M.N, M.N), L)
 end
 
 # generate index to ado vector

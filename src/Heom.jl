@@ -13,7 +13,7 @@ module Heom
         import SparseArrays: sparse
 
         export 
-            AbstractBath, BosonBath, FermionBath, CombinedBath
+            AbstractBath, BosonBath, FermionBath, CombinedBath,
             AbstractBosonBath, bosonReal, bosonImag, bosonRealImag,
             AbstractFermionBath, fermionAbsorb, fermionEmit,
             spre, spost
