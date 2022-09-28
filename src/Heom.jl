@@ -24,10 +24,11 @@ module Heom
 
     # sub-module CorrelationFunc for Heom
     module CorrelationFunc
-        using ..Bath
+        import ..Bath: BosonBath, FermionBath
         import LinearAlgebra: eigvals
 
         export 
+            Boson_DrudeLorentz_Pade,
             Fermion_Lorentz_Pade
 
         include("correlations/CorrelationFunc.jl")
