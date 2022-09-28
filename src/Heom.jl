@@ -28,7 +28,7 @@ module Heom
         import LinearAlgebra: eigvals
 
         export 
-            Lorentzian_Pade_Bath
+            Fermion_Lorentz_Pade
 
         include("correlations/CorrelationFunc.jl")
     end
