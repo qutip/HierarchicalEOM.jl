@@ -39,15 +39,19 @@ Adding dissipator to a given HEOM matrix.
 """
 function addDissipator!(M::AbstractHEOMMatrix, jumpOP::Vector{T}=[]) where T <: AbstractMatrix
     if length(jumpOP) > 0
+        L = spzeros(ComplexF64, M.sup_dim, M.sup_dim)
         for J in jumpOP
             if size(J) == (M.dim, M.dim)
-                M.data += spre(J) * spost(J') - 0.5 * (spre(J' * J) + spost(J' * J))
+                L += spre(J) * spost(J') - 0.5 * (spre(J' * J) + spost(J' * J))
             else
                 error("The dimension of each jumpOP should be equal to \"($(M.dim), $(M.dim))\".")
             end
         end
+        M.data += kron(sparse(I, M.N, M.N), L)
     end
 end
+
+function addDissipator!(M::AbstractHEOMMatrix, jumpOP::AbstractMatrix) addDissipator!(M, [jumpOP]) end
 
 # generate index to ado vector
 function ADO_number(dims::Vector{Int}, N_exc::Int)
