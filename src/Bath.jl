@@ -343,7 +343,7 @@ struct FermionBath <: AbstractBath
 
         fA = fermionAbsorb(adjoint(op), η_absorb, γ_absorb, η_emit)
         fE = fermionEmit(op, η_emit, γ_emit, η_absorb)
-        return new([fA, fE], copy(op), fA.dim, fA.Nterm + fE.Nterm)
+        return new([fA, fE], copy(op), fA.dim, fA.Nterm + fE.Nterm, δ)
     end
 end
 
