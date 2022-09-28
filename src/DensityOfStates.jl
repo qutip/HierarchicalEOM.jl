@@ -1,5 +1,5 @@
 """
-# `DOS(M, ρ, ω_list, OP; [solver, progressBar, SOLVEROptions...])`
+# `DOS(M, ρ, ω_list, OP; [solver, progressBar, filename, SOLVEROptions...])`
 Calculate density of states.
 
 ## Parameters
@@ -9,7 +9,7 @@ Calculate density of states.
 - `OP::AbstractMatrix` : The system operator for the two-time correlation function in frequency domain.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
-- `filename::String` : If filename was specified, the value of dos for each ω will be saved into the file.
+- `filename::String` : If filename was specified, the value of dos for each ω will be saved into the file during the solving process.
 - `SOLVEROptions` : extra options for solver 
 
 ## Returns

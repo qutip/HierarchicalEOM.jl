@@ -1,5 +1,5 @@
 """
-# `PSD(M, ρ, ω_list, OP; [solver, progressBar, SOLVEROptions...])`
+# `PSD(M, ρ, ω_list, OP; [solver, progressBar, filename, SOLVEROptions...])`
 Calculate power spectral density.
 
 ## Parameters
@@ -9,7 +9,7 @@ Calculate power spectral density.
 - `OP::AbstractMatrix` : The system operator for the two-time correlation function in frequency domain.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
-- `filename::String` : If filename was specified, the value of psd for each ω will be saved into the file.
+- `filename::String` : If filename was specified, the value of psd for each ω will be saved into the file during the solving process.
 - `SOLVEROptions` : extra options for solver 
 
 ## Returns
