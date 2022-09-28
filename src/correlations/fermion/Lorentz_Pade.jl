@@ -1,12 +1,4 @@
-function f_approx(x, κ, ϵ, N)
-    f = 0.5
-    for l in 2:(N + 1)
-        f -= 2 * κ[l] * x / (x ^ 2 + ϵ[l] ^ 2)
-    end
-    return f
-end
-
-function lorentzian_pade_corr(σ::Real, Γ::Real, μ::Real, W::Real, T::Real, N::Int)
+function _fermion_lorentz_pade_corr(σ::Real, Γ::Real, μ::Real, W::Real, T::Real, N::Int)
     β = 1. / T
     κ, ϵ = pade_NmN(N, fermion=true);
     η_list = [0.5 * Γ * W * f_approx(1.0im * β * W, κ, ϵ, N)]
@@ -22,7 +14,7 @@ function lorentzian_pade_corr(σ::Real, Γ::Real, μ::Real, W::Real, T::Real, N:
 end
 
 """
-# `Lorentzian_Pade_Bath(op, Γ, μ, W, T, N)`
+# `Fermion_Lorentz_Pade(op, Γ, μ, W, T, N)`
 Constructing Lorentzian fermionic bath with Padé expansion
 
 A Padé approximant is a sum-over-poles expansion (see https://en.wikipedia.org/wiki/Pad%C3%A9_approximant).
@@ -42,7 +34,7 @@ The application of the Padé method to spectrum decompoisitions is described in 
 ## Returns
 - `bath::FermionBath` : a fermionic bath object with describes the interaction between system and fermionic bath
 """
-function Lorentzian_Pade_Bath(
+function Fermion_Lorentz_Pade(
         op::AbstractMatrix,
         Γ::Real,
         μ::Real,
@@ -50,8 +42,8 @@ function Lorentzian_Pade_Bath(
         T::Real,
         N::Int
     )
-    η_ab, γ_ab = lorentzian_pade_corr( 1.0, Γ, μ, W, T, N)
-    η_em, γ_em = lorentzian_pade_corr(-1.0, Γ, μ, W, T, N)
+    η_ab, γ_ab = _fermion_lorentz_pade_corr( 1.0, Γ, μ, W, T, N)
+    η_em, γ_em = _fermion_lorentz_pade_corr(-1.0, Γ, μ, W, T, N)
 
     return FermionBath(op, η_ab, γ_ab, η_em, γ_em)
 end

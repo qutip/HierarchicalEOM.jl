@@ -1,2 +1,3 @@
 include("corr_utils.jl")
-include("Lorentzian_Pade.jl")
+include("boson/boson_corr.jl")
+include("fermion/fermion_corr.jl")
