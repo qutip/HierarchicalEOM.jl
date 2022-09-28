@@ -2,6 +2,8 @@ fb(m) = 2 * m + 1
 
 δ(j, k) = j == k ? 1 : 0
 
+_fermi(x) = 1.0 / (exp(x) + 1.0)  # Fermi-Dirac distribution
+
 function i_eigval(N, M, p)
     pf = []
     A_matrix = zeros(M, M)
@@ -16,6 +18,21 @@ function i_eigval(N, M, p)
     end
 
     return pf
+end
+
+function matsubara(N; fermion::Bool)
+    ϵ = [0.0]
+
+    if fermion
+        for k in 1:N
+            push!(ϵ, (2 * k - 1) * π)
+        end
+    else
+        for k in 1:N
+            push!(ϵ, 2 * π * k)
+        end
+    end
+    return ϵ
 end
 
 # thoss's spectral (N-1/N) pade
@@ -44,4 +61,12 @@ function pade_NmN(N; fermion::Bool)
     end
 
     return append!([0.0], κ), append!([0.0], ϵ)
+end
+
+function _fermi_pade(x, κ, ϵ, N)
+    f = 0.5
+    for l in 2:(N + 1)
+        f -= 2 * κ[l] * x / (x ^ 2 + ϵ[l] ^ 2)
+    end
+    return f
 end

@@ -28,8 +28,8 @@ module Heom
         import LinearAlgebra: eigvals
 
         export 
-            Boson_DrudeLorentz_Pade,
-            Fermion_Lorentz_Pade
+            Boson_DrudeLorentz_Matsubara, Boson_DrudeLorentz_Pade, 
+            Fermion_Lorentz_Matsubara, Fermion_Lorentz_Pade
 
         include("correlations/CorrelationFunc.jl")
     end
