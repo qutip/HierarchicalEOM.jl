@@ -60,7 +60,7 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
 
         # check for fermionic bath
         if length(Bath) > 1
-            baths = combineBath(Bath)
+            baths = CombinedBath(Bath)
         else
             baths = Bath[1]
         end

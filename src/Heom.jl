@@ -13,10 +13,10 @@ module Heom
         import SparseArrays: sparse
 
         export 
-            AbstractBath, BosonBath, FermionBath,
+            AbstractBath, BosonBath, FermionBath, CombinedBath
             AbstractBosonBath, bosonReal, bosonImag, bosonRealImag,
             AbstractFermionBath, fermionAbsorb, fermionEmit,
-            spre, spost, combineBath
+            spre, spost
 
         include("Bath.jl")
     end

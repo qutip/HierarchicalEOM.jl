@@ -45,19 +45,22 @@ An object which describes the interaction between system and bosonic bath
 
 ## Fields
 - `bath::Vector{T<:AbstractBosonBath}` : the vector for different operators which describes the interaction between system and bosonic bath
+- `op::AbstractMatrix` : The system operator according to the system-bosonic-bath interaction.
 - `dim` : the dimension of the coupling operator (should be equal to the system dimension).
 - `Nterm` : the number of exponential-expansion term of correlation functions
+- `δ` : The approximation discrepancy which is used for adding the terminator to HEOM matrix (see function: addTerminator!)
 
 ## Constructor
-### `BosonBath(op, η, γ, combine)`
+### `BosonBath(op, η, γ, δ; [combine])`
 For the case where real part and imaginary part of the correlation function are combined.
 
 - `op::AbstractMatrix` : The system operator according to the system-bosonic-bath interaction.
 - `η::Vector{Ti<:Number}` : the coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ::Vector{Tj<:Number}` : the coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
+- `δ` : The approximation discrepancy (Default to `0.0`) which is used for adding the terminator to HEOM matrix (see function: addTerminator!)
 - `combine::Bool` : Whether to combine the exponential-expansion terms with the same frequency. Defaults to `true`.
 
-### `BosonBath(op, η_real, γ_real, η_imag, γ_imag, combine)`
+### `BosonBath(op, η_real, γ_real, η_imag, γ_imag, δ; [combine])`
 For the case where the correlation function splits into real part and imaginary part.
 
 - `op::AbstractMatrix` : The system operator according to the system-bosonic-bath interaction.
@@ -65,34 +68,22 @@ For the case where the correlation function splits into real part and imaginary 
 - `γ_real::Vector{Tj<:Number}` : the real part of coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `η_imag::Vector{Tk<:Number}` : the imaginary part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_imag::Vector{Tl<:Number}` : the imaginary part of coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
+- `δ` : The approximation discrepancy (Default to `0.0`) which is used for adding the terminator to HEOM matrix (see function: addTerminator!)
 - `combine::Bool` : Whether to combine the exponential-expansion terms with the same frequency. Defaults to `true`.
 """
 struct BosonBath <: AbstractBath
     bath::AbstractVector
+    op::AbstractMatrix
     dim::Int
     Nterm::Int
-
-    function BosonBath(baths::Vector{T}) where T <: AbstractBosonBath
-        dim   = baths[1].dim
-        Nterm = baths[1].Nterm
-        if length(baths) > 1
-            for b in baths[2:end]
-                if b.dim != dim 
-                    error("The system dimension of the bosonic bath coupling operators are not consistent.")
-                end
-                Nterm += b.Nterm
-            end
-        else
-            return new(baths, dim, Nterm)
-        end
-        return new(baths, dim, Nterm)
-    end
+    δ::Number
 
     function BosonBath(
             op::AbstractMatrix,
             η::Vector{Ti},
             γ::Vector{Tj},
-            combine=true
+            δ::Number=0.0;
+            combine::Bool=true
         ) where {Ti, Tj <: Number}
         if combine
             ηnew, γnew = combine_same_gamma(η, γ)
@@ -100,7 +91,7 @@ struct BosonBath <: AbstractBath
         else
             bRI = bosonRealImag(op, real.(η), imag.(η), γ)
         end
-        return new([bRI], bRI.dim, bRI.Nterm)
+        return new([bRI], copy(op), bRI.dim, bRI.Nterm, δ)
     end
 
     function BosonBath(
@@ -109,8 +100,9 @@ struct BosonBath <: AbstractBath
             γ_real::Vector{Tj},
             η_imag::Vector{Tk},
             γ_imag::Vector{Tl},
+            δ::Tm=0.0;
             combine::Bool=true
-        ) where {Ti, Tj, Tk, Tl <: Number}
+        ) where {Ti, Tj, Tk, Tl, Tm <: Number}
 
         if combine
             ηR, γR = combine_same_gamma(η_real, γ_real)
@@ -153,24 +145,14 @@ struct BosonBath <: AbstractBath
             if Nterm != (Nterm_new + bRI.Nterm)
                 error("Conflicts occur in combining real and imaginary parts of bath correlation function.")
             end
-            return new([bR, bI, bRI], bR.dim, Nterm_new)
+            return new([bR, bI, bRI], copy(op), bR.dim, Nterm_new, δ)
 
         else
             bR = bosonReal(op, η_real, γ_real)
             bI = bosonImag(op, η_imag, γ_imag)
-            return new([bR, bI], bR.dim, bR.Nterm + bI.Nterm)
+            return new([bR, bI], copy(op), bR.dim, bR.Nterm + bI.Nterm, δ)
         end
     end
-end
-
-combineBath(bath::BosonBath...) = combineBath([bath...])
-
-function combineBath(bath::Vector{BosonBath})
-    baths = AbstractBosonBath[]
-    for b in bath
-        push!(baths, b.bath...)
-    end
-    return BosonBath(baths)
 end
 
 """
@@ -327,61 +309,42 @@ An object which describes the interaction between system and fermionic bath
 
 ## Fields
 - `bath::Vector{T<:AbstractFermionBath}` : the vector for different operators which describes the interaction
+- `op::AbstractMatrix` : The system \"emission\" operator according to the system-fermionic-bath interaction.
 - `dim` : the dimension of the coupling operator (should be equal to the system dimension).
 - `Nterm` : the number of exponential-expansion term of correlation functions
+- `δ` : The approximation discrepancy which is used for adding the terminator to HEOM matrix (see function: addTerminator!)
+
 
 ## Constructor
-### `FermionBath(op, η_absorb, γ_absorb, η_emit, γ_emit)`
+### `FermionBath(op, η_absorb, γ_absorb, η_emit, γ_emit, δ)`
 
 - `op::AbstractMatrix` : The system \"emission\" operator according to the system-fermionic-bath interaction.
 - `η_absorb` : the coefficients ``\\eta_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_absorb` : the coefficients ``\\gamma_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `η_emit` : the coefficients ``\\eta_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_emit` : the coefficients ``\\gamma_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
+- `δ` : The approximation discrepancy (Default to `0.0`) which is used for adding the terminator to HEOM matrix (see function: addTerminator!)
 """
 struct FermionBath <: AbstractBath
     bath::AbstractVector
+    op::AbstractMatrix
     dim::Int
     Nterm::Int
-
-    function FermionBath(baths::Vector{T}) where T <: AbstractFermionBath
-        dim   = baths[1].dim
-        Nterm = baths[1].Nterm
-        if length(baths) > 1
-            for b in baths[2:end]
-                if b.dim != dim 
-                    error("The system dimension of the fermionic bath coupling operators are not consistent.")
-                end
-                Nterm += b.Nterm
-            end
-        else
-            return new(baths, dim, Nterm)
-        end
-        return new(baths, dim, Nterm)
-    end 
+    δ::Number
 
     function FermionBath(
             op::AbstractMatrix,
             η_absorb::Vector{Ti},
             γ_absorb::Vector{Tj},
             η_emit::Vector{Tk},
-            γ_emit::Vector{Tl}
-        ) where {Ti, Tj, Tk, Tl <: Number}
+            γ_emit::Vector{Tl},
+            δ::Tm=0.0
+        ) where {Ti, Tj, Tk, Tl, Tm <: Number}
 
         fA = fermionAbsorb(adjoint(op), η_absorb, γ_absorb, η_emit)
         fE = fermionEmit(op, η_emit, γ_emit, η_absorb)
-        return new([fA, fE], fA.dim, fA.Nterm + fE.Nterm)
+        return new([fA, fE], copy(op), fA.dim, fA.Nterm + fE.Nterm)
     end
-end
-
-combineBath(bath::FermionBath...) = combineBath([bath...])
-
-function combineBath(bath::Vector{FermionBath})
-    baths = AbstractFermionBath[]
-    for b in bath
-        push!(baths, b.bath...)
-    end
-    return FermionBath(baths)
 end
 
 """
@@ -491,5 +454,48 @@ struct fermionEmit <: AbstractFermionBath
             error("The length of \'η_emit\', \'γ_emit\' and \'η_absorb\' should all be the same.")
         end
         return new(spre(op), spost(op), spre(adjoint(op)), spost(adjoint(op)), N1, η_emit, γ_emit, η_absorb, N_exp_term)
+    end
+end
+
+struct CombinedBath <: AbstractBath
+    bath::AbstractVector
+    dim::Int
+    Nterm::Int
+    
+    function CombinedBath(bath::BosonBath...) CombinedBath([bath...]) end
+    function CombinedBath(bath::FermionBath...) CombinedBath([bath...]) end
+
+    function CombinedBath(B::Vector{BosonBath})
+        baths = AbstractBosonBath[(B[1].bath)...]
+        dim   = B[1].dim
+        Nterm = B[1].Nterm
+        if length(B) > 1
+            for b in B[2:end]
+                if b.dim != dim 
+                    error("The system dimension of the bosonic bath coupling operators are not consistent.")
+                end
+                push!(baths, b.bath...)
+                Nterm += b.Nterm
+            end
+        end
+
+        return new(baths, dim, Nterm)
+    end
+
+    function CombinedBath(B::Vector{FermionBath})
+        baths = AbstractFermionBath[(B[1].bath)...]
+        dim   = B[1].dim
+        Nterm = B[1].Nterm
+        if length(B) > 1
+            for b in B[2:end]
+                if b.dim != dim 
+                    error("The system dimension of the bosonic bath coupling operators are not consistent.")
+                end
+                push!(baths, b.bath...)
+                Nterm += b.Nterm
+            end
+        end
+
+        return new(baths, dim, Nterm)
     end
 end

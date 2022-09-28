@@ -76,7 +76,7 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
 
         # check for bosonic bath
         if length(Bath_b) > 1
-            baths_b = combineBath(Bath_b)
+            baths_b = CombinedBath(Bath_b)
         else
             baths_b = Bath_b[1]
         end
@@ -85,7 +85,7 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
         
         # check for fermionic bath
         if length(Bath_f) > 1
-            baths_f = combineBath(Bath_f)
+            baths_f = CombinedBath(Bath_f)
         else
             baths_f = Bath_f[1]
         end

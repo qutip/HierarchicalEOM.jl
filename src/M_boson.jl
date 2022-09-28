@@ -53,7 +53,7 @@ mutable struct M_Boson <: AbstractHEOMMatrix
 
         # check for bosonic bath
         if length(Bath) > 1
-            baths = combineBath(Bath)
+            baths = CombinedBath(Bath)
         else
             baths = Bath[1]
         end
