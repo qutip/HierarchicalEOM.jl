@@ -5,7 +5,11 @@ const odd  = 1;
 const even = 0;
 const none = nothing;
 
-size(A::AbstractHEOMMatrix) = size(A.data)
+"""
+# `size(M::AbstractHEOMMatrix)`
+Returns the size of the Heom liouvillian superoperator matrix
+"""
+size(M::AbstractHEOMMatrix) = size(M.data)
 
 function show(io::IO, M::AbstractHEOMMatrix)
     T = typeof(M)

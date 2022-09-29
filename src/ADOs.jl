@@ -3,62 +3,66 @@
 The Auxiliary Density Operators for Heom model.
 
 ## Fields
-- `data::Vector{ComplexF64}` : the vectorized auxiliary density operators
-- `dim::Int` : the dimension of the system
-- `Nb::Int`  : the number of bosonic states
-- `Nf::Int`  : the number of fermionic states
-
-## Constructor
-`ADOs(V, dim, Nb, Nf)`
-
-- `data::Vector{ComplexF64}` : the vectorized auxiliary density operators
-- `dim::Int` : the dimension of the system
-- `Nb::Int`  : the number of bosonic states. Defaults to 0.
-- `Nf::Int`  : the number of fermionic states Defaults to 0.
+- `data` : the vectorized auxiliary density operators
+- `dim` : the dimension of the system
+- `Nb` : the number of bosonic states
+- `Nf` : the number of fermionic states
 """
 mutable struct ADOs 
     data::Vector{ComplexF64}
     const dim::Int
     const Nb::Int
     const Nf::Int
-
-    function ADOs(        
-            V::AbstractVector,
-            dim::Int,
-            Nb::Int=0,
-            Nf::Int=0
-        )
-
-        if dim < 2
-            error("dim must be greater than 1")
-        end
-
-        # get total number of Env. states
-        local Ntot :: Int
-        if Nb == 0     # fermionic bath
-            Ntot = Nf
-
-        elseif Nf == 0 # bosonic bath
-            Ntot = Nb
-        
-        else               # mixed bath
-            Ntot = Nb * Nf
-        end
-
-        # check the dimension of V
-        d, = size(V)
-        if d != (dim ^ 2) * Ntot
-            error("The dimension is not consistent, the size of \"V\" should be equal to \"(dim ^ 2) * Nb * Nf\".")
-        end
-
-        # make eltype of V: ComplexF64
-        if eltype(V) != ComplexF64
-            V = convert.(ComplexF64, V)
-        end
-        return new(Vector(V), dim, Nb, Nf)
-    end
 end
 
+"""
+# `ADOs(V, dim, Nb=0, Nf=0)`
+
+## Parameters
+- `V::AbstractVector` : the vectorized auxiliary density operators
+- `dim::Int` : the dimension of the system
+- `Nb::Int` : the number of bosonic states. Defaults to `0`.
+- `Nf::Int` : the number of fermionic states Defaults to `0`.
+"""
+function ADOs(        
+        V::AbstractVector,
+        dim::Int,
+        Nb::Int=0,
+        Nf::Int=0
+    )
+    if dim < 2
+        error("dim must be greater than 1")
+    end
+
+    # get total number of Env. states
+    local Ntot :: Int
+    if Nb == 0     # fermionic bath
+        Ntot = Nf
+
+    elseif Nf == 0 # bosonic bath
+        Ntot = Nb
+
+    else               # mixed bath
+        Ntot = Nb * Nf
+    end
+
+    # check the dimension of V
+    d, = size(V)
+    if d != (dim ^ 2) * Ntot
+        error("The dimension is not consistent, the size of \"V\" should be equal to \"(dim ^ 2) * Nb * Nf\".")
+    end
+
+    # make eltype of V: ComplexF64
+    if eltype(V) != ComplexF64
+        V = convert.(ComplexF64, V)
+    end
+    return ADOs(Vector(V), dim, Nb, Nf)
+end
+
+"""
+# `size(A::ADOs)`
+Returns the size of the vetorized Auxiliary Density Operators (ADOs)
+"""
 size(A::ADOs) = size(A.data)
 
 function show(io::IO, V::ADOs)
@@ -93,7 +97,7 @@ Return the auxiliary density operator with a specific index from auxiliary densi
 
 ## Parameters
 - `ados::ADOs` : the auxiliary density operators for Heom model
-- `idx::Int`   : the index of the auxiliary density operator
+- `idx::Int` : the index of the auxiliary density operator
 
 ## Returns
 - `ρ_idx` : The auxiliary density operator
