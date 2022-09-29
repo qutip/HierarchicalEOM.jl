@@ -1,3 +1,3 @@
 # Heom.jl
 
-*An efficient julia framwork for Hierarchical Equations of Motion (HEOM) in open quantum systems*
+*An efficient julia framework for Hierarchical Equations of Motion (HEOM) in open quantum systems*
