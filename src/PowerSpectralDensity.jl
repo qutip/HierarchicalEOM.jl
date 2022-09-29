@@ -84,9 +84,10 @@ function PSD(
     C_dagger = kron(I_heom, spre(OP'))
     local Cb::Vector{ComplexF64} = -1 * C_normal * b
 
-    print("Start calculating power spectral density...")
     Length = length(ω_list)
     psd    = Vector{Float64}(undef, Length)
+    print("Start calculating power spectral density...")
+    flush(stdout)
     if progressBar
         print("\n")
         prog = Progress(Length; start=1, desc="Progress : ", PROGBAR_OPTIONS...)
@@ -113,6 +114,7 @@ function PSD(
             next!(prog)
         end 
     end
+    println("[DONE]")
 
     return dos
 end

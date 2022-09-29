@@ -26,7 +26,10 @@ function Steadystate(M::AbstractHEOMMatrix; solver=UMFPACKFactorization(), SOLVE
     b = sparsevec([1], [1. + 0.0im], S)
     
     # solving x where A * x = b
+    print("Start solving steady state...")
+    flush(stdout)
     sol = solve(LinearProblem(A, Vector(b)), solver, SOLVEROptions...)
+    println("[DONE]")
     
     return ADOs(sol.u, M.dim, M.Nb, M.Nf)
 end

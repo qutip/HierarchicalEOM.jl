@@ -81,9 +81,10 @@ function DOS(
     local b_minus::Vector{ComplexF64} = -1 * C_normal * b
     local b_plus ::Vector{ComplexF64} = -1 * C_dagger * b
 
-    print("Start calculating density of states...")
     Length = length(ω_list)
     dos    = Vector{Float64}(undef, Length)
+    print("Start calculating density of states...")
+    flush(stdout)
     if progressBar
         print("\n")
         prog = Progress(Length; start=1, desc="Progress : ", PROGBAR_OPTIONS...)
@@ -113,6 +114,7 @@ function DOS(
             next!(prog)
         end 
     end
+    println("[DONE]")
 
     return dos
 end
