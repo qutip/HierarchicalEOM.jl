@@ -1,76 +1,75 @@
 """
-# `M_fermion <: AbstractHEOMMatrix`
+# `M_Fermion <: AbstractHEOMMatrix`
 Heom matrix for fermionic bath
 
 ## Fields
 - `data::SparseMatrixCSC{ComplexF64, Int64}` : the sparse matrix
-- `tier::Int`   : the tier (cutoff) for the bath
-- `N_sys::Int`  : the dimension of system
-- `N_he::Int`   : the number of states
-- `sup_dim::Int`: the dimension of system superoperator
-- `ADOs::OrderedDict{Vector{Int}, Int}`: the ADOs dictionary
+- `tier::Int` : the tier (cutoff) for the bath
+- `dim::Int`  : the dimension of system
+- `N::Int`  : the number of total states
+- `Nb::Int` : the number of bosonic states (should be zero)
+- `Nf::Int` : the number of fermionic states
+- `sup_dim::Int` : the dimension of system superoperator
+- `parity::Symbol` : the parity of the density matrix
+- `ado2idx::OrderedDict{Vector{Int}, Int}` : the ADO-to-index dictionary
 
 ## Constructor
-`M_fermion(Hsys, tier, η_list, γ_list, Coup_Ops; [Jump_Ops, spectral, liouville])`
+`M_Fermion(Hsys, tier, Bath, parity; [progressBar])`
 
-- `Hsys::Union{AbstractMatrix, AbstractOperator}` : The system Hamiltonian
+- `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
-- `η_list::Vector{Vector{Tv<:Number}}` : the coefficient ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
-- `γ_list::Vector{Vector{Ti<:Number}}` : the coefficient ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
-- `Coup_Ops::Vector` : Operator list describing the coupling between system and bath.
-- `Jump_Ops::Vector` : The collapse (jump) operators to add when calculating liouvillian in lindblad term (only if `liouville=true`). Defaults to empty vector `[]`.
-- `spectral::Bool` : Decide whether to calculate spectral density or not. Defaults to `false`.
-- `liouville::Bool` : Add liouvillian to the matrix or not. Defaults to `true`.
+- `Bath::Vector{FermionBath}` : objects for different fermionic baths
+- `parity::Symbol` : The parity symbol of the density matrix (either `:odd` or `:even`). Defaults to `:even`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
-mutable struct M_fermion <: AbstractHEOMMatrix
+mutable struct M_Fermion <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
-    tier::Int
-    N_sys::Int
-    N_he::Int
-    sup_dim::Int
-    ADOs::OrderedDict{Vector{Int}, Int}
+    const tier::Int
+    const dim::Int
+    const N::Int
+    const Nb::Int
+    const Nf::Int
+    const sup_dim::Int
+    const parity::Symbol
+    const ado2idx::OrderedDict{Vector{Int}, Int}
     
-    function M_fermion(        
-            Hsys::Union{AbstractMatrix, AbstractOperator},
-            tier::Int,
-            η_list::Vector{Vector{Tv}},
-            γ_list::Vector{Vector{Ti}},
-            Coup_Ops::Vector;
-            Jump_Ops::Vector=[],  # only when liouville is set to true
-            spectral::Bool=false,
-            liouville::Bool=true,
-            progressBar::Bool=true
-        ) where {Ti,Tv <: Number}
+    function M_Fermion(Hsys::AbstractMatrix, tier::Int, Bath::FermionBath, parity::Symbol=:even; progressBar::Bool=true)
+        return M_Fermion(Hsys, tier, [Bath], parity, progressBar = progressBar)
+    end
 
-        # check if the length of η_list, γ_list, and Coup_Ops are valid
-        N_bath  = length(Coup_Ops)
-        N_exp_term = length(η_list[1])
-        if (N_bath != length(η_list)) || (N_bath != length(γ_list))
-            error("The length of \'η_list\', \'γ_list\', and \'Coup_Ops\' should all be the same.")
+    function M_Fermion(        
+            Hsys::AbstractMatrix,
+            tier::Int,
+            Bath::Vector{FermionBath},
+            parity::Symbol=:even;
+            progressBar::Bool=true
+        )
+
+        # check parity
+        if (parity != :even) && (parity != :odd)
+            error("The parity symbol of density matrix should be either \":odd\" or \":even\".")
         end
-        for i in 1:N_bath
-            if N_exp_term != length(η_list[i]) 
-                error("The length of each vector in \'η_list\' are wrong.")
-            end
-            if N_exp_term != length(γ_list[i]) 
-                error("The length of each vector in \'γ_list\' are wrong.")
-            end
-        end
-            
+
+        # check for system dimension
         Nsys,   = size(Hsys)
-        dims    = [2 for i in 1:(N_exp_term * N_bath)]
         sup_dim = Nsys ^ 2
         I_sup   = sparse(I, sup_dim, sup_dim)
-    
-        spreQ   = spre.(Coup_Ops)
-        spostQ  = spost.(Coup_Ops)
-        spreQd  = spre.(dagger.(Coup_Ops))
-        spostQd = spost.(dagger.(Coup_Ops))
+        
+        # the liouvillian operator for free Hamiltonian term
+        Lsys = -1im * (spre(Hsys) - spost(Hsys))
+
+        # check for fermionic bath
+        if length(Bath) > 1
+            baths = CombinedBath(Bath)
+        else
+            baths = Bath[1]
+        end
+        bath       = baths.bath
+        N_exp_term = baths.Nterm
 
         # get ADOs dictionary
-        N_he, he2idx_ordered, idx2he = ADOs_dictionary(dims, tier)
-        he2idx = Dict(he2idx_ordered)
+        N_he, ado2idx_ordered, idx2ado = ADOs_dictionary(fill(2, N_exp_term), tier)
+        ado2idx = Dict(ado2idx_ordered)
 
         # start to construct the matrix
         L_row = distribute([Int[] for _ in procs()])
@@ -78,11 +77,12 @@ mutable struct M_fermion <: AbstractHEOMMatrix
         L_val = distribute([ComplexF64[] for _ in procs()])
         channel = RemoteChannel(() -> Channel{Bool}(), 1) # for updating the progress bar
 
-        println("Start constructing hierarchy matrix...(using $(nprocs()) processors)")
+        println("Start constructing hierarchy matrix (using $(nprocs()) processors)...")
         if progressBar
             prog = Progress(N_he; desc="Processing: ", PROGBAR_OPTIONS...)
         else
             println("Processing...")
+            flush(stdout)
         end
         @sync begin # start two tasks which will be synced in the very end
             # the first task updates the progress bar
@@ -97,49 +97,38 @@ mutable struct M_fermion <: AbstractHEOMMatrix
             # the second task does the computation
             @async begin
                 @distributed (+) for idx in 1:N_he
-                    state = idx2he[idx]
+                    state = idx2ado[idx]
                     n_exc = sum(state)
-                    sum_ω = 0.0
                     if n_exc >= 1
-                        for n in 1:N_bath
-                            for k in 1:(N_exp_term)
-                                tmp = state[k + (n - 1) * N_exp_term]
-                                if tmp >= 1
-                                    sum_ω += tmp * γ_list[n][k]
-                                end
-                            end
-                        end
+                        sum_ω = bath_sum_ω(state, baths)
+                        op = Lsys - sum_ω * I_sup                
+                    else
+                        op = Lsys
                     end
-                    row, col, val = pad_coo(- sum_ω * I_sup, N_he, N_he, idx, idx)
-                    push!(localpart(L_row)[1], row...)
-                    push!(localpart(L_col)[1], col...)
-                    push!(localpart(L_val)[1], val...)
+                    add_operator!(op, L_row, L_col, L_val, N_he, idx, idx)
 
+                    count = 0
                     state_neigh = copy(state)
-                    for n in 1:N_bath
-                        for k in 1:(N_exp_term)
-                            n_k = state[k + (n - 1) * N_exp_term]
+                    for fB in bath
+                        for k in 1:fB.Nterm
+                            count += 1
+                            n_k = state[count]
                             if n_k >= 1
-                                state_neigh[k + (n - 1) * N_exp_term] = n_k - 1
-                                idx_neigh = he2idx[state_neigh]
-                                op = (-1) ^ spectral * η_list[n][k] * spreQ[n] - (-1.0) ^ (n_exc - 1) * conj(η_list[(n % 2 == 0) ? (n-1) : (n+1)][k]) * spostQ[n]
+                                state_neigh[count] = n_k - 1
+                                idx_neigh = ado2idx[state_neigh]
+                                op = prev_grad_fermion(fB, k, n_exc, sum(state_neigh[1:(count - 1)]), parity)
 
                             elseif n_exc <= tier - 1
-                                state_neigh[k + (n - 1) * N_exp_term] = n_k + 1
-                                idx_neigh = he2idx[state_neigh]
-                                op = (-1) ^ (spectral) * spreQd[n] + (-1.0) ^ (n_exc + 1) * spostQd[n]
-
+                                state_neigh[count] = n_k + 1
+                                idx_neigh = ado2idx[state_neigh]
+                                op = next_grad_fermion(fB, n_exc, sum(state_neigh[1:(count - 1)]), parity)
+                            
                             else
                                 continue
                             end
-
-                            tmp_exc = sum(state_neigh[1:(k + (n - 1) * N_exp_term - 1)])
-                            row, col, val = pad_coo(-1im * (-1) ^ (tmp_exc) * op, N_he, N_he, idx, idx_neigh)
-                            push!(localpart(L_row)[1], row...)
-                            push!(localpart(L_col)[1], col...)
-                            push!(localpart(L_val)[1], val...)
-
-                            state_neigh[k + (n - 1) * N_exp_term] = n_k
+                            add_operator!(op, L_row, L_col, L_val, N_he, idx, idx_neigh)
+                            
+                            state_neigh[count] = n_k
                         end
                     end
                     if progressBar
@@ -150,15 +139,11 @@ mutable struct M_fermion <: AbstractHEOMMatrix
                 put!(channel, false) # this tells the printing task to finish
             end
         end
-        println("Constructing matrix...")
+        print("Constructing matrix...")
+        flush(stdout)
         L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), N_he * sup_dim, N_he * sup_dim)
-
-        if liouville
-            println("Adding liouvillian...")
-            L_he += kron(sparse(I, N_he, N_he), liouvillian(Hsys, Jump_Ops, progressBar))
-        end
-        
         println("[DONE]")
-        return new(L_he, tier, Nsys, N_he, sup_dim, he2idx_ordered)
+
+        return new(L_he, tier, Nsys, N_he, 0, N_he, sup_dim, parity, ado2idx_ordered)
     end
 end
