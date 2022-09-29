@@ -12,9 +12,9 @@ Solve the evolution (ODE problem) using HEOM model.
 - `ρ0::AbstractMatrix` : system initial state (density matrix)
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
-- `reltol::Float64` : Relative tolerance in adaptive timestepping. Default to 1.0e-6.
-- `abstol::Float64` : Absolute tolerance in adaptive timestepping. Default to 1.0e-8.
-- `maxiters` : Maximum number of iterations before stopping. Default to 1e5.
+- `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
+- `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
+- `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver 
 
@@ -26,12 +26,12 @@ function evolution(
         ρ0::AbstractMatrix, 
         tlist::AbstractVector;
         solver = DP5(),
-        reltol::Float64 = 1.0e-6,
-        abstol::Float64 = 1.0e-8,
-        maxiters::Union{Ti, Tj} = 1e5,
+        reltol::Real = 1.0e-6,
+        abstol::Real = 1.0e-8,
+        maxiters::Real = 1e5,
         progressBar::Bool = true,
         SOLVEROptions...
-    ) where Ti <: Integer where Tj <: AbstractFloat
+    )
 
     if size(ρ0) == (M.dim, M.dim) 
         error("The dimension of ρ0 should be equal to \"($(M.dim), $(M.dim))\".")
@@ -89,9 +89,9 @@ Solve the evolution (ODE problem) using HEOM model.
 - `ados::ADOs` : initial auxiliary density operators
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
-- `reltol::Float64` : Relative tolerance in adaptive timestepping. Default to 1.0e-6.
-- `abstol::Float64` : Absolute tolerance in adaptive timestepping. Default to 1.0e-8.
-- `maxiters` : Maximum number of iterations before stopping. Default to 1e5.
+- `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
+- `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
+- `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver 
 
@@ -103,12 +103,12 @@ function evolution(
         ados::ADOs, 
         tlist::AbstractVector;
         solver = DP5(),
-        reltol::Float64 = 1.0e-6,
-        abstol::Float64 = 1.0e-8,
-        maxiters::Union{Ti, Tj} = 1e5,
+        reltol::Real = 1.0e-6,
+        abstol::Real = 1.0e-8,
+        maxiters::Real = 1e5,
         progressBar::Bool = true,
         SOLVEROptions...
-    ) where Ti <: Integer where Tj <: AbstractFloat
+    )
 
     if (M.dim != ados.dim)
         error("The system dimension between M and ados are not consistent.")
