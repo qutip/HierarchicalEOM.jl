@@ -33,7 +33,7 @@ function evolution(
         SOLVEROptions...
     )
 
-    if size(ρ0) == (M.dim, M.dim) 
+    if size(ρ0) != (M.dim, M.dim) 
         error("The dimension of ρ0 should be equal to \"($(M.dim), $(M.dim))\".")
     end
 

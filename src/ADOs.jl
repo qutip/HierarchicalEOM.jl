@@ -9,7 +9,7 @@ The Auxiliary Density Operators for Heom model.
 - `Nf` : the number of fermionic states
 """
 mutable struct ADOs 
-    data::Vector{ComplexF64}
+    data::SparseVector{ComplexF64, Int64}
     const dim::Int
     const Nb::Int
     const Nf::Int
@@ -57,7 +57,7 @@ function ADOs(
     if eltype(V) != ComplexF64
         V = convert.(ComplexF64, V)
     end
-    return ADOs(Vector(V), dim, Nb, Nf)
+    return ADOs(sparsevec(V), dim, Nb, Nf)
 end
 
 """
