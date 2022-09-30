@@ -42,7 +42,7 @@ function M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, Bath_b:
 end
 
 """
-    M_Boson_Fermion(Hsys, tier_b, tier_f, Bath_b, Bath_f, parity=:even; [progressBar=true])
+    M_Boson_Fermion(Hsys, tier_b, tier_f, Bath_b, Bath_f, parity=:even; progressBar=true)
 Generate the boson-fermion-type Heom matrix
 
 # Parameters

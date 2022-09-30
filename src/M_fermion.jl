@@ -30,7 +30,7 @@ function M_Fermion(Hsys::AbstractMatrix, tier::Int, Bath::FermionBath, parity::S
 end
 
 """
-    M_Fermion(Hsys, tier, Bath, parity=:even; [progressBar=true])
+    M_Fermion(Hsys, tier, Bath, parity=:even; progressBar=true)
 Generate the fermion-type Heom matrix
 
 # Parameters
