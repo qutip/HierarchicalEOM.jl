@@ -1,5 +1,5 @@
 """
-    PSD(M, ρ, ω_list, OP; [solver, progressBar, filename, SOLVEROptions...])
+    PSD(M, ρ, ω_list, OP; solver, progressBar, filename, SOLVEROptions...)
 Calculate power spectral density.
 
 # Parameters

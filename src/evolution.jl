@@ -4,7 +4,7 @@ function integrate!(dρ, ρ, L, t)
 end
 
 """
-    evolution(M, ρ0, tlist; [solver, reltol, abstol, maxiters, progressBar, SOLVEROptions...])
+    evolution(M, ρ0, tlist; solver, reltol, abstol, maxiters, progressBar, SOLVEROptions...)
 Solve the evolution (ODE problem) using HEOM model.
 
 # Parameters
@@ -81,7 +81,7 @@ function evolution(
 end
 
 """
-    evolution(M, ados, tlist; [solver, reltol, abstol, maxiters, progressBar, SOLVEROptions...])
+    evolution(M, ados, tlist; solver, reltol, abstol, maxiters, progressBar, SOLVEROptions...)
 Solve the evolution (ODE problem) using HEOM model.
 
 # Parameters

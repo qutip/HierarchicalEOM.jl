@@ -1,5 +1,5 @@
 """
-    Steadystate(M::AbstractHEOMMatrix; [solver, SOLVEROptions...])
+    Steadystate(M; solver, SOLVEROptions...)
 Solve the steady state of the given Heom matrix.
 
 # Parameters

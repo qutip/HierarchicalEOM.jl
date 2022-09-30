@@ -30,7 +30,7 @@ function M_Boson(Hsys::AbstractMatrix, tier::Int, Bath::BosonBath; progressBar::
 end
 
 """
-    M_Boson(Hsys, tier, Bath; [progressBar=true])
+    M_Boson(Hsys, tier, Bath; progressBar=true)
 Generate the boson-type Heom matrix
 
 # Parameters

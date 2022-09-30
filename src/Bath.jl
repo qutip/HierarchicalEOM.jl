@@ -59,7 +59,7 @@ struct BosonBath <: AbstractBath
 end
 
 """
-    BosonBath(op, η, γ, δ=0.0; [combine=true])
+    BosonBath(op, η, γ, δ=0.0; combine=true)
 Generate BosonBath object for the case where real part and imaginary part of the correlation function are combined.
 
 # Parameters
@@ -86,7 +86,7 @@ function BosonBath(
 end
 
 """
-    BosonBath(op, η_real, γ_real, η_imag, γ_imag, δ=0.0; [combine=true])
+    BosonBath(op, η_real, γ_real, η_imag, γ_imag, δ=0.0; combine=true)
 Generate BosonBath object for the case where the correlation function splits into real part and imaginary part.
 
 # Parameters

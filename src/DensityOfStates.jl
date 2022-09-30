@@ -1,5 +1,5 @@
 """
-    DOS(M, ρ, ω_list, OP; [solver, progressBar, filename, SOLVEROptions...])
+    DOS(M, ρ, ω_list, OP; solver, progressBar, filename, SOLVEROptions...)
 Calculate density of states.
 
 # Parameters
