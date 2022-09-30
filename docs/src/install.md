@@ -25,7 +25,7 @@ In order to get a better experience and take full advantage of `Heom`, we recomm
     For the users who constructs the quantum objects by `QuantumOptics` package, the standard type of vectors or matrices are stored in the `data` field of the objects, i.e., `op.data` (where `op` is a `QuantumOptics`-type object). Thus, users should take it as the inputs of `Heom` for objects in `QuantumOptics` package.
 
 ### [DifferentialEquations.jl](http://docs.juliadiffeq.org/latest/)
-`DifferentialEquations` is needed to provide the low-level ODE solvers especially for solving time `evolution`. For [low dependency usage](https://diffeq.sciml.ai/stable/features/low_dep/), users can use [OrdinaryDiffEq.jl](https://github.com/JuliaDiffEq/OrdinaryDiffEq.jl) instead.
+`DifferentialEquations` is needed to provide the low-level ODE solvers especially for solving time [`evolution`](@ref). For [low dependency usage](https://diffeq.sciml.ai/stable/features/low_dep/), users can use [OrdinaryDiffEq.jl](https://github.com/JuliaDiffEq/OrdinaryDiffEq.jl) instead.
 
 ### [LinearSolve.jl](http://docs.juliadiffeq.org/latest/)
 `LinearSolve` is a unified interface for the linear solving packages of Julia. It interfaces with other packages of the Julia ecosystem to make it easier to test alternative solver packages and pass small types to control algorithm swapping. It is needed to provide the solvers especially for solving [`Steadystate`](@ref), [`PSD`](@ref) (power spectral density), and [`DOS`](@ref) (density of states).
