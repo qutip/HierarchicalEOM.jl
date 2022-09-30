@@ -6,7 +6,7 @@ const even = 0;
 const none = nothing;
 
 """
-# `size(M::AbstractHEOMMatrix)`
+    size(M::AbstractHEOMMatrix)
 Returns the size of the Heom liouvillian superoperator matrix
 """
 size(M::AbstractHEOMMatrix) = size(M.data)
@@ -34,10 +34,10 @@ end
 function show(io::IO, m::MIME"text/plain", M::AbstractHEOMMatrix) show(io, M) end
 
 """
-# `addDissipator!(M, jumpOP)`
+    addDissipator!(M, jumpOP)
 Adding dissipator to a given HEOM matrix.
 
-## Parameters
+# Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
 - `jumpOP::Vector{T<:AbstractMatrix}` : The collapse (jump) operators to add. Defaults to empty vector `[]`.
 """
@@ -58,7 +58,7 @@ end
 function addDissipator!(M::AbstractHEOMMatrix, jumpOP::AbstractMatrix) addDissipator!(M, [jumpOP]) end
 
 """
-# `addTerminator!(M, Bath)`
+    addTerminator!(M, Bath)
 Adding terminator to a given HEOM matrix.
 
 The terminator is a liouvillian term representing the contribution to 
@@ -68,7 +68,7 @@ The difference between the true correlation function and the sum of the
 `Bath.Nterm`-exponential terms is approximately `2 * δ * dirac(t)`.
 Here, `δ` is the approximation discrepancy and `dirac(t)` denotes the Dirac-delta function.
 
-## Parameters
+# Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
 - `Bath::Union{BosonBath, FermionBath}` : The bath object which contains the approximation discrepancy δ
 """

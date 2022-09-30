@@ -1,8 +1,8 @@
 """
-# `PSD(M, ρ, ω_list, OP; [solver, progressBar, filename, SOLVEROptions...])`
+    PSD(M, ρ, ω_list, OP; [solver, progressBar, filename, SOLVEROptions...])
 Calculate power spectral density.
 
-## Parameters
+# Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model (the parity must be `:none` or `:even`.)
 - `ρ::Union{AbstractMatrix, ADOs}` :  the system density matrix or the auxiliary density operators.
 - `ω_list::AbstractVector` : the specific frequency points to solve.
@@ -12,7 +12,7 @@ Calculate power spectral density.
 - `filename::String` : If filename was specified, the value of psd for each ω will be saved into the file during the solving process.
 - `SOLVEROptions` : extra options for solver 
 
-## Returns
+# Returns
 - `psd::AbstractVector` : power spectral density
 """
 function PSD(
@@ -84,9 +84,10 @@ function PSD(
     C_dagger = kron(I_heom, spre(OP'))
     local Cb::Vector{ComplexF64} = -1 * C_normal * b
 
-    print("Start calculating power spectral density...")
     Length = length(ω_list)
     psd    = Vector{Float64}(undef, Length)
+    print("Start calculating power spectral density...")
+    flush(stdout)
     if progressBar
         print("\n")
         prog = Progress(Length; start=1, desc="Progress : ", PROGBAR_OPTIONS...)
@@ -113,6 +114,7 @@ function PSD(
             next!(prog)
         end 
     end
+    println("[DONE]")
 
     return dos
 end

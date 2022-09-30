@@ -40,10 +40,10 @@ function combine_same_gamma(η::Vector{Ti}, γ::Vector{Tj}) where {Ti, Tj <: Num
 end
 
 """
-# `BosonBath <: AbstractBath`
+    struct BosonBath <: AbstractBath
 An object which describes the interaction between system and bosonic bath
 
-## Fields
+# Fields
 - `bath` : the different boson-bath-type objects which describes the interaction between system and bosonic bath
 - `op` : The system operator according to the system-bosonic-bath interaction.
 - `dim` : the dimension of the coupling operator (should be equal to the system dimension).
@@ -59,10 +59,10 @@ struct BosonBath <: AbstractBath
 end
 
 """
-# `BosonBath(op, η, γ, δ=0.0; [combine=true])`
+    BosonBath(op, η, γ, δ=0.0; [combine=true])
 Generate BosonBath object for the case where real part and imaginary part of the correlation function are combined.
 
-## Parameters
+# Parameters
 - `op::AbstractMatrix` : The system operator according to the system-bosonic-bath interaction.
 - `η::Vector{Ti<:Number}` : the coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ::Vector{Tj<:Number}` : the coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
@@ -86,10 +86,10 @@ function BosonBath(
 end
 
 """
-# `BosonBath(op, η_real, γ_real, η_imag, γ_imag, δ=0.0; [combine=true])`
+    BosonBath(op, η_real, γ_real, η_imag, γ_imag, δ=0.0; [combine=true])
 Generate BosonBath object for the case where the correlation function splits into real part and imaginary part.
 
-## Parameters
+# Parameters
 - `op::AbstractMatrix` : The system operator according to the system-bosonic-bath interaction.
 - `η_real::Vector{Ti<:Number}` : the real part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_real::Vector{Tj<:Number}` : the real part of coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
@@ -159,10 +159,10 @@ function BosonBath(
 end
 
 """
-# `bosonReal <: AbstractBosonBath`
+    struct bosonReal <: AbstractBosonBath
 A bosonic bath for the real part of bath correlation function
 
-## Fields
+# Fields
 - `Comm`  : the super-operator (commutator) for the coupling operator.
 - `dim` : the dimension of the coupling operator (should be equal to the system dimension).
 - `η` : the real part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
@@ -178,10 +178,10 @@ struct bosonReal <: AbstractBosonBath
 end
 
 """
-# `bosonReal(op, η_real, γ_real)`
+    bosonReal(op, η_real, γ_real)
 Generate bosonic bath for the real part of bath correlation function
 
-## Parameters
+# Parameters
 - `op::AbstractMatrix` : The system operator according to the system-bosonic-bath interaction.
 - `η_real::Vector{Ti<:Number}` : the real part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_real::Vector{Tj<:Number}` : the real part of coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
@@ -207,10 +207,10 @@ function bosonReal(
 end
 
 """
-# `bosonImag <: AbstractBosonBath`
+    struct bosonImag <: AbstractBosonBath
 A bosonic bath for the imaginary part of bath correlation function
 
-## Fields
+# Fields
 - `Comm`  : the super-operator (commutator) for the coupling operator.
 - `anComm`  : the super-operator (anti-commutator) for the coupling operator.
 - `dim` : the dimension of the coupling operator (should be equal to the system dimension).
@@ -228,10 +228,10 @@ struct bosonImag <: AbstractBosonBath
 end
 
 """
-# `bosonImag(op, η_imag, γ_imag)`
+    bosonImag(op, η_imag, γ_imag)
 Generate bosonic bath for the imaginary part of correlation function
 
-## Parameters
+# Parameters
 - `op::AbstractMatrix` : The system operator according to the system-bosonic-bath interaction.
 - `η_imag::Vector{Ti<:Number}` : the imaginary part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_imag::Vector{Tj<:Number}` : the imaginary part of coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
@@ -258,10 +258,10 @@ Generate bosonic bath for the imaginary part of correlation function
 end
 
 """
-# `bosonRealImag <: AbstractBosonBath`
+    sturct bosonRealImag <: AbstractBosonBath
 A bosonic bath which the real part and imaginary part of the bath correlation function are combined
 
-## Fields
+# Fields
 - `Comm`  : the super-operator (commutator) for the coupling operator.
 - `anComm`  : the super-operator (anti-commutator) for the coupling operator.
 - `dim` : the dimension of the coupling operator (should be equal to the system dimension).
@@ -281,9 +281,10 @@ struct bosonRealImag <: AbstractBosonBath
 end
 
 """
-# `bosonRealImag(op, η_real, η_imag, γ)`
+    bosonRealImag(op, η_real, η_imag, γ)
 Generate bosonic bath which the real part and imaginary part of the bath correlation function are combined
 
+# Parameters
 - `op::AbstractMatrix` : The system operator according to the system-bosonic-bath interaction.
 - `η_real::Vector{Ti<:Number}` : the real part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `η_imag::Vector{Tj<:Number}` : the imaginary part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
@@ -312,10 +313,10 @@ function bosonRealImag(
 end
 
 """
-# `FermionBath <: AbstractBath`
+    struct FermionBath <: AbstractBath
 An object which describes the interaction between system and fermionic bath
 
-## Fields
+# Fields
 - `bath` : the different fermion-bath-type objects which describes the interaction
 - `op` : The system \"emission\" operator according to the system-fermionic-bath interaction.
 - `dim` : the dimension of the coupling operator (should be equal to the system dimension).
@@ -331,10 +332,10 @@ struct FermionBath <: AbstractBath
 end
 
 """
-# `FermionBath(op, η_absorb, γ_absorb, η_emit, γ_emit, δ=0.0)`
+    FermionBath(op, η_absorb, γ_absorb, η_emit, γ_emit, δ=0.0)
 Generate FermionBath object
 
-## Parameters
+# Parameters
 - `op::AbstractMatrix` : The system \"emission\" operator according to the system-fermionic-bath interaction.
 - `η_absorb::Vector{Ti<:Number}` : the coefficients ``\\eta_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_absorb::Vector{Tj<:Number}` : the coefficients ``\\gamma_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
@@ -357,10 +358,10 @@ function FermionBath(
 end
 
 """
-# `fermionAbsorb <: AbstractFermionBath`
+    struct fermionAbsorb <: AbstractFermionBath
 An object which describes the absorption of the system in the interaction
 
-## Fields
+# Fields
 - `spre`   : the super-operator (right side operator multiplication) for the coupling operator.
 - `spost`  : the super-operator (left side operator multiplication) for the coupling operator.
 - `spreD`  : the super-operator (right side operator multiplication) for the adjoint of the coupling operator.
@@ -384,10 +385,10 @@ struct fermionAbsorb <: AbstractFermionBath
 end
 
 """
-# `fermionAbsorb(op, η_absorb, γ_absorb, η_emit)`
+    fermionAbsorb(op, η_absorb, γ_absorb, η_emit)
 Generate fermionic bath which describes the absorption of the system in the interaction
 
-## Parameters
+# Parameters
 - `op::AbstractMatrix` : The system absorption operator according to the system-fermionic-bath interaction.
 - `η_absorb::Vector{Ti<:Number}` : the coefficients ``\\eta_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_absorb::Vector{Tj<:Number}` : the coefficients ``\\gamma_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
@@ -414,10 +415,10 @@ function fermionAbsorb(
 end
 
 """
-# `fermionEmit <: AbstractFermionBath`
+    struct fermionEmit <: AbstractFermionBath
 An object which describes the emission of the system in the interaction
 
-## Fields
+# Fields
 - `spre`   : the super-operator (right side operator multiplication) for the coupling operator.
 - `spost`  : the super-operator (left side operator multiplication) for the coupling operator.
 - `spreD`  : the super-operator (right side operator multiplication) for the adjoint of the coupling operator.
@@ -441,10 +442,10 @@ struct fermionEmit <: AbstractFermionBath
 end
 
 """
-# `fermionEmit(op, η_emit, γ_emit, η_absorb)`
+    fermionEmit(op, η_emit, γ_emit, η_absorb)
 Generate fermionic bath which describes the absorption of the system in the interaction
 
-## Parameters
+# Parameters
 - `op::AbstractMatrix` : The system emission operator according to the system-fermionic-bath interaction.
 - `η_emit::Vector{Ti<:Number}` : the coefficients ``\\eta_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_emit::Vector{Ti<:Number}` : the coefficients ``\\gamma_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).

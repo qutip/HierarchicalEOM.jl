@@ -1,8 +1,8 @@
 """
-# `M_Boson_Fermion <: AbstractHEOMMatrix`
+    struct M_Boson_Fermion <: AbstractHEOMMatrix
 Heom liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath 
 
-## Fields
+# Fields
 - `data` : the sparse matrix
 - `tier_b` : the tier (cutoff) for bosonic bath
 - `tier_f` : the tier (cutoff) for fermionic bath
@@ -42,10 +42,10 @@ function M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, Bath_b:
 end
 
 """
-# `M_Boson_Fermion(Hsys, tier_b, tier_f, Bath_b, Bath_f, parity=:even; [progressBar=true])`
+    M_Boson_Fermion(Hsys, tier_b, tier_f, Bath_b, Bath_f, parity=:even; [progressBar=true])
 Generate the boson-fermion-type Heom matrix
 
-## Parameters
+# Parameters
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier_b::Int` : the tier (cutoff) for the bosonic bath
 - `tier_f::Int` : the tier (cutoff) for the fermionic bath

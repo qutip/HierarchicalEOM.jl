@@ -17,10 +17,10 @@ function _fermion_lorentz_matsubara_param(σ::Real, λ::Real, μ::Real, W::Real,
 end
 
 """
-# `Fermion_Lorentz_Matsubara(op, λ, μ, W, T, N)`
+    Fermion_Lorentz_Matsubara(op, λ, μ, W, T, N)
 Constructing Lorentzian fermionic bath with Matsubara expansion
 
-## Parameters
+# Parameters
 - `op::AbstractMatrix` : The system \"emission\" operator according to the system-fermionic-bath interaction.
 - `λ::Real`: The coupling strength between the system and the bath.
 - `μ::Real`: The chemical potential of the bath.
@@ -28,7 +28,7 @@ Constructing Lorentzian fermionic bath with Matsubara expansion
 - `T::Real`: The temperature of the bath.
 - `N::Int`: Number of exponential terms used to approximate the bath correlation functions.
 
-## Returns
+# Returns
 - `bath::FermionBath` : a fermionic bath object with describes the interaction between system and fermionic bath
 """
 function Fermion_Lorentz_Matsubara(
@@ -64,7 +64,7 @@ function _fermion_lorentz_pade_param(σ::Real, λ::Real, μ::Real, W::Real, T::R
 end
 
 """
-# `Fermion_Lorentz_Pade(op, λ, μ, W, T, N)`
+    Fermion_Lorentz_Pade(op, λ, μ, W, T, N)
 Constructing Lorentzian fermionic bath with Padé expansion
 
 A Padé approximant is a sum-over-poles expansion (see https://en.wikipedia.org/wiki/Pad%C3%A9_approximant).
@@ -73,7 +73,7 @@ The application of the Padé method to spectrum decompoisitions is described in 
 
 [1] J. Chem. Phys. 134, 244106 (2011); https://doi.org/10.1063/1.3602466
 
-## Parameters
+# Parameters
 - `op::AbstractMatrix` : The system \"emission\" operator according to the system-fermionic-bath interaction.
 - `λ::Real`: The coupling strength between the system and the bath.
 - `μ::Real`: The chemical potential of the bath.
@@ -81,7 +81,7 @@ The application of the Padé method to spectrum decompoisitions is described in 
 - `T::Real`: The temperature of the bath.
 - `N::Int`: Number of exponential terms used to approximate the bath correlation functions.
 
-## Returns
+# Returns
 - `bath::FermionBath` : a fermionic bath object with describes the interaction between system and fermionic bath
 """
 function Fermion_Lorentz_Pade(

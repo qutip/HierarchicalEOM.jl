@@ -7,17 +7,17 @@ function _boson_drude_lorentz_approx_discrepancy(λ::Real, W::Real, T::Real, N::
 end
 
 """
-# `Boson_DrudeLorentz_Matsubara(op, λ, W, T, N)`
+    Boson_DrudeLorentz_Matsubara(op, λ, W, T, N)
 Constructing Drude-Lorentz bosonic bath with Matsubara expansion
 
-## Parameters
+# Parameters
 - `op::AbstractMatrix` : The system operator according to the system-fermionic-bath interaction.
 - `λ::Real`: The coupling strength between the system and the bath.
 - `W::Real`: The reorganization energy (band-width) of the bath.
 - `T::Real`: The temperature of the bath.
 - `N::Int`: Number of exponential terms used to approximate the bath correlation functions.
 
-## Returns
+# Returns
 - `bath::BosonBath` : a bosonic bath object with describes the interaction between system and bosonic bath
 """
 function Boson_DrudeLorentz_Matsubara(
@@ -48,7 +48,7 @@ function Boson_DrudeLorentz_Matsubara(
 end
 
 """
-# `Boson_DrudeLorentz_Pade(op, λ, W, T, N)`
+    Boson_DrudeLorentz_Pade(op, λ, W, T, N)
 Constructing Drude-Lorentz bosonic bath with Padé expansion
 
 A Padé approximant is a sum-over-poles expansion (see https://en.wikipedia.org/wiki/Pad%C3%A9_approximant).
@@ -57,14 +57,14 @@ The application of the Padé method to spectrum decompoisitions is described in 
 
 [1] J. Chem. Phys. 134, 244106 (2011); https://doi.org/10.1063/1.3602466
 
-## Parameters
+# Parameters
 - `op::AbstractMatrix` : The system operator according to the system-fermionic-bath interaction.
 - `λ::Real`: The coupling strength between the system and the bath.
 - `W::Real`: The reorganization energy (band-width) of the bath.
 - `T::Real`: The temperature of the bath.
 - `N::Int`: Number of exponential terms used to approximate the bath correlation functions.
 
-## Returns
+# Returns
 - `bath::BosonBath` : a bosonic bath object with describes the interaction between system and bosonic bath
 """
 function Boson_DrudeLorentz_Pade(

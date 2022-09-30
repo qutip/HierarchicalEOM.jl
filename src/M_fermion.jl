@@ -1,8 +1,8 @@
 """
-# `M_Fermion <: AbstractHEOMMatrix`
+    struct M_Fermion <: AbstractHEOMMatrix
 Heom liouvillian superoperator matrix for fermionic bath
 
-## Fields
+# Fields
 - `data` : the sparse matrix
 - `tier` : the tier (cutoff) for the bath
 - `dim` : the dimension of system
@@ -30,10 +30,10 @@ function M_Fermion(Hsys::AbstractMatrix, tier::Int, Bath::FermionBath, parity::S
 end
 
 """
-# `M_Fermion(Hsys, tier, Bath, parity=:even; [progressBar=true])`
+    M_Fermion(Hsys, tier, Bath, parity=:even; [progressBar=true])
 Generate the fermion-type Heom matrix
 
-## Parameters
+# Parameters
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
 - `Bath::Vector{FermionBath}` : objects for different fermionic baths

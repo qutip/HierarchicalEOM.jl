@@ -4,10 +4,10 @@ function integrate!(dρ, ρ, L, t)
 end
 
 """
-# `evolution(M, ρ0, tlist; [solver, reltol, abstol, maxiters, progressBar, SOLVEROptions...])`
+    evolution(M, ρ0, tlist; [solver, reltol, abstol, maxiters, progressBar, SOLVEROptions...])
 Solve the evolution (ODE problem) using HEOM model.
 
-## Parameters
+# Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
 - `ρ0::AbstractMatrix` : system initial state (density matrix)
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
@@ -18,7 +18,7 @@ Solve the evolution (ODE problem) using HEOM model.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver 
 
-## Returns
+# Returns
 - `ADOs_list` : The auxiliary density operators in each time point.
 """
 function evolution(
@@ -81,10 +81,10 @@ function evolution(
 end
 
 """
-# `evolution(M, ados, tlist; [solver, reltol, abstol, maxiters, progressBar, SOLVEROptions...])`
+    evolution(M, ados, tlist; [solver, reltol, abstol, maxiters, progressBar, SOLVEROptions...])
 Solve the evolution (ODE problem) using HEOM model.
 
-## Parameters
+# Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
 - `ados::ADOs` : initial auxiliary density operators
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
@@ -95,7 +95,7 @@ Solve the evolution (ODE problem) using HEOM model.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver 
 
-## Returns
+# Returns
 - `ADOs_list` : The auxiliary density operators in each time point.
 """
 function evolution(

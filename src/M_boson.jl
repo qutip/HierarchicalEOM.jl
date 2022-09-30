@@ -1,8 +1,8 @@
 """
-# `M_Boson <: AbstractHEOMMatrix`
+    struct M_Boson <: AbstractHEOMMatrix
 Heom liouvillian superoperator matrix for bosonic bath
 
-## Fields
+# Fields
 - `data` : the sparse matrix
 - `tier` : the tier (cutoff) for the bath
 - `dim` : the dimension of system
@@ -30,10 +30,10 @@ function M_Boson(Hsys::AbstractMatrix, tier::Int, Bath::BosonBath; progressBar::
 end
 
 """
-# `M_Boson(Hsys, tier, Bath; [progressBar=true])`
+    M_Boson(Hsys, tier, Bath; [progressBar=true])
 Generate the boson-type Heom matrix
 
-## Parameters
+# Parameters
 - `Hsys::AbstractMatrix` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
 - `Bath::Vector{BosonBath}` : objects for different bosonic baths

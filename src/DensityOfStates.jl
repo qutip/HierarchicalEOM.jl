@@ -1,8 +1,8 @@
 """
-# `DOS(M, ρ, ω_list, OP; [solver, progressBar, filename, SOLVEROptions...])`
+    DOS(M, ρ, ω_list, OP; [solver, progressBar, filename, SOLVEROptions...])
 Calculate density of states.
 
-## Parameters
+# Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model (the parity must be `:odd`.)
 - `ρ::Union{AbstractMatrix, ADOs}` :  the system density matrix or the auxiliary density operators.
 - `ω_list::AbstractVector` : the specific frequency points to solve.
@@ -12,7 +12,7 @@ Calculate density of states.
 - `filename::String` : If filename was specified, the value of dos for each ω will be saved into the file during the solving process.
 - `SOLVEROptions` : extra options for solver 
 
-## Returns
+# Returns
 - `dos::AbstractVector` : density of state
 """
 function DOS(
@@ -81,9 +81,10 @@ function DOS(
     local b_minus::Vector{ComplexF64} = -1 * C_normal * b
     local b_plus ::Vector{ComplexF64} = -1 * C_dagger * b
 
-    print("Start calculating density of states...")
     Length = length(ω_list)
     dos    = Vector{Float64}(undef, Length)
+    print("Start calculating density of states...")
+    flush(stdout)
     if progressBar
         print("\n")
         prog = Progress(Length; start=1, desc="Progress : ", PROGBAR_OPTIONS...)
@@ -113,6 +114,7 @@ function DOS(
             next!(prog)
         end 
     end
+    println("[DONE]")
 
     return dos
 end
