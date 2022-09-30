@@ -1,8 +1,8 @@
 """
-# `ADOs`
+    struct ADOs
 The Auxiliary Density Operators for Heom model.
 
-## Fields
+# Fields
 - `data` : the vectorized auxiliary density operators
 - `dim` : the dimension of the system
 - `Nb` : the number of bosonic states
@@ -16,9 +16,10 @@ mutable struct ADOs
 end
 
 """
-# `ADOs(V, dim, Nb=0, Nf=0)`
+    ADOs(V, dim, Nb=0, Nf=0)
+Gernerate the object of auxiliary density operators for Heom model.
 
-## Parameters
+# Parameters
 - `V::AbstractVector` : the vectorized auxiliary density operators
 - `dim::Int` : the dimension of the system
 - `Nb::Int` : the number of bosonic states. Defaults to `0`.
@@ -60,7 +61,7 @@ function ADOs(
 end
 
 """
-# `size(A::ADOs)`
+    size(A::ADOs)
 Returns the size of the vetorized Auxiliary Density Operators (ADOs)
 """
 size(A::ADOs) = size(A.data)
@@ -78,13 +79,13 @@ end
 function show(io::IO, m::MIME"text/plain", V::ADOs) show(io, V) end
 
 """
-# `getRho(ados)`
+    getRho(ados)
 Return the density matrix of the reduced state (system) from a given auxiliary density operators
 
-## Parameters
+# Parameters
 - `ados::ADOs` : the auxiliary density operators for Heom model
 
-## Returns
+# Returns
 - `ρ` : The density matrix of the reduced state
 """
 function getRho(ados::ADOs)
@@ -92,14 +93,14 @@ function getRho(ados::ADOs)
 end
 
 """
-# `getADO(ados, idx)`
+    getADO(ados, idx)
 Return the auxiliary density operator with a specific index from auxiliary density operators
 
-## Parameters
+# Parameters
 - `ados::ADOs` : the auxiliary density operators for Heom model
 - `idx::Int` : the index of the auxiliary density operator
 
-## Returns
+# Returns
 - `ρ_idx` : The auxiliary density operator
 """
 function getADO(ados::ADOs, idx::Int)
@@ -127,15 +128,15 @@ function getADO(ados::ADOs, idx::Int)
 end
 
 """
-# `getADO(ados, idx_b, idx_f)`
+    getADO(ados, idx_b, idx_f)
 Return the auxiliary density operator with specific indices *[only for mixtured (bosonic and fermionic) bath]*
 
-## Parameters
+# Parameters
 - `ados::ADOs` : the auxiliary density operators for Heom model
 - `idx_b::Int` : the bosonic-state index of the auxiliary density operator.
 - `idx_f::Int` : the fermionic-state index of the auxiliary density operator.
 
-## Returns
+# Returns
 - `ρ_idx` : The auxiliary density operator
 """
 function getADO(ados::ADOs, idx_b::Int, idx_f::Int)

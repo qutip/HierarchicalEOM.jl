@@ -1,13 +1,13 @@
 """
-# `Steadystate(M::AbstractHEOMMatrix; [solver, SOLVEROptions...])`
+    Steadystate(M::AbstractHEOMMatrix; [solver, SOLVEROptions...])
 Solve the steady state of the given Heom matrix.
 
-## Parameters
+# Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model, where the parity should be either `:none` (boson) or `:even` (fermion).
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `SOLVEROptions` : extra options for solver 
 
-## Returns
+# Returns
 - `ADOs` : The auxiliary density operators of the steady state.
 """
 function Steadystate(M::AbstractHEOMMatrix; solver=UMFPACKFactorization(), SOLVEROptions...)
