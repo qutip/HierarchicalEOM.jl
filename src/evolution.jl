@@ -1,10 +1,10 @@
 # func. for solving evolution ODE
-function integrate!(dρ, ρ, L, t)
+function hierarchy!(dρ, ρ, L, t)
     @inbounds dρ .= L * ρ
 end
 
 """
-    evolution(M, ρ0, tlist; solver, reltol, abstol, maxiters, progressBar, SOLVEROptions...)
+    evolution(M, ρ0, tlist; solver, reltol, abstol, maxiters, save_everystep, progressBar, SOLVEROptions...)
 Solve the evolution (ODE problem) using HEOM model.
 
 # Parameters
@@ -15,8 +15,9 @@ Solve the evolution (ODE problem) using HEOM model.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
 - `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
+- `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
-- `SOLVEROptions` : extra options for solver 
+- `SOLVEROptions` : extra options for solver (see https://diffeq.sciml.ai/stable/basics/common_solver_opts/ for more details)
 
 # Returns
 - `ADOs_list` : The auxiliary density operators in each time point.
@@ -29,6 +30,7 @@ function evolution(
         reltol::Real = 1.0e-6,
         abstol::Real = 1.0e-8,
         maxiters::Real = 1e5,
+        save_everystep::Bool=false,
         progressBar::Bool = true,
         SOLVEROptions...
     )
@@ -37,51 +39,24 @@ function evolution(
         error("The dimension of ρ0 should be equal to \"($(M.dim), $(M.dim))\".")
     end
 
-    # setup ρ_he 
-    ADOs_list::Vector{ADOs} = []
-
     # vectorize initial state
-    ρ0 = sparse(sparsevec(ρ0))
-    ρ_he::SparseVector{ComplexF64, Int64} = sparsevec(ρ0.nzind, ρ0.nzval, M.N * M.sup_dim)
-    push!(ADOs_list, ADOs(ρ_he, M.dim, M.Nb, M.Nf))
+    ρ0   = sparse(sparsevec(ρ0))
+    ρ_he = sparsevec(ρ0.nzind, ρ0.nzval, M.N * M.sup_dim)
+    ados = ADOs(ρ_he, M.dim, M.Nb, M.Nf)
     
-    # setup integrator
-    dt_list = diff(tlist)
-    integrator = init(
-        ODEProblem(integrate!, ρ_he, (tlist[1], tlist[end]), M.data),
-        solver;
+    return evolution(M, ados, tlist;
+        solver = solver,
         reltol = reltol,
         abstol = abstol,
         maxiters = maxiters,
+        save_everystep = save_everystep,
+        progressBar = progressBar,
         SOLVEROptions...
     )
-    
-    # start solving ode
-    print("Start solving evolution...")
-    if progressBar
-        print("\n")
-        prog = Progress(length(tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
-    end
-    flush(stdout)
-    for dt in dt_list
-        step!(integrator, dt, true)
-        
-        # save the ADOs
-        push!(ADOs_list, ADOs(integrator.u, M.dim, M.Nb, M.Nf))
-    
-        if progressBar
-            next!(prog)
-        end
-    end
-
-    println("[DONE]\n")
-    flush(stdout)
-
-    return ADOs_list
 end
 
 """
-    evolution(M, ados, tlist; solver, reltol, abstol, maxiters, progressBar, SOLVEROptions...)
+    evolution(M, ρ0, tlist; solver, reltol, abstol, maxiters, save_everystep, progressBar, SOLVEROptions...)
 Solve the evolution (ODE problem) using HEOM model.
 
 # Parameters
@@ -92,8 +67,9 @@ Solve the evolution (ODE problem) using HEOM model.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
 - `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
+- `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
-- `SOLVEROptions` : extra options for solver 
+- `SOLVEROptions` : extra options for solver (see https://diffeq.sciml.ai/stable/basics/common_solver_opts/ for more details)
 
 # Returns
 - `ADOs_list` : The auxiliary density operators in each time point.
@@ -106,6 +82,7 @@ function evolution(
         reltol::Real = 1.0e-6,
         abstol::Real = 1.0e-8,
         maxiters::Real = 1e5,
+        save_everystep::Bool=false,
         progressBar::Bool = true,
         SOLVEROptions...
     )
@@ -127,11 +104,12 @@ function evolution(
     # setup integrator
     dt_list = diff(tlist)
     integrator = init(
-        ODEProblem(integrate!, ados.data, (tlist[1], tlist[end]), M.data),
+        ODEProblem(hierarchy!, ρ_he, (tlist[1], tlist[end]), M.data),
         solver;
         reltol = reltol,
         abstol = abstol,
         maxiters = maxiters,
+        save_everystep = save_everystep,
         SOLVEROptions...
     )
     
@@ -153,6 +131,7 @@ function evolution(
         end
     end
 
+    GC.gc()  # clean the garbage collector
     println("[DONE]\n")
     flush(stdout)
 

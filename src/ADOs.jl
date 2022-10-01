@@ -57,7 +57,7 @@ function ADOs(
     if eltype(V) != ComplexF64
         V = convert.(ComplexF64, V)
     end
-    return ADOs(sparsevec(V), dim, Nb, Nf)
+    return ADOs(copy(sparsevec(V)), dim, Nb, Nf)
 end
 
 """
