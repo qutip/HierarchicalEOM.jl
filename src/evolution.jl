@@ -104,7 +104,7 @@ function evolution(
     # setup integrator
     dt_list = diff(tlist)
     integrator = init(
-        ODEProblem(hierarchy!, ρ_he, (tlist[1], tlist[end]), M.data),
+        ODEProblem(hierarchy!, ados.data, (tlist[1], tlist[end]), M.data),
         solver;
         reltol = reltol,
         abstol = abstol,
