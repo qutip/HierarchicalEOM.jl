@@ -5,7 +5,7 @@ end
 
 """
     evolution(M, ρ0, tlist; solver, reltol, abstol, maxiters, save_everystep, progressBar, SOLVEROptions...)
-Solve the evolution (ODE problem) using HEOM model.
+Start solving time evolution of auxiliary density operators...
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
@@ -42,7 +42,7 @@ function evolution(
     # vectorize initial state
     ρ0   = sparse(sparsevec(ρ0))
     ρ_he = sparsevec(ρ0.nzind, ρ0.nzval, M.N * M.sup_dim)
-    ados = ADOs(ρ_he, M.dim, M.Nb, M.Nf)
+    ados = ADOs(ρ_he, M.Nb, M.Nf)
     
     return evolution(M, ados, tlist;
         solver = solver,
@@ -56,8 +56,8 @@ function evolution(
 end
 
 """
-    evolution(M, ρ0, tlist; solver, reltol, abstol, maxiters, save_everystep, progressBar, SOLVEROptions...)
-Solve the evolution (ODE problem) using HEOM model.
+    evolution(M, ados, tlist; solver, reltol, abstol, maxiters, save_everystep, progressBar, SOLVEROptions...)
+Start solving time evolution of auxiliary density operators...
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
@@ -114,7 +114,7 @@ function evolution(
     )
     
     # start solving ode
-    print("Start solving evolution...")
+    print("Start solving time evolution for auxiliary density operators...")
     if progressBar
         print("\n")
         prog = Progress(length(tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
@@ -124,7 +124,7 @@ function evolution(
         step!(integrator, dt, true)
         
         # save the ADOs
-        push!(ADOs_list, ADOs(integrator.u, M.dim, M.Nb, M.Nf))
+        push!(ADOs_list, ADOs(copy(integrator.u), M.Nb, M.Nf))
     
         if progressBar
             next!(prog)
