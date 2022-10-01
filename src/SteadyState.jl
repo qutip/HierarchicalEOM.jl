@@ -1,6 +1,6 @@
 """
     Steadystate(M; solver, SOLVEROptions...)
-Solve the steady state of the given Heom matrix.
+Solve the steady state of the auxiliary density operators.
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model, where the parity should be either `:none` (boson) or `:even` (fermion).
@@ -8,7 +8,7 @@ Solve the steady state of the given Heom matrix.
 - `SOLVEROptions` : extra options for solver 
 
 # Returns
-- `ADOs` : The auxiliary density operators of the steady state.
+- `ADOs` : The steady state of auxiliary density operators.
 """
 function Steadystate(M::AbstractHEOMMatrix; solver=UMFPACKFactorization(), SOLVEROptions...)
     # check parity
@@ -26,7 +26,7 @@ function Steadystate(M::AbstractHEOMMatrix; solver=UMFPACKFactorization(), SOLVE
     b = sparsevec([1], [1. + 0.0im], S)
     
     # solving x where A * x = b
-    print("Start solving steady state...")
+    print("Solving steady state for auxiliary density operators...")
     flush(stdout)
     sol = solve(LinearProblem(A, Vector(b)), solver, SOLVEROptions...)
     println("[DONE]")

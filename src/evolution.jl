@@ -114,7 +114,7 @@ function evolution(
     )
     
     # start solving ode
-    print("Start solving time evolution for auxiliary density operators...")
+    print("Solving time evolution for auxiliary density operators...")
     if progressBar
         print("\n")
         prog = Progress(length(tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
