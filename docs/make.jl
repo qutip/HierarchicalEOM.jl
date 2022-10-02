@@ -6,7 +6,7 @@ const PAGES = Any[
         "Introduction" => "index.md",
         "Installation" => "install.md",
         "QuickStart"   => "quick_start.md",
-        "Citation"     => "cite.md"
+        "Cite Heom"     => "cite.md"
     ],
     "Bosonic Bath" => "bosonic_bath.md",
     "Fermionic Bath" => "fermionic_bath.md",
@@ -27,7 +27,7 @@ const PAGES = Any[
 ]
 
 makedocs(
-    sitename = "Heom.jl",
+    sitename = "Documentation | Heom.jl",
     pages=PAGES
 )
 

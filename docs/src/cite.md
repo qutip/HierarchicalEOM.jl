@@ -1,6 +1,6 @@
 # Cite Heom.jl
 ```bib
-@article{HeomJL2023
+@article{Heom2023
   title={},
   author={},
   journal={},
