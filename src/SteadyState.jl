@@ -7,6 +7,8 @@ Solve the steady state of the auxiliary density operators.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `SOLVEROptions` : extra options for solver 
 
+For more details about solvers and extra options, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
+
 # Returns
 - `ADOs` : The steady state of auxiliary density operators.
 """
