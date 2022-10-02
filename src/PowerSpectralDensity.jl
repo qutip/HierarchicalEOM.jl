@@ -86,7 +86,7 @@ function PSD(
 
     Length = length(ω_list)
     psd    = Vector{Float64}(undef, Length)
-    print("Start calculating power spectral density...")
+    print("Calculating power spectral density...")
     flush(stdout)
     if progressBar
         print("\n")

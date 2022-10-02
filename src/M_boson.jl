@@ -73,7 +73,7 @@ function M_Boson(
     L_val = distribute([ComplexF64[] for _ in procs()])
     channel = RemoteChannel(() -> Channel{Bool}(), 1) # for updating the progress bar
 
-    println("Start constructing hierarchy matrix (using $(nprocs()) processors)...")
+    println("Preparing block matrices for HEOM liouvillian superoperator (using $(nprocs()) processors)...")
     if progressBar
         prog = Progress(N_he; desc="Processing: ", PROGBAR_OPTIONS...)
     else

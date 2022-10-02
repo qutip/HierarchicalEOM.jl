@@ -41,7 +41,7 @@ module Heom
         import Base: size, show
         import LinearAlgebra: I, kron
         import OrderedCollections: OrderedDict
-        import SparseArrays: sparse, spzeros, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
+        import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
         import Distributed: @everywhere, @distributed, procs, nprocs, RemoteChannel, Channel
         import DistributedArrays: distribute, localpart
         import ProgressMeter: Progress, next!

@@ -9,31 +9,26 @@ The Auxiliary Density Operators for Heom model.
 - `Nf` : the number of fermionic states
 """
 mutable struct ADOs 
-    data::Vector{ComplexF64}
+    data::SparseVector{ComplexF64, Int64}
     const dim::Int
     const Nb::Int
     const Nf::Int
 end
 
 """
-    ADOs(V, dim, Nb=0, Nf=0)
+    ADOs(V, Nb=0, Nf=0)
 Gernerate the object of auxiliary density operators for Heom model.
 
 # Parameters
 - `V::AbstractVector` : the vectorized auxiliary density operators
-- `dim::Int` : the dimension of the system
 - `Nb::Int` : the number of bosonic states. Defaults to `0`.
 - `Nf::Int` : the number of fermionic states Defaults to `0`.
 """
 function ADOs(        
         V::AbstractVector,
-        dim::Int,
         Nb::Int=0,
         Nf::Int=0
     )
-    if dim < 2
-        error("dim must be greater than 1")
-    end
 
     # get total number of Env. states
     local Ntot :: Int
@@ -48,16 +43,13 @@ function ADOs(
     end
 
     # check the dimension of V
-    d, = size(V)
-    if d != (dim ^ 2) * Ntot
-        error("The dimension is not consistent, the size of \"V\" should be equal to \"(dim ^ 2) * Nb * Nf\".")
-    end
-
-    # make eltype of V: ComplexF64
-    if eltype(V) != ComplexF64
-        V = convert.(ComplexF64, V)
-    end
-    return ADOs(Vector(V), dim, Nb, Nf)
+    d,  = size(V)
+    dim = √(d / Ntot)
+    if isinteger(dim)
+        return ADOs(sparsevec(V), Int(dim), Nb, Nf)
+    else
+        error("The dimension of vector is not consistent with Nb and Nf.")
+    end    
 end
 
 """
