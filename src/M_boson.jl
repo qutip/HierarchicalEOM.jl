@@ -59,7 +59,7 @@ function M_Boson(
 
     # check for bosonic bath
     if length(Bath) > 1
-        baths = CombinedBath(Bath)
+        baths = CombinedBath(Nsys, Bath)
     else
         baths = Bath[1]
     end

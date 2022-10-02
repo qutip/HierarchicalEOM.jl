@@ -66,7 +66,7 @@ function M_Fermion(
 
     # check for fermionic bath
     if length(Bath) > 1
-        baths = CombinedBath(Bath)
+        baths = CombinedBath(Nsys, Bath)
     else
         baths = Bath[1]
     end

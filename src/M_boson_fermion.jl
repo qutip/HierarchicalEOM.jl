@@ -82,7 +82,7 @@ function M_Boson_Fermion(
 
     # check for bosonic bath
     if length(Bath_b) > 1
-        baths_b = CombinedBath(Bath_b)
+        baths_b = CombinedBath(Nsys, Bath_b)
     else
         baths_b = Bath_b[1]
     end
@@ -91,7 +91,7 @@ function M_Boson_Fermion(
 
     # check for fermionic bath
     if length(Bath_f) > 1
-        baths_f = CombinedBath(Bath_f)
+        baths_f = CombinedBath(Nsys, Bath_f)
     else
         baths_f = Bath_f[1]
     end
