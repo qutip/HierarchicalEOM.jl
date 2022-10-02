@@ -1,5 +1,5 @@
 # func. for solving evolution ODE
-function hierarchy!(dρ, ρ, L, t)
+function _hierarchy!(dρ, ρ, L, t)
     @inbounds dρ .= L * ρ
 end
 
@@ -108,7 +108,7 @@ function evolution(
     # setup integrator
     dt_list = diff(tlist)
     integrator = init(
-        ODEProblem(hierarchy!, ados.data, (tlist[1], tlist[end]), M.data),
+        ODEProblem(_hierarchy!, ados.data, (tlist[1], tlist[end]), M.data),
         solver;
         reltol = reltol,
         abstol = abstol,

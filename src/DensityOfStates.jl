@@ -1,12 +1,12 @@
 """
-    DOS(M, ρ, ω_list, OP; solver, progressBar, filename, SOLVEROptions...)
+    DOS(M, ρ, ω_list, op; solver, progressBar, filename, SOLVEROptions...)
 Calculate density of states.
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model (the parity must be `:odd`.)
 - `ρ::Union{AbstractMatrix, ADOs}` :  the system density matrix or the auxiliary density operators.
 - `ω_list::AbstractVector` : the specific frequency points to solve.
-- `OP::AbstractMatrix` : The system operator for the two-time correlation function in frequency domain.
+- `op` : The system operator for the two-time correlation function in frequency domain.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 - `filename::String` : If filename was specified, the value of dos for each ω will be saved into the file during the solving process.
@@ -21,7 +21,7 @@ function DOS(
         M::AbstractHEOMMatrix, 
         ρ::T, 
         ω_list::AbstractVector, 
-        OP::AbstractMatrix; 
+        op; 
         solver=UMFPACKFactorization(), 
         progressBar::Bool = true,
         filename::String = "",
@@ -33,10 +33,14 @@ function DOS(
         error("FILE: $(filename) already exist.")
     end
 
+    # check number of fermion states
+    if M.Nf <= 0
+        error("The number of fermionic states must be greater than zero, i.e., \"M.Nf > 0\".")
+
     # check parity
-    if (M.parity != :odd)
+    elseif M.parity != :odd
         error("The parity of M must be \":odd\".")
-    end    
+    end
 
     Size, = size(M)
     I_total = sparse(I, Size, Size)
@@ -45,15 +49,7 @@ function DOS(
     local b::AbstractVector
 
     # check ρ
-    if T <: AbstractMatrix
-        if size(ρ) == (M.dim, M.dim) 
-            v = sparsevec(ρ)
-            b = sparsevec(v.nzind, v.nzval, Size)
-        else
-            error("The dimension of ρ should be equal to \"($(M.dim), $(M.dim))\".")
-        end
-
-    else # ρ::ADOs
+    if T == ADOs  # ρ::ADOs
         if (M.dim != ρ.dim)
             error("The system dimension between M and ρ are not consistent.")
         end
@@ -67,19 +63,25 @@ function DOS(
         end
 
         b = ρ.data
+        
+    elseif isValidMatrixType(ρ, M.dim)
+        v = sparsevec(ρ)
+        b = sparsevec(v.nzind, v.nzval, Size)
+    else
+        error("Invalid matrix type of ρ, and the size should be \"($(M.dim), $(M.dim))\".")
     end
 
-    # check dimension of OP
-    if size(OP) != (M.dim, M.dim)
-        error("The dimension of OP should be equal to \"($(M.dim), $(M.dim))\".")
+    # check dimension of op
+    if !isValidMatrixType(op, M.dim)
+        error("Invalid matrix type of op, the size should be \"($(M.dim), $(M.dim))\".")
     end
 
     # equal to : transpose(sparse(vec(system_identity_matrix)))
     I_dual_vec = transpose(sparsevec([1 + n * (M.dim + 1) for n in 0:(M.dim - 1)], ones(M.dim), M.sup_dim))
 
     # operators for calculating two-time correlation functions in frequency domain
-    C_normal = kron(I_heom, spre(OP))
-    C_dagger = kron(I_heom, spre(OP'))
+    C_normal = kron(I_heom, spre(op))
+    C_dagger = kron(I_heom, spre(op'))
     local b_minus::Vector{ComplexF64} = -1 * C_normal * b
     local b_plus ::Vector{ComplexF64} = -1 * C_dagger * b
 

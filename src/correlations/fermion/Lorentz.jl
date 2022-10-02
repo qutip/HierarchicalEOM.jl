@@ -21,7 +21,7 @@ end
 Constructing Lorentzian fermionic bath with Matsubara expansion
 
 # Parameters
-- `op::AbstractMatrix` : The system \"emission\" operator according to the system-fermionic-bath interaction.
+- `op` : The system \"emission\" operator according to the system-fermionic-bath interaction.
 - `λ::Real`: The coupling strength between the system and the bath.
 - `μ::Real`: The chemical potential of the bath.
 - `W::Real`: The reorganization energy (band-width) of the bath.
@@ -32,7 +32,7 @@ Constructing Lorentzian fermionic bath with Matsubara expansion
 - `bath::FermionBath` : a fermionic bath object with describes the interaction between system and fermionic bath
 """
 function Fermion_Lorentz_Matsubara(
-        op::AbstractMatrix,
+        op,
         λ::Real,
         μ::Real,
         W::Real,
@@ -67,14 +67,14 @@ end
     Fermion_Lorentz_Pade(op, λ, μ, W, T, N)
 Constructing Lorentzian fermionic bath with Padé expansion
 
-A Padé approximant is a sum-over-poles expansion (see https://en.wikipedia.org/wiki/Pad%C3%A9_approximant).
+A Padé approximant is a sum-over-poles expansion (see [here](https://en.wikipedia.org/wiki/Pad%C3%A9_approximant) for more details).
 
 The application of the Padé method to spectrum decompoisitions is described in Ref. [1].
 
-[1] J. Chem. Phys. 134, 244106 (2011); https://doi.org/10.1063/1.3602466
+[1] [J. Chem. Phys. 134, 244106 (2011)](https://doi.org/10.1063/1.3602466)
 
 # Parameters
-- `op::AbstractMatrix` : The system \"emission\" operator according to the system-fermionic-bath interaction.
+- `op` : The system \"emission\" operator according to the system-fermionic-bath interaction.
 - `λ::Real`: The coupling strength between the system and the bath.
 - `μ::Real`: The chemical potential of the bath.
 - `W::Real`: The reorganization energy (band-width) of the bath.
@@ -85,7 +85,7 @@ The application of the Padé method to spectrum decompoisitions is described in 
 - `bath::FermionBath` : a fermionic bath object with describes the interaction between system and fermionic bath
 """
 function Fermion_Lorentz_Pade(
-        op::AbstractMatrix,
+        op,
         λ::Real,
         μ::Real,
         W::Real,

@@ -3,7 +3,7 @@
 Heom liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath 
 
 # Fields
-- `data` : the sparse matrix
+- `data` : the sparse matrix of HEOM liouvillian superoperator
 - `tier_b` : the tier (cutoff) for bosonic bath
 - `tier_f` : the tier (cutoff) for fermionic bath
 - `dim` : the dimension of system
@@ -29,15 +29,15 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
     const ado2idx_f::OrderedDict{Vector{Int}, Int}
 end
 
-function M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, Bath_b::BosonBath, Bath_f::FermionBath, parity::Symbol=:even; progressBar::Bool=true)
+function M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::BosonBath, Bath_f::FermionBath, parity::Symbol=:even; progressBar::Bool=true)
     return M_Boson_Fermion(Hsys, tier_b, tier_f, [Bath_b], [Bath_f], parity, progressBar = progressBar)
 end
 
-function M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::FermionBath, parity::Symbol=:even; progressBar::Bool=true)
+function M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::FermionBath, parity::Symbol=:even; progressBar::Bool=true)
     return M_Boson_Fermion(Hsys, tier_b, tier_f, Bath_b, [Bath_f], parity, progressBar = progressBar)
 end
 
-function M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, Bath_b::BosonBath, Bath_f::Vector{FermionBath}, parity::Symbol=:even; progressBar::Bool=true)
+function M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::BosonBath, Bath_f::Vector{FermionBath}, parity::Symbol=:even; progressBar::Bool=true)
     return M_Boson_Fermion(Hsys, tier_b, tier_f, [Bath_b], Bath_f, parity, progressBar = progressBar)
 end
 
@@ -46,7 +46,7 @@ end
 Generate the boson-fermion-type Heom matrix
 
 # Parameters
-- `Hsys::AbstractMatrix` : The system Hamiltonian
+- `Hsys` : The system Hamiltonian
 - `tier_b::Int` : the tier (cutoff) for the bosonic bath
 - `tier_f::Int` : the tier (cutoff) for the fermionic bath
 - `Bath_b::Vector{BosonBath}` : objects for different bosonic baths
@@ -55,7 +55,7 @@ Generate the boson-fermion-type Heom matrix
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
 function M_Boson_Fermion(        
-        Hsys::AbstractMatrix,
+        Hsys,
         tier_b::Int,
         tier_f::Int,
         Bath_b::Vector{BosonBath},
@@ -70,6 +70,9 @@ function M_Boson_Fermion(
     end
 
     # check for system dimension
+    if !isValidMatrixType(Hsys)
+        error("Invalid matrix type of system Hamiltonian \"Hsys\".")
+    end
     Nsys,   = size(Hsys)
     sup_dim = Nsys ^ 2
     I_sup   = sparse(I, sup_dim, sup_dim)

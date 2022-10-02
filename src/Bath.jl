@@ -16,7 +16,19 @@ show(io::IO, m::MIME"text/plain", B::AbstractFermionBath) =  show(io, B)
 
 isclose(a::Number, b::Number, rtol=1e-05, atol=1e-08) = abs(a - b) <= (atol + rtol * abs(b))
 
-function combine_same_gamma(η::Vector{Ti}, γ::Vector{Tj}) where {Ti, Tj <: Number}
+function _check_coupling_operator(op)
+    if isValidMatrixType(op)
+        N1, N2 = size(op)
+        if N1 != N2
+            error("The operator \"op\" should be an squared matrix.")
+        end
+        return N1
+    else
+        error("Invalid matrix type of op.")
+    end
+end
+
+function _combine_same_gamma(η::Vector{Ti}, γ::Vector{Tj}) where {Ti, Tj <: Number}
     if length(η) != length(γ)
         error("The length of \'η\' and \'γ\' should be the same.")
     end
@@ -51,7 +63,7 @@ An object which describes the interaction between system and bosonic bath
 - `δ` : The approximation discrepancy which is used for adding the terminator to HEOM matrix (see function: addTerminator!)
 """
 struct BosonBath <: AbstractBath
-    bath::AbstractVector
+    bath::Vector{AbstractBosonBath}
     op::AbstractMatrix
     dim::Int
     Nterm::Int
@@ -63,26 +75,26 @@ end
 Generate BosonBath object for the case where real part and imaginary part of the correlation function are combined.
 
 # Parameters
-- `op::AbstractMatrix` : The system operator according to the system-bosonic-bath interaction.
+- `op` : The system operator according to the system-bosonic-bath interaction.
 - `η::Vector{Ti<:Number}` : the coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ::Vector{Tj<:Number}` : the coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `δ::Number` : The approximation discrepancy (Default to `0.0`) which is used for adding the terminator to HEOM matrix (see function: addTerminator!)
 - `combine::Bool` : Whether to combine the exponential-expansion terms with the same frequency. Defaults to `true`.
 """
 function BosonBath(
-        op::AbstractMatrix,
+        op,
         η::Vector{Ti},
         γ::Vector{Tj},
         δ::Number=0.0;
         combine::Bool=true
     ) where {Ti, Tj <: Number}
     if combine
-        ηnew, γnew = combine_same_gamma(η, γ)
+        ηnew, γnew = _combine_same_gamma(η, γ)
         bRI = bosonRealImag(op, real.(ηnew), imag.(ηnew), γnew)
     else
         bRI = bosonRealImag(op, real.(η), imag.(η), γ)
     end
-    return BosonBath([bRI], copy(op), bRI.dim, bRI.Nterm, δ)
+    return BosonBath(AbstractBosonBath[bRI], copy(op), bRI.dim, bRI.Nterm, δ)
 end
 
 """
@@ -90,7 +102,7 @@ end
 Generate BosonBath object for the case where the correlation function splits into real part and imaginary part.
 
 # Parameters
-- `op::AbstractMatrix` : The system operator according to the system-bosonic-bath interaction.
+- `op` : The system operator according to the system-bosonic-bath interaction.
 - `η_real::Vector{Ti<:Number}` : the real part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_real::Vector{Tj<:Number}` : the real part of coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `η_imag::Vector{Tk<:Number}` : the imaginary part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
@@ -99,7 +111,7 @@ Generate BosonBath object for the case where the correlation function splits int
 - `combine::Bool` : Whether to combine the exponential-expansion terms with the same frequency. Defaults to `true`.
 """
 function BosonBath(
-        op::AbstractMatrix,
+        op,
         η_real::Vector{Ti},
         γ_real::Vector{Tj},
         η_imag::Vector{Tk},
@@ -109,8 +121,8 @@ function BosonBath(
     ) where {Ti, Tj, Tk, Tl, Tm <: Number}
 
     if combine
-        ηR, γR = combine_same_gamma(η_real, γ_real)
-        ηI, γI = combine_same_gamma(η_imag, γ_imag)
+        ηR, γR = _combine_same_gamma(η_real, γ_real)
+        ηI, γI = _combine_same_gamma(η_imag, γ_imag)
 
         NR = length(γR)
         NI = length(γI)
@@ -149,12 +161,12 @@ function BosonBath(
         if Nterm != (Nterm_new + bRI.Nterm)
             error("Conflicts occur in combining real and imaginary parts of bath correlation function.")
         end
-        return BosonBath([bR, bI, bRI], copy(op), bR.dim, Nterm_new, δ)
+        return BosonBath(AbstractBosonBath[bR, bI, bRI], copy(op), bR.dim, Nterm_new, δ)
 
     else
         bR = bosonReal(op, η_real, γ_real)
         bI = bosonImag(op, η_imag, γ_imag)
-        return BosonBath([bR, bI], copy(op), bR.dim, bR.Nterm + bI.Nterm, δ)
+        return BosonBath(AbstractBosonBath[bR, bI], copy(op), bR.dim, bR.Nterm + bI.Nterm, δ)
     end
 end
 
@@ -170,7 +182,7 @@ A bosonic bath for the real part of bath correlation function
 - `Nterm` : the number of exponential-expansion term of correlation function
 """
 struct bosonReal <: AbstractBosonBath
-    Comm::AbstractMatrix
+    Comm::SparseMatrixCSC{ComplexF64, Int64}
     dim::Int
     η::AbstractVector
     γ::AbstractVector
@@ -182,20 +194,17 @@ end
 Generate bosonic bath for the real part of bath correlation function
 
 # Parameters
-- `op::AbstractMatrix` : The system operator according to the system-bosonic-bath interaction.
+- `op` : The system operator according to the system-bosonic-bath interaction.
 - `η_real::Vector{Ti<:Number}` : the real part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_real::Vector{Tj<:Number}` : the real part of coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 """
 function bosonReal(
-        op::AbstractMatrix,
+        op,
         η_real::Vector{Ti},
         γ_real::Vector{Tj}
     ) where {Ti, Tj <: Number}
 
-    N1, N2 = size(op)
-    if N1 != N2
-        error("The operator \"op\" should be an squared matrix.")
-    end
+    dim = _check_coupling_operator(op)
 
     # check if the length of coefficients are valid
     N_exp_term = length(η_real)
@@ -203,7 +212,7 @@ function bosonReal(
         error("The length of \'η_real\' and \'γ_real\' should be the same.")
     end
 
-    return bosonReal(spre(op) - spost(op), N1, η_real, γ_real, N_exp_term)
+    return bosonReal(spre(op) - spost(op), dim, η_real, γ_real, N_exp_term)
 end
 
 """
@@ -219,8 +228,8 @@ A bosonic bath for the imaginary part of bath correlation function
 - `Nterm` : the number of exponential-expansion term of correlation function
 """
 struct bosonImag <: AbstractBosonBath
-    Comm::AbstractMatrix
-    anComm::AbstractMatrix
+    Comm::SparseMatrixCSC{ComplexF64, Int64}
+    anComm::SparseMatrixCSC{ComplexF64, Int64}
     dim::Int
     η::AbstractVector
     γ::AbstractVector
@@ -232,20 +241,17 @@ end
 Generate bosonic bath for the imaginary part of correlation function
 
 # Parameters
-- `op::AbstractMatrix` : The system operator according to the system-bosonic-bath interaction.
+- `op` : The system operator according to the system-bosonic-bath interaction.
 - `η_imag::Vector{Ti<:Number}` : the imaginary part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_imag::Vector{Tj<:Number}` : the imaginary part of coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 """
     function bosonImag(
-        op::AbstractMatrix,
+        op,
         η_imag::Vector{Ti},
         γ_imag::Vector{Tj}
     ) where {Ti, Tj <: Number}
 
-    N1, N2 = size(op)
-    if N1 != N2
-        error("The operator \"op\" should be an squared matrix.")
-    end
+    dim = _check_coupling_operator(op)
 
     # check if the length of coefficients are valid
     N_exp_term = length(η_imag)
@@ -254,7 +260,7 @@ Generate bosonic bath for the imaginary part of correlation function
     end
     spreQ  = spre(op)
     spostQ = spost(op)
-    return bosonImag(spreQ - spostQ, spreQ + spostQ, N1, η_imag, γ_imag, N_exp_term)
+    return bosonImag(spreQ - spostQ, spreQ + spostQ, dim, η_imag, γ_imag, N_exp_term)
 end
 
 """
@@ -271,8 +277,8 @@ A bosonic bath which the real part and imaginary part of the bath correlation fu
 - `Nterm` : the number of exponential-expansion term of correlation function
 """
 struct bosonRealImag <: AbstractBosonBath
-    Comm::AbstractMatrix
-    anComm::AbstractMatrix
+    Comm::SparseMatrixCSC{ComplexF64, Int64}
+    anComm::SparseMatrixCSC{ComplexF64, Int64}
     dim::Int
     η_real::AbstractVector
     η_imag::AbstractVector
@@ -285,22 +291,19 @@ end
 Generate bosonic bath which the real part and imaginary part of the bath correlation function are combined
 
 # Parameters
-- `op::AbstractMatrix` : The system operator according to the system-bosonic-bath interaction.
+- `op` : The system operator according to the system-bosonic-bath interaction.
 - `η_real::Vector{Ti<:Number}` : the real part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `η_imag::Vector{Tj<:Number}` : the imaginary part of coefficients ``\\eta_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ::Vector{Tk<:Number}` : the coefficients ``\\gamma_i`` in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 """
 function bosonRealImag(
-        op::AbstractMatrix,
+        op,
         η_real::Vector{Ti},
         η_imag::Vector{Tj},
         γ::Vector{Tk}
     ) where {Ti, Tj, Tk <: Number}
 
-    N1, N2 = size(op)
-    if N1 != N2
-        error("The operator \"op\" should be an squared matrix.")
-    end
+    dim = _check_coupling_operator(op)
 
     # check if the length of coefficients are valid
     N_exp_term = length(η_real)
@@ -309,7 +312,7 @@ function bosonRealImag(
     end
     spreQ  = spre(op)
     spostQ = spost(op)
-    return bosonRealImag(spreQ - spostQ, spreQ + spostQ, N1, η_real, η_imag, γ, N_exp_term)
+    return bosonRealImag(spreQ - spostQ, spreQ + spostQ, dim, η_real, η_imag, γ, N_exp_term)
 end
 
 """
@@ -324,7 +327,7 @@ An object which describes the interaction between system and fermionic bath
 - `δ` : The approximation discrepancy which is used for adding the terminator to HEOM matrix (see function: addTerminator!)
 """
 struct FermionBath <: AbstractBath
-    bath::AbstractVector
+    bath::Vector{AbstractFermionBath}
     op::AbstractMatrix
     dim::Int
     Nterm::Int
@@ -336,7 +339,7 @@ end
 Generate FermionBath object
 
 # Parameters
-- `op::AbstractMatrix` : The system \"emission\" operator according to the system-fermionic-bath interaction.
+- `op` : The system \"emission\" operator according to the system-fermionic-bath interaction.
 - `η_absorb::Vector{Ti<:Number}` : the coefficients ``\\eta_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_absorb::Vector{Tj<:Number}` : the coefficients ``\\gamma_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `η_emit::Vector{Tk<:Number}` : the coefficients ``\\eta_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
@@ -344,7 +347,7 @@ Generate FermionBath object
 - `δ::Number` : The approximation discrepancy (Defaults to `0.0`) which is used for adding the terminator to HEOM matrix (see function: addTerminator!)
 """
 function FermionBath(
-        op::AbstractMatrix,
+        op,
         η_absorb::Vector{Ti},
         γ_absorb::Vector{Tj},
         η_emit::Vector{Tk},
@@ -354,7 +357,7 @@ function FermionBath(
 
     fA = fermionAbsorb(adjoint(op), η_absorb, γ_absorb, η_emit)
     fE = fermionEmit(op, η_emit, γ_emit, η_absorb)
-    return FermionBath([fA, fE], copy(op), fA.dim, fA.Nterm + fE.Nterm, δ)
+    return FermionBath(AbstractFermionBath[fA, fE], copy(op), fA.dim, fA.Nterm + fE.Nterm, δ)
 end
 
 """
@@ -373,10 +376,10 @@ An object which describes the absorption of the system in the interaction
 - `Nterm` : the number of exponential-expansion term of correlation function
 """
 struct fermionAbsorb <: AbstractFermionBath
-    spre::AbstractMatrix
-    spost::AbstractMatrix
-    spreD::AbstractMatrix
-    spostD::AbstractMatrix
+    spre::SparseMatrixCSC{ComplexF64, Int64}
+    spost::SparseMatrixCSC{ComplexF64, Int64}
+    spreD::SparseMatrixCSC{ComplexF64, Int64}
+    spostD::SparseMatrixCSC{ComplexF64, Int64}
     dim::Int
     η::AbstractVector
     γ::AbstractVector
@@ -389,29 +392,26 @@ end
 Generate fermionic bath which describes the absorption of the system in the interaction
 
 # Parameters
-- `op::AbstractMatrix` : The system absorption operator according to the system-fermionic-bath interaction.
+- `op` : The system absorption operator according to the system-fermionic-bath interaction.
 - `η_absorb::Vector{Ti<:Number}` : the coefficients ``\\eta_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_absorb::Vector{Tj<:Number}` : the coefficients ``\\gamma_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `η_emit::Vector{Tk<:Number}` : the coefficients ``\\eta_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 """
 function fermionAbsorb(
-        op::AbstractMatrix,
+        op,
         η_absorb::Vector{Ti},
         γ_absorb::Vector{Tj},
         η_emit::Vector{Tk}
     ) where {Ti, Tj, Tk <: Number}
 
-    N1, N2 = size(op)
-    if N1 != N2
-        error("The operator \"op\" should be an squared matrix.")
-    end
+    dim = _check_coupling_operator(op)
 
     # check if the length of coefficients are valid
     N_exp_term = length(η_absorb)
     if (N_exp_term != length(γ_absorb)) || (N_exp_term != length(η_emit))
         error("The length of \'η_absorb\', \'γ_absorb\' and \'η_emit\' should all be the same.")
     end
-    return fermionAbsorb(spre(op), spost(op), spre(adjoint(op)), spost(adjoint(op)), N1, η_absorb, γ_absorb, η_emit, N_exp_term)
+    return fermionAbsorb(spre(op), spost(op), spre(adjoint(op)), spost(adjoint(op)), dim, η_absorb, γ_absorb, η_emit, N_exp_term)
 end
 
 """
@@ -430,10 +430,10 @@ An object which describes the emission of the system in the interaction
 - `Nterm` : the number of exponential-expansion term of correlation function
 """
 struct fermionEmit <: AbstractFermionBath
-    spre::AbstractMatrix
-    spost::AbstractMatrix
-    spreD::AbstractMatrix
-    spostD::AbstractMatrix
+    spre::SparseMatrixCSC{ComplexF64, Int64}
+    spost::SparseMatrixCSC{ComplexF64, Int64}
+    spreD::SparseMatrixCSC{ComplexF64, Int64}
+    spostD::SparseMatrixCSC{ComplexF64, Int64}
     dim::Int
     η::AbstractVector
     γ::AbstractVector
@@ -446,29 +446,26 @@ end
 Generate fermionic bath which describes the absorption of the system in the interaction
 
 # Parameters
-- `op::AbstractMatrix` : The system emission operator according to the system-fermionic-bath interaction.
+- `op` : The system emission operator according to the system-fermionic-bath interaction.
 - `η_emit::Vector{Ti<:Number}` : the coefficients ``\\eta_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `γ_emit::Vector{Ti<:Number}` : the coefficients ``\\gamma_i`` for emission in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 - `η_absorb::Vector{Ti<:Number}` : the coefficients ``\\eta_i`` for absorption in bath correlation functions (``\\sum_i \\eta_i e^{-\\gamma_i t}``).
 """
 function fermionEmit(
-        op::AbstractMatrix,
+        op,
         η_emit::Vector{Ti},
         γ_emit::Vector{Tj},
         η_absorb::Vector{Tk}
     ) where {Ti, Tj, Tk <: Number}
 
-    N1, N2 = size(op)
-    if N1 != N2
-        error("The operator \"op\" should be an squared matrix.")
-    end
+    dim = _check_coupling_operator(op)
 
     # check if the length of coefficients are valid
     N_exp_term = length(η_emit)
     if (N_exp_term != length(γ_emit)) || (N_exp_term != length(η_absorb))
         error("The length of \'η_emit\', \'γ_emit\' and \'η_absorb\' should all be the same.")
     end
-    return fermionEmit(spre(op), spost(op), spre(adjoint(op)), spost(adjoint(op)), N1, η_emit, γ_emit, η_absorb, N_exp_term)
+    return fermionEmit(spre(op), spost(op), spre(adjoint(op)), spost(adjoint(op)), dim, η_emit, γ_emit, η_absorb, N_exp_term)
 end
 
 struct CombinedBath <: AbstractBath
@@ -477,38 +474,32 @@ struct CombinedBath <: AbstractBath
     Nterm::Int
 end
 
-function CombinedBath(bath::BosonBath...) CombinedBath([bath...]) end
-function CombinedBath(bath::FermionBath...) CombinedBath([bath...]) end
+function CombinedBath(dim::Int, bath::BosonBath...)   CombinedBath(dim, [bath...]) end
+function CombinedBath(dim::Int, bath::FermionBath...) CombinedBath(dim, [bath...]) end
 
-function CombinedBath(B::Vector{BosonBath})
-    baths = AbstractBosonBath[(B[1].bath)...]
-    dim   = B[1].dim
-    Nterm = B[1].Nterm
-    if length(B) > 1
-        for b in B[2:end]
-            if b.dim != dim 
-                error("The system dimension of the bosonic bath coupling operators are not consistent.")
-            end
-            push!(baths, b.bath...)
-            Nterm += b.Nterm
+function CombinedBath(dim::Int, B::Vector{BosonBath})
+    Nterm = 0
+    baths = AbstractBosonBath[]
+    for b in B
+        if b.dim != dim 
+            error("The system dimension of the bosonic bath coupling operators are not consistent.")
         end
+        push!(baths, b.bath...)
+        Nterm += b.Nterm
     end
 
     return CombinedBath(baths, dim, Nterm)
 end
 
-function CombinedBath(B::Vector{FermionBath})
-    baths = AbstractFermionBath[(B[1].bath)...]
-    dim   = B[1].dim
-    Nterm = B[1].Nterm
-    if length(B) > 1
-        for b in B[2:end]
-            if b.dim != dim 
-                error("The system dimension of the bosonic bath coupling operators are not consistent.")
-            end
-            push!(baths, b.bath...)
-            Nterm += b.Nterm
+function CombinedBath(dim::Int, B::Vector{FermionBath})
+    Nterm = 0
+    baths = AbstractFermionBath[]
+    for b in B
+        if b.dim != dim 
+            error("The system dimension of the fermionic bath coupling operators are not consistent.")
         end
+        push!(baths, b.bath...)
+        Nterm += b.Nterm
     end
 
     return CombinedBath(baths, dim, Nterm)

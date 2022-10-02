@@ -11,7 +11,7 @@ end
 Constructing Drude-Lorentz bosonic bath with Matsubara expansion
 
 # Parameters
-- `op::AbstractMatrix` : The system operator according to the system-fermionic-bath interaction.
+- `op` : The system operator according to the system-fermionic-bath interaction.
 - `λ::Real`: The coupling strength between the system and the bath.
 - `W::Real`: The reorganization energy (band-width) of the bath.
 - `T::Real`: The temperature of the bath.
@@ -21,7 +21,7 @@ Constructing Drude-Lorentz bosonic bath with Matsubara expansion
 - `bath::BosonBath` : a bosonic bath object with describes the interaction between system and bosonic bath
 """
 function Boson_DrudeLorentz_Matsubara(
-        op::AbstractMatrix,
+        op,
         λ::Real,
         W::Real,
         T::Real,
@@ -51,14 +51,14 @@ end
     Boson_DrudeLorentz_Pade(op, λ, W, T, N)
 Constructing Drude-Lorentz bosonic bath with Padé expansion
 
-A Padé approximant is a sum-over-poles expansion (see https://en.wikipedia.org/wiki/Pad%C3%A9_approximant).
+A Padé approximant is a sum-over-poles expansion (see [here](https://en.wikipedia.org/wiki/Pad%C3%A9_approximant) for more details).
 
 The application of the Padé method to spectrum decompoisitions is described in Ref. [1].
 
-[1] J. Chem. Phys. 134, 244106 (2011); https://doi.org/10.1063/1.3602466
+[1] [J. Chem. Phys. 134, 244106 (2011)](https://doi.org/10.1063/1.3602466)
 
 # Parameters
-- `op::AbstractMatrix` : The system operator according to the system-fermionic-bath interaction.
+- `op` : The system operator according to the system-fermionic-bath interaction.
 - `λ::Real`: The coupling strength between the system and the bath.
 - `W::Real`: The reorganization energy (band-width) of the bath.
 - `T::Real`: The temperature of the bath.
@@ -68,7 +68,7 @@ The application of the Padé method to spectrum decompoisitions is described in 
 - `bath::BosonBath` : a bosonic bath object with describes the interaction between system and bosonic bath
 """
 function Boson_DrudeLorentz_Pade(
-        op::AbstractMatrix,
+        op,
         λ::Real,
         W::Real,
         T::Real,
