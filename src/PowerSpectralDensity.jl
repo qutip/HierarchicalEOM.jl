@@ -12,6 +12,8 @@ Calculate power spectral density.
 - `filename::String` : If filename was specified, the value of psd for each ω will be saved into the file during the solving process.
 - `SOLVEROptions` : extra options for solver 
 
+For more details about solvers and extra options, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
+
 # Returns
 - `psd::AbstractVector` : power spectral density
 """

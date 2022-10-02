@@ -5,7 +5,7 @@ end
 
 """
     evolution(M, ρ0, tlist; solver, reltol, abstol, maxiters, save_everystep, progressBar, SOLVEROptions...)
-Start solving time evolution of auxiliary density operators...
+Solve the time evolution for auxiliary density operators.
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
@@ -17,7 +17,9 @@ Start solving time evolution of auxiliary density operators...
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
 - `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
-- `SOLVEROptions` : extra options for solver (see https://diffeq.sciml.ai/stable/basics/common_solver_opts/ for more details)
+- `SOLVEROptions` : extra options for solver
+
+For more details about solvers and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
 
 # Returns
 - `ADOs_list` : The auxiliary density operators in each time point.
@@ -57,7 +59,7 @@ end
 
 """
     evolution(M, ados, tlist; solver, reltol, abstol, maxiters, save_everystep, progressBar, SOLVEROptions...)
-Start solving time evolution of auxiliary density operators...
+Solve the time evolution for auxiliary density operators.
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
@@ -69,7 +71,9 @@ Start solving time evolution of auxiliary density operators...
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
 - `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
-- `SOLVEROptions` : extra options for solver (see https://diffeq.sciml.ai/stable/basics/common_solver_opts/ for more details)
+- `SOLVEROptions` : extra options for solver
+
+For more details about solvers and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
 
 # Returns
 - `ADOs_list` : The auxiliary density operators in each time point.
