@@ -55,7 +55,7 @@ function M_Fermion(
 
     # check for system dimension
     if !isValidMatrixType(Hsys)
-        error("Invalid matrix type of system Hamiltonian \"Hsys\".")
+        error("Invalid matrix \"Hsys\" (system Hamiltonian).")
     end
     Nsys,   = size(Hsys)
     sup_dim = Nsys ^ 2

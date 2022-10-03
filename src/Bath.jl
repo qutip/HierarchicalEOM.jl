@@ -18,13 +18,10 @@ isclose(a::Number, b::Number, rtol=1e-05, atol=1e-08) = abs(a - b) <= (atol + rt
 
 function _check_coupling_operator(op)
     if isValidMatrixType(op)
-        N1, N2 = size(op)
-        if N1 != N2
-            error("The operator \"op\" should be an squared matrix.")
-        end
-        return N1
+        N,  = size(op)
+        return N
     else
-        error("Invalid matrix type of op.")
+        error("Invalid matrix \"op\".")
     end
 end
 

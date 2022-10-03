@@ -1,28 +1,28 @@
 const PROGBAR_OPTIONS = Dict(:barlen=>20, :color=>:green, :showspeed=>true)
 
-function isValidMatrixType(M)
+function isValidMatrixType(M, dim::Int=0)
     if typeof(M) <: AbstractMatrix 
-        N1, N2 = size(M)
-        if N1 == N2
-            return true
+        if dim > 0
+            if size(M) == (dim, dim)
+                return true
+            else
+                @warn "The size of input matrix should be: ($(M.dim), $(M.dim))."
+                return false
+            end
+        elseif dim == 0
+            N1, N2 = size(M)
+            if N1 == N2
+                return true
+            else
+                @warn "The size of input matrix should be squared matrix."
+                return false
+            end
         else
-            @warn "The input matrices for Heom should only be squared matrix."
-            return false
+            error("The \"dim\" is not correct.")
         end
+
     else
         @warn "Heom doesn't support matrix type : $(typeof(M))"
-        return false
-    end
-end
-
-function isValidMatrixType(M, dim)
-    if isValidMatrixType(M)
-        if size(M) == (dim, dim)
-            return true
-        else
-            return false
-        end
-    else
         return false
     end
 end

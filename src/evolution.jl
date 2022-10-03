@@ -5,11 +5,11 @@ end
 
 """
     evolution(M, ρ0, tlist; solver, reltol, abstol, maxiters, save_everystep, progressBar, SOLVEROptions...)
-Solve the time evolution for auxiliary density operators.
+Solve the time evolution for auxiliary density operators with initial state is given in density-matrix-type (ρ0).
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
-- `ρ0::AbstractMatrix` : system initial state (density matrix)
+- `ρ0` : system initial state (density matrix)
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
@@ -26,7 +26,7 @@ For more details about solvers and extra options, please refer to [`Differential
 """
 function evolution(
         M::AbstractHEOMMatrix, 
-        ρ0::AbstractMatrix, 
+        ρ0, 
         tlist::AbstractVector;
         solver = DP5(),
         reltol::Real = 1.0e-6,
@@ -37,14 +37,17 @@ function evolution(
         SOLVEROptions...
     )
 
-    if size(ρ0) != (M.dim, M.dim) 
-        error("The dimension of ρ0 should be equal to \"($(M.dim), $(M.dim))\".")
+    if !isValidMatrixType(ρ0, M.dim)
+        error("Invalid matrix \"ρ0\".")
     end
 
     # vectorize initial state
-    ρ0   = sparse(sparsevec(ρ0))
-    ρ_he = sparsevec(ρ0.nzind, ρ0.nzval, M.N * M.sup_dim)
-    ados = ADOs(ρ_he, M.Nb, M.Nf)
+    ρ1   = sparse(sparsevec(ρ0))
+    ados = ADOs(
+        sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), 
+        M.Nb, 
+        M.Nf
+    )
     
     return evolution(M, ados, tlist;
         solver = solver,
@@ -59,7 +62,7 @@ end
 
 """
     evolution(M, ados, tlist; solver, reltol, abstol, maxiters, save_everystep, progressBar, SOLVEROptions...)
-Solve the time evolution for auxiliary density operators.
+Solve the time evolution for auxiliary density operators with initial state is given in ADOs-type.
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model

@@ -48,7 +48,7 @@ function addDissipator!(M::AbstractHEOMMatrix, jumpOP::Vector=[])
             if isValidMatrixType(J, M.dim)
                 L += spre(J) * spost(J') - 0.5 * (spre(J' * J) + spost(J' * J))
             else
-                error("Invalid matrix type of jumpOP, the size should be \"($(M.dim), $(M.dim))\".")
+                error("Invalid matrix in \"jumpOP\".")
             end
         end
         M.data += kron(sparse(I, M.N, M.N), L)

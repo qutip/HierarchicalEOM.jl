@@ -4,7 +4,7 @@ Calculate density of states.
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model (the parity must be `:odd`.)
-- `ρ::Union{AbstractMatrix, ADOs}` :  the system density matrix or the auxiliary density operators.
+- `ρ` :  the system density matrix or the auxiliary density operators.
 - `ω_list::AbstractVector` : the specific frequency points to solve.
 - `op` : The system operator for the two-time correlation function in frequency domain.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
@@ -19,14 +19,14 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 """
 function DOS(
         M::AbstractHEOMMatrix, 
-        ρ::T, 
+        ρ, 
         ω_list::AbstractVector, 
         op; 
         solver=UMFPACKFactorization(), 
         progressBar::Bool = true,
         filename::String = "",
         SOLVEROptions...
-    ) where T <: Union{AbstractMatrix, ADOs}
+    )
 
     SAVE::Bool = (filename != "")
     if SAVE && isfile(filename)
@@ -49,7 +49,7 @@ function DOS(
     local b::AbstractVector
 
     # check ρ
-    if T == ADOs  # ρ::ADOs
+    if typeof(ρ) == ADOs  # ρ::ADOs
         if (M.dim != ρ.dim)
             error("The system dimension between M and ρ are not consistent.")
         end
@@ -68,12 +68,12 @@ function DOS(
         v = sparsevec(ρ)
         b = sparsevec(v.nzind, v.nzval, Size)
     else
-        error("Invalid matrix type of ρ, and the size should be \"($(M.dim), $(M.dim))\".")
+        error("Invalid matrix \"ρ\".")
     end
 
     # check dimension of op
     if !isValidMatrixType(op, M.dim)
-        error("Invalid matrix type of op, the size should be \"($(M.dim), $(M.dim))\".")
+        error("Invalid matrix \"op\".")
     end
 
     # equal to : transpose(sparse(vec(system_identity_matrix)))
