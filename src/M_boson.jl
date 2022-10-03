@@ -13,16 +13,16 @@ Heom liouvillian superoperator matrix for bosonic bath
 - `parity` : the parity of the density matrix (restrict to `:none` for boson)
 - `ado2idx` : the ADO-to-index dictionary
 """
-mutable struct M_Boson <: AbstractHEOMMatrix
+struct M_Boson <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
-    const tier::Int
-    const dim::Int
-    const N::Int
-    const Nb::Int
-    const Nf::Int
-    const sup_dim::Int
-    const parity::Symbol
-    const ado2idx::OrderedDict{Vector{Int}, Int}    
+    tier::Int
+    dim::Int
+    N::Int
+    Nb::Int
+    Nf::Int
+    sup_dim::Int
+    parity::Symbol
+    ado2idx::OrderedDict{Vector{Int}, Int}    
 end
 
 function M_Boson(Hsys, tier::Int, Bath::BosonBath; progressBar::Bool=true)
