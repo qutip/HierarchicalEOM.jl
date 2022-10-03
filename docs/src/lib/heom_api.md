@@ -1,4 +1,4 @@
-# Heom Base Module API
+# Heom API Module
 
 ## Heom liouvillian superoperator matrices
 

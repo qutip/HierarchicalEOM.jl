@@ -1,4 +1,4 @@
-# Bath Module API
+# Bath Module
 
 ## Bosonic Bath
 ```@docs

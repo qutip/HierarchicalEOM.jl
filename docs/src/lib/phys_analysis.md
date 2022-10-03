@@ -1,4 +1,4 @@
-# Physical Analysis Functions API
+# Physical Analysis Functions
 
 ## Time Evolution
 ```@docs

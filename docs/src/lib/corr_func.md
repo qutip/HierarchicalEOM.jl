@@ -1,4 +1,4 @@
-# Correlation Functions API
+# Correlation Functions
 
 # Bosonic Bath Correlation Functions
 ```@docs

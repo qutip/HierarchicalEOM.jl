@@ -19,10 +19,11 @@ const PAGES = Any[
         "JC" => "examples/JC_model.md"
     ],
     "Library" => Any[
-        "Heom Base" => "lib/heom_base.md",
+        "HeomAPI" => "lib/heom_api.md",
         "Bath" => "lib/bath.md",
         "Bath Correlation Functions" => "lib/corr_func.md",
-        "Physical Analysis Functions" => "lib/phys_analysis.md"
+        "Physical Analysis Functions" => "lib/phys_analysis.md",
+        "Misc." => "lib/misc.md"
     ]
 ]
 
