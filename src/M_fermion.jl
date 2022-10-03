@@ -3,7 +3,7 @@
 Heom liouvillian superoperator matrix for fermionic bath
 
 # Fields
-- `data` : the sparse matrix
+- `data` : the sparse matrix of HEOM liouvillian superoperator
 - `tier` : the tier (cutoff) for the bath
 - `dim` : the dimension of system
 - `N` : the number of total states
@@ -25,7 +25,7 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
     const ado2idx::OrderedDict{Vector{Int}, Int}
 end
 
-function M_Fermion(Hsys::AbstractMatrix, tier::Int, Bath::FermionBath, parity::Symbol=:even; progressBar::Bool=true)
+function M_Fermion(Hsys, tier::Int, Bath::FermionBath, parity::Symbol=:even; progressBar::Bool=true)
     return M_Fermion(Hsys, tier, [Bath], parity, progressBar = progressBar)
 end
 
@@ -34,14 +34,14 @@ end
 Generate the fermion-type Heom matrix
 
 # Parameters
-- `Hsys::AbstractMatrix` : The system Hamiltonian
+- `Hsys` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
 - `Bath::Vector{FermionBath}` : objects for different fermionic baths
 - `parity::Symbol` : The parity symbol of the density matrix (either `:odd` or `:even`). Defaults to `:even`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
 function M_Fermion(        
-        Hsys::AbstractMatrix,
+        Hsys,
         tier::Int,
         Bath::Vector{FermionBath},
         parity::Symbol=:even;
@@ -54,6 +54,9 @@ function M_Fermion(
     end
 
     # check for system dimension
+    if !isValidMatrixType(Hsys)
+        error("Invalid matrix type of system Hamiltonian \"Hsys\".")
+    end
     Nsys,   = size(Hsys)
     sup_dim = Nsys ^ 2
     I_sup   = sparse(I, sup_dim, sup_dim)
@@ -63,7 +66,7 @@ function M_Fermion(
 
     # check for fermionic bath
     if length(Bath) > 1
-        baths = CombinedBath(Bath)
+        baths = CombinedBath(Nsys, Bath)
     else
         baths = Bath[1]
     end

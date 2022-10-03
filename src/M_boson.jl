@@ -3,7 +3,7 @@
 Heom liouvillian superoperator matrix for bosonic bath
 
 # Fields
-- `data` : the sparse matrix
+- `data` : the sparse matrix of HEOM liouvillian superoperator
 - `tier` : the tier (cutoff) for the bath
 - `dim` : the dimension of system
 - `N` : the number of total states
@@ -25,7 +25,7 @@ mutable struct M_Boson <: AbstractHEOMMatrix
     const ado2idx::OrderedDict{Vector{Int}, Int}    
 end
 
-function M_Boson(Hsys::AbstractMatrix, tier::Int, Bath::BosonBath; progressBar::Bool=true)
+function M_Boson(Hsys, tier::Int, Bath::BosonBath; progressBar::Bool=true)
     return M_Boson(Hsys, tier, [Bath], progressBar = progressBar)
 end
 
@@ -34,19 +34,22 @@ end
 Generate the boson-type Heom matrix
 
 # Parameters
-- `Hsys::AbstractMatrix` : The system Hamiltonian
+- `Hsys` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
 - `Bath::Vector{BosonBath}` : objects for different bosonic baths
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 """
 function M_Boson(        
-        Hsys::AbstractMatrix,
+        Hsys,
         tier::Int,
         Bath::Vector{BosonBath};
         progressBar::Bool=true
     )
 
     # check for system dimension
+    if !isValidMatrixType(Hsys)
+        error("Invalid matrix type of system Hamiltonian \"Hsys\".")
+    end
     Nsys,   = size(Hsys)
     sup_dim = Nsys ^ 2
     I_sup   = sparse(I, sup_dim, sup_dim)
@@ -56,7 +59,7 @@ function M_Boson(
 
     # check for bosonic bath
     if length(Bath) > 1
-        baths = CombinedBath(Bath)
+        baths = CombinedBath(Nsys, Bath)
     else
         baths = Bath[1]
     end

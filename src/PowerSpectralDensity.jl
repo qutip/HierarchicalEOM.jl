@@ -1,12 +1,12 @@
 """
-    PSD(M, ρ, ω_list, OP; solver, progressBar, filename, SOLVEROptions...)
+    PSD(M, ρ, ω_list, op; solver, progressBar, filename, SOLVEROptions...)
 Calculate power spectral density.
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model (the parity must be `:none` or `:even`.)
 - `ρ::Union{AbstractMatrix, ADOs}` :  the system density matrix or the auxiliary density operators.
 - `ω_list::AbstractVector` : the specific frequency points to solve.
-- `OP::AbstractMatrix` : The system operator for the two-time correlation function in frequency domain.
+- `op` : The system operator for the two-time correlation function in frequency domain.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 - `filename::String` : If filename was specified, the value of psd for each ω will be saved into the file during the solving process.
@@ -21,7 +21,7 @@ function PSD(
         M::AbstractHEOMMatrix, 
         ρ::T, 
         ω_list::AbstractVector, 
-        OP::AbstractMatrix; 
+        op; 
         solver=UMFPACKFactorization(), 
         progressBar::Bool = true,
         filename::String = "",
@@ -34,11 +34,11 @@ function PSD(
     end
 
     # check number of bosonic states
-    if (M.Nb == 0)
+    if M.Nb <= 0
         error("The number of bosonic states must be greater than zero, i.e., \"M.Nb > 0\".")
 
     # if the bath encludes fermion states, check parity
-    elseif (M.parity == :odd)
+    elseif M.parity == :odd
         error("The parity of M must be \":none\" (bosonic) or \":even\" (mixed) bath.")
     end
 
@@ -49,15 +49,7 @@ function PSD(
     local b::AbstractVector
 
     # check ρ
-    if T <: AbstractMatrix
-        if size(ρ) == (M.dim, M.dim) 
-            v = sparsevec(ρ)
-            b = sparsevec(v.nzind, v.nzval, Size)
-        else
-            error("The dimension of ρ should be equal to \"($(M.dim), $(M.dim))\".")
-        end
-
-    else # ρ::ADOs
+    if T == ADOs  # ρ::ADOs
         if (M.dim != ρ.dim)
             error("The system dimension between M and ρ are not consistent.")
         end
@@ -71,19 +63,25 @@ function PSD(
         end
 
         b = ρ.data
+        
+    elseif isValidMatrixType(ρ, M.dim)
+        v = sparsevec(ρ)
+        b = sparsevec(v.nzind, v.nzval, Size)
+    else
+        error("Invalid matrix type of ρ, and the size should be \"($(M.dim), $(M.dim))\".")
     end
 
-    # check dimension of OP
-    if size(OP) != (M.dim, M.dim)
-        error("The dimension of OP should be equal to \"($(M.dim), $(M.dim))\".")
+    # check dimension of op
+    if !isValidMatrixType(op, M.dim)
+        error("Invalid matrix type of op, the size should be \"($(M.dim), $(M.dim))\".")
     end
 
     # equal to : transpose(sparse(vec(system_identity_matrix)))
     I_dual_vec = transpose(sparsevec([1 + n * (M.dim + 1) for n in 0:(M.dim - 1)], ones(M.dim), M.sup_dim))
 
     # operator for calculating two-time correlation functions in frequency domain
-    C_normal = kron(I_heom, spre(OP))
-    C_dagger = kron(I_heom, spre(OP'))
+    C_normal = kron(I_heom, spre(op))
+    C_dagger = kron(I_heom, spre(op'))
     local Cb::Vector{ComplexF64} = -1 * C_normal * b
 
     Length = length(ω_list)
