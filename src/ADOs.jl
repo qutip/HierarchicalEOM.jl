@@ -1,5 +1,5 @@
 """
-    struct ADOs
+    mutable struct ADOs
 The Auxiliary Density Operators for Heom model.
 
 # Fields
@@ -8,11 +8,11 @@ The Auxiliary Density Operators for Heom model.
 - `Nb` : the number of bosonic states
 - `Nf` : the number of fermionic states
 """
-struct ADOs 
+mutable struct ADOs 
     data::SparseVector{ComplexF64, Int64}
-    dim::Int
-    Nb::Int
-    Nf::Int
+    const dim::Int
+    const Nb::Int
+    const Nf::Int
 end
 
 """

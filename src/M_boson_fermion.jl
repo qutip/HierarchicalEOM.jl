@@ -1,5 +1,5 @@
 """
-    struct M_Boson_Fermion <: AbstractHEOMMatrix
+    mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
 Heom liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath 
 
 # Fields
@@ -15,18 +15,18 @@ Heom liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath
 - `ado2idx_b` : the bosonic ADO-to-index dictionary
 - `ado2idx_f` : the fermionic ADO-to-index dictionary
 """
-struct M_Boson_Fermion <: AbstractHEOMMatrix
+mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
-    tier_b::Int
-    tier_f::Int
-    dim::Int
-    N::Int
-    Nb::Int
-    Nf::Int
-    sup_dim::Int
-    parity::Symbol
-    ado2idx_b::OrderedDict{Vector{Int}, Int}
-    ado2idx_f::OrderedDict{Vector{Int}, Int}
+    const tier_b::Int
+    const tier_f::Int
+    const dim::Int
+    const N::Int
+    const Nb::Int
+    const Nf::Int
+    const sup_dim::Int
+    const parity::Symbol
+    const ado2idx_b::OrderedDict{Vector{Int}, Int}
+    const ado2idx_f::OrderedDict{Vector{Int}, Int}
 end
 
 function M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::BosonBath, Bath_f::FermionBath, parity::Symbol=:even; progressBar::Bool=true)

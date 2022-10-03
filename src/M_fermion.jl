@@ -1,5 +1,5 @@
 """
-    struct M_Fermion <: AbstractHEOMMatrix
+    mutable struct M_Fermion <: AbstractHEOMMatrix
 Heom liouvillian superoperator matrix for fermionic bath
 
 # Fields
@@ -13,16 +13,16 @@ Heom liouvillian superoperator matrix for fermionic bath
 - `parity` : the parity of the density matrix
 - `ado2idx` : the ADO-to-index dictionary
 """
-struct M_Fermion <: AbstractHEOMMatrix
+mutable struct M_Fermion <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
-    tier::Int
-    dim::Int
-    N::Int
-    Nb::Int
-    Nf::Int
-    sup_dim::Int
-    parity::Symbol
-    ado2idx::OrderedDict{Vector{Int}, Int}
+    const tier::Int
+    const dim::Int
+    const N::Int
+    const Nb::Int
+    const Nf::Int
+    const sup_dim::Int
+    const parity::Symbol
+    const ado2idx::OrderedDict{Vector{Int}, Int}
 end
 
 function M_Fermion(Hsys, tier::Int, Bath::FermionBath, parity::Symbol=:even; progressBar::Bool=true)
