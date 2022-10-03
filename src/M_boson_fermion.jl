@@ -7,9 +7,9 @@ Heom liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath
 - `tier_b` : the tier (cutoff) for bosonic bath
 - `tier_f` : the tier (cutoff) for fermionic bath
 - `dim` : the dimension of system
-- `N` : the number of total states
-- `Nb` : the number of bosonic states
-- `Nf` : the number of fermionic states
+- `N` : the number of total ADOs
+- `Nb` : the number of bosonic ADOs
+- `Nf` : the number of fermionic ADOs
 - `sup_dim` : the dimension of system superoperator
 - `parity` : the parity of the density matrix
 - `ado2idx_b` : the bosonic ADO-to-index dictionary
@@ -99,9 +99,9 @@ function M_Boson_Fermion(
     N_exp_term_f = baths_f.Nterm
 
     # get ADOs dictionary
-    N_he_b, ado2idx_b_ordered, idx2ado_b = ADOs_dictionary(fill((tier_b + 1), N_exp_term_b), tier_b)
-    N_he_f, ado2idx_f_ordered, idx2ado_f = ADOs_dictionary(fill(2, N_exp_term_f), tier_f)
-    N_he_tot = N_he_b * N_he_f
+    Nado_b, ado2idx_b_ordered, idx2ado_b = ADOs_dictionary(fill((tier_b + 1), N_exp_term_b), tier_b)
+    Nado_f, ado2idx_f_ordered, idx2ado_f = ADOs_dictionary(fill(2, N_exp_term_f), tier_f)
+    Nado_tot = Nado_b * Nado_f
     ado2idx_b = Dict(ado2idx_b_ordered)
     ado2idx_f = Dict(ado2idx_f_ordered)
 
@@ -113,7 +113,7 @@ function M_Boson_Fermion(
 
     println("Preparing block matrices for HEOM liouvillian superoperator (using $(nprocs()) processors)...")
     if progressBar
-        prog = Progress(N_he_b + N_he_f; desc="Processing: ", PROGBAR_OPTIONS...)
+        prog = Progress(Nado_b + Nado_f; desc="Processing: ", PROGBAR_OPTIONS...)
     else
         println("Processing...")
         flush(stdout)
@@ -130,54 +130,54 @@ function M_Boson_Fermion(
 
         # the second task does the computation
         @async begin
-            @distributed (+) for idx_b in 1:N_he_b
+            @distributed (+) for idx_b in 1:Nado_b
                 # diagonal (boson)
                 sum_ω   = 0.0
-                state_b = idx2ado_b[idx_b]
-                n_exc_b = sum(state_b) 
-                idx = (idx_b - 1) * N_he_f
+                ado_b = idx2ado_b[idx_b]
+                n_exc_b = sum(ado_b) 
+                idx = (idx_b - 1) * Nado_f
                 if n_exc_b >= 1
-                    sum_ω += bath_sum_ω(state_b, baths_b)
+                    sum_ω += bath_sum_ω(ado_b, baths_b)
                 end
 
                 # diagonal (fermion)
-                for idx_f in 1:N_he_f
-                    state_f = idx2ado_f[idx_f]
-                    n_exc_f = sum(state_f)
+                for idx_f in 1:Nado_f
+                    ado_f = idx2ado_f[idx_f]
+                    n_exc_f = sum(ado_f)
                     if n_exc_f >= 1
-                        sum_ω += bath_sum_ω(state_f, baths_f)
+                        sum_ω += bath_sum_ω(ado_f, baths_f)
                     end
-                    add_operator!(Lsys - sum_ω * I_sup, L_row, L_col, L_val, N_he_tot, idx + idx_f, idx + idx_f)
+                    add_operator!(Lsys - sum_ω * I_sup, L_row, L_col, L_val, Nado_tot, idx + idx_f, idx + idx_f)
                 end
                 
                 # off-diagonal (boson)
                 count = 0
-                state_neigh = copy(state_b)
+                ado_neigh = copy(ado_b)
                 for bB in bath_b
                     for k in 1:bB.Nterm
                         count += 1
-                        n_k = state_b[count]
+                        n_k = ado_b[count]
                         if n_k >= 1
-                            state_neigh[count] = n_k - 1
-                            idx_neigh = ado2idx_b[state_neigh]
+                            ado_neigh[count] = n_k - 1
+                            idx_neigh = ado2idx_b[ado_neigh]
                             
                             op = prev_grad_boson(bB, k, n_k)
-                            for idx_f in 1:N_he_f
-                                add_operator!(op, L_row, L_col, L_val, N_he_tot, (idx + idx_f), (idx_neigh - 1) * N_he_f + idx_f)
+                            for idx_f in 1:Nado_f
+                                add_operator!(op, L_row, L_col, L_val, Nado_tot, (idx + idx_f), (idx_neigh - 1) * Nado_f + idx_f)
                             end
                             
-                            state_neigh[count] = n_k
+                            ado_neigh[count] = n_k
                         end
                         if n_exc_b <= tier_b - 1
-                            state_neigh[count] = n_k + 1
-                            idx_neigh = ado2idx_b[state_neigh]
+                            ado_neigh[count] = n_k + 1
+                            idx_neigh = ado2idx_b[ado_neigh]
                             
                             op = next_grad_boson(bB)
-                            for idx_f in 1:N_he_f
-                                add_operator!(op, L_row, L_col, L_val, N_he_tot, (idx + idx_f), (idx_neigh - 1) * N_he_f + idx_f)
+                            for idx_f in 1:Nado_f
+                                add_operator!(op, L_row, L_col, L_val, Nado_tot, (idx + idx_f), (idx_neigh - 1) * Nado_f + idx_f)
                             end
 
-                            state_neigh[count] = n_k
+                            ado_neigh[count] = n_k
                         end
                     end
                 end
@@ -188,36 +188,36 @@ function M_Boson_Fermion(
             end
 
             # fermion (n+1 & n-1 tier) superoperator
-            @distributed (+) for idx_f in 1:N_he_f
-                state_f = idx2ado_f[idx_f]
-                n_exc_f = sum(state_f)
+            @distributed (+) for idx_f in 1:Nado_f
+                ado_f = idx2ado_f[idx_f]
+                n_exc_f = sum(ado_f)
 
                 count = 0
-                state_neigh = copy(state_f)
+                ado_neigh = copy(ado_f)
                 for fB in bath_f
                     for k in 1:fB.Nterm
                         count += 1
-                        n_k = state_f[count]
+                        n_k = ado_f[count]
                         if n_k >= 1
-                            state_neigh[count] = n_k - 1
-                            idx_neigh = ado2idx_f[state_neigh]
-                            op = prev_grad_fermion(fB, k, n_exc_f, sum(state_neigh[1:(count - 1)]), parity)
+                            ado_neigh[count] = n_k - 1
+                            idx_neigh = ado2idx_f[ado_neigh]
+                            op = prev_grad_fermion(fB, k, n_exc_f, sum(ado_neigh[1:(count - 1)]), parity)
 
                         elseif n_exc_f <= tier_f - 1
-                            state_neigh[count] = n_k + 1
-                            idx_neigh = ado2idx_f[state_neigh]
-                            op = next_grad_fermion(fB, n_exc_f, sum(state_neigh[1:(count - 1)]), parity)
+                            ado_neigh[count] = n_k + 1
+                            idx_neigh = ado2idx_f[ado_neigh]
+                            op = next_grad_fermion(fB, n_exc_f, sum(ado_neigh[1:(count - 1)]), parity)
 
                         else
                             continue
                         end
 
-                        for idx_b in 1:N_he_b
-                            idx = (idx_b - 1) * N_he_f
-                            add_operator!(op, L_row, L_col, L_val, N_he_tot, idx + idx_f, idx + idx_neigh)
+                        for idx_b in 1:Nado_b
+                            idx = (idx_b - 1) * Nado_f
+                            add_operator!(op, L_row, L_col, L_val, Nado_tot, idx + idx_f, idx + idx_neigh)
                         end
 
-                        state_neigh[count] = n_k
+                        ado_neigh[count] = n_k
                     end
                 end
                 if progressBar
@@ -230,8 +230,8 @@ function M_Boson_Fermion(
     end
     print("Constructing matrix...")
     flush(stdout)
-    L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), N_he_tot * sup_dim, N_he_tot * sup_dim)
+    L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), Nado_tot * sup_dim, Nado_tot * sup_dim)
     println("[DONE]")
 
-    return M_Boson_Fermion(L_he, tier_b, tier_f, Nsys, N_he_tot, N_he_b, N_he_f, sup_dim, parity, ado2idx_b_ordered, ado2idx_f_ordered)
+    return M_Boson_Fermion(L_he, tier_b, tier_f, Nsys, Nado_tot, Nado_b, Nado_f, sup_dim, parity, ado2idx_b_ordered, ado2idx_f_ordered)
 end

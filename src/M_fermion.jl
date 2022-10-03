@@ -6,9 +6,9 @@ Heom liouvillian superoperator matrix for fermionic bath
 - `data` : the sparse matrix of HEOM liouvillian superoperator
 - `tier` : the tier (cutoff) for the bath
 - `dim` : the dimension of system
-- `N` : the number of total states
-- `Nb` : the number of bosonic states (should be zero)
-- `Nf` : the number of fermionic states
+- `N` : the number of total ADOs
+- `Nb` : the number of bosonic ADOs (should be zero)
+- `Nf` : the number of fermionic ADOs
 - `sup_dim` : the dimension of system superoperator
 - `parity` : the parity of the density matrix
 - `ado2idx` : the ADO-to-index dictionary
@@ -74,7 +74,7 @@ function M_Fermion(
     N_exp_term = baths.Nterm
 
     # get ADOs dictionary
-    N_he, ado2idx_ordered, idx2ado = ADOs_dictionary(fill(2, N_exp_term), tier)
+    Nado, ado2idx_ordered, idx2ado = ADOs_dictionary(fill(2, N_exp_term), tier)
     ado2idx = Dict(ado2idx_ordered)
 
     # start to construct the matrix
@@ -85,7 +85,7 @@ function M_Fermion(
 
     println("Preparing block matrices for HEOM liouvillian superoperator (using $(nprocs()) processors)...")
     if progressBar
-        prog = Progress(N_he; desc="Processing: ", PROGBAR_OPTIONS...)
+        prog = Progress(Nado; desc="Processing: ", PROGBAR_OPTIONS...)
     else
         println("Processing...")
         flush(stdout)
@@ -102,39 +102,39 @@ function M_Fermion(
 
         # the second task does the computation
         @async begin
-            @distributed (+) for idx in 1:N_he
-                state = idx2ado[idx]
-                n_exc = sum(state)
+            @distributed (+) for idx in 1:Nado
+                ado = idx2ado[idx]
+                n_exc = sum(ado)
                 if n_exc >= 1
-                    sum_ω = bath_sum_ω(state, baths)
+                    sum_ω = bath_sum_ω(ado, baths)
                     op = Lsys - sum_ω * I_sup                
                 else
                     op = Lsys
                 end
-                add_operator!(op, L_row, L_col, L_val, N_he, idx, idx)
+                add_operator!(op, L_row, L_col, L_val, Nado, idx, idx)
 
                 count = 0
-                state_neigh = copy(state)
+                ado_neigh = copy(ado)
                 for fB in bath
                     for k in 1:fB.Nterm
                         count += 1
-                        n_k = state[count]
+                        n_k = ado[count]
                         if n_k >= 1
-                            state_neigh[count] = n_k - 1
-                            idx_neigh = ado2idx[state_neigh]
-                            op = prev_grad_fermion(fB, k, n_exc, sum(state_neigh[1:(count - 1)]), parity)
+                            ado_neigh[count] = n_k - 1
+                            idx_neigh = ado2idx[ado_neigh]
+                            op = prev_grad_fermion(fB, k, n_exc, sum(ado_neigh[1:(count - 1)]), parity)
 
                         elseif n_exc <= tier - 1
-                            state_neigh[count] = n_k + 1
-                            idx_neigh = ado2idx[state_neigh]
-                            op = next_grad_fermion(fB, n_exc, sum(state_neigh[1:(count - 1)]), parity)
+                            ado_neigh[count] = n_k + 1
+                            idx_neigh = ado2idx[ado_neigh]
+                            op = next_grad_fermion(fB, n_exc, sum(ado_neigh[1:(count - 1)]), parity)
                         
                         else
                             continue
                         end
-                        add_operator!(op, L_row, L_col, L_val, N_he, idx, idx_neigh)
+                        add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
                         
-                        state_neigh[count] = n_k
+                        ado_neigh[count] = n_k
                     end
                 end
                 if progressBar
@@ -147,8 +147,8 @@ function M_Fermion(
     end
     print("Constructing matrix...")
     flush(stdout)
-    L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), N_he * sup_dim, N_he * sup_dim)
+    L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), Nado * sup_dim, Nado * sup_dim)
     println("[DONE]")
 
-    return M_Fermion(L_he, tier, Nsys, N_he, 0, N_he, sup_dim, parity, ado2idx_ordered)
+    return M_Fermion(L_he, tier, Nsys, Nado, 0, Nado, sup_dim, parity, ado2idx_ordered)
 end

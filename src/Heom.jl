@@ -63,6 +63,7 @@ module Heom
 
         include("HeomAPI_base.jl")
         include("ADOs.jl")
+        include("HierarchyDict.jl")
         include("M_fermion.jl")
         include("M_boson.jl")
         include("M_boson_fermion.jl")

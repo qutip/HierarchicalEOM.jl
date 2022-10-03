@@ -23,9 +23,9 @@ function show(io::IO, M::AbstractHEOMMatrix)
 
     print(io, 
         type, " type HEOM matrix with (system) dim = $(M.dim) and parity = :$(M.parity)\n",
-        "total-state     number N  = $(M.N)\n",
-        "bosonic-state   number Nb = $(M.Nb)\n",
-        "fermionic-state number Nf = $(M.Nf)\n",
+        "total   ADOs number N  = $(M.N)\n",
+        "boson   ADOs number Nb = $(M.Nb)\n",
+        "fermion ADOs number Nf = $(M.Nf)\n",
         "data =\n"
     )
     show(io, MIME("text/plain"), M.data)
@@ -95,47 +95,6 @@ function addTerminator!(M::AbstractHEOMMatrix, Bath::Union{BosonBath, FermionBat
 
         M.data += kron(sparse(I, M.N, M.N), L)
     end
-end
-
-# generate index to ado vector
-function ADO_number(dims::Vector{Int}, N_exc::Int)
-    len = length(dims)
-    state = zeros(Int, len)
-    result = [copy(state)]
-    nexc = 0
-
-    while true
-        idx = len
-        state[end] += 1
-        nexc += 1
-        if state[idx] < dims[idx]
-            push!(result, copy(state))
-        end
-        while (nexc == N_exc) || (state[idx] == dims[idx])
-            #state[idx] = 0
-            idx -= 1
-            if idx < 1
-                return result
-            end
-
-            nexc -= state[idx + 1] - 1
-            state[idx + 1] = 0
-            state[idx] += 1
-            if state[idx] < dims[idx]
-                push!(result, copy(state))
-            end
-        end
-    end
-end
-
-function ADOs_dictionary(dims::Vector{Int}, N_exc::Int)
-    ado2idx = OrderedDict{Vector{Int}, Int}()
-    idx2ado = ADO_number(dims, N_exc)
-    for (idx, ado) in enumerate(idx2ado)
-        ado2idx[ado] = idx
-    end
-
-    return length(idx2ado), ado2idx, idx2ado
 end
 
 function pad_csc(A::SparseMatrixCSC{T, Int64}, row_scale::Int, col_scale::Int, row_idx=1::Int, col_idx=1::Int) where {T<:Number}
@@ -236,14 +195,14 @@ function add_operator!(op, I, J, V, N_he, row_idx, col_idx)
 end
 
 # sum ω of bath for current gradient
-function bath_sum_ω(adoLabel, bath::AbstractBath)
+function bath_sum_ω(ado, bath::AbstractBath)
     count = 0
     sum_ω = 0.0
     for b in bath.bath
         for k in 1:b.Nterm
             count += 1
-            if adoLabel[count] > 0
-                sum_ω += adoLabel[count] * b.γ[k]
+            if ado[count] > 0
+                sum_ω += ado[count] * b.γ[k]
             end
         end
     end
