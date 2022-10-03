@@ -1,12 +1,12 @@
 """
-    DOS(M, ρ, ω_list, op; solver, progressBar, filename, SOLVEROptions...)
+    DOS(M, ρ, op, ω_list; solver, progressBar, filename, SOLVEROptions...)
 Calculate density of states.
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model (the parity must be `:odd`.)
 - `ρ` :  the system density matrix or the auxiliary density operators.
-- `ω_list::AbstractVector` : the specific frequency points to solve.
 - `op` : The system operator for the two-time correlation function in frequency domain.
+- `ω_list::AbstractVector` : the specific frequency points to solve.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
 - `filename::String` : If filename was specified, the value of dos for each ω will be saved into the file during the solving process.
@@ -20,8 +20,8 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 function DOS(
         M::AbstractHEOMMatrix, 
         ρ, 
-        ω_list::AbstractVector, 
-        op; 
+        op,
+        ω_list::AbstractVector; 
         solver=UMFPACKFactorization(), 
         progressBar::Bool = true,
         filename::String = "",

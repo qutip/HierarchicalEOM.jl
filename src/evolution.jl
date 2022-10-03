@@ -5,7 +5,7 @@ end
 
 """
     evolution(M, ρ0, tlist; solver, reltol, abstol, maxiters, save_everystep, progressBar, SOLVEROptions...)
-Solve the time evolution for auxiliary density operators with initial state is given in density-matrix-type (ρ0).
+Solve the time evolution for auxiliary density operators with initial state is given in the type of density-matrix (`ρ0`).
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
@@ -62,7 +62,7 @@ end
 
 """
     evolution(M, ados, tlist; solver, reltol, abstol, maxiters, save_everystep, progressBar, SOLVEROptions...)
-Solve the time evolution for auxiliary density operators with initial state is given in ADOs-type.
+Solve the time evolution for auxiliary density operators with initial state is given in the type of `ADOs`.
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
