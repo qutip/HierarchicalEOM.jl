@@ -58,6 +58,14 @@ Returns the size of the vetorized Auxiliary Density Operators (ADOs)
 """
 size(A::ADOs) = size(A.data)
 
+"""
+    length(A::ADOs)
+Returns the length of the vetorized Auxiliary Density Operators (ADOs)
+"""
+length(A::ADOs) = length(A.data)
+getindex(A::ADOs, i::T) where T <: Any = A.data[i]
+lastindex(A::ADOs) = length(A)
+
 function show(io::IO, V::ADOs)
     print(io, 
         "Auxiliary Density Operators with (system) dim = $(V.dim)\n",

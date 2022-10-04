@@ -15,13 +15,13 @@ module Heom
     
     # sub-module Bath for Heom
     module Bath
-        import Base: show
+        import Base: show, length, getindex, lastindex, iterate, checkbounds
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, SparseMatrixCSC
         import ..HeomBase: isValidMatrixType
 
         export 
-            AbstractBath, BosonBath, FermionBath, CombinedBath,
+            AbstractBath, BosonBath, FermionBath,
             AbstractBosonBath, bosonReal, bosonImag, bosonRealImag,
             AbstractFermionBath, fermionAbsorb, fermionEmit,
             spre, spost
@@ -46,7 +46,7 @@ module Heom
     # sub-module HeomAPI for Heom
     module HeomAPI
         using ..Bath
-        import Base: size, show
+        import Base: show, length, size, getindex, lastindex
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
         import Distributed: @everywhere, @distributed, procs, nprocs, RemoteChannel, Channel

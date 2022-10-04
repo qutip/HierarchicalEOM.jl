@@ -2,8 +2,35 @@ abstract type AbstractBath end
 abstract type AbstractBosonBath end
 abstract type AbstractFermionBath end
 
+"""
+    struct Exponent
+An object which describes a single exponential-expansion term (naively, an excitation mode) 
+within the decomposition of the bath correlation functions.
+
+The expansion of a bath correlation function can be expressed as : ``\\sum_i \\eta_i e^{-\\gamma_i t}``.
+
+# Fields
+- `op` : The coupling operator according to system-bath interaction.
+- `η::Number` : the coefficient ``\\eta_i`` in bath correlation functions.
+- `γ::Number` : the coefficient ``\\gamma_i`` in bath correlation functions.
+- `tag` : The type-tag of the exponent.
+"""
+struct Exponent 
+    op
+    η::Number
+    γ::Number
+    tag::String
+end
+
 spre(q::AbstractMatrix)  = sparse(kron(Matrix(I, size(q)[1], size(q)[1]), q))
 spost(q::AbstractMatrix) = sparse(kron(transpose(q), Matrix(I, size(q)[1], size(q)[1])))
+
+function show(io::IO, E::Exponent)
+    print(io, 
+        "$(E.tag) Bath Exponent with coupling operator size = $(size(E.op)) and coefficients: η = $(E.η), γ = $(E.γ).\n"
+    )
+end
+show(io::IO, m::MIME"text/plain", E::Exponent) =  show(io, E)
 
 show(io::IO, B::AbstractBath) = print(io, "$(typeof(B)) object with (system) dim = $(B.dim) and $(B.Nterm) exponential-expansion terms\n")
 show(io::IO, m::MIME"text/plain", B::AbstractBath) =  show(io, B)
@@ -13,6 +40,83 @@ show(io::IO, m::MIME"text/plain", B::AbstractBosonBath) =  show(io, B)
 
 show(io::IO, B::AbstractFermionBath) = print(io, "$(typeof(B))-type bath with (system) dim = $(B.dim) and $(B.Nterm) exponential-expansion terms\n")
 show(io::IO, m::MIME"text/plain", B::AbstractFermionBath) =  show(io, B)
+
+function checkbounds(B::AbstractBath, i::Int)
+    if (i < 1) || (i > B.Nterm)
+        throw(BoundsError("attempt to access $(B.Nterm)-exponent term Bath at index $(i)"))
+    end
+end
+
+length(B::AbstractBath) = B.Nterm
+lastindex(B::AbstractBath) = B.Nterm
+
+function getindex(B::AbstractBath, i::Int)
+    checkbounds(B, i)
+    if typeof(B) == BosonBath 
+        tag = "Boson"
+    else 
+        tag = "Fermion" 
+    end
+    
+    count = 0
+    for b in B.bath
+        for k in 1:b.Nterm
+            count += 1
+            if count == i
+                if typeof(b) == bosonRealImag 
+                    η = b.η_real[k] + 1.0im * b.η_imag[k]
+                else
+                    η = b.η[k]
+                end
+                return Exponent(copy(B.op), η, b.γ[k], tag)
+            end
+        end
+    end
+end
+
+function getindex(B::AbstractBath, r::UnitRange{Int})
+    checkbounds(B, r[1])
+    checkbounds(B, r[end])
+    if typeof(B) == BosonBath 
+        tag = "Boson"
+    else 
+        tag = "Fermion" 
+    end
+
+    count = 0
+    exp_list = Exponent[]
+    for b in B.bath
+        for k in 1:b.Nterm
+            count += 1
+            if (r[1] <= count) && (count <= r[end])
+                if typeof(b) == bosonRealImag 
+                    η = b.η_real[k] + 1.0im * b.η_imag[k]
+                else
+                    η = b.η[k]
+                end
+                push!(exp_list, Exponent(copy(B.op), η, b.γ[k], tag))
+
+                if count == r[end] 
+                    return exp_list
+                end
+            end
+        end
+    end
+end
+
+function getindex(B::AbstractBath, ::Colon)
+    return getindex(B, 1:B.Nterm)
+end
+
+iterate(B::AbstractBath) = B[1], 2
+iterate(B::AbstractBath, ::Nothing) = nothing
+function iterate(B::AbstractBath, state) 
+    if state < length(B)
+        return B[state], state + 1
+    else
+        return B[state], nothing
+    end
+end
 
 isclose(a::Number, b::Number, rtol=1e-05, atol=1e-08) = abs(a - b) <= (atol + rtol * abs(b))
 
@@ -463,41 +567,4 @@ function fermionEmit(
         error("The length of \'η_emit\', \'γ_emit\' and \'η_absorb\' should all be the same.")
     end
     return fermionEmit(spre(op), spost(op), spre(adjoint(op)), spost(adjoint(op)), dim, η_emit, γ_emit, η_absorb, N_exp_term)
-end
-
-struct CombinedBath <: AbstractBath
-    bath::AbstractVector
-    dim::Int
-    Nterm::Int
-end
-
-function CombinedBath(dim::Int, bath::BosonBath...)   CombinedBath(dim, [bath...]) end
-function CombinedBath(dim::Int, bath::FermionBath...) CombinedBath(dim, [bath...]) end
-
-function CombinedBath(dim::Int, B::Vector{BosonBath})
-    Nterm = 0
-    baths = AbstractBosonBath[]
-    for b in B
-        if b.dim != dim 
-            error("The system dimension of the bosonic bath coupling operators are not consistent.")
-        end
-        push!(baths, b.bath...)
-        Nterm += b.Nterm
-    end
-
-    return CombinedBath(baths, dim, Nterm)
-end
-
-function CombinedBath(dim::Int, B::Vector{FermionBath})
-    Nterm = 0
-    baths = AbstractFermionBath[]
-    for b in B
-        if b.dim != dim 
-            error("The system dimension of the fermionic bath coupling operators are not consistent.")
-        end
-        push!(baths, b.bath...)
-        Nterm += b.Nterm
-    end
-
-    return CombinedBath(baths, dim, Nterm)
 end

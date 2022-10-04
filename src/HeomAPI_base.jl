@@ -11,6 +11,8 @@ Returns the size of the Heom liouvillian superoperator matrix
 """
 size(M::AbstractHEOMMatrix) = size(M.data)
 
+getindex(M::AbstractHEOMMatrix, i::Ti, j::Tj) where {Ti, Tj <: Any} = M.data[i, j]
+
 function show(io::IO, M::AbstractHEOMMatrix)
     T = typeof(M)
     if T == M_Boson
