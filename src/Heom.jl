@@ -48,7 +48,6 @@ module Heom
         using ..Bath
         import Base: size, show
         import LinearAlgebra: I, kron
-        import OrderedCollections: OrderedDict
         import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
         import Distributed: @everywhere, @distributed, procs, nprocs, RemoteChannel, Channel
         import DistributedArrays: distribute, localpart
@@ -58,7 +57,7 @@ module Heom
         export
             AbstractHEOMMatrix, M_Fermion, M_Boson, M_Boson_Fermion,
             odd, even, none,
-            ADOs, getRho, getADO,
+            ADOs, getRho, getADO, HierarchyDict,
             addDissipator!, addTerminator!
 
         include("HeomAPI_base.jl")

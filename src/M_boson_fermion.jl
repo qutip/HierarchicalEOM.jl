@@ -14,6 +14,10 @@ Heom liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath
 - `parity` : the parity of the density matrix
 - `ado2idx_b` : the bosonic ADO-to-index dictionary
 - `ado2idx_f` : the fermionic ADO-to-index dictionary
+- `baths_b::Vector{BosonBath}` : the vector which stores all `BosonBath` objects
+- `baths_f::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
+- `hierarchy_b::HierarchyDict`: the object which contains all dictionaries for boson-bath-ADOs hierarchy.
+- `hierarchy_f::HierarchyDict`: the object which contains all dictionaries for fermion-bath-ADOs hierarchy.
 """
 mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
@@ -25,8 +29,10 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
     const Nf::Int
     const sup_dim::Int
     const parity::Symbol
-    const ado2idx_b::OrderedDict{Vector{Int}, Int}
-    const ado2idx_f::OrderedDict{Vector{Int}, Int}
+    const baths_b::Vector{BosonBath}
+    const baths_f::Vector{FermionBath}
+    const hierarchy_b::HierarchyDict
+    const hierarchy_f::HierarchyDict
 end
 
 function M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::BosonBath, Bath_f::FermionBath, parity::Symbol=:even; progressBar::Bool=true)
@@ -43,7 +49,7 @@ end
 
 """
     M_Boson_Fermion(Hsys, tier_b, tier_f, Bath_b, Bath_f, parity=:even; progressBar=true)
-Generate the boson-fermion-type Heom matrix
+Generate the boson-fermion-type Heom liouvillian superoperator matrix
 
 # Parameters
 - `Hsys` : The system Hamiltonian
@@ -81,29 +87,16 @@ function M_Boson_Fermion(
     Lsys = -1im * (spre(Hsys) - spost(Hsys))
 
     # check for bosonic bath
-    if length(Bath_b) > 1
-        baths_b = CombinedBath(Nsys, Bath_b)
-    else
-        baths_b = Bath_b[1]
-    end
-    bath_b       = baths_b.bath
-    N_exp_term_b = baths_b.Nterm
+    Nado_b, bath_b, hierarchy = genBathHierarchy(Bath_b, tier_b, Nsys)
+    idx2ado_b = hierarchy.idx2ado
+    ado2idx_b = hierarchy.ado2idx
 
     # check for fermionic bath
-    if length(Bath_f) > 1
-        baths_f = CombinedBath(Nsys, Bath_f)
-    else
-        baths_f = Bath_f[1]
-    end
-    bath_f       = baths_f.bath
-    N_exp_term_f = baths_f.Nterm
+    Nado_f, bath_f, hierarchy = genBathHierarchy(Bath_f, tier_f, Nsys)
+    idx2ado_f = hierarchy.idx2ado
+    ado2idx_f = hierarchy.ado2idx
 
-    # get ADOs dictionary
-    Nado_b, ado2idx_b_ordered, idx2ado_b = ADOs_dictionary(fill((tier_b + 1), N_exp_term_b), tier_b)
-    Nado_f, ado2idx_f_ordered, idx2ado_f = ADOs_dictionary(fill(2, N_exp_term_f), tier_f)
     Nado_tot = Nado_b * Nado_f
-    ado2idx_b = Dict(ado2idx_b_ordered)
-    ado2idx_f = Dict(ado2idx_f_ordered)
 
     # start to construct the matrix
     L_row = distribute([Int[] for _ in procs()])

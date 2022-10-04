@@ -11,7 +11,8 @@ Heom liouvillian superoperator matrix for bosonic bath
 - `Nf` : the number of fermionic ADOs (should be zero)
 - `sup_dim` : the dimension of system superoperator
 - `parity` : the parity of the density matrix (restrict to `:none` for boson)
-- `ado2idx` : the ado-to-index dictionary
+- `baths::Vector{BosonBath}` : the vector which stores all `BosonBath` objects
+- `hierarchy::HierarchyDict`: the object which contains all dictionaries for boson-bath-ADOs hierarchy.
 """
 mutable struct M_Boson <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
@@ -22,7 +23,8 @@ mutable struct M_Boson <: AbstractHEOMMatrix
     const Nf::Int
     const sup_dim::Int
     const parity::Symbol
-    const ado2idx::OrderedDict{Vector{Int}, Int}    
+    const baths::Vector{BosonBath}
+    const hierarchy::HierarchyDict
 end
 
 function M_Boson(Hsys, tier::Int, Bath::BosonBath; progressBar::Bool=true)
@@ -31,7 +33,7 @@ end
 
 """
     M_Boson(Hsys, tier, Bath; progressBar=true)
-Generate the boson-type Heom matrix
+Generate the boson-type Heom liouvillian superoperator matrix
 
 # Parameters
 - `Hsys` : The system Hamiltonian
@@ -57,18 +59,10 @@ function M_Boson(
     # the liouvillian operator for free Hamiltonian term
     Lsys = -1im * (spre(Hsys) - spost(Hsys))
 
-    # check for bosonic bath
-    if length(Bath) > 1
-        baths = CombinedBath(Nsys, Bath)
-    else
-        baths = Bath[1]
-    end
-    bath       = baths.bath
-    N_exp_term = baths.Nterm
-
-    # get ados dictionary
-    Nado, ado2idx_ordered, idx2ado = ados_dictionary(fill((tier + 1), N_exp_term), tier)
-    ado2idx = Dict(ado2idx_ordered)
+    # bosonic bath
+    Nado, bath, hierarchy = genBathHierarchy(Bath, tier, Nsys)
+    idx2ado = hierarchy.idx2ado
+    ado2idx = hierarchy.ado2idx
 
     # start to construct the matrix
     L_row = distribute([Int[] for _ in procs()])
@@ -145,5 +139,5 @@ function M_Boson(
     L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), Nado * sup_dim, Nado * sup_dim)
     println("[DONE]")
 
-    return M_Boson(L_he, tier, Nsys, Nado, Nado, 0, sup_dim, :none, ado2idx_ordered)
+    return M_Boson(L_he, tier, Nsys, Nado, Nado, 0, sup_dim, :none, Bath, hierarchy)
 end

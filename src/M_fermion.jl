@@ -11,7 +11,8 @@ Heom liouvillian superoperator matrix for fermionic bath
 - `Nf` : the number of fermionic ADOs
 - `sup_dim` : the dimension of system superoperator
 - `parity` : the parity of the density matrix
-- `ado2idx` : the ADO-to-index dictionary
+- `baths::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
+- `hierarchy::HierarchyDict`: the object which contains all dictionaries for fermion-bath-ADOs hierarchy.
 """
 mutable struct M_Fermion <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
@@ -22,7 +23,8 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
     const Nf::Int
     const sup_dim::Int
     const parity::Symbol
-    const ado2idx::OrderedDict{Vector{Int}, Int}
+    const baths::Vector{FermionBath}
+    const hierarchy::HierarchyDict
 end
 
 function M_Fermion(Hsys, tier::Int, Bath::FermionBath, parity::Symbol=:even; progressBar::Bool=true)
@@ -31,7 +33,7 @@ end
 
 """
     M_Fermion(Hsys, tier, Bath, parity=:even; progressBar=true)
-Generate the fermion-type Heom matrix
+Generate the fermion-type Heom liouvillian superoperator matrix
 
 # Parameters
 - `Hsys` : The system Hamiltonian
@@ -64,18 +66,10 @@ function M_Fermion(
     # the liouvillian operator for free Hamiltonian term
     Lsys = -1im * (spre(Hsys) - spost(Hsys))
 
-    # check for fermionic bath
-    if length(Bath) > 1
-        baths = CombinedBath(Nsys, Bath)
-    else
-        baths = Bath[1]
-    end
-    bath       = baths.bath
-    N_exp_term = baths.Nterm
-
-    # get ADOs dictionary
-    Nado, ado2idx_ordered, idx2ado = ADOs_dictionary(fill(2, N_exp_term), tier)
-    ado2idx = Dict(ado2idx_ordered)
+    # fermionic bath
+    Nado, bath, hierarchy = genBathHierarchy(Bath, tier, Nsys)
+    idx2ado = hierarchy.idx2ado
+    ado2idx = hierarchy.ado2idx
 
     # start to construct the matrix
     L_row = distribute([Int[] for _ in procs()])
@@ -150,5 +144,5 @@ function M_Fermion(
     L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), Nado * sup_dim, Nado * sup_dim)
     println("[DONE]")
 
-    return M_Fermion(L_he, tier, Nsys, Nado, 0, Nado, sup_dim, parity, ado2idx_ordered)
+    return M_Fermion(L_he, tier, Nsys, Nado, 0, Nado, sup_dim, parity, Bath, hierarchy)
 end
