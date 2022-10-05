@@ -14,8 +14,8 @@ Heom liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath
 - `parity` : the parity of the density matrix
 - `ado2idx_b` : the bosonic ADO-to-index dictionary
 - `ado2idx_f` : the fermionic ADO-to-index dictionary
-- `baths_b::Vector{BosonBath}` : the vector which stores all `BosonBath` objects
-- `baths_f::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
+- `bath_b::Vector{BosonBath}` : the vector which stores all `BosonBath` objects
+- `bath_f::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
 - `hierarchy_b::HierarchyDict`: the object which contains all dictionaries for boson-bath-ADOs hierarchy.
 - `hierarchy_f::HierarchyDict`: the object which contains all dictionaries for fermion-bath-ADOs hierarchy.
 """
@@ -29,8 +29,8 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
     const Nf::Int
     const sup_dim::Int
     const parity::Symbol
-    const baths_b::Vector{BosonBath}
-    const baths_f::Vector{FermionBath}
+    const bath_b::Vector{BosonBath}
+    const bath_f::Vector{FermionBath}
     const hierarchy_b::HierarchyDict
     const hierarchy_f::HierarchyDict
 end
@@ -87,12 +87,12 @@ function M_Boson_Fermion(
     Lsys = -1im * (spre(Hsys) - spost(Hsys))
 
     # check for bosonic bath
-    Nado_b, bath_b, hierarchy = genBathHierarchy(Bath_b, tier_b, Nsys)
+    Nado_b, baths_b, hierarchy = genBathHierarchy(Bath_b, tier_b, Nsys)
     idx2ado_b = hierarchy.idx2ado
     ado2idx_b = hierarchy.ado2idx
 
     # check for fermionic bath
-    Nado_f, bath_f, hierarchy = genBathHierarchy(Bath_f, tier_f, Nsys)
+    Nado_f, baths_f, hierarchy = genBathHierarchy(Bath_f, tier_f, Nsys)
     idx2ado_f = hierarchy.idx2ado
     ado2idx_f = hierarchy.ado2idx
 
@@ -146,7 +146,7 @@ function M_Boson_Fermion(
                 # off-diagonal (boson)
                 count = 0
                 ado_neigh = copy(ado_b)
-                for bB in bath_b
+                for bB in baths_b
                     for k in 1:bB.Nterm
                         count += 1
                         n_k = ado_b[count]
@@ -187,7 +187,7 @@ function M_Boson_Fermion(
 
                 count = 0
                 ado_neigh = copy(ado_f)
-                for fB in bath_f
+                for fB in baths_f
                     for k in 1:fB.Nterm
                         count += 1
                         n_k = ado_f[count]

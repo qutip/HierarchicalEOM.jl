@@ -11,7 +11,7 @@ Heom liouvillian superoperator matrix for bosonic bath
 - `Nf` : the number of fermionic ADOs (should be zero)
 - `sup_dim` : the dimension of system superoperator
 - `parity` : the parity of the density matrix (restrict to `:none` for boson)
-- `baths::Vector{BosonBath}` : the vector which stores all `BosonBath` objects
+- `bath::Vector{BosonBath}` : the vector which stores all `BosonBath` objects
 - `hierarchy::HierarchyDict`: the object which contains all dictionaries for boson-bath-ADOs hierarchy.
 """
 mutable struct M_Boson <: AbstractHEOMMatrix
@@ -23,7 +23,7 @@ mutable struct M_Boson <: AbstractHEOMMatrix
     const Nf::Int
     const sup_dim::Int
     const parity::Symbol
-    const baths::Vector{BosonBath}
+    const bath::Vector{BosonBath}
     const hierarchy::HierarchyDict
 end
 
@@ -60,7 +60,7 @@ function M_Boson(
     Lsys = -1im * (spre(Hsys) - spost(Hsys))
 
     # bosonic bath
-    Nado, bath, hierarchy = genBathHierarchy(Bath, tier, Nsys)
+    Nado, baths, hierarchy = genBathHierarchy(Bath, tier, Nsys)
     idx2ado = hierarchy.idx2ado
     ado2idx = hierarchy.ado2idx
 
@@ -102,7 +102,7 @@ function M_Boson(
 
                 count = 0
                 ado_neigh = copy(ado)
-                for bB in bath
+                for bB in baths
                     for k in 1:bB.Nterm
                         count += 1
                         n_k = ado[count]
