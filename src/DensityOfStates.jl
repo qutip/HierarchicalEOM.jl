@@ -1,5 +1,5 @@
 """
-    DOS(M, ρ, op, ω_list; solver, progressBar, filename, SOLVEROptions...)
+    DOS(M, ρ, op, ω_list; solver, verbose, filename, SOLVEROptions...)
 Calculate density of states.
 
 # Parameters
@@ -8,7 +8,7 @@ Calculate density of states.
 - `op` : The system operator for the two-time correlation function in frequency domain.
 - `ω_list::AbstractVector` : the specific frequency points to solve.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
-- `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
+- `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `filename::String` : If filename was specified, the value of dos for each ω will be saved into the file during the solving process.
 - `SOLVEROptions` : extra options for solver 
 
@@ -23,7 +23,7 @@ function DOS(
         op,
         ω_list::AbstractVector; 
         solver=UMFPACKFactorization(), 
-        progressBar::Bool = true,
+        verbose::Bool = true,
         filename::String = "",
         SOLVEROptions...
     )
@@ -87,10 +87,10 @@ function DOS(
 
     Length = length(ω_list)
     dos    = Vector{Float64}(undef, Length)
-    print("Calculating density of states...")
-    flush(stdout)
-    if progressBar
-        print("\n")
+    
+    if verbose
+        print("Calculating density of states...\n")
+        flush(stdout)
         prog = Progress(Length; start=1, desc="Progress : ", PROGBAR_OPTIONS...)
     end
     @inbounds for (i, ω) in enumerate(ω_list)
@@ -114,11 +114,13 @@ function DOS(
             end
         end
 
-        if progressBar
+        if verbose
             next!(prog)
         end 
     end
-    println("[DONE]")
+    if verbose
+        println("[DONE]")
+    end
 
     return dos
 end

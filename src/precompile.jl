@@ -12,23 +12,28 @@ import SnoopPrecompile: @precompile_setup, @precompile_all_calls
         # they belong to your package or not (on Julia 1.8 and higher)
         
         # precompile bath and exponents
+        @info "Precompiling Bath and Exponent..."
         bB[1:end]
         fB[1:end]
         for b in bB nothing end
         for b in fB nothing end
 
         # precompile Heom matrices
-        Mb   = M_Boson(op, 2, bB)
-        Mfo  = M_Fermion(op, 2, fB, :odd)
-        Mbfe = M_Boson_Fermion(op, 2, 2, bB, fB)
+        @info "Precompiling Heom liouvillian superoperator matrices..."
+        Mb   = M_Boson(op, 2, bB, verbose=false)
+        Mfo  = M_Fermion(op, 2, fB, :odd, verbose=false)
+        Mbfe = M_Boson_Fermion(op, 2, 2, bB, fB, verbose=false)
 
         # precompile Steadystate
-        Steadystate(Mb)
+        @info "Precompiling steady state solver..."
+        Steadystate(Mb; verbose=false)
 
         # precompile evolution
-        adosb  = evolution(Mb,  [1. 0.; 0. 0.], 0:1:1)
+        @info "Precompiling time evolution solver..."
+        adosb  = evolution(Mb, [1. 0.; 0. 0.], 0:1:1; verbose=false)
 
         # precompile ADOs for the support of Base functions 
+        @info "Precompiling Auxiliary Density Operators (ADOs)..."
         ados1 = ADOs(zeros(8),  2)
         ados2 = ADOs(zeros(16), 2, 2)
         length(ados1)
@@ -41,10 +46,13 @@ import SnoopPrecompile: @precompile_setup, @precompile_all_calls
         ados2[1, :]
         ados2[:, 1]
         ados2[end, end]
+        for ad in ados1 nothing end
 
         # precompile Spectrum functions
-        PSD(Mb,  [1. 0.; 0. 0.], op, [1])
-        DOS(Mfo, [1. 0.; 0. 0.], op, [1])
+        @info "Precompiling solvers for calculating spectrum..."
+        PSD(Mb,  [1. 0.; 0. 0.], op, [1]; verbose=false)
+        DOS(Mfo, [1. 0.; 0. 0.], op, [1]; verbose=false)
     end
     GC.gc() # clean garbage collection
+    @info "Heom precomilation complete"
 end

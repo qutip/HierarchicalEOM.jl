@@ -1,5 +1,5 @@
 """
-    PSD(M, ρ, op, ω_list; solver, progressBar, filename, SOLVEROptions...)
+    PSD(M, ρ, op, ω_list; solver, verbose, filename, SOLVEROptions...)
 Calculate power spectral density.
 
 # Parameters
@@ -8,7 +8,7 @@ Calculate power spectral density.
 - `op` : The system operator for the two-time correlation function in frequency domain.
 - `ω_list::AbstractVector` : the specific frequency points to solve.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
-- `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
+- `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `filename::String` : If filename was specified, the value of psd for each ω will be saved into the file during the solving process.
 - `SOLVEROptions` : extra options for solver 
 
@@ -23,7 +23,7 @@ function PSD(
         op, 
         ω_list::AbstractVector; 
         solver=UMFPACKFactorization(), 
-        progressBar::Bool = true,
+        verbose::Bool = true,
         filename::String = "",
         SOLVEROptions...
     )
@@ -86,10 +86,10 @@ function PSD(
 
     Length = length(ω_list)
     psd    = Vector{Float64}(undef, Length)
-    print("Calculating power spectral density...")
-    flush(stdout)
-    if progressBar
-        print("\n")
+    
+    if verbose
+        print("Calculating power spectral density...\n")
+        flush(stdout)
         prog = Progress(Length; start=1, desc="Progress : ", PROGBAR_OPTIONS...)
     end
     @inbounds for (i, ω) in enumerate(ω_list)
@@ -110,11 +110,13 @@ function PSD(
             end
         end
 
-        if progressBar
+        if verbose
             next!(prog)
         end 
     end
-    println("[DONE]")
-
+    if verbose
+        println("[DONE]")
+    end
+    
     return psd
 end

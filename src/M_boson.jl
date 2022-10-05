@@ -27,25 +27,25 @@ mutable struct M_Boson <: AbstractHEOMMatrix
     const hierarchy::HierarchyDict
 end
 
-function M_Boson(Hsys, tier::Int, Bath::BosonBath; progressBar::Bool=true)
-    return M_Boson(Hsys, tier, [Bath], progressBar = progressBar)
+function M_Boson(Hsys, tier::Int, Bath::BosonBath; verbose::Bool=true)
+    return M_Boson(Hsys, tier, [Bath], verbose = verbose)
 end
 
 """
-    M_Boson(Hsys, tier, Bath; progressBar=true)
+    M_Boson(Hsys, tier, Bath; verbose=true)
 Generate the boson-type Heom liouvillian superoperator matrix
 
 # Parameters
 - `Hsys` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
 - `Bath::Vector{BosonBath}` : objects for different bosonic baths
-- `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
+- `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 """
 function M_Boson(        
         Hsys,
         tier::Int,
         Bath::Vector{BosonBath};
-        progressBar::Bool=true
+        verbose::Bool=true
     )
 
     # check for system dimension
@@ -70,17 +70,15 @@ function M_Boson(
     L_val = distribute([ComplexF64[] for _ in procs()])
     channel = RemoteChannel(() -> Channel{Bool}(), 1) # for updating the progress bar
 
-    println("Preparing block matrices for HEOM liouvillian superoperator (using $(nprocs()) processors)...")
-    if progressBar
-        prog = Progress(Nado; desc="Processing: ", PROGBAR_OPTIONS...)
-    else
-        println("Processing...")
+    if verbose
+        println("Preparing block matrices for HEOM liouvillian superoperator (using $(nprocs()) processors)...")
         flush(stdout)
+        prog = Progress(Nado; desc="Processing: ", PROGBAR_OPTIONS...)
     end
     @sync begin # start two tasks which will be synced in the very end
         # the first task updates the progress bar
         @async while take!(channel)
-            if progressBar
+            if verbose
                 next!(prog)
             else
                 put!(channel, false) # this tells the printing task to finish
@@ -126,7 +124,7 @@ function M_Boson(
                         end
                     end
                 end
-                if progressBar
+                if verbose
                     put!(channel, true) # trigger a progress bar update
                 end
                 1 # Here, returning some number 1 and reducing it somehow (+) is necessary to make the distribution happen.
@@ -134,10 +132,15 @@ function M_Boson(
             put!(channel, false) # this tells the printing task to finish
         end
     end
-    print("Constructing matrix...")
-    flush(stdout)
+    if verbose
+        print("Constructing matrix...")
+        flush(stdout)
+    end
     L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), Nado * sup_dim, Nado * sup_dim)
-    println("[DONE]")
-
+    if verbose
+        println("[DONE]")
+        flush(stdout)
+    end
+    
     return M_Boson(L_he, tier, Nsys, Nado, Nado, 0, sup_dim, :none, Bath, hierarchy)
 end

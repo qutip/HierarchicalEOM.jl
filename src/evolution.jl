@@ -4,7 +4,7 @@ function _hierarchy!(dρ, ρ, L, t)
 end
 
 """
-    evolution(M, ρ0, tlist; solver, reltol, abstol, maxiters, save_everystep, progressBar, SOLVEROptions...)
+    evolution(M, ρ0, tlist; solver, reltol, abstol, maxiters, save_everystep, verbose, SOLVEROptions...)
 Solve the time evolution for auxiliary density operators with initial state is given in the type of density-matrix (`ρ0`).
 
 # Parameters
@@ -16,7 +16,7 @@ Solve the time evolution for auxiliary density operators with initial state is g
 - `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
 - `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
-- `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
+- `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver
 
 For more details about solvers and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
@@ -33,7 +33,7 @@ function evolution(
         abstol::Real = 1.0e-8,
         maxiters::Real = 1e5,
         save_everystep::Bool=false,
-        progressBar::Bool = true,
+        verbose::Bool = true,
         SOLVEROptions...
     )
 
@@ -55,13 +55,13 @@ function evolution(
         abstol = abstol,
         maxiters = maxiters,
         save_everystep = save_everystep,
-        progressBar = progressBar,
+        verbose = verbose,
         SOLVEROptions...
     )
 end
 
 """
-    evolution(M, ados, tlist; solver, reltol, abstol, maxiters, save_everystep, progressBar, SOLVEROptions...)
+    evolution(M, ados, tlist; solver, reltol, abstol, maxiters, save_everystep, verbose, SOLVEROptions...)
 Solve the time evolution for auxiliary density operators with initial state is given in the type of `ADOs`.
 
 # Parameters
@@ -73,7 +73,7 @@ Solve the time evolution for auxiliary density operators with initial state is g
 - `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
 - `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
-- `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
+- `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver
 
 For more details about solvers and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
@@ -90,7 +90,7 @@ function evolution(
         abstol::Real = 1.0e-8,
         maxiters::Real = 1e5,
         save_everystep::Bool=false,
-        progressBar::Bool = true,
+        verbose::Bool = true,
         SOLVEROptions...
     )
 
@@ -121,26 +121,27 @@ function evolution(
     )
     
     # start solving ode
-    print("Solving time evolution for auxiliary density operators...")
-    if progressBar
-        print("\n")
+    if verbose
+        print("Solving time evolution for auxiliary density operators...\n")
+        flush(stdout)
         prog = Progress(length(tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
     end
-    flush(stdout)
     for dt in dt_list
         step!(integrator, dt, true)
         
         # save the ADOs
         push!(ADOs_list, ADOs(copy(integrator.u), M.Nb, M.Nf))
     
-        if progressBar
+        if verbose
             next!(prog)
         end
     end
 
     GC.gc()  # clean the garbage collector
-    println("[DONE]\n")
-    flush(stdout)
+    if verbose
+        println("[DONE]\n")
+        flush(stdout)
+    end
 
     return ADOs_list
 end

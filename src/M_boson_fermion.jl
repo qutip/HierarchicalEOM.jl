@@ -35,20 +35,20 @@ mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
     const hierarchy_f::HierarchyDict
 end
 
-function M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::BosonBath, Bath_f::FermionBath, parity::Symbol=:even; progressBar::Bool=true)
-    return M_Boson_Fermion(Hsys, tier_b, tier_f, [Bath_b], [Bath_f], parity, progressBar = progressBar)
+function M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::BosonBath, Bath_f::FermionBath, parity::Symbol=:even; verbose::Bool=true)
+    return M_Boson_Fermion(Hsys, tier_b, tier_f, [Bath_b], [Bath_f], parity, verbose = verbose)
 end
 
-function M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::FermionBath, parity::Symbol=:even; progressBar::Bool=true)
-    return M_Boson_Fermion(Hsys, tier_b, tier_f, Bath_b, [Bath_f], parity, progressBar = progressBar)
+function M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::FermionBath, parity::Symbol=:even; verbose::Bool=true)
+    return M_Boson_Fermion(Hsys, tier_b, tier_f, Bath_b, [Bath_f], parity, verbose = verbose)
 end
 
-function M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::BosonBath, Bath_f::Vector{FermionBath}, parity::Symbol=:even; progressBar::Bool=true)
-    return M_Boson_Fermion(Hsys, tier_b, tier_f, [Bath_b], Bath_f, parity, progressBar = progressBar)
+function M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::BosonBath, Bath_f::Vector{FermionBath}, parity::Symbol=:even; verbose::Bool=true)
+    return M_Boson_Fermion(Hsys, tier_b, tier_f, [Bath_b], Bath_f, parity, verbose = verbose)
 end
 
 """
-    M_Boson_Fermion(Hsys, tier_b, tier_f, Bath_b, Bath_f, parity=:even; progressBar=true)
+    M_Boson_Fermion(Hsys, tier_b, tier_f, Bath_b, Bath_f, parity=:even; verbose=true)
 Generate the boson-fermion-type Heom liouvillian superoperator matrix
 
 # Parameters
@@ -58,7 +58,7 @@ Generate the boson-fermion-type Heom liouvillian superoperator matrix
 - `Bath_b::Vector{BosonBath}` : objects for different bosonic baths
 - `Bath_f::Vector{FermionBath}` : objects for different fermionic baths
 - `parity::Symbol` : The parity symbol of the density matrix (either `:odd` or `:even`). Defaults to `:even`.
-- `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
+- `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 """
 function M_Boson_Fermion(        
         Hsys,
@@ -67,7 +67,7 @@ function M_Boson_Fermion(
         Bath_b::Vector{BosonBath},
         Bath_f::Vector{FermionBath},
         parity::Symbol=:even;
-        progressBar::Bool=true
+        verbose::Bool=true
     )
 
     # check parity
@@ -104,17 +104,15 @@ function M_Boson_Fermion(
     L_val = distribute([ComplexF64[] for _ in procs()])
     channel = RemoteChannel(() -> Channel{Bool}(), 1) # for updating the progress bar
 
-    println("Preparing block matrices for HEOM liouvillian superoperator (using $(nprocs()) processors)...")
-    if progressBar
-        prog = Progress(Nado_b + Nado_f; desc="Processing: ", PROGBAR_OPTIONS...)
-    else
-        println("Processing...")
+    if verbose
+        println("Preparing block matrices for HEOM liouvillian superoperator (using $(nprocs()) processors)...")
         flush(stdout)
+        prog = Progress(Nado_b + Nado_f; desc="Processing: ", PROGBAR_OPTIONS...)
     end
     @sync begin # start two tasks which will be synced in the very end
         # the first task updates the progress bar
         @async while take!(channel)
-            if progressBar
+            if verbose
                 next!(prog)
             else
                 put!(channel, false) # this tells the printing task to finish
@@ -174,7 +172,7 @@ function M_Boson_Fermion(
                         end
                     end
                 end
-                if progressBar
+                if verbose
                     put!(channel, true) # trigger a progress bar update
                 end
                 1 # Here, returning some number 1 and reducing it somehow (+) is necessary to make the distribution happen.
@@ -213,7 +211,7 @@ function M_Boson_Fermion(
                         ado_neigh[count] = n_k
                     end
                 end
-                if progressBar
+                if verbose
                     put!(channel, true) # trigger a progress bar update
                 end
                 1 # Here, returning some number 1 and reducing it somehow (+) is necessary to make the distribution happen.
@@ -221,10 +219,15 @@ function M_Boson_Fermion(
             put!(channel, false) # this tells the printing task to finish
         end
     end
-    print("Constructing matrix...")
-    flush(stdout)
+    if verbose
+        print("Constructing matrix...")
+        flush(stdout)
+    end
     L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), Nado_tot * sup_dim, Nado_tot * sup_dim)
-    println("[DONE]")
-
+    if verbose 
+        println("[DONE]") 
+        flush(stdout)
+    end
+    
     return M_Boson_Fermion(L_he, tier_b, tier_f, Nsys, Nado_tot, Nado_b, Nado_f, sup_dim, parity, Bath_b, Bath_f, hierarchy_b, hierarchy_f)
 end
