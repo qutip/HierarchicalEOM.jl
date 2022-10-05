@@ -48,7 +48,7 @@ module Heom
     # sub-module HeomAPI for Heom
     module HeomAPI
         using ..Bath
-        import Base: show, length, size, getindex, lastindex
+        import Base: show, length, size, getindex, lastindex, iterate, checkbounds
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
         import Distributed: @everywhere, @distributed, procs, nprocs, RemoteChannel, Channel
@@ -112,4 +112,6 @@ module Heom
         include("DensityOfStates.jl")
     end
     @reexport using .Spectrum
+
+    include("precompile.jl")
 end

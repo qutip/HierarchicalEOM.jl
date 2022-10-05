@@ -136,10 +136,11 @@ function versioninfo(io::IO=stdout)
         "Package informations:\n",
         "===================================\n",
         "Heom              Version: 2.0.0\n",
+        "DistributedArrays Version: $(_get_pkg_version("DistributedArrays"))\n",
         "LinearSolve       Version: $(_get_pkg_version("LinearSolve"))\n",
         "OrdinaryDiffEq    Version: $(_get_pkg_version("OrdinaryDiffEq"))\n",
         "ProgressMeter     Version: $(_get_pkg_version("ProgressMeter"))\n",
-        "DistributedArrays Version: $(_get_pkg_version("DistributedArrays"))\n"
+        "SnoopPrecompile   Version: $(_get_pkg_version("SnoopPrecompile"))"
     )
 
     # print System informations

@@ -116,5 +116,5 @@ function PSD(
     end
     println("[DONE]")
 
-    return dos
+    return psd
 end
