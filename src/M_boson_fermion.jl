@@ -87,14 +87,14 @@ function M_Boson_Fermion(
     Lsys = -1im * (spre(Hsys) - spost(Hsys))
 
     # check for bosonic bath
-    Nado_b, baths_b, hierarchy = genBathHierarchy(Bath_b, tier_b, Nsys)
-    idx2ado_b = hierarchy.idx2ado
-    ado2idx_b = hierarchy.ado2idx
+    Nado_b, baths_b, hierarchy_b = genBathHierarchy(Bath_b, tier_b, Nsys)
+    idx2ado_b = hierarchy_b.idx2ado
+    ado2idx_b = hierarchy_b.ado2idx
 
     # check for fermionic bath
-    Nado_f, baths_f, hierarchy = genBathHierarchy(Bath_f, tier_f, Nsys)
-    idx2ado_f = hierarchy.idx2ado
-    ado2idx_f = hierarchy.ado2idx
+    Nado_f, baths_f, hierarchy_f = genBathHierarchy(Bath_f, tier_f, Nsys)
+    idx2ado_f = hierarchy_f.idx2ado
+    ado2idx_f = hierarchy_f.ado2idx
 
     Nado_tot = Nado_b * Nado_f
 
@@ -226,5 +226,5 @@ function M_Boson_Fermion(
     L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), Nado_tot * sup_dim, Nado_tot * sup_dim)
     println("[DONE]")
 
-    return M_Boson_Fermion(L_he, tier_b, tier_f, Nsys, Nado_tot, Nado_b, Nado_f, sup_dim, parity, ado2idx_b_ordered, ado2idx_f_ordered)
+    return M_Boson_Fermion(L_he, tier_b, tier_f, Nsys, Nado_tot, Nado_b, Nado_f, sup_dim, parity, Bath_b, Bath_f, hierarchy_b, hierarchy_f)
 end
