@@ -60,7 +60,7 @@ function _genHierarchyDict(n_vec::Vector{Int}, N_exc::Int)
     
     # create lvl2idx
     lvl2idx = Dict{Int, Vector{Int}}()
-    for level in 0:(N_exc - 1)
+    for level in 0:N_exc
         lvl2idx[level] = []
     end
 
