@@ -51,7 +51,7 @@ Print the Logo of Heom package
 |  |   |  |  |____ |  \\__/  |  |   | |   | |
 |__|   |__|\\______) \\______/|__|   |_|   |_|
 """
-function print_logo(io::IO)
+function print_logo(io::IO=stdout)
     default = Crayon(foreground = :default)
     red     = Crayon(foreground = (203,  60,  51))
     green   = Crayon(foreground = ( 56, 152,  38))
