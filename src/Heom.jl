@@ -8,10 +8,12 @@ module Heom
     module HeomBase
         import Pkg
         import LinearAlgebra: BLAS
+        import Crayons: Crayon
 
         include("HeomBase.jl")
     end
     import .HeomBase.versioninfo as versioninfo
+    import .HeomBase.print_logo  as print_logo
     
     # sub-module Bath for Heom
     module Bath

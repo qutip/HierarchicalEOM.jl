@@ -37,6 +37,76 @@ function _get_pkg_version(pkg_name::String)
 end
 
 """
+    Heom.print_logo(io::IO)
+Print the Logo of Heom package
+
+                                   __
+                                  /  \\
+ __     __                     __ \\__/ __
+|  |   |  |                   /  \\    /  \\
+|  |   |  | ______   ______   \\__/_  _\\__/
+|  |___|  |/  __  \\ /  __  \\ / '   \\/     \\
+|   ___   |  |__)  |  /  \\  |    _     _   |
+|  |   |  |   ____/| (    ) |   / \\   / \\  |
+|  |   |  |  |____ |  \\__/  |  |   | |   | |
+|__|   |__|\\______) \\______/|__|   |_|   |_|
+"""
+function print_logo(io::IO)
+    default = Crayon(foreground = :default)
+    red     = Crayon(foreground = (203,  60,  51))
+    green   = Crayon(foreground = ( 56, 152,  38))
+    blue    = Crayon(foreground = ( 64,  99, 216))
+    purple  = Crayon(foreground = (149,  88, 178))
+    
+    print(io, green, "                                   __")
+    print(io, "\n")
+    
+    print(io, green, "                                  /  \\")
+    print(io, "\n")
+    
+    print(io, default, " __     __                     ")
+    print(io, red, "__")
+    print(io, green, " \\__/ ")
+    print(io, purple, "__")
+    print(io, "\n")
+    
+    print(io, default, "|  |   |  |                   ")
+    print(io, red, "/  \\")
+    print(io, default, "    ")
+    print(io, purple, "/  \\")
+    print(io, "\n")
+    
+    print(io, default, "|  |   |  | ______   ______   ")
+    print(io, red, "\\__/")
+    print(io, default, "_  _")
+    print(io, purple, "\\__/")
+    print(io, "\n")
+
+    print(io, default, "|  |___|  |/  __  \\ /  ")
+    print(io, blue, "__")
+    print(io, default, "  \\ / '   \\/     \\")
+    print(io, "\n")
+
+    print(io, default, "|   ___   |  |__)  |  ")
+    print(io, blue, "/  \\")
+    print(io, default, "  |    _     _   |")
+    print(io, "\n")
+
+    print(io, default, "|  |   |  |   ____/| ")
+    print(io, blue, "(    )")
+    print(io, default, " |   / \\   / \\  |")
+    print(io, "\n")
+
+    print(io, default, "|  |   |  |  |____ |  ")
+    print(io, blue, "\\__/")
+    print(io, default, "  |  |   | |   | |")
+    print(io, "\n")
+
+    print(io, default, "|__|   |__|\\______) \\______/|__|   |_|   |_|")
+    print(io, "\n")
+end
+
+"""
     Heom.versioninfo(io::IO=stdout)
 Command line output of information on Heom, dependencies, and system informations.
 """
@@ -45,15 +115,20 @@ function versioninfo(io::IO=stdout)
     BLAS_config = BLAS.get_config()
     BLAS_build_flags = " (" * join(string.(BLAS_config.build_flags), ", ") * ")"
 
+    # print the logo of Heom package
+    print("\n")
+    print_logo(io)
+
     # print introduction
     println(io,
         "\n",
-        "Heom.jl:\n",
         "Julia framework for Hierarchical Equations of Motion\n",
         "≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡\n",
         "Copyright © NCKU-QFORT 2022 and later.\n",
-        "Lead  developer : Yi-Te Huang\n",
-        "Other developers: Po-Chen Kuo and Shen-Liang Yang\n"
+        "Lead  developer :\n",
+        "    Yi-Te Huang and Neill Lambert\n",
+        "Other developers:\n",
+        "    Po-Chen Kuo and Shen-Liang Yang\n"
     )
 
     # print package informations
