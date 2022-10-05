@@ -27,7 +27,7 @@ spost(q::AbstractMatrix) = sparse(kron(transpose(q), Matrix(I, size(q)[1], size(
 
 function show(io::IO, E::Exponent)
     print(io, 
-        "$(E.tag) Bath Exponent with coupling operator size = $(size(E.op)) and coefficients: η = $(E.η), γ = $(E.γ).\n"
+        "$(E.tag) Bath Exponent with operator size = $(size(E.op)), η = $(E.η), γ = $(E.γ).\n"
     )
 end
 show(io::IO, m::MIME"text/plain", E::Exponent) =  show(io, E)
@@ -43,7 +43,7 @@ show(io::IO, m::MIME"text/plain", B::AbstractFermionBath) =  show(io, B)
 
 function checkbounds(B::AbstractBath, i::Int)
     if (i < 1) || (i > B.Nterm)
-        throw(BoundsError("attempt to access $(B.Nterm)-exponent term Bath at index $(i)"))
+        error("BoundsError: attempt to access $(B.Nterm)-exponent term Bath at index [$(i)]")
     end
 end
 
