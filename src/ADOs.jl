@@ -7,6 +7,33 @@ The Auxiliary Density Operators for Heom model.
 - `dim` : the dimension of the system
 - `Nb` : the number of bosonic states
 - `Nf` : the number of fermionic states
+
+# Methods
+For pure bosonic (or fermionic) type bath `ADOs`, 
+one can obtain the density matrix for specific index (`idx`) by calling : `ados[idx]`.
+`Heom.jl` also supports the following calls (methods) :
+```@example
+length(ados);  # returns the total number of `ADOs`
+ados[1:idx];   # returns a vector which contains the `ADO` (in matrix form) from index `1` to `idx`
+ados[1:end];   # returns a vector which contains all the `ADO` (in matrix form)
+ados[:];       # returns a vector which contains all the `ADO` (in matrix form)
+from rho in ados  # iteration
+    # do something
+end
+```
+
+For mixed (bosonic and fermionic) type bath `ADOs`, 
+one needs two indices (`idx_b` and `idx_f`), and thus, `ados[idx_b, idx_f]`.
+Note that the first index specifies the bosonic bath index while the other one specifies the fermionic bath.
+`Heom.jl` also supports the following calls (methods) :
+```@example
+length(ados);       # returns the total number of `ADOs`
+ados[idx_b, 1:end]; # returns a vector which contains all the fermionic `ADO` (in matrix form) where bosonic index is `idx_b`
+ados[1:end, idx_f]; # returns a vector which contains all the bosonic `ADO` (in matrix form) where bosonic index is `idx_f`
+ados[idx_b, :];     # returns a vector which contains all the fermionic `ADO` (in matrix form) where bosonic index is `idx_b`
+ados[:, idx_f];     # returns a vector which contains all the bosonic `ADO` (in matrix form) where bosonic index is `idx_f`
+```
+But, currently, we don't support `iterate()` for mixed bath ADOs.
 """
 mutable struct ADOs 
     data::SparseVector{ComplexF64, Int64}
