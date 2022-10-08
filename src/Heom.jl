@@ -2,18 +2,28 @@ module Heom
     import Reexport: @reexport
     
     export 
-        Bath, HeomBase, Spectrum
+        Bath, HeomAPI, Spectrum
 
-    const PROGBAR_OPTIONS = Dict(:barlen=>20, :color=>:green, :showspeed=>true)
+    # sub-module HeomBase for Heom
+    module HeomBase
+        import Pkg
+        import LinearAlgebra: BLAS
+        import Crayons: Crayon
+
+        include("HeomBase.jl")
+    end
+    import .HeomBase.versioninfo as versioninfo
+    import .HeomBase.print_logo  as print_logo
     
     # sub-module Bath for Heom
     module Bath
-        import Base: show
+        import Base: show, length, getindex, lastindex, iterate, checkbounds
         import LinearAlgebra: I, kron
-        import SparseArrays: sparse
+        import SparseArrays: sparse, SparseMatrixCSC
+        import ..HeomBase: isValidMatrixType
 
         export 
-            AbstractBath, BosonBath, FermionBath, CombinedBath,
+            AbstractBath, BosonBath, FermionBath, Exponent,
             AbstractBosonBath, bosonReal, bosonImag, bosonRealImag,
             AbstractFermionBath, fermionAbsorb, fermionEmit,
             spre, spost
@@ -35,39 +45,39 @@ module Heom
     end
     @reexport using .CorrelationFunc
     
-    # sub-module HeomBase for Heom
-    module HeomBase
+    # sub-module HeomAPI for Heom
+    module HeomAPI
         using ..Bath
-        import Base: size, show
+        import Base: show, length, size, getindex, lastindex, iterate, checkbounds
         import LinearAlgebra: I, kron
-        import OrderedCollections: OrderedDict
         import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
         import Distributed: @everywhere, @distributed, procs, nprocs, RemoteChannel, Channel
         import DistributedArrays: distribute, localpart
         import ProgressMeter: Progress, next!
-        import ..Heom: PROGBAR_OPTIONS
+        import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType
 
         export
             AbstractHEOMMatrix, M_Fermion, M_Boson, M_Boson_Fermion,
             odd, even, none,
-            ADOs, getRho, getADO,
+            ADOs, getRho, getADO, HierarchyDict,
             addDissipator!, addTerminator!
 
-        include("HeomBase.jl")
+        include("HeomAPI_base.jl")
         include("ADOs.jl")
+        include("HierarchyDict.jl")
         include("M_fermion.jl")
         include("M_boson.jl")
         include("M_boson_fermion.jl")
     end
-    @reexport using .HeomBase
+    @reexport using .HeomAPI
 
     # sub-module evolution for Heom
     module Evolution
-        import ..HeomBase: AbstractHEOMMatrix, ADOs
+        import ..HeomAPI: AbstractHEOMMatrix, ADOs
         import OrdinaryDiffEq: ODEProblem, init, DP5, step!
         import SparseArrays: sparse, sparsevec, SparseVector
         import ProgressMeter: Progress, next!
-        import ..Heom: PROGBAR_OPTIONS
+        import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType
 
         export evolution
 
@@ -77,7 +87,7 @@ module Heom
 
     # sub-module SteadyState for Heom
     module SteadyState
-        import ..HeomBase: AbstractHEOMMatrix, ADOs
+        import ..HeomAPI: AbstractHEOMMatrix, ADOs
         import SparseArrays: sparse, sparsevec
         import LinearSolve: LinearProblem, solve, UMFPACKFactorization
 
@@ -89,12 +99,12 @@ module Heom
 
     # sub-module Spectrum for Heom
     module Spectrum
-        import ..HeomBase: AbstractHEOMMatrix, ADOs, spre
+        import ..HeomAPI: AbstractHEOMMatrix, ADOs, spre
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, sparsevec, SparseVector
         import LinearSolve: LinearProblem, solve, UMFPACKFactorization
         import ProgressMeter: Progress, next!        
-        import ..Heom: PROGBAR_OPTIONS
+        import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType
 
         export PSD, DOS
 
@@ -102,4 +112,6 @@ module Heom
         include("DensityOfStates.jl")
     end
     @reexport using .Spectrum
+
+    include("precompile.jl")
 end
