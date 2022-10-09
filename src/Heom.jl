@@ -77,6 +77,7 @@ module Heom
         import OrdinaryDiffEq: ODEProblem, init, DP5, step!
         import SparseArrays: sparse, sparsevec, SparseVector
         import ProgressMeter: Progress, next!
+        import JLD2: jldopen
         import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType
 
         export evolution

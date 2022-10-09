@@ -4,7 +4,7 @@ function _hierarchy!(dρ, ρ, L, t)
 end
 
 """
-    evolution(M, ρ0, tlist; solver, reltol, abstol, maxiters, save_everystep, verbose, SOLVEROptions...)
+    evolution(M, ρ0, tlist; solver, reltol, abstol, maxiters, save_everystep, verbose, filename, SOLVEROptions...)
 Solve the time evolution for auxiliary density operators with initial state is given in the type of density-matrix (`ρ0`).
 
 # Parameters
@@ -17,6 +17,7 @@ Solve the time evolution for auxiliary density operators with initial state is g
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
 - `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
+- `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file during the solving process.
 - `SOLVEROptions` : extra options for solver
 
 For more details about solvers and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
@@ -34,6 +35,7 @@ function evolution(
         maxiters::Real = 1e5,
         save_everystep::Bool=false,
         verbose::Bool = true,
+        filename::String = "",
         SOLVEROptions...
     )
 
@@ -56,12 +58,13 @@ function evolution(
         maxiters = maxiters,
         save_everystep = save_everystep,
         verbose = verbose,
+        filename = filename.
         SOLVEROptions...
     )
 end
 
 """
-    evolution(M, ados, tlist; solver, reltol, abstol, maxiters, save_everystep, verbose, SOLVEROptions...)
+    evolution(M, ados, tlist; solver, reltol, abstol, maxiters, save_everystep, verbose, filename, SOLVEROptions...)
 Solve the time evolution for auxiliary density operators with initial state is given in the type of `ADOs`.
 
 # Parameters
@@ -74,6 +77,7 @@ Solve the time evolution for auxiliary density operators with initial state is g
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
 - `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
+- `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file during the solving process.
 - `SOLVEROptions` : extra options for solver
 
 For more details about solvers and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
@@ -91,6 +95,7 @@ function evolution(
         maxiters::Real = 1e5,
         save_everystep::Bool=false,
         verbose::Bool = true,
+        filename::String = "",
         SOLVEROptions...
     )
 
@@ -106,7 +111,17 @@ function evolution(
         error("The number of fermionic states between M and ados are not consistent.")
     end
 
+    SAVE::Bool = (filename != "")
+    if SAVE && isfile(filename)
+        error("FILE: $(filename) already exist.")
+    end
+
     ADOs_list::Vector{ADOs} = [ados]
+    if SAVE
+        jldopen(filename, "a") do file
+            file[string(tlist[1])] = ados
+        end
+    end
     
     # setup integrator
     dt_list = diff(tlist)
@@ -126,11 +141,19 @@ function evolution(
         flush(stdout)
         prog = Progress(length(tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
     end
+    idx = 1
     for dt in dt_list
+        idx += 1
         step!(integrator, dt, true)
         
         # save the ADOs
-        push!(ADOs_list, ADOs(copy(integrator.u), M.Nb, M.Nf))
+        ados = ADOs(copy(integrator.u), M.Nb, M.Nf)
+        push!(ADOs_list, ados)
+        if SAVE
+            jldopen(filename, "a") do file
+                file[string(tlist[idx])] = ados
+            end
+        end
     
         if verbose
             next!(prog)
