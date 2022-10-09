@@ -1,4 +1,4 @@
-# Heom Base Module API
+# Heom API Module
 
 ## Heom liouvillian superoperator matrices
 
@@ -47,8 +47,13 @@ ADOs(V::AbstractVector, Nb::Int=0, Nf::Int=0)
 
 ### Functions for Auxiliary Density Operators
 ```@docs
-size(A::ADOs)
+length(A::ADOs)
 getRho
 getADO(ados::ADOs, idx::Int)
 getADO(ados::ADOs, idx_b::Int, idx_f::Int)
+```
+
+## Hierarchy Dictionary
+```@docs
+HierarchyDict
 ```

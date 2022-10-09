@@ -6,7 +6,7 @@ const PAGES = Any[
         "Introduction" => "index.md",
         "Installation" => "install.md",
         "QuickStart"   => "quick_start.md",
-        "Cite Heom"     => "cite.md"
+        "Cite Heom"    => "cite.md"
     ],
     "Bosonic Bath" => "bosonic_bath.md",
     "Fermionic Bath" => "fermionic_bath.md",
@@ -19,10 +19,11 @@ const PAGES = Any[
         "JC" => "examples/JC_model.md"
     ],
     "Library" => Any[
-        "Heom Base" => "lib/heom_base.md",
+        "Heom API" => "lib/heom_api.md",
         "Bath" => "lib/bath.md",
         "Bath Correlation Functions" => "lib/corr_func.md",
-        "Physical Analysis Functions" => "lib/phys_analysis.md"
+        "Physical Analysis Functions" => "lib/phys_analysis.md",
+        "Misc" => "lib/misc.md"
     ]
 ]
 

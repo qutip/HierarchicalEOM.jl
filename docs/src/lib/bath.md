@@ -58,3 +58,8 @@ fermionEmit
 ```@docs
 fermionEmit(op::AbstractMatrix, η_emit::Vector{Ti}, γ_emit::Vector{Tj}, η_absorb::Vector{Tk}) where {Ti, Tj, Tk <: Number}
 ```
+
+## Exponent
+```@docs
+Exponent
+```
