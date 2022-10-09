@@ -1,4 +1,4 @@
-# Miscellany
+# Misc.
 
 ```@docs
 Heom.versioninfo()
