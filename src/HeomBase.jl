@@ -39,17 +39,6 @@ end
 """
     Heom.print_logo(io::IO)
 Print the Logo of Heom package
-
-                                   __
-                                  /  \\
- __     __                     __ \\__/ __
-|  |   |  |                   /  \\    /  \\
-|  |   |  | ______   ______   \\__/_  _\\__/
-|  |___|  |/  __  \\ /  __  \\ / '   \\/     \\
-|   ___   |  |__)  |  /  \\  |    _     _   |
-|  |   |  |   ____/| (    ) |   / \\   / \\  |
-|  |   |  |  |____ |  \\__/  |  |   | |   | |
-|__|   |__|\\______) \\______/|__|   |_|   |_|
 """
 function print_logo(io::IO=stdout)
     default = Crayon(foreground = :default)
