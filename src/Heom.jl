@@ -65,9 +65,9 @@ module Heom
         include("HeomAPI_base.jl")
         include("ADOs.jl")
         include("HierarchyDict.jl")
-        include("M_fermion.jl")
-        include("M_boson.jl")
-        include("M_boson_fermion.jl")
+        include("heom_matrices/M_Fermion.jl")
+        include("heom_matrices/M_Boson.jl")
+        include("heom_matrices/M_Boson_Fermion.jl")
     end
     @reexport using .HeomAPI
 
@@ -102,7 +102,7 @@ module Heom
     module Spectrum
         import ..HeomAPI: AbstractHEOMMatrix, ADOs, spre
         import LinearAlgebra: I, kron
-        import SparseArrays: sparse, sparsevec, SparseVector
+        import SparseArrays: sparse, sparsevec
         import LinearSolve: LinearProblem, solve, UMFPACKFactorization
         import ProgressMeter: Progress, next!        
         import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType
