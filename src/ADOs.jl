@@ -12,7 +12,7 @@ The Auxiliary Density Operators for Heom model.
 For pure bosonic (or fermionic) type bath `ADOs`, 
 one can obtain the density matrix for specific index (`idx`) by calling : `ados[idx]`.
 `Heom.jl` also supports the following calls (methods) :
-```@example
+```julia
 length(ados);  # returns the total number of `ADOs`
 ados[1:idx];   # returns a vector which contains the `ADO` (in matrix form) from index `1` to `idx`
 ados[1:end];   # returns a vector which contains all the `ADO` (in matrix form)
@@ -26,7 +26,7 @@ For mixed (bosonic and fermionic) type bath `ADOs`,
 one needs two indices (`idx_b` and `idx_f`), and thus, `ados[idx_b, idx_f]`.
 Note that the first index specifies the bosonic bath index while the other one specifies the fermionic bath.
 `Heom.jl` also supports the following calls (methods) :
-```@example
+```julia
 length(ados);       # returns the total number of `ADOs`
 ados[idx_b, 1:end]; # returns a vector which contains all the fermionic `ADO` (in matrix form) where bosonic index is `idx_b`
 ados[1:end, idx_f]; # returns a vector which contains all the bosonic `ADO` (in matrix form) where bosonic index is `idx_f`
