@@ -54,5 +54,5 @@ import SnoopPrecompile: @precompile_setup, @precompile_all_calls
         DOS(Mfo, [1. 0.; 0. 0.], op, [1]; verbose=false)
     end
     GC.gc() # clean garbage collection
-    @info "Heom precomilation complete"
+    @info "Heom precompilation complete"
 end
