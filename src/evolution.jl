@@ -58,7 +58,7 @@ function evolution(
         maxiters = maxiters,
         save_everystep = save_everystep,
         verbose = verbose,
-        filename = filename.
+        filename = filename,
         SOLVEROptions...
     )
 end
