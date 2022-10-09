@@ -23,7 +23,7 @@ const PAGES = Any[
         "Bath" => "lib/bath.md",
         "Bath Correlation Functions" => "lib/corr_func.md",
         "Physical Analysis Functions" => "lib/phys_analysis.md",
-        "Misc" => "lib/misc.md"
+        "Misc." => "lib/misc.md"
     ]
 ]
 
