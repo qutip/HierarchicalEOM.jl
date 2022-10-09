@@ -4,9 +4,9 @@ An object which contains all dictionaries for bath-ADOs hierarchy.
 
 The `ado` (or `n_vector`) denotes a set of integers:
 ```math
-\\{ n_11, ..., n_\\nu k, ... \\}
+\\{ n_{11}, ..., n_{\\nu k}, ... \\}
 ```
-where ``n_\\nu k \\geq 0`` associated with the ``k``-th exponential-expansion term in the ``\\nu``-th bath.
+where ``n_{\\nu k} \\geq 0`` associated with the ``k``-th exponential-expansion term in the ``\\nu``-th bath.
 
 The hierarchy level (``L``) for an `ado` is given by ``L=\\sum_{\\nu, k} n_{\\nu k}``
 
