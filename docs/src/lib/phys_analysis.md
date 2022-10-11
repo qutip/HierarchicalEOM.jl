@@ -7,7 +7,7 @@ evolution
 
 ## Steady State
 ```@docs
-Steadystate
+SteadyState
 ```
 
 ## Spectrum

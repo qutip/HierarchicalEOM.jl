@@ -30,7 +30,7 @@ In order to get a better experience and take full advantage of `Heom`, we recomm
 `DifferentialEquations` is needed to provide the low-level ODE solvers especially for solving time [`evolution`](@ref). For [low dependency usage](https://diffeq.sciml.ai/stable/features/low_dep/), users can use [`OrdinaryDiffEq.jl`](https://github.com/JuliaDiffEq/OrdinaryDiffEq.jl) instead.
 
 ### [LinearSolve.jl](http://linearsolve.sciml.ai/stable/)
-`LinearSolve` is a unified interface for the linear solving packages of Julia. It interfaces with other packages of the Julia ecosystem to make it easier to test alternative solver packages and pass small types to control algorithm swapping. It is needed to provide the solvers especially for solving [`Steadystate`](@ref), [`PSD`](@ref) (power spectral density), and [`DOS`](@ref) (density of states).
+`LinearSolve` is a unified interface for the linear solving packages of Julia. It interfaces with other packages of the Julia ecosystem to make it easier to test alternative solver packages and pass small types to control algorithm swapping. It is needed to provide the solvers especially for solving [`SteadyState`](@ref), [`PSD`](@ref) (power spectral density), and [`DOS`](@ref) (density of states).
 
 ### [JLD2.jl](https://juliaio.github.io/JLD2.jl/stable/)
 `JLD2` saves and loads Julia data structures in a format comprising a subset of HDF5. Because the size of matrix in `Heom` is usually super large and leads to long time calculation, we support the functionality for saving and loading the `Heom`-type objects into files by `JLD2 >= 0.4.23`.
