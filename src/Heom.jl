@@ -62,6 +62,8 @@ module Heom
 
         # for solving steady state
         import LinearSolve: LinearProblem, solve, UMFPACKFactorization
+        import OrdinaryDiffEq: SteadyStateProblem, FBDF, solve
+        import SteadyStateDiffEq: DynamicSS
 
         export
             AbstractHEOMMatrix, M_Fermion, M_Boson, M_Boson_Fermion,
