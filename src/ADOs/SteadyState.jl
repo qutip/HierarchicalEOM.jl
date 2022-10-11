@@ -1,5 +1,5 @@
 """
-    Steadystate(M; solver, verbose, SOLVEROptions...)
+    SteadyState(M; solver, verbose, SOLVEROptions...)
 Solve the steady state of the auxiliary density operators.
 
 # Parameters
@@ -13,7 +13,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
 """
-function Steadystate(M::AbstractHEOMMatrix; solver=UMFPACKFactorization(), verbose::Bool=true, SOLVEROptions...)
+function SteadyState(M::AbstractHEOMMatrix; solver=UMFPACKFactorization(), verbose::Bool=true, SOLVEROptions...)
     # check parity
     if (M.parity != :even) && (M.parity != :none)
         error("The parity of M should be either \":none\" (bonson) or \":even\" (fermion).")

@@ -37,7 +37,7 @@ function _get_pkg_version(pkg_name::String)
 end
 
 """
-    Heom.print_logo(io::IO)
+    Heom.print_logo(io::IO=stdout)
 Print the Logo of Heom package
 """
 function print_logo(io::IO=stdout)
@@ -114,17 +114,16 @@ function versioninfo(io::IO=stdout)
         "Julia framework for Hierarchical Equations of Motion\n",
         "≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡\n",
         "Copyright © NCKU-QFORT 2022 and later.\n",
-        "Lead  developer :\n",
-        "    Yi-Te Huang and Neill Lambert\n",
+        "Lead  developer : Yi-Te Huang\n",
         "Other developers:\n",
-        "    Po-Chen Kuo and Shen-Liang Yang\n"
+        "    Neill Lambert, Po-Chen Kuo and Shen-Liang Yang\n"
     )
 
     # print package informations
     println(io,
         "Package informations:\n",
         "===================================\n",
-        "Heom              Version: 2.0.0\n",
+        "Heom              Version: 0.1.0\n",
         "DistributedArrays Version: $(_get_pkg_version("DistributedArrays"))\n",
         "LinearSolve       Version: $(_get_pkg_version("LinearSolve"))\n",
         "OrdinaryDiffEq    Version: $(_get_pkg_version("OrdinaryDiffEq"))\n",

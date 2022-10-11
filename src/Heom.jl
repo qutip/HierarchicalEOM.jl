@@ -56,47 +56,24 @@ module Heom
         import ProgressMeter: Progress, next!
         import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType
 
+        # for solving time evolution
+        import OrdinaryDiffEq: ODEProblem, init, DP5, step!
+        import JLD2: jldopen
+
+        # for solving steady state
+        import LinearSolve: LinearProblem, solve, UMFPACKFactorization
+
         export
             AbstractHEOMMatrix, M_Fermion, M_Boson, M_Boson_Fermion,
             odd, even, none,
             ADOs, getRho, getADO, HierarchyDict,
-            addDissipator!, addTerminator!
+            addDissipator!, addTerminator!,
+            evolution, SteadyState
 
-        include("HeomAPI_base.jl")
+        include("heom_matrix.jl")
         include("ADOs.jl")
-        include("HierarchyDict.jl")
-        include("heom_matrices/M_Fermion.jl")
-        include("heom_matrices/M_Boson.jl")
-        include("heom_matrices/M_Boson_Fermion.jl")
     end
     @reexport using .HeomAPI
-
-    # sub-module evolution for Heom
-    module Evolution
-        import ..HeomAPI: AbstractHEOMMatrix, ADOs
-        import OrdinaryDiffEq: ODEProblem, init, DP5, step!
-        import SparseArrays: sparse, sparsevec, SparseVector
-        import ProgressMeter: Progress, next!
-        import JLD2: jldopen
-        import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType
-
-        export evolution
-
-        include("evolution.jl")
-    end
-    @reexport using .Evolution
-
-    # sub-module SteadyState for Heom
-    module SteadyState
-        import ..HeomAPI: AbstractHEOMMatrix, ADOs
-        import SparseArrays: sparse, sparsevec
-        import LinearSolve: LinearProblem, solve, UMFPACKFactorization
-
-        export Steadystate
-
-        include("SteadyState.jl")
-    end
-    @reexport using .SteadyState
 
     # sub-module Spectrum for Heom
     module Spectrum
@@ -109,8 +86,8 @@ module Heom
 
         export PSD, DOS
 
-        include("PowerSpectralDensity.jl")
-        include("DensityOfStates.jl")
+        include("spectrum/PowerSpectralDensity.jl")
+        include("spectrum/DensityOfStates.jl")
     end
     @reexport using .Spectrum
 
