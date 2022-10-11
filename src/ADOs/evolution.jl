@@ -126,7 +126,7 @@ function evolution(
     # setup integrator
     dt_list = diff(tlist)
     integrator = init(
-        ODEProblem(_hierarchy!, ados.data, (tlist[1], tlist[end]), M.data),
+        ODEProblem(_hierarchy!, Vector(ados.data), (tlist[1], tlist[end]), M.data),
         solver;
         reltol = reltol,
         abstol = abstol,

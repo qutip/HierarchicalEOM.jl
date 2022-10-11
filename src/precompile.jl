@@ -27,6 +27,7 @@ import SnoopPrecompile: @precompile_setup, @precompile_all_calls
         # precompile Steadystate
         @info "Precompiling steady state solver..."
         SteadyState(Mb; verbose=false)
+        SteadyState(Mb, [1. 0.; 0. 0.]; verbose=false)
 
         # precompile evolution
         @info "Precompiling time evolution solver..."
