@@ -51,8 +51,8 @@ with initial state is given in the type of density-matrix (`ρ0`).
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
 - `ρ0` : system initial state (density matrix)
 - `solver` : The ODE solvers in package `DifferentialEquations.jl`. Default to `FBDF(autodiff=false)`.
-- `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-4`.
-- `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-6`.
+- `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
+- `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
 - `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
@@ -107,8 +107,8 @@ with initial state is given in the type of `ADOs`.
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
 - `ados::ADOs` : initial auxiliary density operators
 - `solver` : The ODE solvers in package `DifferentialEquations.jl`. Default to `FBDF(autodiff=false)`.
-- `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-4`.
-- `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-6`.
+- `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
+- `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
 - `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
