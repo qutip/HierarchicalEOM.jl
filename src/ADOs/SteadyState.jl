@@ -137,7 +137,18 @@ function SteadyState(
     end
 
     # setup ode function
-    hierarchy = ODEFunction(_hierarchy!; jac_prototype = SparseMatrixCSC{ComplexF64, Int64})
+    jac_p = undef
+    try
+        if solver.linsolve == nothing
+            jac_p = SparseMatrixCSC{ComplexF64, Int64}
+        else
+            S, = size(M)
+            jac_p = spzeros(ComplexF64, S, S)
+        end
+    catch
+        jac_p = SparseMatrixCSC{ComplexF64, Int64}
+    end
+    hierarchy = ODEFunction(_hierarchy!; jac_prototype = jac_p)
 
     # solving steady state of the ODE problem
     if verbose

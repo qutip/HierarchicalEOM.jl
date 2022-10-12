@@ -119,8 +119,18 @@ function evolution(
     end
     
     # setup ode function
-    S, = size(M)
-    hierarchy = ODEFunction(_hierarchy!; jac_prototype = spzeros(ComplexF64, S, S))
+    jac_p = undef
+    try
+        if solver.linsolve == nothing
+            jac_p = SparseMatrixCSC{ComplexF64, Int64}
+        else
+            S, = size(M)
+            jac_p = spzeros(ComplexF64, S, S)
+        end
+    catch
+        jac_p = SparseMatrixCSC{ComplexF64, Int64}
+    end
+    hierarchy = ODEFunction(_hierarchy!; jac_prototype = jac_p)
 
     # setup integrator
     integrator = init(
