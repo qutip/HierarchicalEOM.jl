@@ -156,7 +156,7 @@ function SteadyState(
         flush(stdout)
     end
     sol = solve(
-        SteadyStateProblem(hierarchy, ados.data, M.data), 
+        SteadyStateProblem(hierarchy, Vector(ados.data), M.data), 
         DynamicSS(solver; abstol = abstol, reltol = reltol);
         maxiters = maxiters,
         save_everystep = save_everystep,
