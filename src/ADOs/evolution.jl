@@ -6,7 +6,7 @@ Solve the time evolution for auxiliary density operators with initial state is g
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
 - `ρ0` : system initial state (density matrix)
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
-- `solver` : solver in package `DifferentialEquations.jl`. Default to `FBDF(autodiff=false)`.
+- `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
 - `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
@@ -24,7 +24,7 @@ function evolution(
         M::AbstractHEOMMatrix, 
         ρ0, 
         tlist::AbstractVector;
-        solver = FBDF(autodiff=false),
+        solver = DP5(),
         reltol::Real = 1.0e-6,
         abstol::Real = 1.0e-8,
         maxiters::Real = 1e5,
@@ -66,7 +66,7 @@ Solve the time evolution for auxiliary density operators with initial state is g
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
 - `ados::ADOs` : initial auxiliary density operators
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
-- `solver` : solver in package `DifferentialEquations.jl`. Default to `FBDF(autodiff=false)`.
+- `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
 - `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
@@ -84,7 +84,7 @@ function evolution(
         M::AbstractHEOMMatrix, 
         ados::ADOs, 
         tlist::AbstractVector;
-        solver = FBDF(autodiff=false),
+        solver = DP5(),
         reltol::Real = 1.0e-6,
         abstol::Real = 1.0e-8,
         maxiters::Real = 1e5,
@@ -119,11 +119,10 @@ function evolution(
     end
     
     # setup ode function
-    hierarchy = ODEFunction(_hierarchy!; jac_prototype = SparseMatrixCSC{ComplexF64, Int64})
+    S, = size(M)
+    hierarchy = ODEFunction(_hierarchy!; jac_prototype = spzeros(ComplexF64, S, S))
 
     # setup integrator
-    print("Setup integrator (this might take a while for some solvers)...")
-    flush(stdout)
     integrator = init(
         ODEProblem(hierarchy, Vector(ados.data), (tlist[1], tlist[end]), M.data),
         solver;
@@ -133,8 +132,6 @@ function evolution(
         save_everystep = save_everystep,
         SOLVEROptions...
     )
-    println("[DONE]")
-    flush(stdout)
     
     # start solving ode
     if verbose
