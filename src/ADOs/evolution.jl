@@ -1,8 +1,3 @@
-# func. for solving evolution ODE
-function _hierarchy!(dρ, ρ, L, t)
-    @inbounds dρ .= L * ρ
-end
-
 """
     evolution(M, ρ0, tlist; solver, reltol, abstol, maxiters, save_everystep, verbose, filename, SOLVEROptions...)
 Solve the time evolution for auxiliary density operators with initial state is given in the type of density-matrix (`ρ0`).
@@ -11,7 +6,7 @@ Solve the time evolution for auxiliary density operators with initial state is g
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
 - `ρ0` : system initial state (density matrix)
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
-- `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `solver` : solver in package `DifferentialEquations.jl`. Default to `FBDF(autodiff=false)`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
 - `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
@@ -29,7 +24,7 @@ function evolution(
         M::AbstractHEOMMatrix, 
         ρ0, 
         tlist::AbstractVector;
-        solver = DP5(),
+        solver = FBDF(autodiff=false),
         reltol::Real = 1.0e-6,
         abstol::Real = 1.0e-8,
         maxiters::Real = 1e5,
@@ -71,7 +66,7 @@ Solve the time evolution for auxiliary density operators with initial state is g
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
 - `ados::ADOs` : initial auxiliary density operators
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
-- `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `solver` : solver in package `DifferentialEquations.jl`. Default to `FBDF(autodiff=false)`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
 - `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
@@ -89,7 +84,7 @@ function evolution(
         M::AbstractHEOMMatrix, 
         ados::ADOs, 
         tlist::AbstractVector;
-        solver = DP5(),
+        solver = FBDF(autodiff=false),
         reltol::Real = 1.0e-6,
         abstol::Real = 1.0e-8,
         maxiters::Real = 1e5,
@@ -123,10 +118,14 @@ function evolution(
         end
     end
     
+    # setup ode function
+    hierarchy = ODEFunction(_hierarchy!; jac_prototype = SparseMatrixCSC{ComplexF64, Int64})
+
     # setup integrator
-    dt_list = diff(tlist)
+    print("Setup integrator (this might take a while for some solvers)...")
+    flush(stdout)
     integrator = init(
-        ODEProblem(_hierarchy!, Vector(ados.data), (tlist[1], tlist[end]), M.data),
+        ODEProblem(hierarchy, Vector(ados.data), (tlist[1], tlist[end]), M.data),
         solver;
         reltol = reltol,
         abstol = abstol,
@@ -134,6 +133,8 @@ function evolution(
         save_everystep = save_everystep,
         SOLVEROptions...
     )
+    println("[DONE]")
+    flush(stdout)
     
     # start solving ode
     if verbose
@@ -142,6 +143,7 @@ function evolution(
         prog = Progress(length(tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
     end
     idx = 1
+    dt_list = diff(tlist)
     for dt in dt_list
         idx += 1
         step!(integrator, dt, true)

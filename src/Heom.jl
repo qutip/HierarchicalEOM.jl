@@ -57,12 +57,12 @@ module Heom
         import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType
 
         # for solving time evolution
-        import OrdinaryDiffEq: ODEProblem, init, DP5, step!
+        import OrdinaryDiffEq: ODEFunction, ODEProblem, init, FBDF, step!
         import JLD2: jldopen
 
         # for solving steady state
         import LinearSolve: LinearProblem, solve, UMFPACKFactorization
-        import OrdinaryDiffEq: SteadyStateProblem, FBDF, solve
+        import OrdinaryDiffEq: SteadyStateProblem, solve
         import SteadyStateDiffEq: DynamicSS
 
         export

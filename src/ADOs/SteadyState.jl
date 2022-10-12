@@ -1,6 +1,6 @@
 """
     SteadyState(M; solver, verbose, SOLVEROptions...)
-Solve the steady state of the auxiliary density operators based on `LinearSolve.jl` (i.e., solving ``x`` where ``A * x = b``).
+Solve the steady state of the auxiliary density operators based on `LinearSolve.jl` (i.e., solving ``x`` where ``A × x = b``).
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model, where the parity should be either `:none` (boson) or `:even` (fermion).
@@ -136,13 +136,16 @@ function SteadyState(
         error("The parity of M should be either \":none\" (bonson) or \":even\" (fermion).")
     end
 
+    # setup ode function
+    hierarchy = ODEFunction(_hierarchy!; jac_prototype = SparseMatrixCSC{ComplexF64, Int64})
+
     # solving steady state of the ODE problem
     if verbose
         print("Solving steady state for auxiliary density operators...")
         flush(stdout)
     end
     sol = solve(
-        SteadyStateProblem(_hierarchy!, Vector(ados.data), M.data), 
+        SteadyStateProblem(hierarchy, ados.data, M.data), 
         DynamicSS(solver; abstol = abstol, reltol = reltol);
         maxiters = maxiters,
         save_everystep = save_everystep,
