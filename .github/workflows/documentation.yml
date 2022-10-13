@@ -3,7 +3,7 @@ name: Documentation
 on:
   push:
     branches:
-      - dev-document # update to match your development branch (master, main, dev, trunk, ...)
+      - main # update to match your development branch (master, main, dev, trunk, ...)
     tags: '*'
   pull_request:
 
@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@latest
         with:
-          version: '1.6'
+          version: '1.8'
       - name: Install dependencies
         run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy
