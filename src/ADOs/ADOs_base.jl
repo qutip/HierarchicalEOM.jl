@@ -293,8 +293,3 @@ This function equals to calling : `ados[idx_b, idx_f]`.
 - `ρ_idx` : The auxiliary density operator
 """
 getADO(ados::ADOs, idx_b::Int, idx_f::Int) = ados[idx_b, idx_f]
-
-# func. for solving evolution ODE
-function _hierarchy!(dρ, ρ, L, t)
-    @inbounds dρ .= L * ρ
-end

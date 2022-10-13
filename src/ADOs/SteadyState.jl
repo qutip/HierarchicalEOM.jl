@@ -42,6 +42,11 @@ function SteadyState(M::AbstractHEOMMatrix; solver=UMFPACKFactorization(), verbo
     return ADOs(sol.u, M.dim, M.Nb, M.Nf)
 end
 
+# func. for solving ODE
+function _hierarchy!(dρ, ρ, L, t)
+    @inbounds dρ .= L * ρ
+end
+
 """
     SteadyState(M, ρ0; solver, reltol, abstol, maxiters, save_everystep, verbose, SOLVEROptions...)
 Solve the steady state of the auxiliary density operators based on time evolution (ordinary differential equations)

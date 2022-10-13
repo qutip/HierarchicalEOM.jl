@@ -32,6 +32,7 @@ import SnoopPrecompile: @precompile_setup, @precompile_all_calls
         # precompile evolution
         @info "Precompiling time evolution solver..."
         adosb  = evolution(Mb, [1. 0.; 0. 0.], 0:1:1; verbose=false)
+        adosb  = evolution(Mb, [1. 0.; 0. 0.], 1, 1; verbose=false)
 
         # precompile ADOs for the support of Base functions 
         @info "Precompiling Auxiliary Density Operators (ADOs)..."

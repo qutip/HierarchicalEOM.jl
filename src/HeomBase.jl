@@ -101,8 +101,7 @@ Command line output of information on Heom, dependencies, and system information
 """
 function versioninfo(io::IO=stdout)
     cpu = Sys.cpu_info()
-    BLAS_config = BLAS.get_config()
-    BLAS_build_flags = " (" * join(string.(BLAS_config.build_flags), ", ") * ")"
+    BLAS_info = BLAS.get_config().loaded_libs[1]
 
     # print the logo of Heom package
     print("\n")
@@ -121,7 +120,7 @@ function versioninfo(io::IO=stdout)
 
     # print package informations
     println(io,
-        "Package informations:\n",
+        "Package information:\n",
         "===================================\n",
         "Heom              Version: 0.1.0\n",
         "DistributedArrays Version: $(_get_pkg_version("DistributedArrays"))\n",
@@ -134,7 +133,7 @@ function versioninfo(io::IO=stdout)
 
     # print System informations
     println(io,
-        "System informations:\n",
+        "System information:\n",
         "===================================\n",
         "Julia Version: $(VERSION)"
     )
@@ -157,6 +156,6 @@ function versioninfo(io::IO=stdout)
         "LLVM     : ", "libLLVM-", Base.libllvm_version, " (", Sys.JIT, ", ", Sys.CPU_NAME, ")"
     )
     println(io,
-        "BLAS     : ", BLAS.libblastrampoline, BLAS_build_flags
+        "BLAS     : ", basename(BLAS_info.libname), " (", BLAS_info.interface, ")"
     )
 end

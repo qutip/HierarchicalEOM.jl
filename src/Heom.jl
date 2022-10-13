@@ -54,22 +54,23 @@ module Heom
         import Distributed: @everywhere, @distributed, procs, nprocs, RemoteChannel, Channel
         import DistributedArrays: distribute, localpart
         import ProgressMeter: Progress, next!
+        import FastExpm: fastExpm
         import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType
 
         # for solving time evolution
-        import OrdinaryDiffEq: ODEFunction, ODEProblem, init, DP5, step!
+        import OrdinaryDiffEq: DiffEqArrayOperator, ODEProblem, init, DP5, step!
         import JLD2: jldopen
 
         # for solving steady state
         import LinearSolve: LinearProblem, solve, UMFPACKFactorization
-        import OrdinaryDiffEq: SteadyStateProblem, solve, FBDF
+        import OrdinaryDiffEq: ODEFunction, SteadyStateProblem, solve, FBDF
         import SteadyStateDiffEq: DynamicSS
 
         export
             AbstractHEOMMatrix, M_Fermion, M_Boson, M_Boson_Fermion,
             odd, even, none,
             ADOs, getRho, getADO, HierarchyDict,
-            addDissipator!, addTerminator!,
+            Propagator, addDissipator!, addTerminator!,
             evolution, SteadyState
 
         include("heom_matrix.jl")
