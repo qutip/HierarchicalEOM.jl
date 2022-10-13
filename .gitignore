@@ -1,1 +1,11 @@
-*.ipynb*
+.DS_Store
+.vscode
+
+Manifest.toml
+docs/build/
+
+*.py
+*.ipynb
+*.ipynb_checkpoints
+**/*.ipynb_checkpoints
+**/**/*.ipynb_checkpoints
