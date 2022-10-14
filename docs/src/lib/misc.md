@@ -25,17 +25,17 @@ Lead  developer : Yi-Te Huang
 Other developers:
     Neill Lambert, Po-Chen Kuo and Shen-Liang Yang
 
-Package informations:
+Package information:
 ===================================
 Heom              Version: 0.1.0
 DistributedArrays Version: 0.6.6
 JLD2              Version: 0.4.25
-LinearSolve       Version: 1.26.0
-OrdinaryDiffEq    Version: 6.27.2
+LinearSolve       Version: 1.26.1
+OrdinaryDiffEq    Version: 6.28.1
 ProgressMeter     Version: 1.7.2
 SnoopPrecompile   Version: 1.0.1
 
-System informations:
+System information:
 ===================================
 Julia Version: 1.8.0
 OS       : macOS (x86_64-apple-darwin21.4.0)
@@ -44,7 +44,7 @@ Memory   : 16.0 GB
 WORD_SIZE: 64
 LIBM     : libopenlibm
 LLVM     : libLLVM-13.0.1 (ORCJIT, skylake)
-BLAS     : libblastrampoline (f2c_capable)
+BLAS     : libopenblas64_.0.3.20.dylib (ilp64)
 ```
 
 ```@docs
