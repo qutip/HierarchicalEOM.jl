@@ -1,122 +1,161 @@
-abstract type AbstractHEOMMatrix end
-size(A::AbstractHEOMMatrix) = size(A.data)
+const PROGBAR_OPTIONS = Dict(:barlen=>20, :color=>:green, :showspeed=>true)
 
-include("ADOs.jl")
-
-spre(q::AbstractMatrix)        = kron(Matrix(I, size(q)[1], size(q)[1]), q)
-spre(q::AbstractOperator)      = sparse(kron(sparse(I, size(q)[1], size(q)[1]), q.data))
-spre(q::AbstractSparseMatrix)  = sparse(kron(sparse(I, size(q)[1], size(q)[1]), q))
-spost(q::AbstractMatrix)       = kron(transpose(q), Matrix(I, size(q)[1], size(q)[1]))
-spost(q::AbstractOperator)     = sparse(kron(transpose(q.data), sparse(I, size(q)[1], size(q)[1])))
-spost(q::AbstractSparseMatrix) = sparse(kron(transpose(q), sparse(I, size(q)[1], size(q)[1])))
-
-# generate liouvillian matrix
-function liouvillian(Hsys, Jump_Ops::Vector=[], progressBar::Bool=false)
-        
-    N, = size(Hsys)
-
-    L = -1im * (spre(Hsys) - spost(Hsys))
-    if progressBar
-        prog = Progress(length(Jump_Ops) + 1, start=1; desc="Construct Liouvillian     : ", PROGBAR_OPTIONS...)
-    end
-    for J in Jump_Ops
-        L += spre(J) * spost(J') - 0.5 * (spre(J' * J) + spost(J' * J))
-        if progressBar
-            next!(prog)
+function isValidMatrixType(M, dim::Int=0)
+    if typeof(M) <: AbstractMatrix 
+        if dim > 0
+            if size(M) == (dim, dim)
+                return true
+            else
+                @warn "The size of input matrix should be: ($(M.dim), $(M.dim))."
+                return false
+            end
+        elseif dim == 0
+            N1, N2 = size(M)
+            if N1 == N2
+                return true
+            else
+                @warn "The size of input matrix should be squared matrix."
+                return false
+            end
+        else
+            error("The \"dim\" is not correct.")
         end
-    end
-    return L
-end
 
-# func. for solving evolution ODE
-function hierachy!(dρ, ρ, L, t)
-    @inbounds dρ .= L * ρ
-end
-
-"""
-# `evolution(M, ρ0, tlist; [solver, reltol, abstol, maxiters, progressBar, SOLVEROptions...])`
-Solve the evolution (ODE problem) using HEOM model.
-
-## Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model
-- `ρ0::Union{AbstractMatrix, AbstractOperator}` : initial state (density matrix)
-- `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
-- `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
-- `reltol` : Relative tolerance in adaptive timestepping. Default to 1.0e-6.
-- `abstol` : Absolute tolerance in adaptive timestepping. Default to 1.0e-8.
-- `maxiters` : Maximum number of iterations before stopping. Default to 1e5.
-- `progressBar::Bool` : Display progress bar during the process or not. Defaults to `true`.
-- `SOLVEROptions` : extra options for solver 
-
-## Returns
-- `ρ_list`    : The reduced density matrices in each time point.
-- `ADOs_list` : The auxiliary density operators in each time point.
-"""
-function evolution(
-        M::AbstractHEOMMatrix, 
-        ρ0::Union{AbstractMatrix, AbstractOperator}, 
-        tlist::AbstractVector;
-        solver = DP5(),
-        reltol = 1.0e-6,
-        abstol = 1.0e-8,
-        maxiters = 1e5,
-        progressBar::Bool = true,
-        SOLVEROptions...
-    )
-
-    (N1, N2) = size(ρ0)
-    if (N1 != M.N_sys) || (N2 != M.N_sys)
-        error("The size of initial state ρ0 is incorrect.")
-    end
-
-    # setup ρ_he and ρlist
-    ρ_list::Vector{SparseMatrixCSC{ComplexF64, Int64}} = []
-    ADOs_list::Vector{SparseMatrixCSC{ComplexF64, Int64}} = []
-    ρ_he::SparseVector{ComplexF64, Int64} = spzeros(M.N_he * M.sup_dim)
-    if typeof(ρ0) <: AbstractMatrix
-        push!(ρ_list, ρ0)
-
-        ρ_he[1:(M.sup_dim)] .= sparsevec(ρ0)
     else
-        push!(ρ_list, ρ0.data)
+        @warn "Heom doesn't support matrix type : $(typeof(M))"
+        return false
+    end
+end
 
-        ρ_he[1:(M.sup_dim)] .= sparsevec(ρ0.data)
-    end
-    push!(ADOs_list, reshape(ρ_he, M.sup_dim, M.N_he))
-    
-    # setup integrator
-    dt_list = diff(tlist)
-    integrator = init(
-            ODEProblem(hierachy!, ρ_he, (tlist[1], tlist[end]), M.data),
-            solver;
-            reltol = reltol,
-            abstol = abstol,
-            maxiters = maxiters,
-            SOLVEROptions...
-    )
-    
-    # start solving ode
-    print("Start solving hierachy equation of motions...")
-    if progressBar
-        print("\n")
-        prog = Progress(length(tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
-    end
-    flush(stdout)
-    for dt in dt_list
-        step!(integrator, dt, true)
-        
-        # save the reduced density matrix and ADOs
-        ρ_ADOs = reshape(integrator.u, M.sup_dim, M.N_he)
-        push!(ρ_list, reshape(ρ_ADOs[:,1], M.N_sys, M.N_sys))
-        push!(ADOs_list, ρ_ADOs)
-    
-        if progressBar
-            next!(prog)
+function _get_pkg_version(pkg_name::String)
+    D = Pkg.dependencies()
+    for uuid in keys(D)
+        if D[uuid].name == pkg_name
+            return D[uuid].version
         end
     end
+end
 
-    println("[DONE]\n")
-    flush(stdout)
+"""
+    Heom.print_logo(io::IO=stdout)
+Print the Logo of Heom package
+"""
+function print_logo(io::IO=stdout)
+    default = Crayon(foreground = :default)
+    red     = Crayon(foreground = (203,  60,  51))
+    green   = Crayon(foreground = ( 56, 152,  38))
+    blue    = Crayon(foreground = ( 64,  99, 216))
+    purple  = Crayon(foreground = (149,  88, 178))
+    
+    print(io, green, "                                   __")
+    print(io, "\n")
+    
+    print(io, green, "                                  /  \\")
+    print(io, "\n")
+    
+    print(io, default, " __     __                     ")
+    print(io, red, "__")
+    print(io, green, " \\__/ ")
+    print(io, purple, "__")
+    print(io, "\n")
+    
+    print(io, default, "|  |   |  |                   ")
+    print(io, red, "/  \\")
+    print(io, default, "    ")
+    print(io, purple, "/  \\")
+    print(io, "\n")
+    
+    print(io, default, "|  |   |  | ______   ______   ")
+    print(io, red, "\\__/")
+    print(io, default, "_  _")
+    print(io, purple, "\\__/")
+    print(io, "\n")
 
-    return ρ_list, ADOs_list
+    print(io, default, "|  |___|  |/  __  \\ /  ")
+    print(io, blue, "__")
+    print(io, default, "  \\ / '   \\/     \\")
+    print(io, "\n")
+
+    print(io, default, "|   ___   |  |__)  |  ")
+    print(io, blue, "/  \\")
+    print(io, default, "  |    _     _   |")
+    print(io, "\n")
+
+    print(io, default, "|  |   |  |   ____/| ")
+    print(io, blue, "(    )")
+    print(io, default, " |   / \\   / \\  |")
+    print(io, "\n")
+
+    print(io, default, "|  |   |  |  |____ |  ")
+    print(io, blue, "\\__/")
+    print(io, default, "  |  |   | |   | |")
+    print(io, "\n")
+
+    print(io, default, "|__|   |__|\\______) \\______/|__|   |_|   |_|")
+    print(io, "\n")
+end
+
+"""
+    Heom.versioninfo(io::IO=stdout)
+Command line output of information on Heom, dependencies, and system informations.
+"""
+function versioninfo(io::IO=stdout)
+    cpu = Sys.cpu_info()
+    BLAS_info = BLAS.get_config().loaded_libs[1]
+
+    # print the logo of Heom package
+    print("\n")
+    print_logo(io)
+
+    # print introduction
+    println(io,
+        "\n",
+        "Julia framework for Hierarchical Equations of Motion\n",
+        "≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡\n",
+        "Copyright © NCKU-QFORT 2022 and later.\n",
+        "Lead  developer : Yi-Te Huang\n",
+        "Other developers:\n",
+        "    Neill Lambert, Po-Chen Kuo and Shen-Liang Yang\n"
+    )
+
+    # print package informations
+    println(io,
+        "Package information:\n",
+        "===================================\n",
+        "Heom              Version: 0.1.0\n",
+        "DistributedArrays Version: $(_get_pkg_version("DistributedArrays"))\n",
+        "JLD2              Version: $(_get_pkg_version("JLD2"))\n",
+        "LinearSolve       Version: $(_get_pkg_version("LinearSolve"))\n",
+        "OrdinaryDiffEq    Version: $(_get_pkg_version("OrdinaryDiffEq"))\n",
+        "ProgressMeter     Version: $(_get_pkg_version("ProgressMeter"))\n",
+        "SnoopPrecompile   Version: $(_get_pkg_version("SnoopPrecompile"))\n"
+    )
+
+    # print System informations
+    println(io,
+        "System information:\n",
+        "===================================\n",
+        "Julia Version: $(VERSION)"
+    )
+    println(io, 
+        "OS       : ", Sys.iswindows() ? "Windows" : Sys.isapple() ? "macOS" : Sys.KERNEL, " (", Sys.MACHINE, ")"
+    )
+    println(io, 
+        "CPU      : ", length(cpu), " × ", cpu[1].model
+    )
+    println(io,
+        "Memory   : ", "$(round(Sys.total_memory() / 2 ^ 30, digits=3)) GB"
+    )
+    println(io, 
+        "WORD_SIZE: ", Sys.WORD_SIZE
+    )
+    println(io, 
+        "LIBM     : ", Base.libm_name
+    )
+    println(io, 
+        "LLVM     : ", "libLLVM-", Base.libllvm_version, " (", Sys.JIT, ", ", Sys.CPU_NAME, ")"
+    )
+    println(io,
+        "BLAS     : ", basename(BLAS_info.libname), " (", BLAS_info.interface, ")"
+    )
 end
