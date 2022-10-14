@@ -1,6 +1,6 @@
 function _fermion_lorentz_matsubara_param(σ::Real, λ::Real, μ::Real, W::Real, T::Real, N::Int)
     β = 1. / T
-    ϵ = mastubara(N, fermion=true)
+    ϵ = matsubara(N, fermion=true)
 
     η = [0.5 * λ * W * _fermi(1.0im * β * W)]
     γ = [W - σ * 1.0im * μ]
