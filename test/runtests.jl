@@ -1,5 +1,8 @@
 using Heom
 using Test
+using SparseArrays
+
+include("utils.jl")
 
 @testset "Print version information" begin
     @test Heom.versioninfo() == nothing
@@ -13,18 +16,6 @@ end
     include("corr_func.jl")
 end
 
-@testset "Heom API" begin 
-    include("heom_api.jl")
-end
+include("heom_api.jl")
 
-@testset "Time evolution solvers" begin
-    include("evolution.jl")
-end
-
-@testset "Steady state solvers" begin
-    include("steady.jl")
-end
-
-@testset "Spectrum" begin
-    include("spectrum.jl")
-end
+include("phys_analysis.jl")
