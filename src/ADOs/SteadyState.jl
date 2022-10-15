@@ -34,6 +34,7 @@ function SteadyState(M::AbstractHEOMMatrix; solver=UMFPACKFactorization(), verbo
         flush(stdout)
     end
     sol = solve(LinearProblem(A, Vector(b)), solver, SOLVEROptions...)
+    GC.gc()  # clean the garbage collector
     if verbose
         println("[DONE]")
         flush(stdout)
@@ -167,11 +168,11 @@ function SteadyState(
         save_everystep = save_everystep,
         SOLVEROptions...
     )
+    GC.gc()  # clean the garbage collector
     if verbose
         println("[DONE]")
         flush(stdout)
     end
-    GC.gc()
 
     return ADOs(sol.u, M.dim, M.Nb, M.Nf)
 end
