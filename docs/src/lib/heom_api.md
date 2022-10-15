@@ -32,6 +32,7 @@ M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, Bath_b::Vector{B
 ### Functions for Heom Matrices
 ```@docs
 size(M::AbstractHEOMMatrix)
+Propagator
 addDissipator!
 addTerminator!
 ```

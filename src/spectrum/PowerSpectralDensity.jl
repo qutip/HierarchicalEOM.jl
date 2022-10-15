@@ -114,6 +114,7 @@ function PSD(
             next!(prog)
         end 
     end
+    GC.gc()  # clean the garbage collector
     if verbose
         println("[DONE]")
     end

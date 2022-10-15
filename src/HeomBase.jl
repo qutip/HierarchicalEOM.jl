@@ -158,4 +158,5 @@ function versioninfo(io::IO=stdout)
     println(io,
         "BLAS     : ", basename(BLAS_info.libname), " (", BLAS_info.interface, ")"
     )
+    print(io, "\n")
 end

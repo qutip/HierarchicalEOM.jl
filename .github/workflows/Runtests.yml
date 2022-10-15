@@ -1,0 +1,24 @@
+name: Runtests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        julia-version: ['1.8']
+        julia-arch: [x64]
+        os: [ubuntu-latest] # [ubuntu-latest, windows-latest, macOS-latest]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: julia-actions/setup-julia@latest
+        with:
+          version: ${{ matrix.julia-version }}
+      - uses: julia-actions/julia-buildpkg@latest
+      - uses: julia-actions/julia-runtest@latest
+      - uses: julia-actions/julia-processcoverage@latest
+      - uses: codecov/codecov-action@v3
+        with:
+          file: lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
