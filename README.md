@@ -8,7 +8,7 @@
 [![](https://img.shields.io/github/release/NCKU-QFort/Heom.jl.svg)](https://github.com/NCKU-QFort/Heom.jl/releases)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://ncku-qfort.github.io/Heom.jl/dev/)  
 [![Runtests](https://github.com/NCKU-QFort/Heom.jl/actions/workflows/Runtests.yml/badge.svg)](https://github.com/NCKU-QFort/Heom.jl/actions/workflows/Runtests.yml)
-[![codecov](https://codecov.io/gh/NCKU-QFort/Heom.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/NCKU-QFort/Heom.jl)
+[![codecov](https://codecov.io/gh/NCKU-QFort/Heom.jl/branch/main/graph/badge.svg?token=237Z7F7OOV)](https://codecov.io/gh/NCKU-QFort/Heom.jl)
 
 An efficient julia framework for Hierarchical Equations of Motion (HEOM) in open quantum systems  
 
