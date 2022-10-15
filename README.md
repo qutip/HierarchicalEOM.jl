@@ -5,8 +5,10 @@
 <!--
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://ncku-qfort.github.io/Heom.jl/dev/)
 -->
+[![](https://img.shields.io/github/release/NCKU-QFort/Heom.jl.svg)](https://github.com/NCKU-QFort/Heom.jl/releases)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://ncku-qfort.github.io/Heom.jl/dev/)  
 [![Runtests](https://github.com/NCKU-QFort/Heom.jl/actions/workflows/Runtests.yml/badge.svg)](https://github.com/NCKU-QFort/Heom.jl/actions/workflows/Runtests.yml)
+[![codecov](https://codecov.io/gh/NCKU-QFort/Heom.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/NCKU-QFort/Heom.jl)
 
 An efficient julia framework for Hierarchical Equations of Motion (HEOM) in open quantum systems  
 
@@ -31,13 +33,11 @@ julia> Heom.versioninfo()
 
 ## Documentation
 The documentation and examples can be found in :
-- [**STABLE (not ready yet)**](https://ncku-qfort.github.io/Heom.jl/stable) — most recently tagged version.
-- [**DEVELOP**](https://ncku-qfort.github.io/Heom.jl/dev/) — in-development version.
+- [**STABLE (not ready yet)**](https://ncku-qfort.github.io/Heom.jl/stable) : most recently tagged version.
+- [**DEVELOP**](https://ncku-qfort.github.io/Heom.jl/dev/) : in-development version.
 
 ## Cite `Heom.jl`
-The corresponding paper for `Heom.jl` is  
-[`(Update when we published the paper)`](https://unknown)  
-This software is developed as part of academic research. If you use `Heom.jl` as part of your research, teaching, or other activities, we would be grateful if you could cite our work:
+If you like `Heom.jl`, we would appreciate it if you starred the repository in order to help us increase its visibility. Furthermore, if you find the framework useful in your research, we would be grateful if you could cite our publication ([`Update when we published the paper`](https://unknown)  ) using the following bibtex entry:
 ```bib
 @article{Heom2023
   title={},
