@@ -1,6 +1,7 @@
 using Heom
 using Test
 using SparseArrays
+using LinearAlgebra
 
 include("utils.jl")
 
