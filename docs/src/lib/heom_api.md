@@ -43,7 +43,7 @@ ADOs
 ```
 
 ```@docs
-ADOs(V::AbstractVector, Nb::Int=0, Nf::Int=0)
+ADOs(V::AbstractVector; Nb::Int=0, Nf::Int=0)
 ```
 
 ### Functions for Auxiliary Density Operators
