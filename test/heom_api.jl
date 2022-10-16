@@ -25,6 +25,7 @@ J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
 # Test Boson-type Heom liouvillian superoperator matrix
 @testset "M_Boson" begin
     L = M_Boson(Hsys, tier, Bbath; verbose=false)
+    @test show(devnull, MIME("text/plain"), L) == nothing
     @test size(L) == (336, 336)
     @test L.N  == 84
     @test L.Nb == 84
@@ -78,6 +79,7 @@ end
 # Test Fermion-type Heom liouvillian superoperator matrix
 @testset "M_Fermion" begin
     L = M_Fermion(Hsys, tier, Fbath; verbose=false)
+    @test show(devnull, MIME("text/plain"), L) == nothing
     @test size(L) == (1196, 1196)
     @test L.N  == 299
     @test L.Nb == 0
@@ -143,6 +145,7 @@ end
     Fbath = Fermion_Lorentz_Pade(Q, λ, μ, W, T, N)
 
     L = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose=false)
+    @test show(devnull, MIME("text/plain"), L) == nothing
     @test size(L) == (2220, 2220)
     @test L.N  == 555
     @test L.Nb == 15
@@ -266,4 +269,25 @@ end
         Ptr = hDict.bathPtr
         @test length(b) == (Ptr[i + 1] - Ptr[i])
     end
+end
+
+@testset "Auxiliary density operators" begin
+    ados_b  = ADOs(spzeros(Int64, 20); Nb = 5)
+    ados_f  = ADOs(spzeros(Int64,  8); Nf = 2)
+    ados_bf = ADOs(spzeros(Int64, 40); Nb = 5, Nf = 2)
+    @test show(devnull, MIME("text/plain"), ados_bf) == nothing
+
+    # check lastindex
+    @test ados_bf[end, end] == spzeros(ComplexF64, 2, 2)
+
+    # check Colon expression
+    @test all(ados_bf[1, :] .== ados_f[:])
+    @test all(ados_bf[:, 1] .== ados_b[:])
+    @test_throws ErrorException ados_bf[:, :]
+
+    # check iteration
+    for ado in ados_b
+       @test ado == spzeros(ComplexF64, 2, 2)
+    end
+    @test_throws ErrorException for ado in ados_bf end
 end

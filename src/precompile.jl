@@ -36,8 +36,8 @@ import SnoopPrecompile: @precompile_setup, @precompile_all_calls
 
         # precompile ADOs for the support of Base functions 
         @info "Precompiling Auxiliary Density Operators (ADOs)..."
-        ados1 = ADOs(zeros(8),  2)
-        ados2 = ADOs(zeros(16), 2, 2)
+        ados1 = ADOs(zeros(8); Nb = 2)
+        ados2 = ADOs(zeros(16), Nb = 2, Nf = 2)
         length(ados1)
         length(ados2)
         getRho(ados1)

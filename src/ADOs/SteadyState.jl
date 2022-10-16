@@ -88,9 +88,9 @@ function SteadyState(
     # vectorize initial state
     ρ1   = sparse(sparsevec(ρ0))
     ados = ADOs(
-        sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), 
-        M.Nb, 
-        M.Nf
+        sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim); 
+        Nb = M.Nb, 
+        Nf = M.Nf
     )
     
     return SteadyState(M, ados;
@@ -140,6 +140,18 @@ function SteadyState(
     # check parity
     if (M.parity != :even) && (M.parity != :none)
         error("The parity of M should be either \":none\" (bonson) or \":even\" (fermion).")
+    end
+
+    if (M.dim != ados.dim)
+        error("The system dimension between M and ados are not consistent.")
+    end
+
+    if (M.Nb != ados.Nb)
+        error("The number of bosonic states between M and ados are not consistent.")
+    end
+
+    if (M.Nf != ados.Nf)
+        error("The number of fermionic states between M and ados are not consistent.")
     end
 
     # setup ode function

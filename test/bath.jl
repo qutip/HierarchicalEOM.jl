@@ -43,6 +43,12 @@ for e in b
 end
 @test η == [10.0 + 0.0im, 9.0 + 0.0im, 4.0 + 0.0im, 8.0 + 0.0im, 10.0 + 0.0im, 1.0 + 2.0im, 5.0 + 6.0im]
 @test γ == [ 0.3 + 0.0im, 0.7 + 0.0im, 0.2 + 0.0im, 0.6 + 0.0im,  0.9 + 0.0im, 0.1 + 0.0im, 0.5 + 0.0im]
+@test show(devnull, MIME("text/plain"), b) == nothing
+
+## check for exponents
+@test show(devnull, MIME("text/plain"), b[1]) == nothing
+@test show(devnull, MIME("text/plain"), b[:]) == nothing
+@test show(devnull, MIME("text/plain"), b[1:end]) == nothing
 
 ## check exceptions
 @test_throws ErrorException BosonBath(op, [0], [0, 0])
@@ -58,6 +64,12 @@ b = FermionBath(op, η1, γ1, η2, γ2)
 for e in b
     @test e.op == [0 0; 0 0]
 end
+@test show(devnull, MIME("text/plain"), b) == nothing
+
+## check for exponents
+@test show(devnull, MIME("text/plain"), b[1]) == nothing
+@test show(devnull, MIME("text/plain"), b[:]) == nothing
+@test show(devnull, MIME("text/plain"), b[1:end]) == nothing
 
 ## check exceptions
 @test_throws ErrorException FermionBath(op,    [0], [0, 0], [0, 0], [0, 0])
@@ -69,6 +81,7 @@ end
 
 ################################################
 # Exponent
+## check exceptions
 @test_throws ErrorException b[11]
 @test_throws ErrorException b[1:11]
 @test_throws ErrorException b[0:10]

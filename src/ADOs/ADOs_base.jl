@@ -43,7 +43,7 @@ mutable struct ADOs
 end
 
 """
-    ADOs(V, Nb=0, Nf=0)
+    ADOs(V; Nb=0, Nf=0)
 Gernerate the object of auxiliary density operators for Heom model.
 
 # Parameters
@@ -52,7 +52,7 @@ Gernerate the object of auxiliary density operators for Heom model.
 - `Nf::Int` : the number of fermionic states Defaults to `0`.
 """
 function ADOs(        
-        V::AbstractVector,
+        V::AbstractVector;
         Nb::Int=0,
         Nf::Int=0
     )
@@ -224,6 +224,9 @@ function getindex(A::ADOs, r::UnitRange{Int}, j::Int)
 end
 getindex(A::ADOs, ::Colon, j::Int) = getindex(A, 1:lastindex(A, 1), j)
 getindex(A::ADOs, i::Int, ::Colon) = getindex(A, i, 1:lastindex(A, 2))
+function getindex(A::ADOs, ::Colon, ::Colon)
+    error("ADOs doesn't support \"ADOs[:,:]\" for mixed (bosonic and fermionic) bath.")
+end
 
 function iterate(A::ADOs) 
     if (A.Nb == 0) || (A.Nf == 0)
