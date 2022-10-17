@@ -38,9 +38,9 @@ function evolution(
     # vectorize initial state
     ρ1   = sparse(sparsevec(ρ0))
     ados = ADOs(
-        sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), 
-        M.Nb, 
-        M.Nf
+        sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim);
+        Nb = M.Nb, 
+        Nf = M.Nf
     )
 
     return evolution(M, ados, Δt, steps;
@@ -130,7 +130,7 @@ function evolution(
         ρvec = exp_Mt * ρvec
         
         # save the ADOs
-        ados = ADOs(ρvec, M.Nb, M.Nf)
+        ados = ADOs(ρvec, M.dim, M.Nb, M.Nf)
         push!(ADOs_list, ados)
         
         if SAVE
@@ -196,9 +196,9 @@ function evolution(
     # vectorize initial state
     ρ1   = sparse(sparsevec(ρ0))
     ados = ADOs(
-        sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), 
-        M.Nb, 
-        M.Nf
+        sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim);
+        Nb = M.Nb, 
+        Nf = M.Nf
     )
 
     return evolution(M, ados, tlist;
@@ -302,7 +302,7 @@ function evolution(
         step!(integrator, dt, true)
         
         # save the ADOs
-        ados = ADOs(copy(integrator.u), M.Nb, M.Nf)
+        ados = ADOs(copy(integrator.u), M.dim, M.Nb, M.Nf)
         push!(ADOs_list, ados)
         
         if SAVE

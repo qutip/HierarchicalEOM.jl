@@ -29,9 +29,9 @@ Note that the first index specifies the bosonic bath index while the other one s
 ```julia
 length(ados);       # returns the total number of `ADOs`
 ados[idx_b, 1:end]; # returns a vector which contains all the fermionic `ADO` (in matrix form) where bosonic index is `idx_b`
-ados[1:end, idx_f]; # returns a vector which contains all the bosonic `ADO` (in matrix form) where bosonic index is `idx_f`
 ados[idx_b, :];     # returns a vector which contains all the fermionic `ADO` (in matrix form) where bosonic index is `idx_b`
-ados[:, idx_f];     # returns a vector which contains all the bosonic `ADO` (in matrix form) where bosonic index is `idx_f`
+ados[1:end, idx_f]; # returns a vector which contains all the bosonic `ADO` (in matrix form) where fermionic index is `idx_f`
+ados[:, idx_f];     # returns a vector which contains all the bosonic `ADO` (in matrix form) where fermionic index is `idx_f`
 ```
 But, currently, we don't support `iterate()` for mixed bath ADOs.
 """
@@ -43,7 +43,7 @@ mutable struct ADOs
 end
 
 """
-    ADOs(V, Nb=0, Nf=0)
+    ADOs(V; Nb=0, Nf=0)
 Gernerate the object of auxiliary density operators for Heom model.
 
 # Parameters
@@ -52,7 +52,7 @@ Gernerate the object of auxiliary density operators for Heom model.
 - `Nf::Int` : the number of fermionic states Defaults to `0`.
 """
 function ADOs(        
-        V::AbstractVector,
+        V::AbstractVector;
         Nb::Int=0,
         Nf::Int=0
     )
@@ -224,6 +224,9 @@ function getindex(A::ADOs, r::UnitRange{Int}, j::Int)
 end
 getindex(A::ADOs, ::Colon, j::Int) = getindex(A, 1:lastindex(A, 1), j)
 getindex(A::ADOs, i::Int, ::Colon) = getindex(A, i, 1:lastindex(A, 2))
+function getindex(A::ADOs, ::Colon, ::Colon)
+    error("ADOs doesn't support \"ADOs[:,:]\" for mixed (bosonic and fermionic) bath.")
+end
 
 function iterate(A::ADOs) 
     if (A.Nb == 0) || (A.Nf == 0)
