@@ -13,13 +13,20 @@ The expansion of a bath correlation function can be expressed as : ``\\sum_i \\e
 - `op` : The coupling operator according to system-bath interaction.
 - `η::Number` : the coefficient ``\\eta_i`` in bath correlation functions.
 - `γ::Number` : the coefficient ``\\gamma_i`` in bath correlation functions.
-- `tag` : The type-tag of the exponent.
+- `types::String` : The type-tag of the exponent.
+
+The types different types of the Exponent:
+- `\"bR\"` : from real part of bosonic correlation function
+- `\"bI\"` : from imaginary part of bosonic correlation function
+- `\"bRI\"` : from combined (real and imaginary part) bosonic bath correlation function
+- `\"fA\"` : from the fermionic bath which describes the absorption
+- `\"fE\"` : from the fermionic bath which describes the emission
 """
 struct Exponent 
     op
     η::Number
     γ::Number
-    tag::String
+    types::String
 end
 
 spre(q::AbstractMatrix)  = sparse(kron(Matrix(I, size(q)[1], size(q)[1]), q))
@@ -27,7 +34,7 @@ spost(q::AbstractMatrix) = sparse(kron(transpose(q), Matrix(I, size(q)[1], size(
 
 function show(io::IO, E::Exponent)
     print(io, 
-        "$(E.tag) Bath Exponent with operator size = $(size(E.op)), η = $(E.η), γ = $(E.γ).\n"
+        "Bath Exponent with types = \"$(E.types)\", operator size = $(size(E.op)), η = $(E.η), γ = $(E.γ).\n"
     )
 end
 show(io::IO, m::MIME"text/plain", E::Exponent) =  show(io, E)
@@ -43,7 +50,7 @@ show(io::IO, m::MIME"text/plain", B::AbstractFermionBath) =  show(io, B)
 
 function checkbounds(B::AbstractBath, i::Int)
     if (i < 1) || (i > B.Nterm)
-        error("BoundsError: attempt to access $(B.Nterm)-exponent term Bath at index [$(i)]")
+        error("Attempt to access $(B.Nterm)-exponent term Bath at index [$(i)]")
     end
 end
 
@@ -52,23 +59,31 @@ lastindex(B::AbstractBath) = B.Nterm
 
 function getindex(B::AbstractBath, i::Int)
     checkbounds(B, i)
-    if typeof(B) == BosonBath 
-        tag = "Boson"
-    else 
-        tag = "Fermion" 
-    end
     
     count = 0
     for b in B.bath
         for k in 1:b.Nterm
             count += 1
             if count == i
-                if typeof(b) == bosonRealImag 
+                b_type = typeof(b)
+                op = copy(B.op)
+                if b_type == bosonRealImag 
                     η = b.η_real[k] + 1.0im * b.η_imag[k]
+                    types = "bRI"
                 else
                     η = b.η[k]
+                    if b_type == bosonReal
+                        types = "bR"
+                    elseif b_type == bosonImag
+                        types = "bI"
+                    elseif b_type == fermionAbsorb
+                        types = "fA"
+                        op = op'
+                    elseif b_type == fermionEmit
+                        types = "fE"
+                    end
                 end
-                return Exponent(copy(B.op), η, b.γ[k], tag)
+                return Exponent(op, η, b.γ[k], types)
             end
         end
     end
@@ -77,11 +92,6 @@ end
 function getindex(B::AbstractBath, r::UnitRange{Int})
     checkbounds(B, r[1])
     checkbounds(B, r[end])
-    if typeof(B) == BosonBath 
-        tag = "Boson"
-    else 
-        tag = "Fermion" 
-    end
 
     count = 0
     exp_list = Exponent[]
@@ -89,16 +99,28 @@ function getindex(B::AbstractBath, r::UnitRange{Int})
         for k in 1:b.Nterm
             count += 1
             if (r[1] <= count) && (count <= r[end])
-                if typeof(b) == bosonRealImag 
+                b_type = typeof(b)
+                op = copy(B.op)
+                if b_type == bosonRealImag 
                     η = b.η_real[k] + 1.0im * b.η_imag[k]
+                    types = "bRI"
                 else
                     η = b.η[k]
+                    if b_type == bosonReal
+                        types = "bR"
+                    elseif b_type == bosonImag
+                        types = "bI"
+                    elseif b_type == fermionAbsorb
+                        types = "fA"
+                        op = op'
+                    elseif b_type == fermionEmit
+                        types = "fE"
+                    end
                 end
-                push!(exp_list, Exponent(copy(B.op), η, b.γ[k], tag))
-
-                if count == r[end] 
-                    return exp_list
-                end
+                push!(exp_list, Exponent(op, η, b.γ[k], types))
+            end
+            if count == r[end] 
+                return exp_list
             end
         end
     end
