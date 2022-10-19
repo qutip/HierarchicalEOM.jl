@@ -14,13 +14,13 @@ The hierarchy level (``L``) for an `ado` is given by ``L=\\sum_{\\nu, k} n_{\\nu
 - `idx2ado` : Return the `ado` (`n_vector`) from a given index
 - `ado2idx` : Return the index from a given `ado` (`n_vector`)
 - `lvl2idx` : Return the list of indices from a given level
-- `bathPtr` : The indices for the exponential-expansion terms of the `N`-th bath in `ado` (`n_vector`) can be obtained by `bathPtr[N]:(bathPtr[N+1] - 1)`
+- `bathPtr` : Records the tuple ``(k, \\nu)`` for each position in `n_vector`, where ``k`` and ``\\nu`` represents the ``\\nu``-th exponential-expansion term of the ``k``-th bath.
 """
 struct HierarchyDict
     idx2ado::Vector{Vector{Int}}
     ado2idx::Dict{Vector{Int}, Int}
     lvl2idx::Dict{Int, Vector{Int}}
-    bathPtr::Vector{Int}
+    bathPtr::Vector{Tuple}
 end
 
 # generate index to ado vector
@@ -75,29 +75,33 @@ end
 
 function genBathHierarchy(B::Vector{T}, tier::Int, dim::Int) where T <: AbstractBath
     Nterm   = 0
-    bathPtr = [1]
+    bathPtr = Tuple[]
 
     if T == BosonBath
         baths = AbstractBosonBath[]
-        for b in B
+        for (k, b) in enumerate(B)
             if b.dim != dim 
                 error("The matrix size of the bosonic bath coupling operators are not consistent.")
             end
             push!(baths, b.bath...)
+            for ν in 1:b.Nterm
+                push!(bathPtr, (k, ν))
+            end
             Nterm += b.Nterm
-            push!(bathPtr, Nterm + 1)
         end
         n_vec = fill((tier + 1), Nterm)
     
     elseif T == FermionBath
         baths = AbstractFermionBath[]
-        for b in B
+        for (k, b) in enumerate(B)
             if b.dim != dim 
                 error("The matrix size of the fermionic bath coupling operators are not consistent.")
             end
             push!(baths, b.bath...)
+            for ν in 1:b.Nterm
+                push!(bathPtr, (k, ν))
+            end
             Nterm += b.Nterm
-            push!(bathPtr, Nterm + 1)
         end
         n_vec = fill(2, Nterm)
     end

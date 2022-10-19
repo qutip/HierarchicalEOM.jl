@@ -248,9 +248,9 @@ end
             @test sum(hDict.idx2ado[idx]) == lvl
         end
     end
-    for (i, b) in enumerate(Bbath)
-        Ptr = hDict.bathPtr
-        @test length(b) == (Ptr[i + 1] - Ptr[i])
+    @test length(hDict.bathPtr) == sum([b.Nterm for b in Bbath])
+    for (k, ν) in hDict.bathPtr
+        @test typeof(Bbath[k][ν]) == Exponent
     end
 
     # check fermion hierarchy dict.
@@ -265,9 +265,9 @@ end
             @test sum(hDict.idx2ado[idx]) == lvl
         end
     end
-    for (i, b) in enumerate(Fbath)
-        Ptr = hDict.bathPtr
-        @test length(b) == (Ptr[i + 1] - Ptr[i])
+    @test length(hDict.bathPtr) == sum([b.Nterm for b in Fbath])
+    for (k, ν) in hDict.bathPtr
+        @test typeof(Fbath[k][ν]) == Exponent
     end
 end
 
