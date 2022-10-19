@@ -238,14 +238,14 @@ end
     
     # check boson hierarchy dict.
     hDict = L.hierarchy_b
-    @test L.Nb == length(hDict.idx2ado)
-    for (idx, ado) in enumerate(hDict.idx2ado)
-        @test hDict.ado2idx[ado] == idx
+    @test L.Nb == length(hDict.idx2nvec)
+    for (idx, ado) in enumerate(hDict.idx2nvec)
+        @test hDict.nvec2idx[ado] == idx
     end
     for lvl in 0:tier
         idx_list = hDict.lvl2idx[lvl]
         for idx in idx_list
-            @test sum(hDict.idx2ado[idx]) == lvl
+            @test sum(hDict.idx2nvec[idx]) == lvl
         end
     end
     @test length(hDict.bathPtr) == sum([b.Nterm for b in Bbath])
@@ -255,14 +255,14 @@ end
 
     # check fermion hierarchy dict.
     hDict = L.hierarchy_f
-    @test L.Nf == length(hDict.idx2ado)
-    for (idx, ado) in enumerate(hDict.idx2ado)
-        @test hDict.ado2idx[ado] == idx
+    @test L.Nf == length(hDict.idx2nvec)
+    for (idx, ado) in enumerate(hDict.idx2nvec)
+        @test hDict.nvec2idx[ado] == idx
     end
     for lvl in 0:tier
         idx_list = hDict.lvl2idx[lvl]
         for idx in idx_list
-            @test sum(hDict.idx2ado[idx]) == lvl
+            @test sum(hDict.idx2nvec[idx]) == lvl
         end
     end
     @test length(hDict.bathPtr) == sum([b.Nterm for b in Fbath])
