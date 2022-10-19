@@ -12,8 +12,6 @@ Heom liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath
 - `Nf` : the number of fermionic ADOs
 - `sup_dim` : the dimension of system superoperator
 - `parity` : the parity of the density matrix
-- `ado2idx_b` : the bosonic ADO-to-index dictionary
-- `ado2idx_f` : the fermionic ADO-to-index dictionary
 - `bath_b::Vector{BosonBath}` : the vector which stores all `BosonBath` objects
 - `bath_f::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
 - `hierarchy_b::HierarchyDict`: the object which contains all dictionaries for boson-bath-ADOs hierarchy.
@@ -88,13 +86,13 @@ function M_Boson_Fermion(
 
     # check for bosonic bath
     Nado_b, baths_b, hierarchy_b = genBathHierarchy(Bath_b, tier_b, Nsys)
-    idx2ado_b = hierarchy_b.idx2ado
-    ado2idx_b = hierarchy_b.ado2idx
+    idx2nvec_b = hierarchy_b.idx2nvec
+    nvec2idx_b = hierarchy_b.nvec2idx
 
     # check for fermionic bath
     Nado_f, baths_f, hierarchy_f = genBathHierarchy(Bath_f, tier_f, Nsys)
-    idx2ado_f = hierarchy_f.idx2ado
-    ado2idx_f = hierarchy_f.ado2idx
+    idx2nvec_f = hierarchy_f.idx2nvec
+    nvec2idx_f = hierarchy_f.nvec2idx
 
     Nado_tot = Nado_b * Nado_f
 
@@ -124,51 +122,51 @@ function M_Boson_Fermion(
             @distributed (+) for idx_b in 1:Nado_b
                 # diagonal (boson)
                 sum_ω   = 0.0
-                ado_b = idx2ado_b[idx_b]
-                n_exc_b = sum(ado_b) 
+                nvec_b = idx2nvec_b[idx_b]
+                n_exc_b = sum(nvec_b) 
                 idx = (idx_b - 1) * Nado_f
                 if n_exc_b >= 1
-                    sum_ω += bath_sum_ω(ado_b, baths_b)
+                    sum_ω += bath_sum_ω(nvec_b, baths_b)
                 end
 
                 # diagonal (fermion)
                 for idx_f in 1:Nado_f
-                    ado_f = idx2ado_f[idx_f]
-                    n_exc_f = sum(ado_f)
+                    nvec_f = idx2nvec_f[idx_f]
+                    n_exc_f = sum(nvec_f)
                     if n_exc_f >= 1
-                        sum_ω += bath_sum_ω(ado_f, baths_f)
+                        sum_ω += bath_sum_ω(nvec_f, baths_f)
                     end
                     add_operator!(Lsys - sum_ω * I_sup, L_row, L_col, L_val, Nado_tot, idx + idx_f, idx + idx_f)
                 end
                 
                 # off-diagonal (boson)
                 count = 0
-                ado_neigh = copy(ado_b)
+                nvec_neigh = copy(nvec_b)
                 for bB in baths_b
                     for k in 1:bB.Nterm
                         count += 1
-                        n_k = ado_b[count]
+                        n_k = nvec_b[count]
                         if n_k >= 1
-                            ado_neigh[count] = n_k - 1
-                            idx_neigh = ado2idx_b[ado_neigh]
+                            nvec_neigh[count] = n_k - 1
+                            idx_neigh = nvec2idx_b[nvec_neigh]
                             
                             op = prev_grad_boson(bB, k, n_k)
                             for idx_f in 1:Nado_f
                                 add_operator!(op, L_row, L_col, L_val, Nado_tot, (idx + idx_f), (idx_neigh - 1) * Nado_f + idx_f)
                             end
                             
-                            ado_neigh[count] = n_k
+                            nvec_neigh[count] = n_k
                         end
                         if n_exc_b <= tier_b - 1
-                            ado_neigh[count] = n_k + 1
-                            idx_neigh = ado2idx_b[ado_neigh]
+                            nvec_neigh[count] = n_k + 1
+                            idx_neigh = nvec2idx_b[nvec_neigh]
                             
                             op = next_grad_boson(bB)
                             for idx_f in 1:Nado_f
                                 add_operator!(op, L_row, L_col, L_val, Nado_tot, (idx + idx_f), (idx_neigh - 1) * Nado_f + idx_f)
                             end
 
-                            ado_neigh[count] = n_k
+                            nvec_neigh[count] = n_k
                         end
                     end
                 end
@@ -180,24 +178,24 @@ function M_Boson_Fermion(
 
             # fermion (n+1 & n-1 tier) superoperator
             @distributed (+) for idx_f in 1:Nado_f
-                ado_f = idx2ado_f[idx_f]
-                n_exc_f = sum(ado_f)
+                nvec_f = idx2nvec_f[idx_f]
+                n_exc_f = sum(nvec_f)
 
                 count = 0
-                ado_neigh = copy(ado_f)
+                nvec_neigh = copy(nvec_f)
                 for fB in baths_f
                     for k in 1:fB.Nterm
                         count += 1
-                        n_k = ado_f[count]
+                        n_k = nvec_f[count]
                         if n_k >= 1
-                            ado_neigh[count] = n_k - 1
-                            idx_neigh = ado2idx_f[ado_neigh]
-                            op = prev_grad_fermion(fB, k, n_exc_f, sum(ado_neigh[1:(count - 1)]), parity)
+                            nvec_neigh[count] = n_k - 1
+                            idx_neigh = nvec2idx_f[nvec_neigh]
+                            op = prev_grad_fermion(fB, k, n_exc_f, sum(nvec_neigh[1:(count - 1)]), parity)
 
                         elseif n_exc_f <= tier_f - 1
-                            ado_neigh[count] = n_k + 1
-                            idx_neigh = ado2idx_f[ado_neigh]
-                            op = next_grad_fermion(fB, n_exc_f, sum(ado_neigh[1:(count - 1)]), parity)
+                            nvec_neigh[count] = n_k + 1
+                            idx_neigh = nvec2idx_f[nvec_neigh]
+                            op = next_grad_fermion(fB, n_exc_f, sum(nvec_neigh[1:(count - 1)]), parity)
 
                         else
                             continue
@@ -208,7 +206,7 @@ function M_Boson_Fermion(
                             add_operator!(op, L_row, L_col, L_val, Nado_tot, idx + idx_f, idx + idx_neigh)
                         end
 
-                        ado_neigh[count] = n_k
+                        nvec_neigh[count] = n_k
                     end
                 end
                 if verbose

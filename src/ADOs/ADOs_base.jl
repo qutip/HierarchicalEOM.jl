@@ -83,13 +83,13 @@ function checkbounds(A::ADOs, i::Int, tag::String)
     # boson case
     if tag == "b"
         if (i > A.Nb) || (i < 1)
-            error("BoundsError: attempt to access $(A.Nb)-element (bosonic) ADOs at index [$(i)]")
+            error("Attempt to access $(A.Nb)-element (bosonic) ADOs at index [$(i)]")
         end
 
     # fermion case
     elseif tag == "f"
         if (i > A.Nf) || (i < 1)
-            error("BoundsError: attempt to access $(A.Nf)-element (fermionic) ADOs at index [$(i)]")
+            error("Attempt to access $(A.Nf)-element (fermionic) ADOs at index [$(i)]")
         end
     end
 end

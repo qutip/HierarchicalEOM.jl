@@ -222,14 +222,14 @@ function add_operator!(op, I, J, V, N_he, row_idx, col_idx)
 end
 
 # sum ω of bath for current gradient
-function bath_sum_ω(ado, baths::Vector{T}) where T <: Union{AbstractBosonBath, AbstractFermionBath}
+function bath_sum_ω(nvec, baths::Vector{T}) where T <: Union{AbstractBosonBath, AbstractFermionBath}
     count = 0
     sum_ω = 0.0
     for b in baths
         for k in 1:b.Nterm
             count += 1
-            if ado[count] > 0
-                sum_ω += ado[count] * b.γ[k]
+            if nvec[count] > 0
+                sum_ω += nvec[count] * b.γ[k]
             end
         end
     end

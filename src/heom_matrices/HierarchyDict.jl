@@ -2,61 +2,61 @@
     struct HierarchyDict
 An object which contains all dictionaries for bath-ADOs hierarchy.
 
-The `ado` (or `n_vector`) denotes a set of integers:
+The `nvec` (``\\vec{n}``) denotes a set of integers:
 ```math
 \\{ n_{11}, ..., n_{\\nu k}, ... \\}
 ```
 where ``n_{\\nu k} \\geq 0`` associated with the ``k``-th exponential-expansion term in the ``\\nu``-th bath.
 
-The hierarchy level (``L``) for an `ado` is given by ``L=\\sum_{\\nu, k} n_{\\nu k}``
+The hierarchy level (``L``) for an `nvec` is given by ``L=\\sum_{\\nu, k} n_{\\nu k}``
 
 # Fields
-- `idx2ado` : Return the `ado` (`n_vector`) from a given index
-- `ado2idx` : Return the index from a given `ado` (`n_vector`)
+- `idx2nvec` : Return the `nvec` from a given index
+- `nvec2idx` : Return the index from a given `nvec`
 - `lvl2idx` : Return the list of indices from a given level
-- `bathPtr` : The indices for the exponential-expansion terms of the `N`-th bath in `ado` (`n_vector`) can be obtained by `bathPtr[N]:(bathPtr[N+1] - 1)`
+- `bathPtr` : Records the tuple ``(k, \\nu)`` for each position in `n_vector`, where ``k`` and ``\\nu`` represents the ``\\nu``-th exponential-expansion term of the ``k``-th bath.
 """
 struct HierarchyDict
-    idx2ado::Vector{Vector{Int}}
-    ado2idx::Dict{Vector{Int}, Int}
+    idx2nvec::Vector{Vector{Int}}
+    nvec2idx::Dict{Vector{Int}, Int}
     lvl2idx::Dict{Int, Vector{Int}}
-    bathPtr::Vector{Int}
+    bathPtr::Vector{Tuple}
 end
 
-# generate index to ado vector
-function _IDX2ADO(n_vec::Vector{Int}, N_exc::Int)
+# generate index to n vector
+function _Idx2Nvec(n_vec::Vector{Int}, N_exc::Int)
     len = length(n_vec)
-    ado = zeros(Int, len)
-    result = [copy(ado)]
+    nvec = zeros(Int, len)
+    result = [copy(nvec)]
     nexc = 0
 
     while true
         idx = len
-        ado[end] += 1
+        nvec[end] += 1
         nexc += 1
-        if ado[idx] < n_vec[idx]
-            push!(result, copy(ado))
+        if nvec[idx] < n_vec[idx]
+            push!(result, copy(nvec))
         end
-        while (nexc == N_exc) || (ado[idx] == n_vec[idx])
-            #ado[idx] = 0
+        while (nexc == N_exc) || (nvec[idx] == n_vec[idx])
+            #nvec[idx] = 0
             idx -= 1
             if idx < 1
                 return result
             end
 
-            nexc -= ado[idx + 1] - 1
-            ado[idx + 1] = 0
-            ado[idx] += 1
-            if ado[idx] < n_vec[idx]
-                push!(result, copy(ado))
+            nexc -= nvec[idx + 1] - 1
+            nvec[idx + 1] = 0
+            nvec[idx] += 1
+            if nvec[idx] < n_vec[idx]
+                push!(result, copy(nvec))
             end
         end
     end
 end
 
 function _genHierarchyDict(n_vec::Vector{Int}, N_exc::Int)
-    idx2ado = _IDX2ADO(n_vec, N_exc)
-    ado2idx = Dict{Vector{Int}, Int}()
+    idx2nvec = _Idx2Nvec(n_vec, N_exc)
+    nvec2idx = Dict{Vector{Int}, Int}()
     
     # create lvl2idx
     lvl2idx = Dict{Int, Vector{Int}}()
@@ -64,46 +64,50 @@ function _genHierarchyDict(n_vec::Vector{Int}, N_exc::Int)
         lvl2idx[level] = []
     end
 
-    for (idx, ado) in enumerate(idx2ado)
-        level = sum(ado)
+    for (idx, nvec) in enumerate(idx2nvec)
+        level = sum(nvec)
         push!(lvl2idx[level], idx)
-        ado2idx[ado] = idx        
+        nvec2idx[nvec] = idx        
     end
 
-    return length(idx2ado), idx2ado, ado2idx, lvl2idx
+    return length(idx2nvec), idx2nvec, nvec2idx, lvl2idx
 end
 
 function genBathHierarchy(B::Vector{T}, tier::Int, dim::Int) where T <: AbstractBath
     Nterm   = 0
-    bathPtr = [1]
+    bathPtr = Tuple[]
 
     if T == BosonBath
         baths = AbstractBosonBath[]
-        for b in B
+        for (k, b) in enumerate(B)
             if b.dim != dim 
                 error("The matrix size of the bosonic bath coupling operators are not consistent.")
             end
             push!(baths, b.bath...)
+            for ν in 1:b.Nterm
+                push!(bathPtr, (k, ν))
+            end
             Nterm += b.Nterm
-            push!(bathPtr, Nterm + 1)
         end
         n_vec = fill((tier + 1), Nterm)
     
     elseif T == FermionBath
         baths = AbstractFermionBath[]
-        for b in B
+        for (k, b) in enumerate(B)
             if b.dim != dim 
                 error("The matrix size of the fermionic bath coupling operators are not consistent.")
             end
             push!(baths, b.bath...)
+            for ν in 1:b.Nterm
+                push!(bathPtr, (k, ν))
+            end
             Nterm += b.Nterm
-            push!(bathPtr, Nterm + 1)
         end
         n_vec = fill(2, Nterm)
     end
 
-    Nado, idx2ado, ado2idx, lvl2idx = _genHierarchyDict(n_vec, tier)
-    hierarchy = HierarchyDict(idx2ado, ado2idx, lvl2idx, bathPtr)
+    Nado, idx2nvec, nvec2idx, lvl2idx = _genHierarchyDict(n_vec, tier)
+    hierarchy = HierarchyDict(idx2nvec, nvec2idx, lvl2idx, bathPtr)
 
     return Nado, baths, hierarchy
 end

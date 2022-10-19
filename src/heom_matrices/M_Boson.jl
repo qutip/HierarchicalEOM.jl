@@ -61,8 +61,8 @@ function M_Boson(
 
     # bosonic bath
     Nado, baths, hierarchy = genBathHierarchy(Bath, tier, Nsys)
-    idx2ado = hierarchy.idx2ado
-    ado2idx = hierarchy.ado2idx
+    idx2nvec = hierarchy.idx2nvec
+    nvec2idx = hierarchy.nvec2idx
 
     # start to construct the matrix
     L_row = distribute([Int[] for _ in procs()])
@@ -88,10 +88,10 @@ function M_Boson(
         # the second task does the computation
         @async begin
             @distributed (+) for idx in 1:Nado
-                ado = idx2ado[idx]
-                n_exc = sum(ado)
+                nvec = idx2nvec[idx]
+                n_exc = sum(nvec)
                 if n_exc >= 1
-                    sum_ω = bath_sum_ω(ado, baths)
+                    sum_ω = bath_sum_ω(nvec, baths)
                     op = Lsys - sum_ω * I_sup
                 else
                     op = Lsys
@@ -99,28 +99,28 @@ function M_Boson(
                 add_operator!(op, L_row, L_col, L_val, Nado, idx, idx)
 
                 count = 0
-                ado_neigh = copy(ado)
+                nvec_neigh = copy(nvec)
                 for bB in baths
                     for k in 1:bB.Nterm
                         count += 1
-                        n_k = ado[count]
+                        n_k = nvec[count]
                         if n_k >= 1
-                            ado_neigh[count] = n_k - 1
-                            idx_neigh = ado2idx[ado_neigh]
+                            nvec_neigh[count] = n_k - 1
+                            idx_neigh = nvec2idx[nvec_neigh]
                             
                             op = prev_grad_boson(bB, k, n_k)
                             add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
 
-                            ado_neigh[count] = n_k
+                            nvec_neigh[count] = n_k
                         end
                         if n_exc <= tier - 1
-                            ado_neigh[count] = n_k + 1
-                            idx_neigh = ado2idx[ado_neigh]
+                            nvec_neigh[count] = n_k + 1
+                            idx_neigh = nvec2idx[nvec_neigh]
                             
                             op = next_grad_boson(bB)
                             add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
                             
-                            ado_neigh[count] = n_k
+                            nvec_neigh[count] = n_k
                         end
                     end
                 end
