@@ -222,7 +222,6 @@ function M_Boson_Fermion(
         flush(stdout)
     end
     L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), Nado_tot * sup_dim, Nado_tot * sup_dim)
-    GC.gc()  # clean the garbage collector
     if verbose 
         println("[DONE]") 
         flush(stdout)
