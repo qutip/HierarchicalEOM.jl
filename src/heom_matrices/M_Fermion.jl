@@ -146,6 +146,6 @@ function M_Fermion(
         println("[DONE]")
         flush(stdout)
     end
-    
+    d_closeall()  # release all distributed arrays created from the calling process
     return M_Fermion(L_he, tier, Nsys, Nado, 0, Nado, sup_dim, parity, Bath, hierarchy)
 end

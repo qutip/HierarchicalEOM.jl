@@ -141,6 +141,6 @@ function M_Boson(
         println("[DONE]")
         flush(stdout)
     end
-    
+    d_closeall()  # release all distributed arrays created from the calling process
     return M_Boson(L_he, tier, Nsys, Nado, Nado, 0, sup_dim, :none, Bath, hierarchy)
 end

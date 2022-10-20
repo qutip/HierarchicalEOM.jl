@@ -226,6 +226,6 @@ function M_Boson_Fermion(
         println("[DONE]") 
         flush(stdout)
     end
-    
+    d_closeall()  # release all distributed arrays created from the calling process
     return M_Boson_Fermion(L_he, tier_b, tier_f, Nsys, Nado_tot, Nado_b, Nado_f, sup_dim, parity, Bath_b, Bath_f, hierarchy_b, hierarchy_f)
 end

@@ -52,7 +52,7 @@ module Heom
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
         import Distributed: @everywhere, @distributed, procs, nprocs, RemoteChannel, Channel
-        import DistributedArrays: distribute, localpart
+        import DistributedArrays: distribute, localpart, d_closeall
         import ProgressMeter: Progress, next!
         import FastExpm: fastExpm
         import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType
