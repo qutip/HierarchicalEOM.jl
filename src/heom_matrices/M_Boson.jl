@@ -137,7 +137,6 @@ function M_Boson(
         flush(stdout)
     end
     L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), Nado * sup_dim, Nado * sup_dim)
-    GC.gc()  # clean the garbage collector
     if verbose
         println("[DONE]")
         flush(stdout)
