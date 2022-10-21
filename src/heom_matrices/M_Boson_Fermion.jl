@@ -97,135 +97,135 @@ function M_Boson_Fermion(
     Nado_tot = Nado_b * Nado_f
 
     # start to construct the matrix
-    L_row = Int[]
-    L_col = Int[]
-    L_val = ComplexF64[]
-    lk = SpinLock()
+    L_row = distribute([Int[] for _ in procs()])
+    L_col = distribute([Int[] for _ in procs()])
+    L_val = distribute([ComplexF64[] for _ in procs()])
+    channel = RemoteChannel(() -> Channel{Bool}(), 1) # for updating the progress bar
+
     if verbose
-        println("Preparing block matrices for HEOM liouvillian superoperator (using $(nthreads()) threads)...")
+        println("Preparing block matrices for HEOM liouvillian superoperator (using $(nprocs()) processors)...")
         flush(stdout)
         prog = Progress(Nado_b + Nado_f; desc="Processing: ", PROGBAR_OPTIONS...)
     end
-    @threads for idx_b in 1:Nado_b
-        # diagonal (boson)
-        sum_ω   = 0.0
-        nvec_b = idx2nvec_b[idx_b]
-        n_exc_b = sum(nvec_b) 
-        idx = (idx_b - 1) * Nado_f
-        if n_exc_b >= 1
-            sum_ω += bath_sum_ω(nvec_b, baths_b)
+    @sync begin # start two tasks which will be synced in the very end
+        # the first task updates the progress bar
+        @async while take!(channel)
+            if verbose
+                next!(prog)
+            else
+                put!(channel, false) # this tells the printing task to finish
+            end
         end
 
-        # diagonal (fermion)
-        for idx_f in 1:Nado_f
-            nvec_f = idx2nvec_f[idx_f]
-            n_exc_f = sum(nvec_f)
-            if n_exc_f >= 1
-                sum_ω += bath_sum_ω(nvec_f, baths_f)
-            end
-            lock(lk)
-            try
-                add_operator!(Lsys - sum_ω * I_sup, L_row, L_col, L_val, Nado_tot, idx + idx_f, idx + idx_f)
-            finally
-                unlock(lk)
-            end
-        end
-        
-        # off-diagonal (boson)
-        count = 0
-        nvec_neigh = copy(nvec_b)
-        for bB in baths_b
-            for k in 1:bB.Nterm
-                count += 1
-                n_k = nvec_b[count]
-                if n_k >= 1
-                    nvec_neigh[count] = n_k - 1
-                    idx_neigh = nvec2idx_b[nvec_neigh]
-                    
-                    op = prev_grad_boson(bB, k, n_k)
-                    for idx_f in 1:Nado_f
-                        lock(lk)
-                        try
-                            add_operator!(op, L_row, L_col, L_val, Nado_tot, (idx + idx_f), (idx_neigh - 1) * Nado_f + idx_f)
-                        finally
-                            unlock(lk)
+        # the second task does the computation
+        @async begin
+            @distributed (+) for idx_b in 1:Nado_b
+                # diagonal (boson)
+                sum_ω   = 0.0
+                nvec_b = idx2nvec_b[idx_b]
+                n_exc_b = sum(nvec_b) 
+                idx = (idx_b - 1) * Nado_f
+                if n_exc_b >= 1
+                    sum_ω += bath_sum_ω(nvec_b, baths_b)
+                end
+
+                # diagonal (fermion)
+                for idx_f in 1:Nado_f
+                    nvec_f = idx2nvec_f[idx_f]
+                    n_exc_f = sum(nvec_f)
+                    if n_exc_f >= 1
+                        sum_ω += bath_sum_ω(nvec_f, baths_f)
+                    end
+                    add_operator!(Lsys - sum_ω * I_sup, L_row, L_col, L_val, Nado_tot, idx + idx_f, idx + idx_f)
+                end
+                
+                # off-diagonal (boson)
+                count = 0
+                nvec_neigh = copy(nvec_b)
+                for bB in baths_b
+                    for k in 1:bB.Nterm
+                        count += 1
+                        n_k = nvec_b[count]
+                        if n_k >= 1
+                            nvec_neigh[count] = n_k - 1
+                            idx_neigh = nvec2idx_b[nvec_neigh]
+                            
+                            op = prev_grad_boson(bB, k, n_k)
+                            for idx_f in 1:Nado_f
+                                add_operator!(op, L_row, L_col, L_val, Nado_tot, (idx + idx_f), (idx_neigh - 1) * Nado_f + idx_f)
+                            end
+                            
+                            nvec_neigh[count] = n_k
+                        end
+                        if n_exc_b <= tier_b - 1
+                            nvec_neigh[count] = n_k + 1
+                            idx_neigh = nvec2idx_b[nvec_neigh]
+                            
+                            op = next_grad_boson(bB)
+                            for idx_f in 1:Nado_f
+                                add_operator!(op, L_row, L_col, L_val, Nado_tot, (idx + idx_f), (idx_neigh - 1) * Nado_f + idx_f)
+                            end
+
+                            nvec_neigh[count] = n_k
                         end
                     end
-                    nvec_neigh[count] = n_k
                 end
-                if n_exc_b <= tier_b - 1
-                    nvec_neigh[count] = n_k + 1
-                    idx_neigh = nvec2idx_b[nvec_neigh]
-                    
-                    op = next_grad_boson(bB)
-                    for idx_f in 1:Nado_f
-                        lock(lk)
-                        try
-                            add_operator!(op, L_row, L_col, L_val, Nado_tot, (idx + idx_f), (idx_neigh - 1) * Nado_f + idx_f)
-                        finally
-                            unlock(lk)
+                if verbose
+                    put!(channel, true) # trigger a progress bar update
+                end
+                1 # Here, returning some number 1 and reducing it somehow (+) is necessary to make the distribution happen.
+            end
+
+            # fermion (n+1 & n-1 tier) superoperator
+            @distributed (+) for idx_f in 1:Nado_f
+                nvec_f = idx2nvec_f[idx_f]
+                n_exc_f = sum(nvec_f)
+
+                count = 0
+                nvec_neigh = copy(nvec_f)
+                for fB in baths_f
+                    for k in 1:fB.Nterm
+                        count += 1
+                        n_k = nvec_f[count]
+                        if n_k >= 1
+                            nvec_neigh[count] = n_k - 1
+                            idx_neigh = nvec2idx_f[nvec_neigh]
+                            op = prev_grad_fermion(fB, k, n_exc_f, sum(nvec_neigh[1:(count - 1)]), parity)
+
+                        elseif n_exc_f <= tier_f - 1
+                            nvec_neigh[count] = n_k + 1
+                            idx_neigh = nvec2idx_f[nvec_neigh]
+                            op = next_grad_fermion(fB, n_exc_f, sum(nvec_neigh[1:(count - 1)]), parity)
+
+                        else
+                            continue
                         end
-                    end
 
-                    nvec_neigh[count] = n_k
-                end
-            end
-        end
-        if verbose
-            next!(prog)
-        end
-    end
+                        for idx_b in 1:Nado_b
+                            idx = (idx_b - 1) * Nado_f
+                            add_operator!(op, L_row, L_col, L_val, Nado_tot, idx + idx_f, idx + idx_neigh)
+                        end
 
-    # fermion (n+1 & n-1 tier) superoperator
-    @threads for idx_f in 1:Nado_f
-        nvec_f = idx2nvec_f[idx_f]
-        n_exc_f = sum(nvec_f)
-
-        count = 0
-        nvec_neigh = copy(nvec_f)
-        for fB in baths_f
-            for k in 1:fB.Nterm
-                count += 1
-                n_k = nvec_f[count]
-                if n_k >= 1
-                    nvec_neigh[count] = n_k - 1
-                    idx_neigh = nvec2idx_f[nvec_neigh]
-                    op = prev_grad_fermion(fB, k, n_exc_f, sum(nvec_neigh[1:(count - 1)]), parity)
-
-                elseif n_exc_f <= tier_f - 1
-                    nvec_neigh[count] = n_k + 1
-                    idx_neigh = nvec2idx_f[nvec_neigh]
-                    op = next_grad_fermion(fB, n_exc_f, sum(nvec_neigh[1:(count - 1)]), parity)
-
-                else
-                    continue
-                end
-
-                for idx_b in 1:Nado_b
-                    idx = (idx_b - 1) * Nado_f
-                    lock(lk)
-                    try
-                        add_operator!(op, L_row, L_col, L_val, Nado_tot, idx + idx_f, idx + idx_neigh)
-                    finally
-                        unlock(lk)
+                        nvec_neigh[count] = n_k
                     end
                 end
-
-                nvec_neigh[count] = n_k
+                if verbose
+                    put!(channel, true) # trigger a progress bar update
+                end
+                1 # Here, returning some number 1 and reducing it somehow (+) is necessary to make the distribution happen.
             end
-        end
-        if verbose
-            next!(prog)
+            put!(channel, false) # this tells the printing task to finish
         end
     end
     if verbose
         print("Constructing matrix...")
         flush(stdout)
     end
-    L_he = sparse(L_row, L_col, L_val, Nado_tot * sup_dim, Nado_tot * sup_dim)
+    L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), Nado_tot * sup_dim, Nado_tot * sup_dim)
     if verbose 
         println("[DONE]") 
         flush(stdout)
     end
+    d_closeall()  # release all distributed arrays created from the calling process
     return M_Boson_Fermion(L_he, tier_b, tier_f, Nsys, Nado_tot, Nado_b, Nado_f, sup_dim, parity, Bath_b, Bath_f, hierarchy_b, hierarchy_f)
 end
