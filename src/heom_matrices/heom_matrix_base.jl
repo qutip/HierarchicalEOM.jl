@@ -216,9 +216,9 @@ end
 
 function add_operator!(op, I, J, V, N_he, row_idx, col_idx)
     row, col, val = pad_coo(op, N_he, N_he, row_idx, col_idx)
-    append!(localpart(I)[1], row)
-    append!(localpart(J)[1], col)
-    append!(localpart(V)[1], val)
+    append!(I, row)
+    append!(J, col)
+    append!(V, val)
 end
 
 # sum ω of bath for current gradient
