@@ -54,26 +54,7 @@ function _Idx2Nvec(n_vec::Vector{Int}, N_exc::Int)
     end
 end
 
-function _genHierarchyDict(n_vec::Vector{Int}, N_exc::Int)
-    idx2nvec = _Idx2Nvec(n_vec, N_exc)
-    nvec2idx = Dict{Vector{Int}, Int}()
-    
-    # create lvl2idx
-    lvl2idx = Dict{Int, Vector{Int}}()
-    for level in 0:N_exc
-        lvl2idx[level] = []
-    end
-
-    for (idx, nvec) in enumerate(idx2nvec)
-        level = sum(nvec)
-        push!(lvl2idx[level], idx)
-        nvec2idx[nvec] = idx        
-    end
-
-    return length(idx2nvec), idx2nvec, nvec2idx, lvl2idx
-end
-
-function genBathHierarchy(B::Vector{T}, tier::Int, dim::Int) where T <: AbstractBath
+function genBathHierarchy(B::Vector{T}, tier::Int, dim::Int; threshold::Real=0.0) where T <: AbstractBath
     Nterm   = 0
     bathPtr = Tuple[]
 
@@ -103,11 +84,29 @@ function genBathHierarchy(B::Vector{T}, tier::Int, dim::Int) where T <: Abstract
             end
             Nterm += b.Nterm
         end
-        n_vec = fill(2, Nterm)
+        if tier == 0
+            n_vec = fill(1, Nterm)
+        elseif tier >= 1
+            n_vec = fill(2, Nterm)
+        end
     end
 
-    Nado, idx2nvec, nvec2idx, lvl2idx = _genHierarchyDict(n_vec, tier)
+    # create idx2nvec
+    idx2nvec = _Idx2Nvec(n_vec, tier)
+
+    # create lvl2idx and nvec2idx
+    lvl2idx = Dict{Int, Vector{Int}}()
+    nvec2idx = Dict{Vector{Int}, Int}()
+    for level in 0:tier
+        lvl2idx[level] = []
+    end
+    for (idx, nvec) in enumerate(idx2nvec)
+        level = sum(nvec)
+        push!(lvl2idx[level], idx)
+        nvec2idx[nvec] = idx
+    end
+
     hierarchy = HierarchyDict(idx2nvec, nvec2idx, lvl2idx, bathPtr)
 
-    return Nado, baths, hierarchy
+    return length(idx2nvec), baths, hierarchy
 end
