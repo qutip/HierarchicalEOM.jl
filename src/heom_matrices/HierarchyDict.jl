@@ -24,8 +24,8 @@ struct HierarchyDict
 end
 
 # generate index to n vector
-function _Idx2Nvec(n_vec::Vector{Int}, N_exc::Int)
-    len = length(n_vec)
+function _Idx2Nvec(n_max::Vector{Int}, N_exc::Int)
+    len = length(n_max)
     nvec = zeros(Int, len)
     result = [copy(nvec)]
     nexc = 0
@@ -34,10 +34,10 @@ function _Idx2Nvec(n_vec::Vector{Int}, N_exc::Int)
         idx = len
         nvec[end] += 1
         nexc += 1
-        if nvec[idx] < n_vec[idx]
+        if nvec[idx] < n_max[idx]
             push!(result, copy(nvec))
         end
-        while (nexc == N_exc) || (nvec[idx] == n_vec[idx])
+        while (nexc == N_exc) || (nvec[idx] == n_max[idx])
             #nvec[idx] = 0
             idx -= 1
             if idx < 1
@@ -47,11 +47,27 @@ function _Idx2Nvec(n_vec::Vector{Int}, N_exc::Int)
             nexc -= nvec[idx + 1] - 1
             nvec[idx + 1] = 0
             nvec[idx] += 1
-            if nvec[idx] < n_vec[idx]
+            if nvec[idx] < n_max[idx]
                 push!(result, copy(nvec))
             end
         end
     end
+end
+
+function _Importance(B::Vector{T}, bathPtr::AbstractVector, nvec::Vector{Int}) where T <: AbstractBath
+    sum_γ = 0.0
+    value = 1.0 + 0.0im
+    
+    for idx in findall(n_exc -> n_exc > 0, nvec)
+        for _ in 1:(nvec[idx])
+            k, ν = bathPtr[idx]
+            γ = real(B[k][ν].γ)
+            sum_γ += γ
+            
+            value *= ( B[k][ν].η / (γ * sum_γ) )
+        end
+    end 
+    return abs(value)
 end
 
 function genBathHierarchy(B::Vector{T}, tier::Int, dim::Int; threshold::Real=0.0) where T <: AbstractBath
@@ -70,7 +86,7 @@ function genBathHierarchy(B::Vector{T}, tier::Int, dim::Int; threshold::Real=0.0
             end
             Nterm += b.Nterm
         end
-        n_vec = fill((tier + 1), Nterm)
+        n_max = fill((tier + 1), Nterm)
     
     elseif T == FermionBath
         baths = AbstractFermionBath[]
@@ -85,17 +101,31 @@ function genBathHierarchy(B::Vector{T}, tier::Int, dim::Int; threshold::Real=0.0
             Nterm += b.Nterm
         end
         if tier == 0
-            n_vec = fill(1, Nterm)
+            n_max = fill(1, Nterm)
         elseif tier >= 1
-            n_vec = fill(2, Nterm)
+            n_max = fill(2, Nterm)
         end
     end
 
-    # create idx2nvec
-    idx2nvec = _Idx2Nvec(n_vec, tier)
+    # create idx2nvec and remove nvec when its value of importance is below threshold
+    idx2nvec = _Idx2Nvec(n_max, tier)
+    if threshold > 0.0
+        drop_idx = Int[]
+        for (idx, nvec) in enumerate(idx2nvec)            
+            # only neglect the nvec where level ≥ 2
+            level = sum(nvec)
+            if level >= 2
+                Ath = _Importance(B, bathPtr, nvec)
+                if Ath < threshold
+                    push!(drop_idx, idx)
+                end
+            end
+        end
+        deleteat!(idx2nvec, drop_idx)
+    end
 
     # create lvl2idx and nvec2idx
-    lvl2idx = Dict{Int, Vector{Int}}()
+    lvl2idx  = Dict{Int, Vector{Int}}()
     nvec2idx = Dict{Vector{Int}, Int}()
     for level in 0:tier
         lvl2idx[level] = []
@@ -107,6 +137,5 @@ function genBathHierarchy(B::Vector{T}, tier::Int, dim::Int; threshold::Real=0.0
     end
 
     hierarchy = HierarchyDict(idx2nvec, nvec2idx, lvl2idx, bathPtr)
-
     return length(idx2nvec), baths, hierarchy
 end

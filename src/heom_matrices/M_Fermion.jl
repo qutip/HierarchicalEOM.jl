@@ -32,7 +32,7 @@ function M_Fermion(Hsys, tier::Int, Bath::FermionBath, parity::Symbol=:even; ver
 end
 
 """
-    M_Fermion(Hsys, tier, Bath, parity=:even; verbose=true)
+    M_Fermion(Hsys, tier, Bath, parity=:even; threshold=0.0, verbose=true)
 Generate the fermion-type Heom liouvillian superoperator matrix
 
 # Parameters
@@ -40,13 +40,17 @@ Generate the fermion-type Heom liouvillian superoperator matrix
 - `tier::Int` : the tier (cutoff) for the bath
 - `Bath::Vector{FermionBath}` : objects for different fermionic baths
 - `parity::Symbol` : The parity symbol of the density matrix (either `:odd` or `:even`). Defaults to `:even`.
+- `threshold::Real` : The threshold of the importance value (see Ref. [1]). Defaults to `0.0`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
+
+[1] [Phys. Rev. B 88, 235426 (2013)](https://doi.org/10.1103/PhysRevB.88.235426)
 """
 function M_Fermion(        
         Hsys,
         tier::Int,
         Bath::Vector{FermionBath},
         parity::Symbol=:even;
+        threshold::Real=0.0,
         verbose::Bool=true
     )
 
@@ -67,9 +71,17 @@ function M_Fermion(
     Lsys = -1im * (spre(Hsys) - spost(Hsys))
 
     # fermionic bath
-    Nado, baths, hierarchy = genBathHierarchy(Bath, tier, Nsys)
+    if verbose && (threshold > 0.0)
+        print("Checking the importance value for each ADOs...")
+        flush(stdout)
+    end
+    Nado, baths, hierarchy = genBathHierarchy(Bath, tier, Nsys, threshold=threshold)
     idx2nvec = hierarchy.idx2nvec
     nvec2idx = hierarchy.nvec2idx
+    if verbose && (threshold > 0.0)
+        println("[DONE]")
+        flush(stdout)
+    end
 
     # start to construct the matrix
     L_row = distribute([Int[] for _ in procs()])
