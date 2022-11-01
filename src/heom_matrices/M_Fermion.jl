@@ -125,19 +125,23 @@ function M_Fermion(
                         n_k = nvec[count]
                         if n_k >= 1
                             nvec_neigh[count] = n_k - 1
-                            idx_neigh = nvec2idx[nvec_neigh]
-                            op = prev_grad_fermion(fB, k, n_exc, sum(nvec_neigh[1:(count - 1)]), parity)
+                            if (threshold == 0.0) || (nvec_neigh in keys(nvec2idx))
+                                idx_neigh = nvec2idx[nvec_neigh]
+                                op = prev_grad_fermion(fB, k, n_exc, sum(nvec_neigh[1:(count - 1)]), parity)
+                                add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                            end
 
                         elseif n_exc <= tier - 1
                             nvec_neigh[count] = n_k + 1
-                            idx_neigh = nvec2idx[nvec_neigh]
-                            op = next_grad_fermion(fB, n_exc, sum(nvec_neigh[1:(count - 1)]), parity)
-                        
+                            if (threshold == 0.0) || (nvec_neigh in keys(nvec2idx))
+                                idx_neigh = nvec2idx[nvec_neigh]
+                                op = next_grad_fermion(fB, n_exc, sum(nvec_neigh[1:(count - 1)]), parity)
+                                add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                            end
+                            
                         else
                             continue
                         end
-                        add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
-                        
                         nvec_neigh[count] = n_k
                     end
                 end
