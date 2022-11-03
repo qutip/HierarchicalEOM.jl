@@ -27,24 +27,28 @@ mutable struct M_Boson <: AbstractHEOMMatrix
     const hierarchy::HierarchyDict
 end
 
-function M_Boson(Hsys, tier::Int, Bath::BosonBath; verbose::Bool=true)
-    return M_Boson(Hsys, tier, [Bath], verbose = verbose)
+function M_Boson(Hsys, tier::Int, Bath::BosonBath; threshold::Real = threshold, verbose::Bool=true)
+    return M_Boson(Hsys, tier, [Bath], threshold = threshold, verbose = verbose)
 end
 
 """
-    M_Boson(Hsys, tier, Bath; verbose=true)
+    M_Boson(Hsys, tier, Bath; threshold=0.0, verbose=true)
 Generate the boson-type Heom liouvillian superoperator matrix
 
 # Parameters
 - `Hsys` : The system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
 - `Bath::Vector{BosonBath}` : objects for different bosonic baths
+- `threshold::Real` : The threshold of the importance value (see Ref. [1]). Defaults to `0.0`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
+
+[1] [Phys. Rev. B 88, 235426 (2013)](https://doi.org/10.1103/PhysRevB.88.235426)
 """
 function M_Boson(        
         Hsys,
         tier::Int,
         Bath::Vector{BosonBath};
+        threshold::Real=0.0,
         verbose::Bool=true
     )
 
@@ -60,9 +64,17 @@ function M_Boson(
     Lsys = -1im * (spre(Hsys) - spost(Hsys))
 
     # bosonic bath
-    Nado, baths, hierarchy = genBathHierarchy(Bath, tier, Nsys)
+    if verbose && (threshold > 0.0)
+        print("Checking the importance value for each ADOs...")
+        flush(stdout)
+    end
+    Nado, baths, hierarchy = genBathHierarchy(Bath, tier, Nsys, threshold=threshold)
     idx2nvec = hierarchy.idx2nvec
     nvec2idx = hierarchy.nvec2idx
+    if verbose && (threshold > 0.0)
+        println("[DONE]")
+        flush(stdout)
+    end
 
     # start to construct the matrix
     L_row = distribute([Int[] for _ in procs()])
