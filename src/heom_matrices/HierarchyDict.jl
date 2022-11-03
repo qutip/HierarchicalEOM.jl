@@ -1,14 +1,8 @@
+abstract type AbstractHierarchyDict end
+
 """
-    struct HierarchyDict
-An object which contains all dictionaries for bath-ADOs hierarchy.
-
-The `nvec` (``\\vec{n}``) denotes a set of integers:
-```math
-\\{ n_{11}, ..., n_{\\nu k}, ... \\}
-```
-where ``n_{\\nu k} \\geq 0`` associated with the ``k``-th exponential-expansion term in the ``\\nu``-th bath.
-
-The hierarchy level (``L``) for an `nvec` is given by ``L=\\sum_{\\nu, k} n_{\\nu k}``
+    struct HierarchyDict <: AbstractHierarchyDict
+An object which contains all dictionaries for pure (bosonic or fermionic) bath-ADOs hierarchy.
 
 # Fields
 - `idx2nvec` : Return the `nvec` from a given index
@@ -16,7 +10,7 @@ The hierarchy level (``L``) for an `nvec` is given by ``L=\\sum_{\\nu, k} n_{\\n
 - `lvl2idx` : Return the list of indices from a given level
 - `bathPtr` : Records the tuple ``(k, \\nu)`` for each position in `n_vector`, where ``k`` and ``\\nu`` represents the ``\\nu``-th exponential-expansion term of the ``k``-th bath.
 """
-struct HierarchyDict
+struct HierarchyDict <: AbstractHierarchyDict
     idx2nvec::Vector{Vector{Int}}
     nvec2idx::Dict{Vector{Int}, Int}
     lvl2idx::Dict{Int, Vector{Int}}

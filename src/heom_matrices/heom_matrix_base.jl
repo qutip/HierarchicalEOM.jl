@@ -221,15 +221,13 @@ end
 
 # sum ω of bath for current gradient
 function bath_sum_ω(nvec, baths::Vector{T}) where T <: Union{AbstractBosonBath, AbstractFermionBath}
-    count = 0
+    p = 0
     sum_ω = 0.0
     for b in baths
-        for k in 1:b.Nterm
-            count += 1
-            if nvec[count] > 0
-                sum_ω += nvec[count] * b.γ[k]
-            end
+        for k in findall(nk -> nk > 0, nvec[(p + 1) : (p + b.Nterm)])
+            sum_ω += nvec[p + k] * b.γ[k]
         end
+        p += b.Nterm
     end
     return sum_ω
 end

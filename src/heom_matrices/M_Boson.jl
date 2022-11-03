@@ -114,19 +114,21 @@ function M_Boson(
                         n_k = nvec[count]
                         if n_k >= 1
                             nvec_neigh[count] = n_k - 1
-                            idx_neigh = nvec2idx[nvec_neigh]
-                            
-                            op = prev_grad_boson(bB, k, n_k)
-                            add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                            if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
+                                idx_neigh = nvec2idx[nvec_neigh]
+                                op = prev_grad_boson(bB, k, n_k)
+                                add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                            end
 
                             nvec_neigh[count] = n_k
                         end
                         if n_exc <= tier - 1
                             nvec_neigh[count] = n_k + 1
-                            idx_neigh = nvec2idx[nvec_neigh]
-                            
-                            op = next_grad_boson(bB)
-                            add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                            if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
+                                idx_neigh = nvec2idx[nvec_neigh]
+                                op = next_grad_boson(bB)
+                                add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                            end
                             
                             nvec_neigh[count] = n_k
                         end
