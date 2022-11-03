@@ -25,9 +25,7 @@ function show(io::IO, M::AbstractHEOMMatrix)
 
     print(io, 
         type, " type HEOM matrix with (system) dim = $(M.dim) and parity = :$(M.parity)\n",
-        "total   ADOs number N  = $(M.N)\n",
-        "boson   ADOs number Nb = $(M.Nb)\n",
-        "fermion ADOs number Nf = $(M.Nf)\n",
+        "number of ADOs N = $(M.N)\n",
         "data =\n"
     )
     show(io, MIME("text/plain"), M.data)

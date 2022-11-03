@@ -28,15 +28,11 @@ J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
     @test show(devnull, MIME("text/plain"), L) == nothing
     @test size(L) == (336, 336)
     @test L.N  == 84
-    @test L.Nb == 84
-    @test L.Nf == 0
     @test nnz(L.data) == 4422
     addDissipator!(L, J)
     @test nnz(L.data) == 4760
     ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
     @test ados.dim == L.dim
-    @test ados.Nb  == L.Nb
-    @test ados.Nf  == L.Nf
     @test length(ados) == L.N
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
@@ -49,15 +45,11 @@ J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
     L = M_Boson(Hsys, tier, [Bbath, Bbath]; verbose=false)
     @test size(L) == (1820, 1820)
     @test L.N  == 455
-    @test L.Nb == 455
-    @test L.Nf == 0
     @test nnz(L.data) == 27662
     addDissipator!(L, J)
     @test nnz(L.data) == 29484
     ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
     @test ados.dim == L.dim
-    @test ados.Nb  == L.Nb
-    @test ados.Nf  == L.Nf
     @test length(ados) == L.N
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
@@ -70,8 +62,6 @@ J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
     ## check exceptions
     @test_throws BoundsError L[1, 1821]
     @test_throws BoundsError L[1:1821, 336]
-    @test_throws ErrorException ados[1, 1]
-    @test_throws ErrorException getADO(ados, 1, 1)
     @test_throws ErrorException ados[L.N + 1]
     @test_throws ErrorException @test_warn "Heom doesn't support matrix type : Vector{Int64}" M_Boson([0, 0], tier, Bbath; verbose=false)
 end
@@ -82,15 +72,11 @@ end
     @test show(devnull, MIME("text/plain"), L) == nothing
     @test size(L) == (1196, 1196)
     @test L.N  == 299
-    @test L.Nb == 0
-    @test L.Nf == 299
     @test nnz(L.data) == 21318
     addDissipator!(L, J)
     @test nnz(L.data) == 22516
     ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
     @test ados.dim == L.dim
-    @test ados.Nb  == L.Nb
-    @test ados.Nf  == L.Nf
     @test length(ados) == L.N
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
@@ -103,15 +89,11 @@ end
     L = M_Fermion(Hsys, tier, [Fbath, Fbath]; verbose=false)
     @test size(L) == (9300, 9300)
     @test L.N  == 2325
-    @test L.Nb == 0
-    @test L.Nf == 2325
     @test nnz(L.data) == 174338
     addDissipator!(L, J)
     @test nnz(L.data) == 183640
     ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
     @test ados.dim == L.dim
-    @test ados.Nb  == L.Nb
-    @test ados.Nf  == L.Nf
     @test length(ados) == L.N
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
@@ -124,8 +106,6 @@ end
     ## check exceptions
     @test_throws BoundsError L[1, 9301]
     @test_throws BoundsError L[1:9301, 9300]
-    @test_throws ErrorException ados[1, 1]
-    @test_throws ErrorException getADO(ados, 1, 1)
     @test_throws ErrorException ados[L.N + 1]
     @test_throws ErrorException @test_warn "Heom doesn't support matrix type : Vector{Int64}" M_Fermion([0, 0], tier, Fbath; verbose=false)
 end
@@ -148,17 +128,13 @@ end
     @test show(devnull, MIME("text/plain"), L) == nothing
     @test size(L) == (2220, 2220)
     @test L.N  == 555
-    @test L.Nb == 15
-    @test L.Nf == 37
     @test nnz(L.data) == 43368
     addDissipator!(L, J)
     @test nnz(L.data) == 45590
     ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
     @test ados.dim == L.dim
-    @test ados.Nb  == L.Nb
-    @test ados.Nf  == L.Nf
     @test length(ados) == L.N
-    ρ0 = ados[1, 1]
+    ρ0 = ados[1]
     @test getRho(ados) == ρ0
     ρ1 = [
         0.49693353824300623 - 1.1724586594620817e-7im  -0.0030854297725558563 + 0.0025734495019103824im;
@@ -169,17 +145,13 @@ end
     L = M_Boson_Fermion(Hsys, tierb, tierf, [Bbath, Bbath], Fbath; verbose=false)
     @test size(L) == (6660, 6660)
     @test L.N  == 1665
-    @test L.Nb == 45
-    @test L.Nf == 37
     @test nnz(L.data) == 139210
     addDissipator!(L, J)
     @test nnz(L.data) == 145872
     ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
     @test ados.dim == L.dim
-    @test ados.Nb  == L.Nb
-    @test ados.Nf  == L.Nf
     @test length(ados) == L.N
-    ρ0 = ados[1, 1]
+    ρ0 = ados[1]
     @test getRho(ados) == ρ0
     ρ1 = [
         0.49394119485917903 - 1.7614315992266511e-7im  -0.005274541015933129 + 0.006264966491795586im;
@@ -190,17 +162,13 @@ end
     L = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, [Fbath, Fbath]; verbose=false)
     @test size(L) == (8220, 8220)
     @test L.N  == 2055
-    @test L.Nb == 15
-    @test L.Nf == 137
     @test nnz(L.data) == 167108
     addDissipator!(L, J)
     @test nnz(L.data) == 175330
     ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
     @test ados.dim == L.dim
-    @test ados.Nb  == L.Nb
-    @test ados.Nf  == L.Nf
     @test length(ados) == L.N
-    ρ0 = ados[1, 1]
+    ρ0 = ados[1]
     @test getRho(ados) == ρ0
     ρ1 = [
         0.4969336345381041 - 1.190543638771177e-7im  -0.0030853446562299934 + 0.0025733625397011384im;
@@ -211,14 +179,11 @@ end
     ## check exceptions
     @test_throws BoundsError L[1, 8221]
     @test_throws BoundsError L[1:8221, 8220]
-    @test_throws ErrorException ados[1]
-    @test_throws ErrorException getADO(ados, 1)
-    @test_throws ErrorException ados[L.Nb + 1, 1]
-    @test_throws ErrorException ados[1, L.Nf + 1]
+    @test_throws ErrorException ados[L.N + 1]
     @test_throws ErrorException @test_warn "Heom doesn't support matrix type : Vector{Int64}" M_Boson_Fermion([0, 0], tierb, tierf, Bbath, Fbath; verbose=false)
 end
 
-@testset "Hierarchy Dictionary" begin
+#= @testset "Hierarchy Dictionary" begin
     λ = 1
     W = 1
     T = 1
@@ -269,25 +234,18 @@ end
     for (k, ν) in hDict.bathPtr
         @test typeof(Fbath[k][ν]) == Exponent
     end
-end
+end =#
 
 @testset "Auxiliary density operators" begin
-    ados_b  = ADOs(spzeros(Int64, 20); Nb = 5)
-    ados_f  = ADOs(spzeros(Int64,  8); Nf = 2)
-    ados_bf = ADOs(spzeros(Int64, 40); Nb = 5, Nf = 2)
+    ados_b  = ADOs(spzeros(Int64, 20), 5)
+    ados_f  = ADOs(spzeros(Int64,  8), 2)
+    ados_bf = ADOs(spzeros(Int64, 40), 10)
+    @test show(devnull, MIME("text/plain"), ados_b)  == nothing
+    @test show(devnull, MIME("text/plain"), ados_f)  == nothing
     @test show(devnull, MIME("text/plain"), ados_bf) == nothing
-
-    # check lastindex
-    @test ados_bf[end, end] == spzeros(ComplexF64, 2, 2)
-
-    # check Colon expression
-    @test all(ados_bf[1, :] .== ados_f[:])
-    @test all(ados_bf[:, 1] .== ados_b[:])
-    @test_throws ErrorException ados_bf[:, :]
 
     # check iteration
     for ado in ados_b
        @test ado == spzeros(ComplexF64, 2, 2)
     end
-    @test_throws ErrorException for ado in ados_bf end
 end

@@ -7,8 +7,6 @@ Heom liouvillian superoperator matrix for fermionic bath
 - `tier` : the tier (cutoff) for the bath
 - `dim` : the dimension of system
 - `N` : the number of total ADOs
-- `Nb` : the number of bosonic ADOs (should be zero)
-- `Nf` : the number of fermionic ADOs
 - `sup_dim` : the dimension of system superoperator
 - `parity` : the parity of the density matrix
 - `bath::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
@@ -19,8 +17,6 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
     const tier::Int
     const dim::Int
     const N::Int
-    const Nb::Int
-    const Nf::Int
     const sup_dim::Int
     const parity::Symbol
     const bath::Vector{FermionBath}
@@ -163,5 +159,5 @@ function M_Fermion(
         flush(stdout)
     end
     d_closeall()  # release all distributed arrays created from the calling process
-    return M_Fermion(L_he, tier, Nsys, Nado, 0, Nado, sup_dim, parity, Bath, hierarchy)
+    return M_Fermion(L_he, tier, Nsys, Nado, sup_dim, parity, Bath, hierarchy)
 end

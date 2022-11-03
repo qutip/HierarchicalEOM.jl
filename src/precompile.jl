@@ -36,18 +36,12 @@ import SnoopPrecompile: @precompile_setup, @precompile_all_calls
 
         # precompile ADOs for the support of Base functions 
         @info "Precompiling Auxiliary Density Operators (ADOs)..."
-        ados1 = ADOs(zeros(8); Nb = 2)
-        ados2 = ADOs(zeros(16), Nb = 2, Nf = 2)
+        ados1 = ADOs(zeros(8),  2)
         length(ados1)
-        length(ados2)
         getRho(ados1)
         getADO(ados1, 1)
-        getADO(ados2, 1, 1)
         ados1[end]
         ados1[:]
-        ados2[1, :]
-        ados2[:, 1]
-        ados2[end, end]
         for ad in ados1 nothing end
 
         # precompile Spectrum functions

@@ -80,7 +80,7 @@ module Heom
 
     # sub-module Spectrum for Heom
     module Spectrum
-        import ..HeomAPI: AbstractHEOMMatrix, ADOs, spre
+        import ..HeomAPI: AbstractHEOMMatrix, ADOs, spre, M_Fermion
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, sparsevec
         import LinearSolve: LinearProblem, solve, UMFPACKFactorization

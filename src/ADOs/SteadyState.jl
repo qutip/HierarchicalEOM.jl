@@ -40,7 +40,7 @@ function SteadyState(M::AbstractHEOMMatrix; solver=UMFPACKFactorization(), verbo
         flush(stdout)
     end
     
-    return ADOs(sol.u, M.dim, M.Nb, M.Nf)
+    return ADOs(sol.u, M.dim, M.N)
 end
 
 # func. for solving ODE
@@ -87,11 +87,7 @@ function SteadyState(
 
     # vectorize initial state
     ρ1   = sparse(sparsevec(ρ0))
-    ados = ADOs(
-        sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim); 
-        Nb = M.Nb, 
-        Nf = M.Nf
-    )
+    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N)
     
     return SteadyState(M, ados;
         solver = solver,
@@ -138,7 +134,7 @@ function SteadyState(
     )
     
     # check parity
-    if (M.parity != :even) && (M.parity != :none)
+    if M.parity == :odd
         error("The parity of M should be either \":none\" (bonson) or \":even\" (fermion).")
     end
 
@@ -146,12 +142,8 @@ function SteadyState(
         error("The system dimension between M and ados are not consistent.")
     end
 
-    if (M.Nb != ados.Nb)
-        error("The number of bosonic states between M and ados are not consistent.")
-    end
-
-    if (M.Nf != ados.Nf)
-        error("The number of fermionic states between M and ados are not consistent.")
+    if (M.N != ados.N)
+        error("The number N between M and ados are not consistent.")
     end
 
     # setup ode function
@@ -186,5 +178,5 @@ function SteadyState(
         flush(stdout)
     end
 
-    return ADOs(sol.u, M.dim, M.Nb, M.Nf)
+    return ADOs(sol.u, M.dim, M.N)
 end

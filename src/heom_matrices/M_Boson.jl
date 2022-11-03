@@ -7,8 +7,6 @@ Heom liouvillian superoperator matrix for bosonic bath
 - `tier` : the tier (cutoff) for the bath
 - `dim` : the dimension of system
 - `N` : the number of total ADOs
-- `Nb` : the number of bosonic ADOs
-- `Nf` : the number of fermionic ADOs (should be zero)
 - `sup_dim` : the dimension of system superoperator
 - `parity` : the parity of the density matrix (restrict to `:none` for boson)
 - `bath::Vector{BosonBath}` : the vector which stores all `BosonBath` objects
@@ -19,15 +17,13 @@ mutable struct M_Boson <: AbstractHEOMMatrix
     const tier::Int
     const dim::Int
     const N::Int
-    const Nb::Int
-    const Nf::Int
     const sup_dim::Int
     const parity::Symbol
     const bath::Vector{BosonBath}
     const hierarchy::HierarchyDict
 end
 
-function M_Boson(Hsys, tier::Int, Bath::BosonBath; threshold::Real = threshold, verbose::Bool=true)
+function M_Boson(Hsys, tier::Int, Bath::BosonBath; threshold::Real = 0.0, verbose::Bool=true)
     return M_Boson(Hsys, tier, [Bath], threshold = threshold, verbose = verbose)
 end
 
@@ -154,5 +150,5 @@ function M_Boson(
         flush(stdout)
     end
     d_closeall()  # release all distributed arrays created from the calling process
-    return M_Boson(L_he, tier, Nsys, Nado, Nado, 0, sup_dim, :none, Bath, hierarchy)
+    return M_Boson(L_he, tier, Nsys, Nado, sup_dim, :none, Bath, hierarchy)
 end
