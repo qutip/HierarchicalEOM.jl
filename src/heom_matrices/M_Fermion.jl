@@ -27,8 +27,8 @@ mutable struct M_Fermion <: AbstractHEOMMatrix
     const hierarchy::HierarchyDict
 end
 
-function M_Fermion(Hsys, tier::Int, Bath::FermionBath, parity::Symbol=:even; verbose::Bool=true)
-    return M_Fermion(Hsys, tier, [Bath], parity, verbose = verbose)
+function M_Fermion(Hsys, tier::Int, Bath::FermionBath, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)
+    return M_Fermion(Hsys, tier, [Bath], parity, threshold= threshold, verbose = verbose)
 end
 
 """
