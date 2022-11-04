@@ -11,8 +11,8 @@ An object which contains all dictionaries for pure (bosonic or fermionic) bath-A
 - `bathPtr` : Records the tuple ``(k, \\nu)`` for each position in `n_vector`, where ``k`` and ``\\nu`` represents the ``\\nu``-th exponential-expansion term of the ``k``-th bath.
 """
 struct HierarchyDict <: AbstractHierarchyDict
-    idx2nvec::Vector{Vector{Int}}
-    nvec2idx::Dict{Vector{Int}, Int}
+    idx2nvec::Vector{Nvec}
+    nvec2idx::Dict{Nvec, Int}
     lvl2idx::Dict{Int, Vector{Int}}
     bathPtr::Vector{Tuple}
 end
@@ -21,7 +21,7 @@ end
 function _Idx2Nvec(n_max::Vector{Int}, N_exc::Int)
     len = length(n_max)
     nvec = zeros(Int, len)
-    result = [copy(nvec)]
+    result = [Nvec(nvec, n_max[1])]
     nexc = 0
 
     while true
@@ -29,7 +29,7 @@ function _Idx2Nvec(n_max::Vector{Int}, N_exc::Int)
         nvec[end] += 1
         nexc += 1
         if nvec[idx] < n_max[idx]
-            push!(result, copy(nvec))
+            push!(result, Nvec(nvec, n_max[1]))
         end
         while (nexc == N_exc) || (nvec[idx] == n_max[idx])
             #nvec[idx] = 0
@@ -42,13 +42,13 @@ function _Idx2Nvec(n_max::Vector{Int}, N_exc::Int)
             nvec[idx + 1] = 0
             nvec[idx] += 1
             if nvec[idx] < n_max[idx]
-                push!(result, copy(nvec))
+                push!(result, Nvec(nvec, n_max[1]))
             end
         end
     end
 end
 
-function _Importance(B::Vector{T}, bathPtr::AbstractVector, nvec::Vector{Int}) where T <: AbstractBath
+function _Importance(B::Vector{T}, bathPtr::AbstractVector, nvec::Nvec) where T <: AbstractBath
     sum_γ = 0.0
     value = 1.0 + 0.0im
     
@@ -107,8 +107,7 @@ function genBathHierarchy(B::Vector{T}, tier::Int, dim::Int; threshold::Real=0.0
         drop_idx = Int[]
         for (idx, nvec) in enumerate(idx2nvec)            
             # only neglect the nvec where level ≥ 2
-            level = sum(nvec)
-            if level >= 2
+            if nvec.level >= 2
                 Ath = _Importance(B, bathPtr, nvec)
                 if Ath < threshold
                     push!(drop_idx, idx)
@@ -120,13 +119,12 @@ function genBathHierarchy(B::Vector{T}, tier::Int, dim::Int; threshold::Real=0.0
 
     # create lvl2idx and nvec2idx
     lvl2idx  = Dict{Int, Vector{Int}}()
-    nvec2idx = Dict{Vector{Int}, Int}()
+    nvec2idx = Dict{Nvec, Int}()
     for level in 0:tier
         lvl2idx[level] = []
     end
     for (idx, nvec) in enumerate(idx2nvec)
-        level = sum(nvec)
-        push!(lvl2idx[level], idx)
+        push!(lvl2idx[nvec.level], idx)
         nvec2idx[nvec] = idx
     end
 

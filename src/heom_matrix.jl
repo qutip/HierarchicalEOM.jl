@@ -1,3 +1,4 @@
+include("heom_matrices/Nvec.jl")
 include("heom_matrices/HierarchyDict.jl")
 include("heom_matrices/heom_matrix_base.jl")
 include("heom_matrices/M_Boson.jl")

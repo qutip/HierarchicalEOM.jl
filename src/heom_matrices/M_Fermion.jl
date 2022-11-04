@@ -104,8 +104,7 @@ function M_Fermion(
         @async begin
             @distributed (+) for idx in 1:Nado
                 nvec = idx2nvec[idx]
-                n_exc = sum(nvec)
-                if n_exc >= 1
+                if nvec.level >= 1
                     sum_ω = bath_sum_ω(nvec, baths)
                     op = Lsys - sum_ω * I_sup                
                 else
@@ -118,27 +117,29 @@ function M_Fermion(
                 for fB in baths
                     for k in 1:fB.Nterm
                         count += 1
-                        n_k = nvec[count]
-                        if n_k >= 1
-                            nvec_neigh[count] = n_k - 1
-                            if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
-                                idx_neigh = nvec2idx[nvec_neigh]
-                                op = prev_grad_fermion(fB, k, n_exc, sum(nvec_neigh[1:(count - 1)]), parity)
-                                add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
-                            end
+                        Δn_p = prev_grad(nvec_neigh, count)
+                        Δn_n = next_grad(nvec_neigh, count, tier)
 
-                        elseif n_exc <= tier - 1
-                            nvec_neigh[count] = n_k + 1
+                        # deal with prevous gradient
+                        if Δn_p > 0
+                            Nvec_minus!(nvec_neigh, Δn_p)
                             if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                                 idx_neigh = nvec2idx[nvec_neigh]
-                                op = next_grad_fermion(fB, n_exc, sum(nvec_neigh[1:(count - 1)]), parity)
+                                op = prev_grad_fermion(fB, k, nvec.level, sum(nvec_neigh[1:(count - 1)]), parity)
                                 add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
                             end
-                            
-                        else
-                            continue
+                            Nvec_plus!(nvec_neigh, Δn_p)
+
+                        # deal with next gradient
+                        elseif Δn_n > 0
+                            Nvec_plus!(nvec_neigh, Δn_n)
+                            if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
+                                idx_neigh = nvec2idx[nvec_neigh]
+                                op = next_grad_fermion(fB, nvec.level, sum(nvec_neigh[1:(count - 1)]), parity)
+                                add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                            end
+                            Nvec_minus!(nvec_neigh, Δn_n)
                         end
-                        nvec_neigh[count] = n_k
                     end
                 end
                 if verbose
@@ -147,7 +148,7 @@ function M_Fermion(
                 1 # Here, returning some number 1 and reducing it somehow (+) is necessary to make the distribution happen.
             end
             put!(channel, false) # this tells the printing task to finish
-        end
+        end 
     end
     if verbose
         print("Constructing matrix...")

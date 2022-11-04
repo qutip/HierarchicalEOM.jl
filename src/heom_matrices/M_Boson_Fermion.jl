@@ -119,17 +119,15 @@ function M_Boson_Fermion(
                 # diagonal (boson)
                 sum_ω   = 0.0
                 nvec_b = idx2nvec_b[idx_b]
-                n_exc_b = sum(nvec_b) 
                 idx = (idx_b - 1) * Nado_f
-                if n_exc_b >= 1
+                if nvec_b.level >= 1
                     sum_ω += bath_sum_ω(nvec_b, baths_b)
                 end
 
                 # diagonal (fermion)
                 for idx_f in 1:Nado_f
                     nvec_f = idx2nvec_f[idx_f]
-                    n_exc_f = sum(nvec_f)
-                    if n_exc_f >= 1
+                    if nvec_f.level >= 1
                         sum_ω += bath_sum_ω(nvec_f, baths_f)
                     end
                     add_operator!(Lsys - sum_ω * I_sup, L_row, L_col, L_val, Nado_tot, idx + idx_f, idx + idx_f)
@@ -141,28 +139,31 @@ function M_Boson_Fermion(
                 for bB in baths_b
                     for k in 1:bB.Nterm
                         count += 1
-                        n_k = nvec_b[count]
-                        if n_k >= 1
-                            nvec_neigh[count] = n_k - 1
+
+                        # deal with prevous gradient
+                        Δn = prev_grad(nvec_neigh, count)
+                        if Δn > 0
+                            Nvec_minus!(nvec_neigh, Δn)
                             idx_neigh = nvec2idx_b[nvec_neigh]
                             
-                            op = prev_grad_boson(bB, k, n_k)
+                            op = prev_grad_boson(bB, k, nvec_b[count])
                             for idx_f in 1:Nado_f
                                 add_operator!(op, L_row, L_col, L_val, Nado_tot, (idx + idx_f), (idx_neigh - 1) * Nado_f + idx_f)
                             end
-                            
-                            nvec_neigh[count] = n_k
+                            Nvec_plus!(nvec_neigh, Δn)
                         end
-                        if n_exc_b <= tier_b - 1
-                            nvec_neigh[count] = n_k + 1
+
+                        # deal with next gradient
+                        Δn = next_grad(nvec_neigh, count, tier_b)
+                        if Δn > 0
+                            Nvec_plus!(nvec_neigh, Δn)
                             idx_neigh = nvec2idx_b[nvec_neigh]
                             
                             op = next_grad_boson(bB)
                             for idx_f in 1:Nado_f
                                 add_operator!(op, L_row, L_col, L_val, Nado_tot, (idx + idx_f), (idx_neigh - 1) * Nado_f + idx_f)
                             end
-
-                            nvec_neigh[count] = n_k
+                            Nvec_minus!(nvec_neigh, Δn)
                         end
                     end
                 end
@@ -175,24 +176,29 @@ function M_Boson_Fermion(
             # fermion (n+1 & n-1 tier) superoperator
             @distributed (+) for idx_f in 1:Nado_f
                 nvec_f = idx2nvec_f[idx_f]
-                n_exc_f = sum(nvec_f)
 
                 count = 0
                 nvec_neigh = copy(nvec_f)
                 for fB in baths_f
                     for k in 1:fB.Nterm
                         count += 1
-                        n_k = nvec_f[count]
-                        if n_k >= 1
-                            nvec_neigh[count] = n_k - 1
-                            idx_neigh = nvec2idx_f[nvec_neigh]
-                            op = prev_grad_fermion(fB, k, n_exc_f, sum(nvec_neigh[1:(count - 1)]), parity)
+                        Δn_p = prev_grad(nvec_neigh, count)
+                        Δn_n = next_grad(nvec_neigh, count, tier_f)
 
-                        elseif n_exc_f <= tier_f - 1
-                            nvec_neigh[count] = n_k + 1
+                        # deal with prevous gradient
+                        if Δn_p > 0
+                            Nvec_minus!(nvec_neigh, Δn_p)
                             idx_neigh = nvec2idx_f[nvec_neigh]
-                            op = next_grad_fermion(fB, n_exc_f, sum(nvec_neigh[1:(count - 1)]), parity)
+                            op = prev_grad_fermion(fB, k, nvec_f.level, sum(nvec_neigh[1:(count - 1)]), parity)
+                            Nvec_plus!(nvec_neigh, Δn_p)
 
+                        # deal with next gradient
+                        elseif Δn_n > 0
+                            Nvec_plus!(nvec_neigh, Δn_n)
+                            idx_neigh = nvec2idx_f[nvec_neigh]
+                            op = next_grad_fermion(fB, nvec_f.level, sum(nvec_neigh[1:(count - 1)]), parity)
+                            Nvec_minus!(nvec_neigh, Δn_n)
+                            
                         else
                             continue
                         end
@@ -201,8 +207,6 @@ function M_Boson_Fermion(
                             idx = (idx_b - 1) * Nado_f
                             add_operator!(op, L_row, L_col, L_val, Nado_tot, idx + idx_f, idx + idx_neigh)
                         end
-
-                        nvec_neigh[count] = n_k
                     end
                 end
                 if verbose

@@ -48,7 +48,7 @@ module Heom
     # sub-module HeomAPI for Heom
     module HeomAPI
         using ..Bath
-        import Base: show, length, size, getindex, lastindex, iterate, checkbounds
+        import Base: ==, show, length, size, getindex, setindex!, lastindex, iterate, checkbounds, hash, copy
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
         import Distributed: @everywhere, @distributed, procs, nprocs, RemoteChannel, Channel
@@ -69,7 +69,7 @@ module Heom
         export
             AbstractHEOMMatrix, M_Fermion, M_Boson, M_Boson_Fermion,
             odd, even, none,
-            ADOs, getRho, getADO, HierarchyDict,
+            ADOs, getRho, getADO, Nvec, HierarchyDict,
             Propagator, addDissipator!, addTerminator!,
             evolution, SteadyState
 

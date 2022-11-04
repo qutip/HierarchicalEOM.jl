@@ -97,8 +97,7 @@ function M_Boson(
         @async begin
             @distributed (+) for idx in 1:Nado
                 nvec = idx2nvec[idx]
-                n_exc = sum(nvec)
-                if n_exc >= 1
+                if nvec.level >= 1
                     sum_ω = bath_sum_ω(nvec, baths)
                     op = Lsys - sum_ω * I_sup
                 else
@@ -111,26 +110,29 @@ function M_Boson(
                 for bB in baths
                     for k in 1:bB.Nterm
                         count += 1
-                        n_k = nvec[count]
-                        if n_k >= 1
-                            nvec_neigh[count] = n_k - 1
+
+                        # deal with prevous gradient
+                        Δn = prev_grad(nvec_neigh, count)
+                        if Δn > 0
+                            Nvec_minus!(nvec_neigh, Δn)
                             if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                                 idx_neigh = nvec2idx[nvec_neigh]
-                                op = prev_grad_boson(bB, k, n_k)
+                                op = prev_grad_boson(bB, k, nvec[count])
                                 add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
                             end
-
-                            nvec_neigh[count] = n_k
+                            Nvec_plus!(nvec_neigh, Δn)
                         end
-                        if n_exc <= tier - 1
-                            nvec_neigh[count] = n_k + 1
+
+                        # deal with next gradient
+                        Δn = next_grad(nvec_neigh, count, tier)
+                        if Δn > 0
+                            Nvec_plus!(nvec_neigh, Δn)
                             if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                                 idx_neigh = nvec2idx[nvec_neigh]
                                 op = next_grad_boson(bB)
                                 add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
                             end
-                            
-                            nvec_neigh[count] = n_k
+                            Nvec_minus!(nvec_neigh, Δn)
                         end
                     end
                 end

@@ -224,8 +224,9 @@ function bath_sum_ω(nvec, baths::Vector{T}) where T <: Union{AbstractBosonBath,
     p = 0
     sum_ω = 0.0
     for b in baths
-        for k in findall(nk -> nk > 0, nvec[(p + 1) : (p + b.Nterm)])
-            sum_ω += nvec[p + k] * b.γ[k]
+        n = nvec[(p + 1) : (p + b.Nterm)]
+        for k in findall(nk -> nk > 0, n)
+            sum_ω += n[k] * b.γ[k]
         end
         p += b.Nterm
     end

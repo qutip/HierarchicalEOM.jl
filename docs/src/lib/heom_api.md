@@ -55,5 +55,9 @@ getADO(ados::ADOs, idx::Int)
 
 ## Hierarchy Dictionary
 ```@docs
+Nvec
+```
+
+```@docs
 HierarchyDict
 ```

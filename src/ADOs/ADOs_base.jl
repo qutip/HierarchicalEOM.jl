@@ -68,7 +68,7 @@ function getindex(A::ADOs, i::Int)
 end
 
 function getindex(A::ADOs, r::UnitRange{Int})
-    checkbounds(A, r[1],)
+    checkbounds(A, r[1])
     checkbounds(A, r[end])
 
     result = []
