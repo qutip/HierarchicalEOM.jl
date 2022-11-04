@@ -60,4 +60,5 @@ Nvec
 
 ```@docs
 HierarchyDict
+MixHierarchyDict
 ```

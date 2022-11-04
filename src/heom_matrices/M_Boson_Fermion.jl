@@ -139,31 +139,30 @@ function M_Boson_Fermion(
                 for bB in baths_b
                     for k in 1:bB.Nterm
                         count += 1
+                        n_k = nvec_b[count]
 
                         # deal with prevous gradient
-                        Δn = prev_grad(nvec_neigh, count)
-                        if Δn > 0
-                            Nvec_minus!(nvec_neigh, Δn)
+                        if n_k > 0
+                            Nvec_minus!(nvec_neigh, count)
                             idx_neigh = nvec2idx_b[nvec_neigh]
                             
-                            op = prev_grad_boson(bB, k, nvec_b[count])
+                            op = prev_grad_boson(bB, k, n_k)
                             for idx_f in 1:Nado_f
                                 add_operator!(op, L_row, L_col, L_val, Nado_tot, (idx + idx_f), (idx_neigh - 1) * Nado_f + idx_f)
                             end
-                            Nvec_plus!(nvec_neigh, Δn)
+                            Nvec_plus!(nvec_neigh, count)
                         end
 
                         # deal with next gradient
-                        Δn = next_grad(nvec_neigh, count, tier_b)
-                        if Δn > 0
-                            Nvec_plus!(nvec_neigh, Δn)
+                        if nvec_b.level < tier_b
+                            Nvec_plus!(nvec_neigh, count)
                             idx_neigh = nvec2idx_b[nvec_neigh]
                             
                             op = next_grad_boson(bB)
                             for idx_f in 1:Nado_f
                                 add_operator!(op, L_row, L_col, L_val, Nado_tot, (idx + idx_f), (idx_neigh - 1) * Nado_f + idx_f)
                             end
-                            Nvec_minus!(nvec_neigh, Δn)
+                            Nvec_minus!(nvec_neigh, count)
                         end
                     end
                 end
@@ -182,22 +181,21 @@ function M_Boson_Fermion(
                 for fB in baths_f
                     for k in 1:fB.Nterm
                         count += 1
-                        Δn_p = prev_grad(nvec_neigh, count)
-                        Δn_n = next_grad(nvec_neigh, count, tier_f)
+                        n_k = nvec_f[count]
 
                         # deal with prevous gradient
-                        if Δn_p > 0
-                            Nvec_minus!(nvec_neigh, Δn_p)
+                        if n_k > 0
+                            Nvec_minus!(nvec_neigh, count)
                             idx_neigh = nvec2idx_f[nvec_neigh]
                             op = prev_grad_fermion(fB, k, nvec_f.level, sum(nvec_neigh[1:(count - 1)]), parity)
-                            Nvec_plus!(nvec_neigh, Δn_p)
+                            Nvec_plus!(nvec_neigh, count)
 
                         # deal with next gradient
-                        elseif Δn_n > 0
-                            Nvec_plus!(nvec_neigh, Δn_n)
+                        elseif nvec_f.level < tier_f
+                            Nvec_plus!(nvec_neigh, count)
                             idx_neigh = nvec2idx_f[nvec_neigh]
                             op = next_grad_fermion(fB, nvec_f.level, sum(nvec_neigh[1:(count - 1)]), parity)
-                            Nvec_minus!(nvec_neigh, Δn_n)
+                            Nvec_minus!(nvec_neigh, count)
                             
                         else
                             continue

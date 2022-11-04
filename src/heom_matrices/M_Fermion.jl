@@ -117,28 +117,27 @@ function M_Fermion(
                 for fB in baths
                     for k in 1:fB.Nterm
                         count += 1
-                        Δn_p = prev_grad(nvec_neigh, count)
-                        Δn_n = next_grad(nvec_neigh, count, tier)
+                        n_k = nvec[count]
 
                         # deal with prevous gradient
-                        if Δn_p > 0
-                            Nvec_minus!(nvec_neigh, Δn_p)
+                        if n_k > 0
+                            Nvec_minus!(nvec_neigh, count)
                             if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                                 idx_neigh = nvec2idx[nvec_neigh]
                                 op = prev_grad_fermion(fB, k, nvec.level, sum(nvec_neigh[1:(count - 1)]), parity)
                                 add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
                             end
-                            Nvec_plus!(nvec_neigh, Δn_p)
+                            Nvec_plus!(nvec_neigh, count)
 
                         # deal with next gradient
-                        elseif Δn_n > 0
-                            Nvec_plus!(nvec_neigh, Δn_n)
+                        elseif nvec.level < tier
+                            Nvec_plus!(nvec_neigh, count)
                             if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                                 idx_neigh = nvec2idx[nvec_neigh]
                                 op = next_grad_fermion(fB, nvec.level, sum(nvec_neigh[1:(count - 1)]), parity)
                                 add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
                             end
-                            Nvec_minus!(nvec_neigh, Δn_n)
+                            Nvec_minus!(nvec_neigh, count)
                         end
                     end
                 end

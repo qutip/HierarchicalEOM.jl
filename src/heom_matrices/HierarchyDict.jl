@@ -5,10 +5,10 @@ abstract type AbstractHierarchyDict end
 An object which contains all dictionaries for pure (bosonic or fermionic) bath-ADOs hierarchy.
 
 # Fields
-- `idx2nvec` : Return the `nvec` from a given index
-- `nvec2idx` : Return the index from a given `nvec`
+- `idx2nvec` : Return the `Nvec` from a given index
+- `nvec2idx` : Return the index from a given `Nvec`
 - `lvl2idx` : Return the list of indices from a given level
-- `bathPtr` : Records the tuple ``(k, \\nu)`` for each position in `n_vector`, where ``k`` and ``\\nu`` represents the ``\\nu``-th exponential-expansion term of the ``k``-th bath.
+- `bathPtr` : Records the tuple ``(k, \\nu)`` for each position in `Nvec`, where ``k`` and ``\\nu`` represents the ``\\nu``-th exponential-expansion term of the ``k``-th bath.
 """
 struct HierarchyDict <: AbstractHierarchyDict
     idx2nvec::Vector{Nvec}
@@ -17,11 +17,32 @@ struct HierarchyDict <: AbstractHierarchyDict
     bathPtr::Vector{Tuple}
 end
 
+"""
+    struct MixHierarchyDict <: AbstractHierarchyDict
+An object which contains all dictionaries for mixed (bosonic and fermionic) bath-ADOs hierarchy.
+
+# Fields
+- `idx2nvec` : Return the tuple `(Nvec_b, Nvec_f)` from a given index, where `b` represents boson and `f` represents fermion
+- `nvec2idx` : Return the index from a given tuple `(Nvec_b, Nvec_f)`, where `b` represents boson and `f` represents fermion
+- `blvl2idx` : Return the list of indices from a given bosonic level
+- `flvl2idx` : Return the list of indices from a given fermionic level
+- `bosonPtr` : Records the tuple ``(k, \\nu)`` for each position in `Nvec_b`, where ``k`` and ``\\nu`` represents the ``\\nu``-th exponential-expansion term of the ``k``-th bosonic bath.
+- `fermionPtr` : Records the tuple ``(k, \\nu)`` for each position in `Nvec_f`, where ``k`` and ``\\nu`` represents the ``\\nu``-th exponential-expansion term of the ``k``-th fermionic bath.
+"""
+struct MixHierarchyDict <: AbstractHierarchyDict
+    idx2nvec::Vector{Tuple{Nvec, Nvec}}
+    nvec2idx::Dict{Tuple{Nvec, Nvec}, Int}
+    blvl2idx::Dict{Int, Vector{Int}}
+    flvl2idx::Dict{Int, Vector{Int}}
+    bosonPtr::Vector{Tuple}
+    fermionPtr::Vector{Tuple}
+end
+
 # generate index to n vector
 function _Idx2Nvec(n_max::Vector{Int}, N_exc::Int)
     len = length(n_max)
     nvec = zeros(Int, len)
-    result = [Nvec(nvec, n_max[1])]
+    result = [Nvec(nvec)]
     nexc = 0
 
     while true
@@ -29,7 +50,7 @@ function _Idx2Nvec(n_max::Vector{Int}, N_exc::Int)
         nvec[end] += 1
         nexc += 1
         if nvec[idx] < n_max[idx]
-            push!(result, Nvec(nvec, n_max[1]))
+            push!(result, Nvec(nvec))
         end
         while (nexc == N_exc) || (nvec[idx] == n_max[idx])
             #nvec[idx] = 0
@@ -42,7 +63,7 @@ function _Idx2Nvec(n_max::Vector{Int}, N_exc::Int)
             nvec[idx + 1] = 0
             nvec[idx] += 1
             if nvec[idx] < n_max[idx]
-                push!(result, Nvec(nvec, n_max[1]))
+                push!(result, Nvec(nvec))
             end
         end
     end

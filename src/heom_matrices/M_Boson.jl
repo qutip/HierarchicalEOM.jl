@@ -110,29 +110,28 @@ function M_Boson(
                 for bB in baths
                     for k in 1:bB.Nterm
                         count += 1
-
+                        n_k = nvec[count]
+                        
                         # deal with prevous gradient
-                        Δn = prev_grad(nvec_neigh, count)
-                        if Δn > 0
-                            Nvec_minus!(nvec_neigh, Δn)
+                        if n_k > 0
+                            Nvec_minus!(nvec_neigh, count)
                             if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                                 idx_neigh = nvec2idx[nvec_neigh]
-                                op = prev_grad_boson(bB, k, nvec[count])
+                                op = prev_grad_boson(bB, k, n_k)
                                 add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
                             end
-                            Nvec_plus!(nvec_neigh, Δn)
+                            Nvec_plus!(nvec_neigh, count)
                         end
 
                         # deal with next gradient
-                        Δn = next_grad(nvec_neigh, count, tier)
-                        if Δn > 0
-                            Nvec_plus!(nvec_neigh, Δn)
+                        if nvec.level < tier
+                            Nvec_plus!(nvec_neigh, count)
                             if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                                 idx_neigh = nvec2idx[nvec_neigh]
                                 op = next_grad_boson(bB)
                                 add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
                             end
-                            Nvec_minus!(nvec_neigh, Δn)
+                            Nvec_minus!(nvec_neigh, count)
                         end
                     end
                 end
