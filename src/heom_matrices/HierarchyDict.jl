@@ -85,6 +85,7 @@ function _Importance(B::Vector{T}, bathPtr::AbstractVector, nvec::Nvec) where T 
     return abs(value)
 end
 
+# for pure hierarchy dictionary
 function genBathHierarchy(B::Vector{T}, tier::Int, dim::Int; threshold::Real=0.0) where T <: AbstractBath
     Nterm   = 0
     bathPtr = Tuple[]
@@ -151,4 +152,88 @@ function genBathHierarchy(B::Vector{T}, tier::Int, dim::Int; threshold::Real=0.0
 
     hierarchy = HierarchyDict(idx2nvec, nvec2idx, lvl2idx, bathPtr)
     return length(idx2nvec), baths, hierarchy
+end
+
+# for max hierarchy dictionary
+function genBathHierarchy(bB::Vector{BosonBath}, fB::Vector{FermionBath}, tier_b::Int, tier_f::Int, dim::Int; threshold::Real=0.0)
+    # deal with boson bath
+    Nterm_b   = 0
+    bosonPtr = Tuple[]
+    baths_b = AbstractBosonBath[]
+    for (k, b) in enumerate(bB)
+        if b.dim != dim 
+            error("The matrix size of the bosonic bath coupling operators are not consistent.")
+        end
+        push!(baths_b, b.bath...)
+        for ν in 1:b.Nterm
+            push!(bosonPtr, (k, ν))
+        end
+        Nterm_b += b.Nterm
+    end
+    n_max_b = fill((tier_b + 1), Nterm_b)
+    idx2nvec_b = _Idx2Nvec(n_max_b, tier_b)
+
+    # deal with fermion bath
+    Nterm_f   = 0
+    fermionPtr = Tuple[]
+    baths_f = AbstractFermionBath[]
+    for (k, b) in enumerate(fB)
+        if b.dim != dim 
+            error("The matrix size of the fermionic bath coupling operators are not consistent.")
+        end
+        push!(baths_f, b.bath...)
+        for ν in 1:b.Nterm
+            push!(fermionPtr, (k, ν))
+        end
+        Nterm_f += b.Nterm
+    end
+    if tier_f == 0
+        n_max_f = fill(1, Nterm_f)
+    elseif tier_f >= 1
+        n_max_f = fill(2, Nterm_f)
+    end
+    idx2nvec_f = _Idx2Nvec(n_max_f, tier_f)
+
+    # only store nvec tuple when its value of importance is above threshold
+    idx2nvec = Tuple{Nvec, Nvec}[]
+    if threshold > 0.0
+        for nvec_b in idx2nvec_b
+            for nvec_f in idx2nvec_f
+                # only neglect the nvec tuple where level ≥ 2
+                if (nvec_b.level >= 2) && (nvec_f.level >= 2)
+                    Ath = _Importance(bB, bosonPtr, nvec_b) * _Importance(fB, fermionPtr, nvec_f)
+                    if Ath >= threshold
+                        push!(idx2nvec, (nvec_b, nvec_f))
+                    end
+                else
+                    push!(idx2nvec, (nvec_b, nvec_f))
+                end
+            end
+        end
+    else
+        for nvec_b in idx2nvec_b
+            for nvec_f in idx2nvec_f
+                push!(idx2nvec, (nvec_b, nvec_f))
+            end
+        end
+    end
+
+    # create lvl2idx and nvec2idx
+    nvec2idx = Dict{Tuple{Nvec, Nvec}, Int}()
+    blvl2idx = Dict{Int, Vector{Int}}()
+    flvl2idx = Dict{Int, Vector{Int}}()
+    for level in 0:tier_b
+        blvl2idx[level] = []
+    end
+    for level in 0:tier_f
+        flvl2idx[level] = []
+    end
+    for (idx, nvecTuple) in enumerate(idx2nvec)
+        push!(blvl2idx[nvecTuple[1].level], idx)
+        push!(flvl2idx[nvecTuple[2].level], idx)
+        nvec2idx[nvecTuple] = idx
+    end
+
+    hierarchy = MixHierarchyDict(idx2nvec, nvec2idx, blvl2idx, flvl2idx, bosonPtr, fermionPtr)
+    return length(idx2nvec), baths_b, baths_f, hierarchy
 end
