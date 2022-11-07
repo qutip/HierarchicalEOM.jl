@@ -103,6 +103,7 @@ function M_Fermion(
         # the second task does the computation
         @async begin
             @distributed (+) for idx in 1:Nado
+                # fermion (n tier) superoperator
                 nvec = idx2nvec[idx]
                 if nvec.level >= 1
                     sum_ω = bath_sum_ω(nvec, baths)
@@ -112,6 +113,7 @@ function M_Fermion(
                 end
                 add_operator!(op, L_row, L_col, L_val, Nado, idx, idx)
 
+                # fermion (n+1 & n-1 tier) superoperator
                 count = 0
                 nvec_neigh = copy(nvec)
                 for fB in baths
