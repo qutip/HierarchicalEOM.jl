@@ -84,9 +84,17 @@ function M_Boson_Fermion(
     Lsys = -1im * (spre(Hsys) - spost(Hsys))
 
     # check for bosonic and fermionic bath
+    if verbose && (threshold > 0.0)
+        print("Checking the importance value for each ADOs...")
+        flush(stdout)
+    end
     Nado, baths_b, baths_f, hierarchy = genBathHierarchy(Bath_b, Bath_f, tier_b, tier_f, Nsys, threshold = threshold)
     idx2nvec = hierarchy.idx2nvec
     nvec2idx = hierarchy.nvec2idx
+    if verbose && (threshold > 0.0)
+        println("[DONE]")
+        flush(stdout)
+    end
 
     # start to construct the matrix
     L_row = distribute([Int[] for _ in procs()])
