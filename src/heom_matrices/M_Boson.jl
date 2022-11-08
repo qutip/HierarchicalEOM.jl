@@ -99,8 +99,8 @@ function M_Boson(
                 # boson (n tier) superoperator
                 nvec = idx2nvec[idx]
                 if nvec.level >= 1
-                    sum_ω = bath_sum_ω(nvec, baths)
-                    op = Lsys - sum_ω * I_sup
+                    sum_γ = bath_sum_γ(nvec, baths)
+                    op = Lsys - sum_γ * I_sup
                 else
                     op = Lsys
                 end

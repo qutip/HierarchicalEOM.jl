@@ -4,51 +4,51 @@ Heom liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath
 
 # Fields
 - `data` : the sparse matrix of HEOM liouvillian superoperator
-- `tier_b` : the tier (cutoff) for bosonic bath
-- `tier_f` : the tier (cutoff) for fermionic bath
+- `Btier` : the tier (cutoff) for bosonic bath
+- `Ftier` : the tier (cutoff) for fermionic bath
 - `dim` : the dimension of system
 - `N` : the number of total ADOs
 - `sup_dim` : the dimension of system superoperator
 - `parity` : the parity of the density matrix
-- `bath_b::Vector{BosonBath}` : the vector which stores all `BosonBath` objects
-- `bath_f::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
+- `Bbath::Vector{BosonBath}` : the vector which stores all `BosonBath` objects
+- `Fbath::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
 - `hierarchy::MixHierarchyDict`: the object which contains all dictionaries for mixed-bath-ADOs hierarchy.
 """
 mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
-    const tier_b::Int
-    const tier_f::Int
+    const Btier::Int
+    const Ftier::Int
     const dim::Int
     const N::Int
     const sup_dim::Int
     const parity::Symbol
-    const bath_b::Vector{BosonBath}
-    const bath_f::Vector{FermionBath}
+    const Bbath::Vector{BosonBath}
+    const Fbath::Vector{FermionBath}
     const hierarchy::MixHierarchyDict
 end
 
-function M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::BosonBath, Bath_f::FermionBath, parity::Symbol=:even; threshold::Real = 0.0, verbose::Bool=true)
-    return M_Boson_Fermion(Hsys, tier_b, tier_f, [Bath_b], [Bath_f], parity, threshold = threshold, verbose = verbose)
+function M_Boson_Fermion(Hsys, Btier::Int, Ftier::Int, Bbath::BosonBath, Fbath::FermionBath, parity::Symbol=:even; threshold::Real = 0.0, verbose::Bool=true)
+    return M_Boson_Fermion(Hsys, Btier, Ftier, [Bbath], [Fbath], parity, threshold = threshold, verbose = verbose)
 end
 
-function M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::FermionBath, parity::Symbol=:even; threshold::Real = 0.0, verbose::Bool=true)
-    return M_Boson_Fermion(Hsys, tier_b, tier_f, Bath_b, [Bath_f], parity, threshold = threshold, verbose = verbose)
+function M_Boson_Fermion(Hsys, Btier::Int, Ftier::Int, Bbath::Vector{BosonBath}, Fbath::FermionBath, parity::Symbol=:even; threshold::Real = 0.0, verbose::Bool=true)
+    return M_Boson_Fermion(Hsys, Btier, Ftier, Bbath, [Fbath], parity, threshold = threshold, verbose = verbose)
 end
 
-function M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::BosonBath, Bath_f::Vector{FermionBath}, parity::Symbol=:even; threshold::Real = 0.0, verbose::Bool=true)
-    return M_Boson_Fermion(Hsys, tier_b, tier_f, [Bath_b], Bath_f, parity, threshold = threshold, verbose = verbose)
+function M_Boson_Fermion(Hsys, Btier::Int, Ftier::Int, Bbath::BosonBath, Fbath::Vector{FermionBath}, parity::Symbol=:even; threshold::Real = 0.0, verbose::Bool=true)
+    return M_Boson_Fermion(Hsys, Btier, Ftier, [Bbath], Fbath, parity, threshold = threshold, verbose = verbose)
 end
 
 """
-    M_Boson_Fermion(Hsys, tier_b, tier_f, Bath_b, Bath_f, parity=:even; threshold=0.0, verbose=true)
+    M_Boson_Fermion(Hsys, Btier, Ftier, Bbath, Fbath, parity=:even; threshold=0.0, verbose=true)
 Generate the boson-fermion-type Heom liouvillian superoperator matrix
 
 # Parameters
 - `Hsys` : The system Hamiltonian
-- `tier_b::Int` : the tier (cutoff) for the bosonic bath
-- `tier_f::Int` : the tier (cutoff) for the fermionic bath
-- `Bath_b::Vector{BosonBath}` : objects for different bosonic baths
-- `Bath_f::Vector{FermionBath}` : objects for different fermionic baths
+- `Btier::Int` : the tier (cutoff) for the bosonic bath
+- `Ftier::Int` : the tier (cutoff) for the fermionic bath
+- `Bbath::Vector{BosonBath}` : objects for different bosonic baths
+- `Fbath::Vector{FermionBath}` : objects for different fermionic baths
 - `parity::Symbol` : The parity symbol of the density matrix (either `:odd` or `:even`). Defaults to `:even`.
 - `threshold::Real` : The threshold of the importance value (see Ref. [1, 2]). Defaults to `0.0`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
@@ -58,10 +58,10 @@ Generate the boson-fermion-type Heom liouvillian superoperator matrix
 """
 function M_Boson_Fermion(        
         Hsys,
-        tier_b::Int,
-        tier_f::Int,
-        Bath_b::Vector{BosonBath},
-        Bath_f::Vector{FermionBath},
+        Btier::Int,
+        Ftier::Int,
+        Bbath::Vector{BosonBath},
+        Fbath::Vector{FermionBath},
         parity::Symbol=:even;
         threshold::Real=0.0,
         verbose::Bool=true
@@ -88,7 +88,7 @@ function M_Boson_Fermion(
         print("Checking the importance value for each ADOs...")
         flush(stdout)
     end
-    Nado, baths_b, baths_f, hierarchy = genBathHierarchy(Bath_b, Bath_f, tier_b, tier_f, Nsys, threshold = threshold)
+    Nado, baths_b, baths_f, hierarchy = genBathHierarchy(Bbath, Fbath, Btier, Ftier, Nsys, threshold = threshold)
     idx2nvec = hierarchy.idx2nvec
     nvec2idx = hierarchy.nvec2idx
     if verbose && (threshold > 0.0)
@@ -121,15 +121,15 @@ function M_Boson_Fermion(
         @async begin
             @distributed (+) for idx in 1:Nado
                 # boson and fermion (n tier) superoperator
-                sum_ω   = 0.0
+                sum_γ   = 0.0
                 nvec_b, nvec_f = idx2nvec[idx]
                 if nvec_b.level >= 1
-                    sum_ω += bath_sum_ω(nvec_b, baths_b)
+                    sum_γ += bath_sum_γ(nvec_b, baths_b)
                 end
                 if nvec_f.level >= 1
-                    sum_ω += bath_sum_ω(nvec_f, baths_f)
+                    sum_γ += bath_sum_γ(nvec_f, baths_f)
                 end
-                add_operator!(Lsys - sum_ω * I_sup, L_row, L_col, L_val, Nado, idx, idx)
+                add_operator!(Lsys - sum_γ * I_sup, L_row, L_col, L_val, Nado, idx, idx)
                 
                 # boson (n+1 & n-1 tier) superoperator
                 count = 0
@@ -151,7 +151,7 @@ function M_Boson_Fermion(
                         end
 
                         # deal with next gradient
-                        if nvec_b.level < tier_b
+                        if nvec_b.level < Btier
                             Nvec_plus!(nvec_neigh, count)
                             if (threshold == 0.0) || haskey(nvec2idx, (nvec_neigh, nvec_f))
                                 idx_neigh = nvec2idx[(nvec_neigh, nvec_f)]
@@ -182,7 +182,7 @@ function M_Boson_Fermion(
                             Nvec_plus!(nvec_neigh, count)
 
                         # deal with next gradient
-                        elseif nvec_f.level < tier_f
+                        elseif nvec_f.level < Ftier
                             Nvec_plus!(nvec_neigh, count)
                             if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
                                 idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
@@ -211,5 +211,5 @@ function M_Boson_Fermion(
         flush(stdout)
     end
     d_closeall()  # release all distributed arrays created from the calling process
-    return M_Boson_Fermion(L_he, tier_b, tier_f, Nsys, Nado, sup_dim, parity, Bath_b, Bath_f, hierarchy)
+    return M_Boson_Fermion(L_he, Btier, Ftier, Nsys, Nado, sup_dim, parity, Bbath, Fbath, hierarchy)
 end

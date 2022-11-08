@@ -7,7 +7,7 @@ An object which contains all dictionaries for pure (bosonic or fermionic) bath-A
 # Fields
 - `idx2nvec` : Return the `Nvec` from a given index
 - `nvec2idx` : Return the index from a given `Nvec`
-- `lvl2idx` : Return the list of indices from a given level
+- `lvl2idx` : Return the list of indices from a given level (excitation)
 - `bathPtr` : Records the tuple ``(k, \\nu)`` for each position in `Nvec`, where ``k`` and ``\\nu`` represents the ``\\nu``-th exponential-expansion term of the ``k``-th bath.
 """
 struct HierarchyDict <: AbstractHierarchyDict
@@ -24,16 +24,16 @@ An object which contains all dictionaries for mixed (bosonic and fermionic) bath
 # Fields
 - `idx2nvec` : Return the tuple `(Nvec_b, Nvec_f)` from a given index, where `b` represents boson and `f` represents fermion
 - `nvec2idx` : Return the index from a given tuple `(Nvec_b, Nvec_f)`, where `b` represents boson and `f` represents fermion
-- `blvl2idx` : Return the list of indices from a given bosonic level
-- `flvl2idx` : Return the list of indices from a given fermionic level
+- `Blvl2idx` : Return the list of indices from a given bosonic level (excitation)
+- `Flvl2idx` : Return the list of indices from a given fermionic level (excitation)
 - `bosonPtr` : Records the tuple ``(k, \\nu)`` for each position in `Nvec_b`, where ``k`` and ``\\nu`` represents the ``\\nu``-th exponential-expansion term of the ``k``-th bosonic bath.
 - `fermionPtr` : Records the tuple ``(k, \\nu)`` for each position in `Nvec_f`, where ``k`` and ``\\nu`` represents the ``\\nu``-th exponential-expansion term of the ``k``-th fermionic bath.
 """
 struct MixHierarchyDict <: AbstractHierarchyDict
     idx2nvec::Vector{Tuple{Nvec, Nvec}}
     nvec2idx::Dict{Tuple{Nvec, Nvec}, Int}
-    blvl2idx::Dict{Int, Vector{Int}}
-    flvl2idx::Dict{Int, Vector{Int}}
+    Blvl2idx::Dict{Int, Vector{Int}}
+    Flvl2idx::Dict{Int, Vector{Int}}
     bosonPtr::Vector{Tuple}
     fermionPtr::Vector{Tuple}
 end

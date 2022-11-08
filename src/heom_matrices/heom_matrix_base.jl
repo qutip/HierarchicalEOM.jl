@@ -172,18 +172,18 @@ function add_operator!(op, I, J, V, N_he, row_idx, col_idx)
     append!(localpart(V)[1], val)
 end
 
-# sum ω of bath for current gradient
-function bath_sum_ω(nvec, baths::Vector{T}) where T <: Union{AbstractBosonBath, AbstractFermionBath}
+# sum γ of bath for current gradient
+function bath_sum_γ(nvec, baths::Vector{T}) where T <: Union{AbstractBosonBath, AbstractFermionBath}
     p = 0
-    sum_ω = 0.0
+    sum_γ = 0.0
     for b in baths
         n = nvec[(p + 1) : (p + b.Nterm)]
         for k in findall(nk -> nk > 0, n)
-            sum_ω += n[k] * b.γ[k]
+            sum_γ += n[k] * b.γ[k]
         end
         p += b.Nterm
     end
-    return sum_ω
+    return sum_γ
 end
 
 # boson (Real & Imag combined) operator for previous gradient
