@@ -200,7 +200,7 @@ function genBathHierarchy(bB::Vector{BosonBath}, fB::Vector{FermionBath}, tier_b
         for nvec_b in idx2nvec_b
             for nvec_f in idx2nvec_f
                 # only neglect the nvec tuple where level ≥ 2
-                if (nvec_b.level >= 2) && (nvec_f.level >= 2)
+                if (nvec_b.level >= 2) || (nvec_f.level >= 2)
                     Ath = _Importance(bB, bosonPtr, nvec_b) * _Importance(fB, fermionPtr, nvec_f)
                     if Ath >= threshold
                         push!(idx2nvec, (nvec_b, nvec_f))
