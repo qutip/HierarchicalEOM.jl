@@ -40,6 +40,8 @@ lastindex(nvec::Nvec) = length(nvec)
 
 getindex(nvec::Nvec, i::T) where {T <: Any} = nvec.data[i]
 
+keys(nvec::Nvec) = keys(nvec.data)
+
 function iterate(nvec::Nvec) 
     return nvec[1], 2
 end

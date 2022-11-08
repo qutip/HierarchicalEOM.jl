@@ -48,7 +48,7 @@ module Heom
     # sub-module HeomAPI for Heom
     module HeomAPI
         using ..Bath
-        import Base: ==, show, length, size, getindex, setindex!, lastindex, iterate, checkbounds, hash, copy
+        import Base: ==, show, length, size, getindex, keys, setindex!, lastindex, iterate, checkbounds, hash, copy
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
         import Distributed: @everywhere, @distributed, procs, nprocs, RemoteChannel, Channel
