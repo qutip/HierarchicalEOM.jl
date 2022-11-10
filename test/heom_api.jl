@@ -247,7 +247,7 @@ end
     @test nnz(L.data) == 13536
 
     ados = SteadyState(L; verbose=false)
-    @test ( Ic(ados, L, 1) * 2.434e-4 * 1e6 ) == 0.2883004571425127
+    @test ( Ic(ados, L, 1) * 2.434e-4 * 1e6 ) ≈ 0.2883004571425127
 end
 
 @testset "Auxiliary density operators" begin
