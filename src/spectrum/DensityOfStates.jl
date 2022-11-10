@@ -33,12 +33,8 @@ function DOS(
         error("FILE: $(filename) already exist.")
     end
 
-    # check number of fermion states
-    if M.Nf <= 0
-        error("The number of fermionic states must be greater than zero, i.e., \"M.Nf > 0\".")
-
     # check parity
-    elseif M.parity != :odd
+    if M.parity != :odd
         error("The parity of M must be \":odd\".")
     end
 
@@ -53,15 +49,10 @@ function DOS(
         if (M.dim != ρ.dim)
             error("The system dimension between M and ρ are not consistent.")
         end
-    
-        if (M.Nb != ρ.Nb)
-            error("The number of bosonic states between M and ρ are not consistent.")
+        if (M.N != ρ.N)
+            error("The number N between M and ρ are not consistent.")
         end
-    
-        if (M.Nf != ρ.Nf)
-            error("The number of fermionic states between M and ρ are not consistent.")
-        end
-
+        
         b = ρ.data
         
     elseif isValidMatrixType(ρ, M.dim)

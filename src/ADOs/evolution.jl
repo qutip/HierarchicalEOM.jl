@@ -37,11 +37,7 @@ function evolution(
 
     # vectorize initial state
     ρ1   = sparse(sparsevec(ρ0))
-    ados = ADOs(
-        sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim);
-        Nb = M.Nb, 
-        Nf = M.Nf
-    )
+    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N)
 
     return evolution(M, ados, Δt, steps;
         threshold   = threshold,
@@ -88,12 +84,8 @@ function evolution(
         error("The system dimension between M and ados are not consistent.")
     end
 
-    if (M.Nb != ados.Nb)
-        error("The number of bosonic states between M and ados are not consistent.")
-    end
-
-    if (M.Nf != ados.Nf)
-        error("The number of fermionic states between M and ados are not consistent.")
+    if (M.N != ados.N)
+        error("The number N between M and ados are not consistent.")
     end
 
     SAVE::Bool = (filename != "")
@@ -130,7 +122,7 @@ function evolution(
         ρvec = exp_Mt * ρvec
         
         # save the ADOs
-        ados = ADOs(ρvec, M.dim, M.Nb, M.Nf)
+        ados = ADOs(ρvec, M.dim, M.N)
         push!(ADOs_list, ados)
         
         if SAVE
@@ -195,11 +187,7 @@ function evolution(
 
     # vectorize initial state
     ρ1   = sparse(sparsevec(ρ0))
-    ados = ADOs(
-        sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim);
-        Nb = M.Nb, 
-        Nf = M.Nf
-    )
+    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N)
 
     return evolution(M, ados, tlist;
         solver = solver,
@@ -254,12 +242,8 @@ function evolution(
         error("The system dimension between M and ados are not consistent.")
     end
 
-    if (M.Nb != ados.Nb)
-        error("The number of bosonic states between M and ados are not consistent.")
-    end
-
-    if (M.Nf != ados.Nf)
-        error("The number of fermionic states between M and ados are not consistent.")
+    if (M.N != ados.N)
+        error("The number N between M and ados are not consistent.")
     end
 
     SAVE::Bool = (filename != "")
@@ -302,7 +286,7 @@ function evolution(
         step!(integrator, dt, true)
         
         # save the ADOs
-        ados = ADOs(copy(integrator.u), M.dim, M.Nb, M.Nf)
+        ados = ADOs(copy(integrator.u), M.dim, M.N)
         push!(ADOs_list, ados)
         
         if SAVE
