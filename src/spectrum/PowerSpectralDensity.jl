@@ -33,12 +33,8 @@ function PSD(
         error("FILE: $(filename) already exist.")
     end
 
-    # check number of bosonic states
-    if M.Nb <= 0
-        error("The number of bosonic states must be greater than zero, i.e., \"M.Nb > 0\".")
-
-    # if the bath encludes fermion states, check parity
-    elseif M.parity == :odd
+    # check parity
+    if (M.parity == :odd) || (typeof(M) == M_Fermion)
         error("The parity of M must be \":none\" (bosonic) or \":even\" (mixed) bath.")
     end
 
@@ -53,13 +49,8 @@ function PSD(
         if (M.dim != ρ.dim)
             error("The system dimension between M and ρ are not consistent.")
         end
-    
-        if (M.Nb != ρ.Nb)
-            error("The number of bosonic states between M and ρ are not consistent.")
-        end
-    
-        if (M.Nf != ρ.Nf)
-            error("The number of fermionic states between M and ρ are not consistent.")
+        if (M.N != ρ.N)
+            error("The number N between M and ρ are not consistent.")
         end
 
         b = ρ.data

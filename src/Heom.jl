@@ -48,11 +48,11 @@ module Heom
     # sub-module HeomAPI for Heom
     module HeomAPI
         using ..Bath
-        import Base: show, length, size, getindex, lastindex, iterate, checkbounds
+        import Base: ==, show, length, size, getindex, keys, setindex!, lastindex, iterate, checkbounds, hash, copy
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
         import Distributed: @everywhere, @distributed, procs, nprocs, RemoteChannel, Channel
-        import DistributedArrays: distribute, localpart
+        import DistributedArrays: distribute, localpart, d_closeall
         import ProgressMeter: Progress, next!
         import FastExpm: fastExpm
         import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType
@@ -69,7 +69,8 @@ module Heom
         export
             AbstractHEOMMatrix, M_Fermion, M_Boson, M_Boson_Fermion,
             odd, even, none,
-            ADOs, getRho, getADO, HierarchyDict,
+            ADOs, getRho, getADO, 
+            Nvec, AbstractHierarchyDict, HierarchyDict, MixHierarchyDict,
             Propagator, addDissipator!, addTerminator!,
             evolution, SteadyState
 
@@ -80,7 +81,7 @@ module Heom
 
     # sub-module Spectrum for Heom
     module Spectrum
-        import ..HeomAPI: AbstractHEOMMatrix, ADOs, spre
+        import ..HeomAPI: AbstractHEOMMatrix, ADOs, spre, M_Fermion
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, sparsevec
         import LinearSolve: LinearProblem, solve, UMFPACKFactorization

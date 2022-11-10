@@ -5,12 +5,10 @@ The Auxiliary Density Operators for Heom model.
 # Fields
 - `data` : the vectorized auxiliary density operators
 - `dim` : the dimension of the system
-- `Nb` : the number of bosonic states
-- `Nf` : the number of fermionic states
+- `N` : the number of auxiliary density operators
 
 # Methods
-For pure bosonic (or fermionic) type bath `ADOs`, 
-one can obtain the density matrix for specific index (`idx`) by calling : `ados[idx]`.
+One can obtain the density matrix for specific index (`idx`) by calling : `ados[idx]`.
 `Heom.jl` also supports the following calls (methods) :
 ```julia
 length(ados);  # returns the total number of `ADOs`
@@ -21,76 +19,35 @@ from rho in ados  # iteration
     # do something
 end
 ```
-
-For mixed (bosonic and fermionic) type bath `ADOs`, 
-one needs two indices (`idx_b` and `idx_f`), and thus, `ados[idx_b, idx_f]`.
-Note that the first index specifies the bosonic bath index while the other one specifies the fermionic bath.
-`Heom.jl` also supports the following calls (methods) :
-```julia
-length(ados);       # returns the total number of `ADOs`
-ados[idx_b, 1:end]; # returns a vector which contains all the fermionic `ADO` (in matrix form) where bosonic index is `idx_b`
-ados[idx_b, :];     # returns a vector which contains all the fermionic `ADO` (in matrix form) where bosonic index is `idx_b`
-ados[1:end, idx_f]; # returns a vector which contains all the bosonic `ADO` (in matrix form) where fermionic index is `idx_f`
-ados[:, idx_f];     # returns a vector which contains all the bosonic `ADO` (in matrix form) where fermionic index is `idx_f`
-```
-But, currently, we don't support `iterate()` for mixed bath ADOs.
 """
 mutable struct ADOs 
     data::SparseVector{ComplexF64, Int64}
     const dim::Int
-    const Nb::Int
-    const Nf::Int
+    const N::Int
 end
 
 """
-    ADOs(V; Nb=0, Nf=0)
+    ADOs(V, N)
 Gernerate the object of auxiliary density operators for Heom model.
 
 # Parameters
 - `V::AbstractVector` : the vectorized auxiliary density operators
-- `Nb::Int` : the number of bosonic states. Defaults to `0`.
-- `Nf::Int` : the number of fermionic states Defaults to `0`.
+- `N::Int` : the number of auxiliary density operators.
 """
-function ADOs(        
-        V::AbstractVector;
-        Nb::Int=0,
-        Nf::Int=0
-    )
-
-    # get total number of Env. states
-    local Ntot :: Int
-    if Nb == 0     # fermionic bath
-        Ntot = Nf
-
-    elseif Nf == 0 # bosonic bath
-        Ntot = Nb
-
-    else               # mixed bath
-        Ntot = Nb * Nf
-    end
-
+function ADOs(V::AbstractVector, N::Int)
     # check the dimension of V
     d,  = size(V)
-    dim = √(d / Ntot)
+    dim = √(d / N)
     if isinteger(dim)
-        return ADOs(sparsevec(V), Int(dim), Nb, Nf)
+        return ADOs(sparsevec(V), Int(dim), N)
     else
-        error("The dimension of vector is not consistent with Nb and Nf.")
+        error("The dimension of vector is not consistent with N.")
     end    
 end
 
-function checkbounds(A::ADOs, i::Int, tag::String)
-    # boson case
-    if tag == "b"
-        if (i > A.Nb) || (i < 1)
-            error("Attempt to access $(A.Nb)-element (bosonic) ADOs at index [$(i)]")
-        end
-
-    # fermion case
-    elseif tag == "f"
-        if (i > A.Nf) || (i < 1)
-            error("Attempt to access $(A.Nf)-element (fermionic) ADOs at index [$(i)]")
-        end
+function checkbounds(A::ADOs, i::Int)
+    if (i > A.N) || (i < 1)
+        error("Attempt to access $(A.N)-element ADOs at index [$(i)]")
     end
 end
 
@@ -98,33 +55,12 @@ end
     length(A::ADOs)
 Returns the total number of the Auxiliary Density Operators (ADOs)
 """
-function length(A::ADOs)
-    if A.Nb == 0
-        return A.Nf
-    elseif A.Nf == 0
-        return A.Nb
-    else
-        return A.Nb * A.Nf
-    end
-end
+length(A::ADOs) = A.N
 
 lastindex(A::ADOs) = length(A)
-function lastindex(A::ADOs, d::Int)
-    if d == 1  # Boson
-        return A.Nb
-    elseif d == 2  # fermion
-        return A.Nf
-    end
-end
 
 function getindex(A::ADOs, i::Int)
-    if A.Nb == 0 
-        checkbounds(A, i, "f")
-    elseif A.Nf == 0 
-        checkbounds(A, i, "b")
-    else
-        error("The ADOs is from mixed (bosonic and fermionic) bath, use \"ados[idx_b, idx_f]\" or function \"getADO(ados, idx_b, idx_f)\" instead.")
-    end
+    checkbounds(A, i)
 
     sup_dim = A.dim ^ 2
     back    = sup_dim * i
@@ -132,15 +68,8 @@ function getindex(A::ADOs, i::Int)
 end
 
 function getindex(A::ADOs, r::UnitRange{Int})
-    if A.Nb == 0 
-        checkbounds(A, r[1],   "f")
-        checkbounds(A, r[end], "f")
-    elseif A.Nf == 0 
-        checkbounds(A, r[1],   "b")
-        checkbounds(A, r[end], "b")
-    else
-        error("The ADOs is from mixed (bosonic and fermionic) bath, use \"ados[idx_b, idx_f]\" instead.")
-    end
+    checkbounds(A, r[1])
+    checkbounds(A, r[end])
 
     result = []
     sup_dim = A.dim ^ 2
@@ -154,88 +83,10 @@ function getindex(A::ADOs, r::UnitRange{Int})
 end
 getindex(A::ADOs, ::Colon) = getindex(A, 1:lastindex(A))
 
-function getindex(A::ADOs, i::Int, j::Int)
-    if A.Nb == 0
-        error("The given ADOs is from pure fermionic bath, use \"ados[idx]\" or function \"getADO(ados, idx)\" instead.")
-    
-    elseif A.Nf == 0
-        error("The given ADOs is from pure bosonic bath, use \"ados[idx]\" or function \"getADO(ados, idx)\" instead.")
-    
-    else
-        checkbounds(A, i, "b")
-        checkbounds(A, j, "f")
-        
-        idx     = (i - 1) * A.Nf + j
-        sup_dim = A.dim ^ 2
-        back    = sup_dim * idx
-        return sparse(reshape(A.data[(back - sup_dim + 1):back], A.dim, A.dim))
-    end
-end
-
-function getindex(A::ADOs, i::Int, r::UnitRange{Int})
-    if A.Nb == 0
-        error("The given ADOs is from pure fermionic bath, use \"ados[idx]\" instead.")
-    
-    elseif A.Nf == 0
-        error("The given ADOs is from pure bosonic bath, use \"ados[idx]\" instead.")
-    
-    else
-        checkbounds(A, i, "b")
-        checkbounds(A, r[1],   "f")
-        checkbounds(A, r[end], "f")
-        
-        result = []
-        sup_dim = A.dim ^ 2
-        idx_b = (i - 1) * A.Nf
-        for j in r
-            idx  = idx_b + j
-            back = sup_dim * idx
-            push!(result, 
-                sparse(reshape(A.data[(back - sup_dim + 1):back], A.dim, A.dim))
-            )
-        end
-        return result
-    end
-end
-
-function getindex(A::ADOs, r::UnitRange{Int}, j::Int)
-    if A.Nb == 0
-        error("The given ADOs is from pure fermionic bath, use \"ados[idx]\" instead.")
-    
-    elseif A.Nf == 0
-        error("The given ADOs is from pure bosonic bath, use \"ados[idx]\" instead.")
-    
-    else
-        checkbounds(A, r[1],   "b")
-        checkbounds(A, r[end], "b")
-        checkbounds(A, j, "f")
-    
-        result = []
-        sup_dim = A.dim ^ 2
-        for i in r
-            idx  = (i - 1) * A.Nf + j
-            back = sup_dim * idx
-            push!(result, 
-                sparse(reshape(A.data[(back - sup_dim + 1):back], A.dim, A.dim))
-            )
-        end
-        return result
-    end
-end
-getindex(A::ADOs, ::Colon, j::Int) = getindex(A, 1:lastindex(A, 1), j)
-getindex(A::ADOs, i::Int, ::Colon) = getindex(A, i, 1:lastindex(A, 2))
-function getindex(A::ADOs, ::Colon, ::Colon)
-    error("ADOs doesn't support \"ADOs[:,:]\" for mixed (bosonic and fermionic) bath.")
-end
-
 function iterate(A::ADOs) 
-    if (A.Nb == 0) || (A.Nf == 0)
-        return A[1], 2
-    else
-        error("ADOs doesn't support \"iterate\" for mixed (bosonic and fermionic) bath yet.")
-    end
+    return A[1], 2
 end
-function iterate(A::ADOs, state) 
+function iterate(A::ADOs, state::Int) 
     if state < length(A)
         return A[state], state + 1
     else
@@ -246,10 +97,9 @@ iterate(A::ADOs, ::Nothing) = nothing
 
 function show(io::IO, A::ADOs)
     print(io, 
-        "Auxiliary Density Operators with (system) dim = $(A.dim), Nb = $(A.Nb), Nf = $(A.Nf)\n"
+        "Auxiliary Density Operators with (system) dim = $(A.dim), N = $(A.N)\n"
     )
 end
-
 function show(io::IO, m::MIME"text/plain", A::ADOs) show(io, A) end
 
 """
@@ -280,19 +130,3 @@ This function equals to calling : `ados[idx]`.
 - `ρ_idx` : The auxiliary density operator
 """
 getADO(ados::ADOs, idx::Int) = ados[idx]
-
-"""
-    getADO(ados, idx_b, idx_f)
-Return the auxiliary density operator with specific indices *[only for mixtured (bosonic and fermionic) bath]*
-
-This function equals to calling : `ados[idx_b, idx_f]`.
-
-# Parameters
-- `ados::ADOs` : the auxiliary density operators for Heom model
-- `idx_b::Int` : the bosonic-state index of the auxiliary density operator.
-- `idx_f::Int` : the fermionic-state index of the auxiliary density operator.
-
-# Returns
-- `ρ_idx` : The auxiliary density operator
-"""
-getADO(ados::ADOs, idx_b::Int, idx_f::Int) = ados[idx_b, idx_f]

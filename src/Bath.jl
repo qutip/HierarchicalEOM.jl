@@ -62,29 +62,29 @@ function getindex(B::AbstractBath, i::Int)
     
     count = 0
     for b in B.bath
-        for k in 1:b.Nterm
-            count += 1
-            if count == i
-                b_type = typeof(b)
-                op = copy(B.op)
-                if b_type == bosonRealImag 
-                    η = b.η_real[k] + 1.0im * b.η_imag[k]
-                    types = "bRI"
-                else
-                    η = b.η[k]
-                    if b_type == bosonReal
-                        types = "bR"
-                    elseif b_type == bosonImag
-                        types = "bI"
-                    elseif b_type == fermionAbsorb
-                        types = "fA"
-                        op = op'
-                    elseif b_type == fermionEmit
-                        types = "fE"
-                    end
+        if i <= (count + b.Nterm)
+            k = i - count
+            b_type = typeof(b)
+            op = copy(B.op)
+            if b_type == bosonRealImag 
+                η = b.η_real[k] + 1.0im * b.η_imag[k]
+                types = "bRI"
+            else
+                η = b.η[k]
+                if b_type == bosonReal
+                    types = "bR"
+                elseif b_type == bosonImag
+                    types = "bI"
+                elseif b_type == fermionAbsorb
+                    types = "fA"
+                    op = op'
+                elseif b_type == fermionEmit
+                    types = "fE"
                 end
-                return Exponent(op, η, b.γ[k], types)
             end
+            return Exponent(op, η, b.γ[k], types)
+        else 
+            count += b.Nterm
         end
     end
 end

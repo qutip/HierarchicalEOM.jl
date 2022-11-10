@@ -8,7 +8,7 @@ M_Boson
 ```
 
 ```@docs
-M_Boson(Hsys::AbstractMatrix, tier::Int, Bath::Vector{BosonBath}; progressBar::Bool=true)
+M_Boson(Hsys::AbstractMatrix, tier::Int, Bath::Vector{BosonBath}; threshold::Real=0.0, verbose::Bool=true)
 ```
 
 ### Fermion Heom matrix
@@ -17,7 +17,7 @@ M_Fermion
 ```
 
 ```@docs
-M_Fermion(Hsys::AbstractMatrix, tier::Int, Bath::Vector{FermionBath}, parity::Symbol=:even; progressBar::Bool=true)
+M_Fermion(Hsys::AbstractMatrix, tier::Int, Bath::Vector{FermionBath}, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)
 ```
 
 ### Boson-Fermion Heom matrix
@@ -26,7 +26,7 @@ M_Boson_Fermion
 ```
 
 ```@docs
-M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::Vector{FermionBath}, parity::Symbol=:even; progressBar::Bool=true)
+M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::Vector{FermionBath}, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)
 ```
 
 ### Functions for Heom Matrices
@@ -43,7 +43,7 @@ ADOs
 ```
 
 ```@docs
-ADOs(V::AbstractVector; Nb::Int=0, Nf::Int=0)
+ADOs(V::AbstractVector, N::Int)
 ```
 
 ### Functions for Auxiliary Density Operators
@@ -51,10 +51,14 @@ ADOs(V::AbstractVector; Nb::Int=0, Nf::Int=0)
 length(A::ADOs)
 getRho
 getADO(ados::ADOs, idx::Int)
-getADO(ados::ADOs, idx_b::Int, idx_f::Int)
 ```
 
 ## Hierarchy Dictionary
 ```@docs
+Nvec
+```
+
+```@docs
 HierarchyDict
+MixHierarchyDict
 ```
