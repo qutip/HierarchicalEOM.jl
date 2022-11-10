@@ -86,6 +86,15 @@ end
     ]
     @test _is_Matrix_approx(ρ0, ρ1)
 
+    L = M_Fermion(Hsys, tier, Fbath; threshold = 1e-8, verbose=false)
+    addDissipator!(L, J)
+    @test size(L) == (148, 148)
+    @test L.N  == 37
+    @test nnz(L.data) == 2054
+    ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
+    ρ2 = ados[1]
+    @test _is_Matrix_approx(ρ0, ρ2)
+
     L = M_Fermion(Hsys, tier, [Fbath, Fbath]; verbose=false)
     @test size(L) == (9300, 9300)
     @test L.N  == 2325
@@ -137,8 +146,8 @@ end
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
     ρ1 = [
-        0.49693353824300623 - 1.1724586594620817e-7im  -0.0030854297725558563 + 0.0025734495019103824im;
-        -0.003085174459117995 - 0.0025736446811396954im     0.5030664617592213 + 1.1724583626773739e-7im
+        0.496709+4.88415e-12im  -0.00324048+0.00286376im;
+    -0.00324048-0.00286376im      0.503291-4.91136e-12im
     ]
     @test _is_Matrix_approx(ρ0, ρ1)
 
@@ -154,8 +163,8 @@ end
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
     ρ1 = [
-        0.49394119485917903 - 1.7614315992266511e-7im  -0.005274541015933129 + 0.006264966491795586im;
-        -0.0052740922161028814 - 0.006265214322466733im     0.5060588051249636 + 1.761430060529106e-7im
+        0.493774+6.27624e-13im  -0.00536526+0.00651746im;
+        -0.00536526-0.00651746im      0.506226-6.15855e-13im
     ]
     @test _is_Matrix_approx(ρ0, ρ1)
 
@@ -171,70 +180,75 @@ end
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
     ρ1 = [
-        0.4969336345381041 - 1.190543638771177e-7im  -0.0030853446562299934 + 0.0025733625397011384im;
-        -0.003085086715558734 - 0.002573561632244327im    0.5030663654832557 + 1.1905442286856098e-7im
+        0.496468-4.32253e-12im  -0.00341484+0.00316445im;
+    -0.00341484-0.00316445im      0.503532+4.32574e-12im
     ]
     @test _is_Matrix_approx(ρ0, ρ1)
 
     ## check exceptions
-    @test_throws BoundsError L[1, 8221]
-    @test_throws BoundsError L[1:8221, 8220]
     @test_throws ErrorException ados[L.N + 1]
     @test_throws ErrorException @test_warn "Heom doesn't support matrix type : Vector{Int64}" M_Boson_Fermion([0, 0], tierb, tierf, Bbath, Fbath; verbose=false)
 end
 
-#= @testset "Hierarchy Dictionary" begin
-    λ = 1
-    W = 1
-    T = 1
-    μ = 1
-    tier = 2
-    Hsys = spzeros(ComplexF64, 2, 2)
-    Q    = spzeros(ComplexF64, 2, 2)
+@testset "Hierarchy Dictionary" begin
+    Btier = 2
+    Ftier = 2
+    Nb = 3
+    Nf = 3
+    threshold = 1e-5
 
-    b1 = Boson_DrudeLorentz_Pade(Q, λ, W, T, 5)
-    b2 = Boson_DrudeLorentz_Pade(Q, λ, W, T, 4)
-    f1 = Fermion_Lorentz_Pade(Q, λ, μ, W, T, 3)
-    f2 = Fermion_Lorentz_Pade(Q, λ, μ, W, T, 2)
-    Bbath = [b1, b2]
-    Fbath = [f1, f2]
-
-    L = M_Boson_Fermion(Hsys, tier, tier, Bbath, Fbath; verbose=false)
+    Γ = 0.0025
+    Dα  = 30
+    Λ   = 0.0025
+    ωcα = 0.2
+    μL =  0.5
+    μR = -0.5
+    T = 0.025
     
-    # check boson hierarchy dict.
-    hDict = L.hierarchy_b
-    @test L.Nb == length(hDict.idx2nvec)
-    for (idx, ado) in enumerate(hDict.idx2nvec)
-        @test hDict.nvec2idx[ado] == idx
-    end
-    for lvl in 0:tier
-        idx_list = hDict.lvl2idx[lvl]
-        for idx in idx_list
-            @test sum(hDict.idx2nvec[idx]) == lvl
-        end
-    end
-    @test length(hDict.bathPtr) == sum([b.Nterm for b in Bbath])
-    for (k, ν) in hDict.bathPtr
-        @test typeof(Bbath[k][ν]) == Exponent
-    end
+    Hsys = [
+        0   0     0     0;
+        0 0.2     0     0;
+        0   0 0.208  0.04;
+        0   0  0.04 0.408
+    ]
 
-    # check fermion hierarchy dict.
-    hDict = L.hierarchy_f
-    @test L.Nf == length(hDict.idx2nvec)
-    for (idx, ado) in enumerate(hDict.idx2nvec)
-        @test hDict.nvec2idx[ado] == idx
-    end
-    for lvl in 0:tier
-        idx_list = hDict.lvl2idx[lvl]
-        for idx in idx_list
-            @test sum(hDict.idx2nvec[idx]) == lvl
-        end
-    end
-    @test length(hDict.bathPtr) == sum([b.Nterm for b in Fbath])
-    for (k, ν) in hDict.bathPtr
-        @test typeof(Fbath[k][ν]) == Exponent
-    end
-end =#
+    ρ0 = [
+        1 0 0 0;
+        0 0 0 0;
+        0 0 0 0;
+        0 0 0 0
+    ]
+
+    cop = [
+        0 1 0 0;
+        1 0 0 0;
+        0 0 0 1;
+        0 0 1 0
+    ]
+
+    dop = [
+        0 0 1 0;
+        0 0 0 1;
+        0 0 0 0;
+        0 0 0 0
+    ]
+
+    bbath = Boson_DrudeLorentz_Matsubara(cop, Λ, ωcα, T, Nb)
+    fbath = [
+        Fermion_Lorentz_Pade(dop, Γ, μL, Dα, T, Nf),
+        Fermion_Lorentz_Pade(dop, Γ, μR, Dα, T, Nf)
+    ]
+
+    L = M_Boson_Fermion(Hsys, Btier, Ftier, bbath, fbath; threshold = threshold, verbose=false)
+    addTerminator!(L, bbath)
+
+    @test size(L) == (1696, 1696)
+    @test L.N  == 106
+    @test nnz(L.data) == 13536
+
+    ados = SteadyState(L; verbose=false)
+    @test ( Ic(ados, L, 1) * 2.434e-4 * 1e6 ) == 0.2883004571425127
+end
 
 @testset "Auxiliary density operators" begin
     ados_b  = ADOs(spzeros(Int64, 20), 5)
