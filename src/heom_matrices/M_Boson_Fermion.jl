@@ -119,86 +119,92 @@ function M_Boson_Fermion(
 
         # the second task does the computation
         @async begin
-            @distributed (+) for idx in 1:Nado
-                # boson and fermion (n tier) superoperator
-                sum_γ   = 0.0
-                nvec_b, nvec_f = idx2nvec[idx]
-                if nvec_b.level >= 1
-                    sum_γ += bath_sum_γ(nvec_b, baths_b)
-                end
-                if nvec_f.level >= 1
-                    sum_γ += bath_sum_γ(nvec_f, baths_f)
-                end
-                add_operator!(Lsys - sum_γ * I_sup, L_row, L_col, L_val, Nado, idx, idx)
-                
-                # boson (n+1 & n-1 tier) superoperator
-                count = 0
-                nvec_neigh = copy(nvec_b)
-                for bB in baths_b
-                    for k in 1:bB.Nterm
-                        count += 1
-                        n_k = nvec_b[count]
+            try
+                @distributed (+) for idx in 1:Nado
+                    # boson and fermion (n tier) superoperator
+                    sum_γ   = 0.0
+                    nvec_b, nvec_f = idx2nvec[idx]
+                    if nvec_b.level >= 1
+                        sum_γ += bath_sum_γ(nvec_b, baths_b)
+                    end
+                    if nvec_f.level >= 1
+                        sum_γ += bath_sum_γ(nvec_f, baths_f)
+                    end
+                    add_operator!(Lsys - sum_γ * I_sup, L_row, L_col, L_val, Nado, idx, idx)
+                    
+                    # boson (n+1 & n-1 tier) superoperator
+                    count = 0
+                    nvec_neigh = copy(nvec_b)
+                    for bB in baths_b
+                        for k in 1:bB.Nterm
+                            count += 1
+                            n_k = nvec_b[count]
 
-                        # deal with prevous gradient
-                        if n_k > 0
-                            Nvec_minus!(nvec_neigh, count)
-                            if (threshold == 0.0) || haskey(nvec2idx, (nvec_neigh, nvec_f))
-                                idx_neigh = nvec2idx[(nvec_neigh, nvec_f)]
-                                op = prev_grad_boson(bB, k, n_k)
-                                add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                            # deal with prevous gradient
+                            if n_k > 0
+                                Nvec_minus!(nvec_neigh, count)
+                                if (threshold == 0.0) || haskey(nvec2idx, (nvec_neigh, nvec_f))
+                                    idx_neigh = nvec2idx[(nvec_neigh, nvec_f)]
+                                    op = prev_grad_boson(bB, k, n_k)
+                                    add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                                end
+                                Nvec_plus!(nvec_neigh, count)
                             end
-                            Nvec_plus!(nvec_neigh, count)
-                        end
 
-                        # deal with next gradient
-                        if nvec_b.level < Btier
-                            Nvec_plus!(nvec_neigh, count)
-                            if (threshold == 0.0) || haskey(nvec2idx, (nvec_neigh, nvec_f))
-                                idx_neigh = nvec2idx[(nvec_neigh, nvec_f)]
-                                op = next_grad_boson(bB)
-                                add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                            # deal with next gradient
+                            if nvec_b.level < Btier
+                                Nvec_plus!(nvec_neigh, count)
+                                if (threshold == 0.0) || haskey(nvec2idx, (nvec_neigh, nvec_f))
+                                    idx_neigh = nvec2idx[(nvec_neigh, nvec_f)]
+                                    op = next_grad_boson(bB)
+                                    add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                                end
+                                Nvec_minus!(nvec_neigh, count)
                             end
-                            Nvec_minus!(nvec_neigh, count)
                         end
                     end
-                end
-                
-                # fermion (n+1 & n-1 tier) superoperator
-                count = 0
-                nvec_neigh = copy(nvec_f)
-                for fB in baths_f
-                    for k in 1:fB.Nterm
-                        count += 1
-                        n_k = nvec_f[count]
+                    
+                    # fermion (n+1 & n-1 tier) superoperator
+                    count = 0
+                    nvec_neigh = copy(nvec_f)
+                    for fB in baths_f
+                        for k in 1:fB.Nterm
+                            count += 1
+                            n_k = nvec_f[count]
 
-                        # deal with prevous gradient
-                        if n_k > 0
-                            Nvec_minus!(nvec_neigh, count)
-                            if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
-                                idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
-                                op = prev_grad_fermion(fB, k, nvec_f.level, sum(nvec_neigh[1:(count - 1)]), parity)
-                                add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
-                            end
-                            Nvec_plus!(nvec_neigh, count)
+                            # deal with prevous gradient
+                            if n_k > 0
+                                Nvec_minus!(nvec_neigh, count)
+                                if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
+                                    idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
+                                    op = prev_grad_fermion(fB, k, nvec_f.level, sum(nvec_neigh[1:(count - 1)]), parity)
+                                    add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                                end
+                                Nvec_plus!(nvec_neigh, count)
 
-                        # deal with next gradient
-                        elseif nvec_f.level < Ftier
-                            Nvec_plus!(nvec_neigh, count)
-                            if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
-                                idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
-                                op = next_grad_fermion(fB, nvec_f.level, sum(nvec_neigh[1:(count - 1)]), parity)
-                                add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                            # deal with next gradient
+                            elseif nvec_f.level < Ftier
+                                Nvec_plus!(nvec_neigh, count)
+                                if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
+                                    idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
+                                    op = next_grad_fermion(fB, nvec_f.level, sum(nvec_neigh[1:(count - 1)]), parity)
+                                    add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                                end
+                                Nvec_minus!(nvec_neigh, count)
                             end
-                            Nvec_minus!(nvec_neigh, count)
                         end
                     end
+                    if verbose
+                        put!(channel, true) # trigger a progress bar update
+                    end
+                    1 # Here, returning some number 1 and reducing it somehow (+) is necessary to make the distribution happen.
                 end
-                if verbose
-                    put!(channel, true) # trigger a progress bar update
-                end
-                1 # Here, returning some number 1 and reducing it somehow (+) is necessary to make the distribution happen.
+                put!(channel, false) # this tells the printing task to finish
+
+            catch e
+                put!(channel, false) # this tells the printing task to finish
+                throw(e)
             end
-            put!(channel, false) # this tells the printing task to finish
         end
     end
     if verbose
