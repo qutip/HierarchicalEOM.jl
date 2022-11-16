@@ -1,5 +1,5 @@
 """
-    mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
+    struct M_Boson_Fermion <: AbstractHEOMMatrix
 Heom liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath 
 
 # Fields
@@ -14,17 +14,17 @@ Heom liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath
 - `Fbath::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
 - `hierarchy::MixHierarchyDict`: the object which contains all dictionaries for mixed-bath-ADOs hierarchy.
 """
-mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
+struct M_Boson_Fermion <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
-    const Btier::Int
-    const Ftier::Int
-    const dim::Int
-    const N::Int
-    const sup_dim::Int
-    const parity::Symbol
-    const Bbath::Vector{BosonBath}
-    const Fbath::Vector{FermionBath}
-    const hierarchy::MixHierarchyDict
+    Btier::Int
+    Ftier::Int
+    dim::Int
+    N::Int
+    sup_dim::Int
+    parity::Symbol
+    Bbath::Vector{BosonBath}
+    Fbath::Vector{FermionBath}
+    hierarchy::MixHierarchyDict
 end
 
 function M_Boson_Fermion(Hsys, Btier::Int, Ftier::Int, Bbath::BosonBath, Fbath::FermionBath, parity::Symbol=:even; threshold::Real = 0.0, verbose::Bool=true)

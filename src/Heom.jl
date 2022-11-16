@@ -71,7 +71,7 @@ module Heom
             odd, even, none,
             ADOs, getRho, getADO, 
             Nvec, AbstractHierarchyDict, HierarchyDict, MixHierarchyDict,
-            Propagator, addDissipator!, addTerminator!,
+            Propagator, addDissipator, addTerminator,
             evolution, SteadyState
 
         include("heom_matrix.jl")

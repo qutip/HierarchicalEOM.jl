@@ -1,5 +1,5 @@
 """
-    mutable struct M_Fermion <: AbstractHEOMMatrix
+    struct M_Fermion <: AbstractHEOMMatrix
 Heom liouvillian superoperator matrix for fermionic bath
 
 # Fields
@@ -12,15 +12,15 @@ Heom liouvillian superoperator matrix for fermionic bath
 - `bath::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
 - `hierarchy::HierarchyDict`: the object which contains all dictionaries for fermion-bath-ADOs hierarchy.
 """
-mutable struct M_Fermion <: AbstractHEOMMatrix
+struct M_Fermion <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
-    const tier::Int
-    const dim::Int
-    const N::Int
-    const sup_dim::Int
-    const parity::Symbol
-    const bath::Vector{FermionBath}
-    const hierarchy::HierarchyDict
+    tier::Int
+    dim::Int
+    N::Int
+    sup_dim::Int
+    parity::Symbol
+    bath::Vector{FermionBath}
+    hierarchy::HierarchyDict
 end
 
 function M_Fermion(Hsys, tier::Int, Bath::FermionBath, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)

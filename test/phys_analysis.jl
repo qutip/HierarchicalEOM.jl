@@ -50,8 +50,8 @@ end
 
     tier = 3
     L = M_Boson(Hsys, tier, bath; verbose=false)
-    addDissipator!(L, 1e-3 * a')
-    addTerminator!(L, bath)
+    L = addDissipator(L, 1e-3 * a')
+    L = addTerminator(L, bath)
 
     ados_s = SteadyState(L; verbose=false)
     ωlist = 0.9:0.01:1.1
