@@ -258,8 +258,9 @@ end
     @test show(devnull, MIME("text/plain"), ados_f)  == nothing
     @test show(devnull, MIME("text/plain"), ados_bf) == nothing
 
+    ρ_b = ados_b[:]
     # check iteration
-    for ado in ados_b
-       @test ado == spzeros(ComplexF64, 2, 2)
+    for (i, ado) in enumerate(ados_b)
+       @test ρ_b[i] == ado
     end
 end
