@@ -84,14 +84,16 @@ function DOS(
         flush(stdout)
         prog = Progress(Length; start=1, desc="Progress : ", PROGBAR_OPTIONS...)
     end
+    Iω = 1im * ω_list[1] * I_total
+    prob_minus = init(LinearProblem(M.data - Iω, b_minus), solver, SOLVEROptions...)
+    prob_plus  = init(LinearProblem(M.data + Iω, b_plus),  solver, SOLVEROptions...)
+    sol_m = solve(prob_minus)
+    sol_p = solve(prob_plus)
     @inbounds for (i, ω) in enumerate(ω_list)
-        if ω == 0
-            sol_m = solve(LinearProblem(M.data, b_minus), solver, SOLVEROptions...)
-            sol_p = solve(LinearProblem(M.data, b_plus),  solver, SOLVEROptions...)
-        else
+        if i > 1
             Iω = 1im * ω * I_total
-            sol_m = solve(LinearProblem(M.data - Iω, b_minus), solver, SOLVEROptions...)
-            sol_p = solve(LinearProblem(M.data + Iω, b_plus),  solver, SOLVEROptions...)
+            sol_m = solve(set_A(sol_m.cache, M.data - Iω))
+            sol_p = solve(set_A(sol_p.cache, M.data + Iω))
         end
         Cω_minus = C_dagger * sol_m.u
         Cω_plus  = C_normal * sol_p.u

@@ -83,12 +83,13 @@ function PSD(
         flush(stdout)
         prog = Progress(Length; start=1, desc="Progress : ", PROGBAR_OPTIONS...)
     end
+    Iω   = 1im * ω_list[1] * I_total
+    prob = init(LinearProblem(M.data - Iω, Cb), solver, SOLVEROptions...)
+    sol = solve(prob)
     @inbounds for (i, ω) in enumerate(ω_list)
-        if ω == 0
-            sol = solve(LinearProblem(M.data, Cb), solver, SOLVEROptions...)
-        else
-            Iω = 1im * ω * I_total
-            sol = solve(LinearProblem(M.data - Iω, Cb), solver, SOLVEROptions...)
+        if i > 1            
+            Iω  = 1im * ω * I_total
+            sol = solve(set_A(sol.cache, M.data - Iω))
         end
         Cω = C_dagger * sol.u
 
