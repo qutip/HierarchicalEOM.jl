@@ -132,7 +132,7 @@ function M_Boson(
         print("Constructing matrix...")
         flush(stdout)
     end
-    L_he = sparse(vcat(L_row...), vcat(L_col...), vcat(L_val...), Nado * sup_dim, Nado * sup_dim)
+    L_he = sparse(L_row, L_col, L_val, Nado * sup_dim, Nado * sup_dim)
     if verbose
         println("[DONE]")
         flush(stdout)
