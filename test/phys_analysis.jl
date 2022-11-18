@@ -50,8 +50,8 @@ end
 
     tier = 3
     L = M_Boson(Hsys, tier, bath; verbose=false)
-    addDissipator!(L, 1e-3 * a')
-    addTerminator!(L, bath)
+    L = addDissipator(L, 1e-3 * a')
+    L = addTerminator(L, bath)
 
     ados_s = SteadyState(L; verbose=false)
     ωlist = 0.9:0.01:1.1
@@ -115,9 +115,19 @@ end
     Lo = M_Fermion(Hsys, tier, [fuL, fdL, fuR, fdR], :odd; verbose=false)
 
     ados_s = SteadyState(Le; verbose=false)
-    ωlist = 0:2:20
+    ωlist = -20:2:20
     dos1 = DOS(Lo, ados_s, d_up, ωlist; verbose=false)
     dos2 = [
+        0.0007920428534358747,
+        0.0012795202828027256,
+        0.0022148985361417936,
+        0.004203651086852703,
+        0.009091831276694192,
+        0.024145570990254425,
+        0.09111929563034224,
+        0.2984323182857298,
+        0.1495897397559431,
+        0.12433521300531171,
         0.17217519700362036,
         0.1243352130053117,
         0.14958973975594306,

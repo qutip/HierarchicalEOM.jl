@@ -51,8 +51,6 @@ module Heom
         import Base: ==, show, length, size, getindex, keys, setindex!, lastindex, iterate, checkbounds, hash, copy
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
-        import Distributed: @everywhere, @distributed, procs, nprocs, RemoteChannel, Channel
-        import DistributedArrays: distribute, localpart, d_closeall
         import ProgressMeter: Progress, next!
         import FastExpm: fastExpm
         import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType
@@ -71,7 +69,7 @@ module Heom
             odd, even, none,
             ADOs, getRho, getADO, 
             Nvec, AbstractHierarchyDict, HierarchyDict, MixHierarchyDict,
-            Propagator, addDissipator!, addTerminator!,
+            Propagator, addDissipator, addTerminator,
             evolution, SteadyState
 
         include("heom_matrix.jl")
@@ -84,7 +82,7 @@ module Heom
         import ..HeomAPI: AbstractHEOMMatrix, ADOs, spre, M_Fermion
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, sparsevec
-        import LinearSolve: LinearProblem, solve, UMFPACKFactorization
+        import LinearSolve: LinearProblem, init, set_A, solve, UMFPACKFactorization
         import ProgressMeter: Progress, next!        
         import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType
 

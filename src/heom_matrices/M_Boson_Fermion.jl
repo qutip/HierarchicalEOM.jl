@@ -1,5 +1,5 @@
 """
-    mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
+    struct M_Boson_Fermion <: AbstractHEOMMatrix
 Heom liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath 
 
 # Fields
@@ -14,17 +14,17 @@ Heom liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath
 - `Fbath::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
 - `hierarchy::MixHierarchyDict`: the object which contains all dictionaries for mixed-bath-ADOs hierarchy.
 """
-mutable struct M_Boson_Fermion <: AbstractHEOMMatrix
+struct M_Boson_Fermion <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
-    const Btier::Int
-    const Ftier::Int
-    const dim::Int
-    const N::Int
-    const sup_dim::Int
-    const parity::Symbol
-    const Bbath::Vector{BosonBath}
-    const Fbath::Vector{FermionBath}
-    const hierarchy::MixHierarchyDict
+    Btier::Int
+    Ftier::Int
+    dim::Int
+    N::Int
+    sup_dim::Int
+    parity::Symbol
+    Bbath::Vector{BosonBath}
+    Fbath::Vector{FermionBath}
+    hierarchy::MixHierarchyDict
 end
 
 function M_Boson_Fermion(Hsys, Btier::Int, Ftier::Int, Bbath::BosonBath, Fbath::FermionBath, parity::Symbol=:even; threshold::Real = 0.0, verbose::Bool=true)
@@ -97,114 +97,91 @@ function M_Boson_Fermion(
     end
 
     # start to construct the matrix
-    L_row = distribute([Int[] for _ in procs()])
-    L_col = distribute([Int[] for _ in procs()])
-    L_val = distribute([ComplexF64[] for _ in procs()])
-    channel = RemoteChannel(() -> Channel{Bool}(), 1) # for updating the progress bar
+    L_row = Int[]
+    L_col = Int[]
+    L_val = ComplexF64[]
 
     if verbose
         println("Preparing block matrices for HEOM liouvillian superoperator (using $(nprocs()) processors)...")
         flush(stdout)
         prog = Progress(Nado; desc="Processing: ", PROGBAR_OPTIONS...)
     end
-    @sync begin # start two tasks which will be synced in the very end
-        # the first task updates the progress bar
-        @async while take!(channel)
-            if verbose
-                next!(prog)
-            else
-                put!(channel, false) # this tells the printing task to finish
+    for idx in 1:Nado
+        # boson and fermion (n tier) superoperator
+        sum_γ   = 0.0
+        nvec_b, nvec_f = idx2nvec[idx]
+        if nvec_b.level >= 1
+            sum_γ += bath_sum_γ(nvec_b, baths_b)
+        end
+        if nvec_f.level >= 1
+            sum_γ += bath_sum_γ(nvec_f, baths_f)
+        end
+        add_operator!(Lsys - sum_γ * I_sup, L_row, L_col, L_val, Nado, idx, idx)
+        
+        # boson (n+1 & n-1 tier) superoperator
+        count = 0
+        nvec_neigh = copy(nvec_b)
+        for bB in baths_b
+            for k in 1:bB.Nterm
+                count += 1
+                n_k = nvec_b[count]
+
+                # deal with prevous gradient
+                if n_k > 0
+                    Nvec_minus!(nvec_neigh, count)
+                    if (threshold == 0.0) || haskey(nvec2idx, (nvec_neigh, nvec_f))
+                        idx_neigh = nvec2idx[(nvec_neigh, nvec_f)]
+                        op = prev_grad_boson(bB, k, n_k)
+                        add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                    end
+                    Nvec_plus!(nvec_neigh, count)
+                end
+
+                # deal with next gradient
+                if nvec_b.level < Btier
+                    Nvec_plus!(nvec_neigh, count)
+                    if (threshold == 0.0) || haskey(nvec2idx, (nvec_neigh, nvec_f))
+                        idx_neigh = nvec2idx[(nvec_neigh, nvec_f)]
+                        op = next_grad_boson(bB)
+                        add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                    end
+                    Nvec_minus!(nvec_neigh, count)
+                end
             end
         end
+        
+        # fermion (n+1 & n-1 tier) superoperator
+        count = 0
+        nvec_neigh = copy(nvec_f)
+        for fB in baths_f
+            for k in 1:fB.Nterm
+                count += 1
+                n_k = nvec_f[count]
 
-        # the second task does the computation
-        @async begin
-            try
-                @distributed (+) for idx in 1:Nado
-                    # boson and fermion (n tier) superoperator
-                    sum_γ   = 0.0
-                    nvec_b, nvec_f = idx2nvec[idx]
-                    if nvec_b.level >= 1
-                        sum_γ += bath_sum_γ(nvec_b, baths_b)
+                # deal with prevous gradient
+                if n_k > 0
+                    Nvec_minus!(nvec_neigh, count)
+                    if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
+                        idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
+                        op = prev_grad_fermion(fB, k, nvec_f.level, sum(nvec_neigh[1:(count - 1)]), parity)
+                        add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
                     end
-                    if nvec_f.level >= 1
-                        sum_γ += bath_sum_γ(nvec_f, baths_f)
-                    end
-                    add_operator!(Lsys - sum_γ * I_sup, L_row, L_col, L_val, Nado, idx, idx)
-                    
-                    # boson (n+1 & n-1 tier) superoperator
-                    count = 0
-                    nvec_neigh = copy(nvec_b)
-                    for bB in baths_b
-                        for k in 1:bB.Nterm
-                            count += 1
-                            n_k = nvec_b[count]
+                    Nvec_plus!(nvec_neigh, count)
 
-                            # deal with prevous gradient
-                            if n_k > 0
-                                Nvec_minus!(nvec_neigh, count)
-                                if (threshold == 0.0) || haskey(nvec2idx, (nvec_neigh, nvec_f))
-                                    idx_neigh = nvec2idx[(nvec_neigh, nvec_f)]
-                                    op = prev_grad_boson(bB, k, n_k)
-                                    add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
-                                end
-                                Nvec_plus!(nvec_neigh, count)
-                            end
-
-                            # deal with next gradient
-                            if nvec_b.level < Btier
-                                Nvec_plus!(nvec_neigh, count)
-                                if (threshold == 0.0) || haskey(nvec2idx, (nvec_neigh, nvec_f))
-                                    idx_neigh = nvec2idx[(nvec_neigh, nvec_f)]
-                                    op = next_grad_boson(bB)
-                                    add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
-                                end
-                                Nvec_minus!(nvec_neigh, count)
-                            end
-                        end
+                # deal with next gradient
+                elseif nvec_f.level < Ftier
+                    Nvec_plus!(nvec_neigh, count)
+                    if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
+                        idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
+                        op = next_grad_fermion(fB, nvec_f.level, sum(nvec_neigh[1:(count - 1)]), parity)
+                        add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
                     end
-                    
-                    # fermion (n+1 & n-1 tier) superoperator
-                    count = 0
-                    nvec_neigh = copy(nvec_f)
-                    for fB in baths_f
-                        for k in 1:fB.Nterm
-                            count += 1
-                            n_k = nvec_f[count]
-
-                            # deal with prevous gradient
-                            if n_k > 0
-                                Nvec_minus!(nvec_neigh, count)
-                                if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
-                                    idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
-                                    op = prev_grad_fermion(fB, k, nvec_f.level, sum(nvec_neigh[1:(count - 1)]), parity)
-                                    add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
-                                end
-                                Nvec_plus!(nvec_neigh, count)
-
-                            # deal with next gradient
-                            elseif nvec_f.level < Ftier
-                                Nvec_plus!(nvec_neigh, count)
-                                if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
-                                    idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
-                                    op = next_grad_fermion(fB, nvec_f.level, sum(nvec_neigh[1:(count - 1)]), parity)
-                                    add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
-                                end
-                                Nvec_minus!(nvec_neigh, count)
-                            end
-                        end
-                    end
-                    if verbose
-                        put!(channel, true) # trigger a progress bar update
-                    end
-                    1 # Here, returning some number 1 and reducing it somehow (+) is necessary to make the distribution happen.
+                    Nvec_minus!(nvec_neigh, count)
                 end
-                put!(channel, false) # this tells the printing task to finish
-
-            catch e
-                put!(channel, false) # this tells the printing task to finish
-                throw(e)
             end
+        end
+        if verbose
+            next!(prog) # trigger a progress bar update
         end
     end
     if verbose
@@ -216,6 +193,5 @@ function M_Boson_Fermion(
         println("[DONE]") 
         flush(stdout)
     end
-    d_closeall()  # release all distributed arrays created from the calling process
     return M_Boson_Fermion(L_he, Btier, Ftier, Nsys, Nado, sup_dim, parity, Bbath, Fbath, hierarchy)
 end

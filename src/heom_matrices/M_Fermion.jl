@@ -1,5 +1,5 @@
 """
-    mutable struct M_Fermion <: AbstractHEOMMatrix
+    struct M_Fermion <: AbstractHEOMMatrix
 Heom liouvillian superoperator matrix for fermionic bath
 
 # Fields
@@ -12,15 +12,15 @@ Heom liouvillian superoperator matrix for fermionic bath
 - `bath::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
 - `hierarchy::HierarchyDict`: the object which contains all dictionaries for fermion-bath-ADOs hierarchy.
 """
-mutable struct M_Fermion <: AbstractHEOMMatrix
+struct M_Fermion <: AbstractHEOMMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
-    const tier::Int
-    const dim::Int
-    const N::Int
-    const sup_dim::Int
-    const parity::Symbol
-    const bath::Vector{FermionBath}
-    const hierarchy::HierarchyDict
+    tier::Int
+    dim::Int
+    N::Int
+    sup_dim::Int
+    parity::Symbol
+    bath::Vector{FermionBath}
+    hierarchy::HierarchyDict
 end
 
 function M_Fermion(Hsys, tier::Int, Bath::FermionBath, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)
@@ -80,82 +80,59 @@ function M_Fermion(
     end
 
     # start to construct the matrix
-    L_row = distribute([Int[] for _ in procs()])
-    L_col = distribute([Int[] for _ in procs()])
-    L_val = distribute([ComplexF64[] for _ in procs()])
-    channel = RemoteChannel(() -> Channel{Bool}(), 1) # for updating the progress bar
+    L_row = Int[]
+    L_col = Int[]
+    L_val = ComplexF64[]
 
     if verbose
         println("Preparing block matrices for HEOM liouvillian superoperator (using $(nprocs()) processors)...")
         flush(stdout)
         prog = Progress(Nado; desc="Processing: ", PROGBAR_OPTIONS...)
     end
-    @sync begin # start two tasks which will be synced in the very end
-        # the first task updates the progress bar
-        @async while take!(channel)
-            if verbose
-                next!(prog)
-            else
-                put!(channel, false) # this tells the printing task to finish
+    for idx in 1:Nado
+        # fermion (n tier) superoperator
+        nvec = idx2nvec[idx]
+        if nvec.level >= 1
+            sum_γ = bath_sum_γ(nvec, baths)
+            op = Lsys - sum_γ * I_sup                
+        else
+            op = Lsys
+        end
+        add_operator!(op, L_row, L_col, L_val, Nado, idx, idx)
+
+        # fermion (n+1 & n-1 tier) superoperator
+        count = 0
+        nvec_neigh = copy(nvec)
+        for fB in baths
+            for k in 1:fB.Nterm
+                count += 1
+                n_k = nvec[count]
+
+                # deal with prevous gradient
+                if n_k > 0
+                    Nvec_minus!(nvec_neigh, count)
+                    if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
+                        idx_neigh = nvec2idx[nvec_neigh]
+                        op = prev_grad_fermion(fB, k, nvec.level, sum(nvec_neigh[1:(count - 1)]), parity)
+                        add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                    end
+                    Nvec_plus!(nvec_neigh, count)
+
+                # deal with next gradient
+                elseif nvec.level < tier
+                    Nvec_plus!(nvec_neigh, count)
+                    if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
+                        idx_neigh = nvec2idx[nvec_neigh]
+                        op = next_grad_fermion(fB, nvec.level, sum(nvec_neigh[1:(count - 1)]), parity)
+                        add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                    end
+                    Nvec_minus!(nvec_neigh, count)
+                end
             end
         end
-
-        # the second task does the computation
-        @async begin
-            try
-                @distributed (+) for idx in 1:Nado
-                    # fermion (n tier) superoperator
-                    nvec = idx2nvec[idx]
-                    if nvec.level >= 1
-                        sum_γ = bath_sum_γ(nvec, baths)
-                        op = Lsys - sum_γ * I_sup                
-                    else
-                        op = Lsys
-                    end
-                    add_operator!(op, L_row, L_col, L_val, Nado, idx, idx)
-
-                    # fermion (n+1 & n-1 tier) superoperator
-                    count = 0
-                    nvec_neigh = copy(nvec)
-                    for fB in baths
-                        for k in 1:fB.Nterm
-                            count += 1
-                            n_k = nvec[count]
-
-                            # deal with prevous gradient
-                            if n_k > 0
-                                Nvec_minus!(nvec_neigh, count)
-                                if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
-                                    idx_neigh = nvec2idx[nvec_neigh]
-                                    op = prev_grad_fermion(fB, k, nvec.level, sum(nvec_neigh[1:(count - 1)]), parity)
-                                    add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
-                                end
-                                Nvec_plus!(nvec_neigh, count)
-
-                            # deal with next gradient
-                            elseif nvec.level < tier
-                                Nvec_plus!(nvec_neigh, count)
-                                if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
-                                    idx_neigh = nvec2idx[nvec_neigh]
-                                    op = next_grad_fermion(fB, nvec.level, sum(nvec_neigh[1:(count - 1)]), parity)
-                                    add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
-                                end
-                                Nvec_minus!(nvec_neigh, count)
-                            end
-                        end
-                    end
-                    if verbose
-                        put!(channel, true) # trigger a progress bar update
-                    end
-                    1 # Here, returning some number 1 and reducing it somehow (+) is necessary to make the distribution happen.
-                end
-                put!(channel, false) # this tells the printing task to finish
-            
-            catch e
-                put!(channel, false) # this tells the printing task to finish
-                throw(e)
-            end
-        end 
+        if verbose
+            next!(prog) # trigger a progress bar update
+        end
     end
     if verbose
         print("Constructing matrix...")
@@ -166,6 +143,5 @@ function M_Fermion(
         println("[DONE]")
         flush(stdout)
     end
-    d_closeall()  # release all distributed arrays created from the calling process
     return M_Fermion(L_he, tier, Nsys, Nado, sup_dim, parity, Bath, hierarchy)
 end

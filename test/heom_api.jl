@@ -29,7 +29,7 @@ J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
     @test size(L) == (336, 336)
     @test L.N  == 84
     @test nnz(L.data) == 4422
-    addDissipator!(L, J)
+    L = addDissipator(L, J)
     @test nnz(L.data) == 4760
     ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
     @test ados.dim == L.dim
@@ -46,7 +46,7 @@ J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
     @test size(L) == (1820, 1820)
     @test L.N  == 455
     @test nnz(L.data) == 27662
-    addDissipator!(L, J)
+    L = addDissipator(L, J)
     @test nnz(L.data) == 29484
     ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
     @test ados.dim == L.dim
@@ -73,7 +73,7 @@ end
     @test size(L) == (1196, 1196)
     @test L.N  == 299
     @test nnz(L.data) == 21318
-    addDissipator!(L, J)
+    L = addDissipator(L, J)
     @test nnz(L.data) == 22516
     ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
     @test ados.dim == L.dim
@@ -87,7 +87,7 @@ end
     @test _is_Matrix_approx(ρ0, ρ1)
 
     L = M_Fermion(Hsys, tier, Fbath; threshold = 1e-8, verbose=false)
-    addDissipator!(L, J)
+    L = addDissipator(L, J)
     @test size(L) == (148, 148)
     @test L.N  == 37
     @test nnz(L.data) == 2054
@@ -99,7 +99,7 @@ end
     @test size(L) == (9300, 9300)
     @test L.N  == 2325
     @test nnz(L.data) == 174338
-    addDissipator!(L, J)
+    L = addDissipator(L, J)
     @test nnz(L.data) == 183640
     ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
     @test ados.dim == L.dim
@@ -138,7 +138,7 @@ end
     @test size(L) == (2220, 2220)
     @test L.N  == 555
     @test nnz(L.data) == 43368
-    addDissipator!(L, J)
+    L = addDissipator(L, J)
     @test nnz(L.data) == 45590
     ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
     @test ados.dim == L.dim
@@ -155,7 +155,7 @@ end
     @test size(L) == (6660, 6660)
     @test L.N  == 1665
     @test nnz(L.data) == 139210
-    addDissipator!(L, J)
+    L = addDissipator(L, J)
     @test nnz(L.data) == 145872
     ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
     @test ados.dim == L.dim
@@ -172,7 +172,7 @@ end
     @test size(L) == (8220, 8220)
     @test L.N  == 2055
     @test nnz(L.data) == 167108
-    addDissipator!(L, J)
+    L = addDissipator(L, J)
     @test nnz(L.data) == 175330
     ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
     @test ados.dim == L.dim
@@ -240,7 +240,7 @@ end
     ]
 
     L = M_Boson_Fermion(Hsys, Btier, Ftier, bbath, fbath; threshold = threshold, verbose=false)
-    addTerminator!(L, bbath)
+    L = addTerminator(L, bbath)
 
     @test size(L) == (1696, 1696)
     @test L.N  == 106
@@ -258,8 +258,9 @@ end
     @test show(devnull, MIME("text/plain"), ados_f)  == nothing
     @test show(devnull, MIME("text/plain"), ados_bf) == nothing
 
+    ρ_b = ados_b[:]
     # check iteration
-    for ado in ados_b
-       @test ado == spzeros(ComplexF64, 2, 2)
+    for (i, ado) in enumerate(ados_b)
+       @test ρ_b[i] == ado
     end
 end

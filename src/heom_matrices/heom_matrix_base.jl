@@ -59,14 +59,17 @@ function Propagator(
 end
 
 """
-    addDissipator!(M, jumpOP)
+    addDissipator(M, jumpOP)
 Adding dissipator to a given HEOM matrix.
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
 - `jumpOP::AbstractVector` : The collapse (jump) operators to add. Defaults to empty vector `[]`.
+
+# Return 
+- `M_new::AbstractHEOMMatrix` : the new HEOM liouvillian superoperator matrix
 """
-function addDissipator!(M::AbstractHEOMMatrix, jumpOP::Vector=[])
+function addDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMMatrix
     if length(jumpOP) > 0
         L = spzeros(ComplexF64, M.sup_dim, M.sup_dim)
         for J in jumpOP
@@ -76,15 +79,21 @@ function addDissipator!(M::AbstractHEOMMatrix, jumpOP::Vector=[])
                 error("Invalid matrix in \"jumpOP\".")
             end
         end
-        M.data += kron(sparse(I, M.N, M.N), L)
+
+        if T == M_Boson
+            return M_Boson(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+        elseif T == M_Fermion
+            return M_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+        else
+            return M_Boson_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
+        end
     end
-    nothing
 end
 
-function addDissipator!(M::AbstractHEOMMatrix, jumpOP) addDissipator!(M, [jumpOP]) end
+function addDissipator(M::AbstractHEOMMatrix, jumpOP) return addDissipator(M, [jumpOP]) end
 
 """
-    addTerminator!(M, Bath)
+    addTerminator(M, Bath)
 Adding terminator to a given HEOM matrix.
 
 The terminator is a liouvillian term representing the contribution to 
@@ -97,10 +106,12 @@ Here, `δ` is the approximation discrepancy and `dirac(t)` denotes the Dirac-del
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
 - `Bath::Union{BosonBath, FermionBath}` : The bath object which contains the approximation discrepancy δ
+
+# Return 
+- `M_new::AbstractHEOMMatrix` : the new HEOM liouvillian superoperator matrix
 """
-function addTerminator!(M::AbstractHEOMMatrix, Bath::Union{BosonBath, FermionBath})
+function addTerminator(M::Mtype, Bath::Union{BosonBath, FermionBath}) where Mtype <: AbstractHEOMMatrix
     Btype = typeof(Bath)
-    Mtype = typeof(M)
     if (Btype == BosonBath) && (Mtype == M_Fermion)
         error("For $(Btype), the type of Heom matrix should be either M_Boson or M_Boson_Fermion.")
     elseif (Btype == FermionBath) && (Mtype == M_Boson)
@@ -113,15 +124,22 @@ function addTerminator!(M::AbstractHEOMMatrix, Bath::Union{BosonBath, FermionBat
 
     if Bath.δ == 0
         @warn "The value of approximation discrepancy δ is 0.0 now, which doesn't make any changes."
+        return M
+
     else
         J = Bath.op
         L = 2 * Bath.δ * (
             spre(J) * spost(J') - 0.5 * (spre(J' * J) + spost(J' * J))
         )
 
-        M.data += kron(sparse(I, M.N, M.N), L)
+        if Mtype == M_Boson
+            return M_Boson(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+        elseif Mtype == M_Fermion
+            return M_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+        else
+            return M_Boson_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
+        end
     end
-    nothing
 end
 
 function csc2coo(A)
@@ -167,9 +185,9 @@ end
 
 function add_operator!(op, I, J, V, N_he, row_idx, col_idx)
     row, col, val = pad_coo(op, N_he, N_he, row_idx, col_idx)
-    append!(localpart(I)[1], row)
-    append!(localpart(J)[1], col)
-    append!(localpart(V)[1], val)
+    append!(I, row)
+    append!(J, col)
+    append!(V, val)
 end
 
 # sum γ of bath for current gradient
