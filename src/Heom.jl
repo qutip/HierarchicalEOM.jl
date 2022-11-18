@@ -51,8 +51,6 @@ module Heom
         import Base: ==, show, length, size, getindex, keys, setindex!, lastindex, iterate, checkbounds, hash, copy
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
-        import Distributed: @everywhere, @distributed, procs, nprocs, RemoteChannel, Channel
-        import DistributedArrays: distribute, localpart, d_closeall
         import ProgressMeter: Progress, next!
         import FastExpm: fastExpm
         import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType

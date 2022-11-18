@@ -28,7 +28,6 @@ Other developers:
 Package information:
 ===================================
 Heom              Version: 0.1.0
-DistributedArrays Version: 0.6.6
 JLD2              Version: 0.4.25
 LinearSolve       Version: 1.26.1
 OrdinaryDiffEq    Version: 6.28.1

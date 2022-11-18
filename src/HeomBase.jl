@@ -123,7 +123,6 @@ function versioninfo(io::IO=stdout)
         "Package information:\n",
         "===================================\n",
         "Heom              Version: 0.1.0\n",
-        "DistributedArrays Version: $(_get_pkg_version("DistributedArrays"))\n",
         "JLD2              Version: $(_get_pkg_version("JLD2"))\n",
         "LinearSolve       Version: $(_get_pkg_version("LinearSolve"))\n",
         "OrdinaryDiffEq    Version: $(_get_pkg_version("OrdinaryDiffEq"))\n",
