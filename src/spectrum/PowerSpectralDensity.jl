@@ -89,7 +89,16 @@ function PSD(
     @inbounds for (i, ω) in enumerate(ω_list)
         if i > 1            
             Iω  = 1im * ω * I_total
-            sol = solve(set_A(sol.cache, M.data - Iω))
+            try 
+                sol = solve(set_A(sol.cache, M.data - Iω))
+            catch e
+                if isa(e, ArgumentError)
+                    prob = init(LinearProblem(M.data - Iω, Cb), solver, SOLVEROptions...)
+                    sol = solve(prob)
+                else
+                    throw(e)
+                end
+            end
         end
         Cω = C_dagger * sol.u
 
