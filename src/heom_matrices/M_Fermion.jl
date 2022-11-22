@@ -85,7 +85,7 @@ function M_Fermion(
     L_val = ComplexF64[]
 
     if verbose
-        println("Preparing block matrices for HEOM liouvillian superoperator (using $(nprocs()) processors)...")
+        println("Preparing block matrices for HEOM liouvillian superoperator...")
         flush(stdout)
         prog = Progress(Nado; desc="Processing: ", PROGBAR_OPTIONS...)
     end
