@@ -17,7 +17,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 # Returns
 - `dos::AbstractVector` : density of state
 """
-function DOS(
+@noinline function DOS(
         M::AbstractHEOMMatrix, 
         ρ, 
         op,
@@ -129,7 +129,6 @@ function DOS(
             next!(prog)
         end 
     end
-    GC.gc()  # clean the garbage collector
     if verbose
         println("[DONE]")
     end

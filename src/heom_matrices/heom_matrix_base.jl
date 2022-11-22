@@ -49,7 +49,7 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
 # Returns
 - `::SparseMatrixCSC{ComplexF64, Int64}` : the propagator matrix
 """
-function Propagator(
+@noinline function Propagator(
         M::AbstractHEOMMatrix,
         Δt::Real;
         threshold   = 1.0e-6,
@@ -188,6 +188,7 @@ function add_operator!(op, I, J, V, N_he, row_idx, col_idx)
     append!(I, row)
     append!(J, col)
     append!(V, val)
+    nothing
 end
 
 # sum γ of bath for current gradient

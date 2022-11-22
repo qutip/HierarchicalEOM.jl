@@ -17,7 +17,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 # Returns
 - `psd::AbstractVector` : power spectral density
 """
-function PSD(
+@noinline function PSD(
         M::AbstractHEOMMatrix, 
         ρ, 
         op, 
@@ -115,7 +115,6 @@ function PSD(
             next!(prog)
         end 
     end
-    GC.gc()  # clean the garbage collector
     if verbose
         println("[DONE]")
     end

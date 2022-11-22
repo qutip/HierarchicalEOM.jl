@@ -13,7 +13,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
 """
-function SteadyState(M::AbstractHEOMMatrix; solver=UMFPACKFactorization(), verbose::Bool=true, SOLVEROptions...)
+@noinline function SteadyState(M::AbstractHEOMMatrix; solver=UMFPACKFactorization(), verbose::Bool=true, SOLVEROptions...)
     # check parity
     if (M.parity != :even) && (M.parity != :none)
         error("The parity of M should be either \":none\" (bonson) or \":even\" (fermion).")
@@ -34,7 +34,6 @@ function SteadyState(M::AbstractHEOMMatrix; solver=UMFPACKFactorization(), verbo
         flush(stdout)
     end
     sol = solve(LinearProblem(A, Vector(b)), solver, SOLVEROptions...)
-    GC.gc()  # clean the garbage collector
     if verbose
         println("[DONE]")
         flush(stdout)
@@ -121,7 +120,7 @@ For more details about solvers and extra options, please refer to [`Differential
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
 """
-function SteadyState(
+@noinline function SteadyState(
         M::AbstractHEOMMatrix, 
         ados::ADOs;
         solver = FBDF(autodiff=false),
@@ -172,7 +171,7 @@ function SteadyState(
         save_everystep = save_everystep,
         SOLVEROptions...
     )
-    GC.gc()  # clean the garbage collector
+
     if verbose
         println("[DONE]")
         flush(stdout)

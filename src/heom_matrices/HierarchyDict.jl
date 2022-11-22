@@ -86,7 +86,7 @@ function _Importance(B::Vector{T}, bathPtr::AbstractVector, nvec::Nvec) where T 
 end
 
 # for pure hierarchy dictionary
-function genBathHierarchy(B::Vector{T}, tier::Int, dim::Int; threshold::Real=0.0) where T <: AbstractBath
+@noinline function genBathHierarchy(B::Vector{T}, tier::Int, dim::Int; threshold::Real=0.0) where T <: AbstractBath
     Nterm   = 0
     bathPtr = Tuple[]
 
@@ -155,7 +155,7 @@ function genBathHierarchy(B::Vector{T}, tier::Int, dim::Int; threshold::Real=0.0
 end
 
 # for max hierarchy dictionary
-function genBathHierarchy(bB::Vector{BosonBath}, fB::Vector{FermionBath}, tier_b::Int, tier_f::Int, dim::Int; threshold::Real=0.0)
+@noinline function genBathHierarchy(bB::Vector{BosonBath}, fB::Vector{FermionBath}, tier_b::Int, tier_f::Int, dim::Int; threshold::Real=0.0)
     # deal with boson bath
     Nterm_b   = 0
     bosonPtr = Tuple[]

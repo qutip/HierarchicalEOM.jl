@@ -56,7 +56,7 @@ Generate the boson-fermion-type Heom liouvillian superoperator matrix
 [1] [Phys. Rev. B  88, 235426 (2013)](https://doi.org/10.1103/PhysRevB.88.235426)
 [2] [Phys. Rev. B 103, 235413 (2021)](https://doi.org/10.1103/PhysRevB.103.235413)
 """
-function M_Boson_Fermion(        
+@noinline function M_Boson_Fermion(        
         Hsys,
         Btier::Int,
         Ftier::Int,

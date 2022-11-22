@@ -40,7 +40,7 @@ Generate the boson-type Heom liouvillian superoperator matrix
 
 [1] [Phys. Rev. B 88, 235426 (2013)](https://doi.org/10.1103/PhysRevB.88.235426)
 """
-function M_Boson(        
+@noinline function M_Boson(        
         Hsys,
         tier::Int,
         Bath::Vector{BosonBath};
