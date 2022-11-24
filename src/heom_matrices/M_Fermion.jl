@@ -80,16 +80,19 @@ Generate the fermion-type Heom liouvillian superoperator matrix
     end
 
     # start to construct the matrix
-    L_row = Int[]
-    L_col = Int[]
-    L_val = ComplexF64[]
+    Nthread = nthreads()
+    L_row = [Int[] for _ in 1:Nthread]
+    L_col = [Int[] for _ in 1:Nthread]
+    L_val = [ComplexF64[] for _ in 1:Nthread]
 
     if verbose
-        println("Preparing block matrices for HEOM liouvillian superoperator...")
+        println("Preparing block matrices for HEOM liouvillian superoperator (using $(Nthread) threads)...")
         flush(stdout)
         prog = Progress(Nado; desc="Processing: ", PROGBAR_OPTIONS...)
     end
-    for idx in 1:Nado
+    @threads for idx in 1:Nado
+        tID = threadid()
+
         # fermion (n tier) superoperator
         nvec = idx2nvec[idx]
         if nvec.level >= 1
@@ -98,7 +101,7 @@ Generate the fermion-type Heom liouvillian superoperator matrix
         else
             op = Lsys
         end
-        add_operator!(op, L_row, L_col, L_val, Nado, idx, idx)
+        add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx)
 
         # fermion (n+1 & n-1 tier) superoperator
         count = 0
@@ -114,7 +117,7 @@ Generate the fermion-type Heom liouvillian superoperator matrix
                     if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                         idx_neigh = nvec2idx[nvec_neigh]
                         op = prev_grad_fermion(fB, k, nvec.level, sum(nvec_neigh[1:(count - 1)]), parity)
-                        add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                        add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
                     end
                     Nvec_plus!(nvec_neigh, count)
 
@@ -124,7 +127,7 @@ Generate the fermion-type Heom liouvillian superoperator matrix
                     if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                         idx_neigh = nvec2idx[nvec_neigh]
                         op = next_grad_fermion(fB, nvec.level, sum(nvec_neigh[1:(count - 1)]), parity)
-                        add_operator!(op, L_row, L_col, L_val, Nado, idx, idx_neigh)
+                        add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
                     end
                     Nvec_minus!(nvec_neigh, count)
                 end
@@ -138,7 +141,7 @@ Generate the fermion-type Heom liouvillian superoperator matrix
         print("Constructing matrix...")
         flush(stdout)
     end
-    L_he = sparse(L_row, L_col, L_val, Nado * sup_dim, Nado * sup_dim)
+    L_he = sparse(reduce(vcat, L_row), reduce(vcat, L_col), reduce(vcat, L_val), Nado * sup_dim, Nado * sup_dim)
     if verbose
         println("[DONE]")
         flush(stdout)

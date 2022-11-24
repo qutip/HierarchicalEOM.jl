@@ -126,16 +126,25 @@ end
     # create idx2nvec and remove nvec when its value of importance is below threshold
     idx2nvec = _Idx2Nvec(n_max, tier)
     if threshold > 0.0
+        splock = SpinLock()
         drop_idx = Int[]
-        for (idx, nvec) in enumerate(idx2nvec)            
+        @threads for idx in eachindex(idx2nvec)
+            nvec = idx2nvec[idx]
+
             # only neglect the nvec where level ≥ 2
             if nvec.level >= 2
                 Ath = _Importance(B, bathPtr, nvec)
                 if Ath < threshold
-                    push!(drop_idx, idx)
+                    lock(splock)
+                    try
+                        push!(drop_idx, idx)
+                    finally
+                        unlock(splock)
+                    end
                 end
             end
         end
+        sort!(drop_idx)
         deleteat!(idx2nvec, drop_idx)
     end
 
@@ -197,16 +206,27 @@ end
     # only store nvec tuple when its value of importance is above threshold
     idx2nvec = Tuple{Nvec, Nvec}[]
     if threshold > 0.0
-        for nvec_b in idx2nvec_b
+        splock = SpinLock()
+        @threads for nvec_b in idx2nvec_b
             for nvec_f in idx2nvec_f
                 # only neglect the nvec tuple where level ≥ 2
                 if (nvec_b.level >= 2) || (nvec_f.level >= 2)
                     Ath = _Importance(bB, bosonPtr, nvec_b) * _Importance(fB, fermionPtr, nvec_f)
                     if Ath >= threshold
-                        push!(idx2nvec, (nvec_b, nvec_f))
+                        lock(splock)
+                        try
+                            push!(idx2nvec, (nvec_b, nvec_f))
+                        finally
+                            unlock(splock)
+                        end
                     end
                 else
-                    push!(idx2nvec, (nvec_b, nvec_f))
+                    lock(splock)
+                    try
+                        push!(idx2nvec, (nvec_b, nvec_f))
+                    finally
+                        unlock(splock)
+                    end
                 end
             end
         end

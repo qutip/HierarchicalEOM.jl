@@ -49,6 +49,7 @@ module Heom
     module HeomAPI
         using ..Bath
         import Base: ==, show, length, size, getindex, keys, setindex!, lastindex, iterate, checkbounds, hash, copy
+        import Base.Threads: @threads, threadid, nthreads, lock, unlock, SpinLock
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
         import ProgressMeter: Progress, next!
