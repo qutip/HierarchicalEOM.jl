@@ -53,7 +53,7 @@ getRho
 getADO(ados::ADOs, idx::Int)
 ```
 
-## Hierarchy Dictionary
+## [Hierarchy Dictionary](@id lib-Hierarchy-Dictionary)
 ```@docs
 Nvec
 ```
