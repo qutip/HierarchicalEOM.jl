@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>QuickStart · Documentation | Heom.jl</title><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img class="docs-light-only" src="../../assets/logo.png" alt="Documentation | Heom.jl logo"/><img class="docs-dark-only" src="../../assets/logo-dark.png" alt="Documentation | Heom.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">Documentation | Heom.jl</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><span class="tocitem">Home</span><ul><li><a class="tocitem" href="../../">Introduction</a></li><li><a class="tocitem" href="../../install/">Installation</a></li><li class="is-active"><a class="tocitem" href>QuickStart</a></li><li><a class="tocitem" href="../../cite/">Cite Heom</a></li></ul></li><li><a class="tocitem" href="../../bosonic_bath/">Bosonic Bath</a></li><li><a class="tocitem" href="../../fermionic_bath/">Fermionic Bath</a></li><li><a class="tocitem" href="../../heom_matrix/">HEOM Matrix</a></li><li><a class="tocitem" href="../../ADOs/">Auxiliary Density Operators</a></li><li><a class="tocitem" href="../../hierarchy_dictionary/">Hierarchy Dictionary</a></li><li><a class="tocitem" href="../../spectrum/">Spectrum</a></li><li><span class="tocitem">Examples</span></li><li><span class="tocitem">Library</span><ul><li><a class="tocitem" href="../../lib/heom_api/">Heom API</a></li><li><a class="tocitem" href="../../lib/bath/">Bath</a></li><li><a class="tocitem" href="../../lib/corr_func/">Bath Correlation Functions</a></li><li><a class="tocitem" href="../../lib/phys_analysis/">Physical Analysis Functions</a></li><li><a class="tocitem" href="../../lib/misc/">Misc.</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Home</a></li><li class="is-active"><a href>QuickStart</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>QuickStart</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/NCKU-QFort/Heom.jl/blob/main/docs/src/examples/quick_start.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Quick-Start"><a class="docs-heading-anchor" href="#Quick-Start">Quick Start</a><a id="Quick-Start-1"></a><a class="docs-heading-anchor-permalink" href="#Quick-Start" title="Permalink"></a></h1><p>(<em>This notebook can be found on</em> <a href="https://github.com/NCKU-QFort/Heom.jl/tree/main/docs/src/notebooks">github</a>)</p><h3 id="Content"><a class="docs-heading-anchor" href="#Content">Content</a><a id="Content-1"></a><a class="docs-heading-anchor-permalink" href="#Content" title="Permalink"></a></h3><ul><li><a href="#Import-Heom.jl">Import Heom.jl</a></li><li><a href="#System-and-Bath">System and Bath</a></li><li><a href="#HEOM-liouvillian-superoperator">HEOM liouvillian superoperator</a></li><li><a href="#Time-Evolution">Time Evolution</a></li><li><a href="#Stationary-State">Stationary State</a></li><li><a href="#Multiple-Baths">Multiple Baths</a></li></ul><h3 id="Import-Heom.jl"><a class="docs-heading-anchor" href="#Import-Heom.jl">Import Heom.jl</a><a id="Import-Heom.jl-1"></a><a class="docs-heading-anchor-permalink" href="#Import-Heom.jl" title="Permalink"></a></h3><p>Here are the functions in <code>Heom.jl</code> that we will use in this tutorial (Quick Start):</p><pre><code class="language-julia hljs">import Heom: Boson_DrudeLorentz_Pade, M_Boson, evolution, SteadyState, getRho, BosonBath</code></pre><p>Note that you can also type <code>using Heom</code> to import everything you need in <code>Heom.jl</code>.</p><h3 id="System-and-Bath"><a class="docs-heading-anchor" href="#System-and-Bath">System and Bath</a><a id="System-and-Bath-1"></a><a class="docs-heading-anchor-permalink" href="#System-and-Bath" title="Permalink"></a></h3><p>Let us consider a simple two-level system coupled to a Drude-Lorentz bosonic bath. The system Hamiltonian, <span>$H_{sys}$</span>, and the bath spectral density, <span>$J_D$</span>, are</p><p class="math-container">\[ H_{sys}=\frac{\epsilon \sigma_z}{2} + \frac{\Delta \sigma_x}{2} ~~\text{and}\]</p><p class="math-container">\[J_{D}(\omega)=\frac{2\lambda W\omega}{W^2+\omega^2},\]</p><h4 id="System-Hamiltonian-and-initial-state"><a class="docs-heading-anchor" href="#System-Hamiltonian-and-initial-state">System Hamiltonian and initial state</a><a id="System-Hamiltonian-and-initial-state-1"></a><a class="docs-heading-anchor-permalink" href="#System-Hamiltonian-and-initial-state" title="Permalink"></a></h4><p>You can construct system hamiltonian, initial state, and coupling operators by standard julia bulit-in types: <code>Vector</code>, <code>SparseVector</code>, <code>Matrix</code>, <code>SparseMatrix</code>.</p><p>Moreover, it is also convenient to use <a href="https://qojulia.org/">QuantumOptics</a> framework. It provides many useful functions to create arbitrary quantum states and operators which can be combined in all the expected ways.</p><p>Note that <code>Heom.jl</code> only accept standard julia bulit-in types. If you use <code>QuantumOptics</code> to construct the operators, remember that the matrix (or vector) in standard type are stored in <code>.data</code> field of the objects, i.e., <code>op.data</code> where <code>op</code> is a <code>QuantumOptics</code>-type object.   Thus, you should take it as the inputs of <code>Heom.jl</code> for objects in <code>QuantumOptics</code> package.</p><p>We demonstrate this tutorial by <code>QuantumOptics</code>:</p><pre><code class="language-julia hljs">import QuantumOptics: SpinBasis, sigmaz, sigmax, ⊗, Ket, Bra</code></pre><pre><code class="language-julia hljs">basis = SpinBasis(1//2)
+
+# The system Hamiltonian
+ϵ = 0.5 # energy of 2-level system
+Δ = 1.0 # tunneling term
+
+Hsys = 0.5 * ϵ * sigmaz(basis) + 0.5 * Δ * sigmax(basis)
+
+# System initial state
+ρ0 = Ket(basis, [1, 0]) ⊗ Bra(basis, [1, 0])</code></pre><h4 id="Bath-Properties"><a class="docs-heading-anchor" href="#Bath-Properties">Bath Properties</a><a id="Bath-Properties-1"></a><a class="docs-heading-anchor-permalink" href="#Bath-Properties" title="Permalink"></a></h4><p>Now, we demonstrate how to describe the bath using the built-in implementation of <span>$J_D(\omega)$</span> under Pade expansion by calling <a href="../../lib/corr_func/#Heom.CorrelationFunc.Boson_DrudeLorentz_Pade"><code>Boson_DrudeLorentz_Pade</code></a></p><pre><code class="language-julia hljs">λ = 0.1  # coupling strength
+W = 0.5  # cut-off frequency
+T = 0.5  # temperature
+
+# system-bath coupling operator
+Q = sigmaz(basis);
+
+# Number of expansion terms to retain:
+N = 2
+
+# Padé expansion:
+## Remember to give the operator in Standard matrix (AbstractMatrix) type
+## That is, if using QuantumOptics package, give system coupling operator as Q.data
+bath = Boson_DrudeLorentz_Pade(Q.data, λ, W, T, N)</code></pre><p>For other different expansions of the different spectral density correlation functions, please refer to <a href="../../bosonic_bath/#Bosonic-Bath">Bosonic Bath</a> and <a href="../../fermionic_bath/#Fermionic-Bath">Fermionic Bath</a>.</p><h3 id="HEOM-liouvillian-superoperator"><a class="docs-heading-anchor" href="#HEOM-liouvillian-superoperator">HEOM liouvillian superoperator</a><a id="HEOM-liouvillian-superoperator-1"></a><a class="docs-heading-anchor-permalink" href="#HEOM-liouvillian-superoperator" title="Permalink"></a></h3><p>For bosonic bath, we can construct the Heom liouvillian superoperator matrix by calling <a href="../../lib/heom_api/#Heom.HeomAPI.M_Boson"><code>M_Boson</code></a></p><pre><code class="language-julia hljs"># maximum tier of hierarchy
+tier = 5
+
+# Remember to give the operator in Standard matrix (AbstractMatrix) type
+# That is, if using QuantumOptics package, give system hamiltonian as Hsys.data
+L = M_Boson(Hsys.data, tier, bath; verbose=false)</code></pre><p>To learn more about the Heom liouvillian superoperator matrix (including other types: <code>M_Fermion</code>, <code>M_Boson_Fermion</code>), please refer to <a href="../../heom_matrix/#HEOM-Matrix">HEOM Matrix</a>.</p><h3 id="Time-Evolution"><a class="docs-heading-anchor" href="#Time-Evolution">Time Evolution</a><a id="Time-Evolution-1"></a><a class="docs-heading-anchor-permalink" href="#Time-Evolution" title="Permalink"></a></h3><p>Next, we can calculate the time evolution for the entire auxiliary density operators (ADOs) by calling <a href="../../lib/phys_analysis/#Heom.HeomAPI.evolution-Tuple{AbstractHEOMMatrix, Any, Real, Int64}"><code>evolution</code></a></p><pre><code class="language-julia hljs">tlist = 0:0.2:50
+ados_list = evolution(L, ρ0.data, tlist; verbose=false)</code></pre><p>To learn more about <code>evolution</code>, please refer to <a href="../../ADOs/#Auxiliary-Density-Operators">Auxiliary Density Operators</a>.</p><h3 id="Stationary-State"><a class="docs-heading-anchor" href="#Stationary-State">Stationary State</a><a id="Stationary-State-1"></a><a class="docs-heading-anchor-permalink" href="#Stationary-State" title="Permalink"></a></h3><p>We can also solve the stationary state of the auxiliary density operators (ADOs) by calling <a href="../../lib/phys_analysis/#Heom.HeomAPI.SteadyState-Tuple{AbstractHEOMMatrix}"><code>SteadyState</code></a>.</p><pre><code class="language-julia hljs">ados_steady = SteadyState(L; verbose=false)</code></pre><p>To learn more about <code>SteadyState</code>, please refer to <a href="../../ADOs/#Auxiliary-Density-Operators">Auxiliary Density Operators</a>.</p><h4 id="Calculate-population-and-coherence"><a class="docs-heading-anchor" href="#Calculate-population-and-coherence">Calculate population and coherence</a><a id="Calculate-population-and-coherence-1"></a><a class="docs-heading-anchor-permalink" href="#Calculate-population-and-coherence" title="Permalink"></a></h4><p>We can now compare the results obtained from <code>evolution</code> and <code>SteadyState</code>:</p><pre><code class="language-julia hljs">import LinearAlgebra: tr  # import trace function</code></pre><pre><code class="language-julia hljs"># Define the operators that measure the populations of the two
+# system states:
+P00 = Ket(basis, [1, 0]) ⊗ Bra(basis, [1, 0])
+P11 = Ket(basis, [0, 1]) ⊗ Bra(basis, [0, 1])
+
+# Define the operator that measures the 0, 1 element of density matrix
+# (corresponding to coherence):
+P01 = Ket(basis, [1, 0]) ⊗ Bra(basis, [0, 1])</code></pre><p>To obtain the reduced density operator, one can either access the first element of auxiliary density operator (<code>ADOs</code>) or call <a href="../../lib/heom_api/#Heom.HeomAPI.getRho"><code>getRho</code></a>:</p><pre><code class="language-julia hljs"># for steady state
+ρs = ados_steady[1]  # 1 represents the 1st auxiliary density operator (reduce state)
+p00_s = real(tr(P00.data * ρs))
+p01_s = real(tr(P01.data * ρs))
+
+# for time evolution
+p00_e = []
+p01_e = []
+for i in 1:length(tlist)
+    ρe = ados_list[i][1]
+    push!(p00_e, real(tr(P00.data * ρe)))
+    push!(p01_e, real(tr(P01.data * ρe)))
+end</code></pre><p>One of the great features of <code>Heom.jl</code> is that we allow users to not only considering the density operator of the reduced state but also easily take high-order terms into account without struggling in finding the indices (see <a href="../../hierarchy_dictionary/#Hierarchy-Dictionary">Hierarchy Dictionary</a> for more details).</p><h4 id="Plot-the-results"><a class="docs-heading-anchor" href="#Plot-the-results">Plot the results</a><a id="Plot-the-results-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-the-results" title="Permalink"></a></h4><pre><code class="language-julia hljs">using Plots
+Plots.scalefontsizes(1.5)</code></pre><pre><code class="language-julia hljs">p = plot(
+    tlist, 
+    [
+        p00_e,
+        p01_e,
+        ones(length(tlist)) .* p00_s, 
+        ones(length(tlist)) .* p01_s,
+    ],
+    label=[&quot;P00&quot; &quot;P01&quot; &quot;P00 (Steady State)&quot; &quot;P01 (Steady State)&quot;],
+    linecolor=[ :blue   :red :blue  :red],
+    linestyle=[:solid :solid :dash :dash],
+    xlabel=&quot;time&quot;,
+    ylabel=&quot;Population&quot;,
+    fontfamily=&quot;Computer Modern&quot;,
+    linewidth=3, 
+    grid=false,
+    dpi=300 
+)
+
+p</code></pre><p><img src="../quick_start_files/quick_start_28_0.svg" alt="svg"/></p><h3 id="Multiple-Baths"><a class="docs-heading-anchor" href="#Multiple-Baths">Multiple Baths</a><a id="Multiple-Baths-1"></a><a class="docs-heading-anchor-permalink" href="#Multiple-Baths" title="Permalink"></a></h3><p><code>Heom.jl</code> also supports for system to interact with multiple baths.   All you need to do is to provide a list of baths instead of a single bath</p><pre><code class="language-julia hljs"># The system Hamiltonian
+Hsys = [
+    0.25 1.50 2.50;
+    1.50 0.75 3.50;
+    2.50 3.50 1.25
+]
+
+# System initial state
+ρ0 = [
+    1 0 0;
+    0 0 0;
+    0 0 0
+];
+
+# Construct one bath for each system state:
+## note that `BosonBath[]` make the list created in type: Vector{BosonBath}
+baths = BosonBath[]
+for i in 1:3
+    # system-bath coupling operator: |i&gt;&lt;i|
+    Q = zeros(3, 3)
+    Q[i, i] = 1
+    
+    push!(baths, Boson_DrudeLorentz_Pade(Q, λ, W, T, N))
+end</code></pre><pre><code class="language-julia hljs">L = M_Boson(Hsys, tier, baths; verbose=false)</code></pre><pre><code class="language-julia hljs">tlist = 0:0.025:5
+ados_list = evolution(L, ρ0, tlist; verbose=false)</code></pre><pre><code class="language-julia hljs"># Projector for each system state:
+P00 = [1 0 0; 0 0 0; 0 0 0]
+P11 = [0 0 0; 0 1 0; 0 0 0]
+P22 = [0 0 0; 0 0 0; 0 0 1]
+
+# calculate population for each system state:
+p0 = []
+p1 = []
+p2 = []
+for ados in ados_list
+    ρ = getRho(ados)  # same as ados[1]
+    push!(p0, real(tr(P00 * ρ)))
+    push!(p1, real(tr(P11 * ρ)))
+    push!(p2, real(tr(P22 * ρ)))
+end</code></pre><pre><code class="language-julia hljs">p = plot(
+    tlist, 
+    [p0, p1, p2],
+    label=[&quot;P0&quot; &quot;P1&quot; &quot;P2&quot;],
+    linecolor=[ :blue :red :green],
+    linestyle=[:solid :dot  :dash],
+    xlabel=&quot;time&quot;,
+    ylabel=&quot;Population&quot;,
+    fontfamily=&quot;Computer Modern&quot;,
+    linewidth=2, 
+    grid=false,
+    dpi=300 
+)
+
+p</code></pre><p><img src="../quick_start_files/quick_start_34_0.svg" alt="svg"/></p><p>Note that this example can also be found in <a href="https://qutip.org/docs/latest/guide/heom/bosonic.html">qutip documentation</a>.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../install/">« Installation</a><a class="docs-footer-nextpage" href="../../cite/">Cite Heom »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.23 on <span class="colophon-date" title="Friday 25 November 2022 09:32">Friday 25 November 2022</span>. Using Julia version 1.8.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
