@@ -17,7 +17,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 # Returns
 - `dos::AbstractVector` : density of state
 """
-function DOS(
+@noinline function DOS(
         M::AbstractHEOMMatrix, 
         ρ, 
         op,
@@ -92,8 +92,26 @@ function DOS(
     @inbounds for (i, ω) in enumerate(ω_list)
         if i > 1
             Iω = 1im * ω * I_total
-            sol_m = solve(set_A(sol_m.cache, M.data - Iω))
-            sol_p = solve(set_A(sol_p.cache, M.data + Iω))
+            try 
+                sol_m = solve(set_A(sol_m.cache, M.data - Iω))
+            catch e
+                if isa(e, ArgumentError)
+                    prob_minus = init(LinearProblem(M.data - Iω, b_minus), solver, SOLVEROptions...)
+                    sol_m = solve(prob_minus)
+                else
+                    throw(e)
+                end
+            end
+            try
+                sol_p = solve(set_A(sol_p.cache, M.data + Iω))
+            catch e
+                if isa(e, ArgumentError)
+                    prob_plus = init(LinearProblem(M.data + Iω, b_plus), solver, SOLVEROptions...)
+                    sol_p = solve(prob_plus)
+                else
+                    throw(e)
+                end
+            end
         end
         Cω_minus = C_dagger * sol_m.u
         Cω_plus  = C_normal * sol_p.u
@@ -111,7 +129,6 @@ function DOS(
             next!(prog)
         end 
     end
-    GC.gc()  # clean the garbage collector
     if verbose
         println("[DONE]")
     end

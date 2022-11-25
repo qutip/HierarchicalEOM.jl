@@ -1,6 +1,6 @@
-# Bath Module
+# [Bath Module](@id lib-Bath)
 
-## Bosonic Bath
+## [Bosonic Bath](@id lib-Bosonic-Bath)
 ```@docs
 BosonBath
 ```
@@ -34,7 +34,7 @@ bosonRealImag
 bosonRealImag(op::AbstractMatrix, η_real::Vector{Ti}, η_imag::Vector{Tj}, γ::Vector{Tk}) where {Ti, Tj, Tk <: Number}
 ```
 
-## Fermionic Bath
+## [Fermionic Bath](@id lib-Fermionic-Bath)
 ```@docs
 FermionBath
 ```
@@ -59,7 +59,7 @@ fermionEmit
 fermionEmit(op::AbstractMatrix, η_emit::Vector{Ti}, γ_emit::Vector{Tj}, η_absorb::Vector{Tk}) where {Ti, Tj, Tk <: Number}
 ```
 
-## Exponent
+## [Exponent](@id lib-Exponent)
 ```@docs
 Exponent
 ```

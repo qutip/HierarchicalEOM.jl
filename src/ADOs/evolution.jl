@@ -69,7 +69,7 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
 # Returns
 - `ADOs_list` : The auxiliary density operators of each time step.
 """
-function evolution(
+@noinline function evolution(
         M::AbstractHEOMMatrix, 
         ados::ADOs,
         Δt::Real,
@@ -134,8 +134,6 @@ function evolution(
             next!(prog)
         end
     end
-
-    GC.gc()  # clean the garbage collector
     if verbose
         println("[DONE]\n")
         flush(stdout)
@@ -224,7 +222,7 @@ For more details about solvers and extra options, please refer to [`Differential
 # Returns
 - `ADOs_list` : The auxiliary density operators in each time point.
 """
-function evolution(
+@noinline function evolution(
         M::AbstractHEOMMatrix, 
         ados::ADOs, 
         tlist::AbstractVector;
@@ -298,8 +296,6 @@ function evolution(
             next!(prog)
         end
     end
-
-    GC.gc()  # clean the garbage collector
     if verbose
         println("[DONE]\n")
         flush(stdout)

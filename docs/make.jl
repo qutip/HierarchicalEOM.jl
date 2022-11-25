@@ -5,7 +5,7 @@ const PAGES = Any[
     "Home" => Any[
         "Introduction" => "index.md",
         "Installation" => "install.md",
-        "QuickStart"   => "quick_start.md",
+        "QuickStart"   => "examples/quick_start.md",
         "Cite Heom"    => "cite.md"
     ],
     "Bosonic Bath" => "bosonic_bath.md",
@@ -15,7 +15,6 @@ const PAGES = Any[
     "Hierarchy Dictionary" => "hierarchy_dictionary.md",
     "Spectrum" => "spectrum.md",
     "Examples" => Any[
-        "JC" => "examples/JC_model.md"
     ],
     "Library" => Any[
         "Heom API" => "lib/heom_api.md",

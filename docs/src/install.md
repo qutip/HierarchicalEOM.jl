@@ -11,7 +11,8 @@ Alternatively, this can also be done in Julia's [Pkg REPL](https://julialang.git
 (1.8) pkg> add Heom
 ```
 More information about `Julia`'s package manager can be found at [`Pkg.jl`](https://julialang.github.io/Pkg.jl/v1/).  
-`Heom` requires Julia 1.8 or higher. Installing it on an older version of Julia will result in many errors.
+!!! note "Julia 1.8"
+    `Heom.jl` requires Julia 1.8 or higher
 
 To load the package and check the version information, use the command:
 ```julia
