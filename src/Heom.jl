@@ -23,7 +23,7 @@ module Heom
         import ..HeomBase: isValidMatrixType
 
         export 
-            AbstractBath, BosonBath, FermionBath, Exponent,
+            AbstractBath, BosonBath, FermionBath, Exponent, C,
             AbstractBosonBath, bosonReal, bosonImag, bosonRealImag,
             AbstractFermionBath, fermionAbsorb, fermionEmit,
             spre, spost

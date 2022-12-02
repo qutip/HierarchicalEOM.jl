@@ -1,5 +1,13 @@
 # [Bath Module](@id lib-Bath)
 
+```@docs
+C(bath::BosonBath, tlist::AbstractVector)
+```
+
+```@docs
+C(bath::FermionBath, tlist::AbstractVector)
+```
+
 ## [Bosonic Bath](@id lib-Bosonic-Bath)
 ```@docs
 BosonBath

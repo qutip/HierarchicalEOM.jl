@@ -26,12 +26,13 @@ end
 @test γ == [0.1 + 0.0im,  0.3 + 0.0im, 0.5 + 0.0im, 0.7 + 0.0im]
 
 ## check for real and image sperarate case
-b = BosonBath(op, η1, γ1, η2, γ2, combine = false)
-@test length(b) == 10
+bs = BosonBath(op, η1, γ1, η2, γ2, combine = false)
+@test length(bs) == 10
 
 ## check for combine
 b = BosonBath(op, η1, γ1, η2, γ2)
 @test length(b) == 7
+@test C(b, [0.183183])[1] ≈ C(bs, [0.183183])[1]
 
 ## check for η and γ list, and coupling operator
 η = []
@@ -61,6 +62,9 @@ end
 # Fermion bath
 b = FermionBath(op, η1, γ1, η2, γ2)
 @test length(b) == 10
+cp, cm = C(b, [0.183183])
+@test cp[1] ≈ 22.926390284557527
+@test cm[1] ≈ 26.942073303864127
 for e in b
     @test e.op == [0 0; 0 0]
 end

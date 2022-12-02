@@ -614,3 +614,57 @@ function fermionEmit(
     end
     return fermionEmit(spre(op), spost(op), spre(adjoint(op)), spost(adjoint(op)), dim, η_emit, γ_emit, η_absorb, N_exp_term)
 end
+
+"""
+    C(bath, tlist)
+Calculate the correlation function ``C(t)`` for a given bosonic bath and time list.
+
+# Parameters
+- `bath::BosonBath` : The bath object which describes a certain bosonic bath.
+- `tlist::AbstractVector`: The specific time.
+
+# Returns
+- `clist::Vector{ComplexF64}` : a list of the value of correlation function according to the given time list.
+"""
+function C(bath::BosonBath, tlist::AbstractVector)
+    clist = zeros(ComplexF64, length(tlist))
+    for (i, t) in enumerate(tlist)
+        for e in bath
+            if e.types == "bI"
+                clist[i] += 1.0im * e.η * exp(- e.γ * t)
+            else
+                clist[i] += e.η * exp(- e.γ * t)
+            end
+        end
+    end
+    return clist
+end
+
+"""
+    C(bath, tlist)
+Calculate the correlation function ``C^{+}(t)`` and ``C^{-}(t)`` for a given fermionic bath and time list.
+Here, "+" represents the absorption and "-" represents the emmision process.
+
+# Parameters
+- `bath::FermionBath` : The bath object which describes a certain fermionic bath.
+- `tlist::AbstractVector`: The specific time.
+
+# Returns
+- `cplist::Vector{ComplexF64}` : a list of the value of the absorption (``\\sigma=+``) correlation function according to the given time list.
+- `cmlist::Vector{ComplexF64}` : a list of the value of the emission (``\\sigma=-``) correlation function according to the given time list.
+"""
+function C(bath::FermionBath, tlist::AbstractVector)
+    cplist = zeros(ComplexF64, length(tlist))
+    cmlist = zeros(ComplexF64, length(tlist))
+    for (i, t) in enumerate(tlist)
+        for e in bath
+            if e.types == "fA"
+                cplist[i] += e.η * exp(- e.γ * t)
+            else
+                cmlist[i] += e.η * exp(- e.γ * t)
+            end
+        end
+    end
+    
+    return cplist, cmlist
+end
