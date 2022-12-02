@@ -62,3 +62,7 @@ Nvec
 HierarchyDict
 MixHierarchyDict
 ```
+
+```@docs
+getExcitation
+```

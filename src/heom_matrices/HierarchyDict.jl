@@ -14,7 +14,7 @@ struct HierarchyDict <: AbstractHierarchyDict
     idx2nvec::Vector{Nvec}
     nvec2idx::Dict{Nvec, Int}
     lvl2idx::Dict{Int, Vector{Int}}
-    bathPtr::Vector{Tuple}
+    bathPtr::Vector{Tuple{Int, Int}}
 end
 
 """
@@ -34,8 +34,8 @@ struct MixHierarchyDict <: AbstractHierarchyDict
     nvec2idx::Dict{Tuple{Nvec, Nvec}, Int}
     Blvl2idx::Dict{Int, Vector{Int}}
     Flvl2idx::Dict{Int, Vector{Int}}
-    bosonPtr::Vector{Tuple}
-    fermionPtr::Vector{Tuple}
+    bosonPtr::Vector{Tuple{Int, Int}}
+    fermionPtr::Vector{Tuple{Int, Int}}
 end
 
 # generate index to n vector
@@ -256,4 +256,54 @@ end
 
     hierarchy = MixHierarchyDict(idx2nvec, nvec2idx, blvl2idx, flvl2idx, bosonPtr, fermionPtr)
     return length(idx2nvec), baths_b, baths_f, hierarchy
+end
+
+"""
+    getExcitation(nvec, bathPtr)
+Search for all the tuples ``(k, \\nu, n)`` where the excitation number is greater than zero (``n>0``).  
+Here, ``n`` is the excitation number associated with the ``k``-th exponential-expansion term in the ``\\nu``-th bath
+
+# Parameters
+- `nvec::Nvec` : The bath object which describes a certain fermionic bath.
+- `bathPtr::Vector{Tuple{Int, Int}}`: This can be obtained from [`HierarchyDict.bathPtr`](@ref HierarchyDict), [`MixHierarchyDict.bosonPtr`](@ref MixHierarchyDict), or [`MixHierarchyDict.fermionPtr`](@ref MixHierarchyDict).
+
+# Returns
+- `Vector{Tuple{Int, Int, Int}}`: a vector (list) of the tuples ``(k, \\nu, n)``.
+
+# Example
+Here is an example to use [`Bath`](@ref lib-Bath), [`Exponent`](@ref), [`HierarchyDict`](@ref), and `getExcitation` together:
+```julia
+L::M_Fermion;          # suppose this is a fermion type of HEOM liouvillian superoperator matrix you create
+HDict = L.hierarchy;   # the hierarchy dictionary
+ados = SteadyState(L); # the stationary state (ADOs) for L 
+
+# Let's consider all the ADOs for first level
+idx_list = HDict.lvl2idx[1];
+
+for idx in idx_list
+    ρ1 = ados[idx]  # one of the 1st-level ADO
+    nvec = HDict.idx2nvec[idx]  # the nvec corresponding to ρ1
+    
+    for (k, ν, n) in getExcitation(nvec, HDict.bathPtr)
+        k  # index of the bath
+        ν  # the index of the exponential-expansion term in k-th bath
+        n  # the excitation number for the ν-th exponential-expansion term in k-th bath
+        exponent = L.bath[k][ν]  # the ν-th exponential-expansion term in k-th bath
+
+        # do some calculations you want
+    end
+end
+```
+"""
+function getExcitation(nvec::Nvec, bathPtr::Vector{Tuple{Int, Int}})
+    if length(nvec) != length(bathPtr)
+        error("The given \"nvec\" and \"bathPtr\" are not consistent.")
+    end
+
+    result = Tuple{Int, Int, Int}[]
+    for idx in nvec.data.nzind
+        k, ν = bathPtr[idx]
+        push!(result, (k, ν, nvec[idx]))
+    end
+    return result
 end
