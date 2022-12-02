@@ -28,16 +28,14 @@ function Ic(ados, M::M_Boson_Fermion, bathIdx::Int)
 
         # find the corresponding bath index (k) and exponent term index (ν)
         _, nvec_f = HDict.idx2nvec[idx]
-        for i in findall(n -> n > 0, nvec_f)
-            k, ν = HDict.fermionPtr[i]
+        for (k, ν, _) in getExcitation(nvec_f, HDict.fermionPtr)
             if k == bathIdx
                 exponent = M.Fbath[k][ν]
                 if exponent.types == "fA"     # fermion-absorption
-                    curr = tr(exponent.op' * ρ1)
+                    I += tr(exponent.op' * ρ1)
                 elseif exponent.types == "fE" # fermion-emission
-                    curr = - tr(exponent.op' * ρ1)
+                    I -= tr(exponent.op' * ρ1)
                 end
-                I += curr
                 break
             end
         end

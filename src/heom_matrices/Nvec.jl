@@ -29,11 +29,12 @@ from n in n_vector  # iteration
 end
 """
 mutable struct Nvec
-    data::Vector{Int}
+    data::SparseVector{Int, Int}
     level::Int
 end
 
-Nvec(V::Vector{Int}) = Nvec(copy(V), sum(V))
+Nvec(V::Vector{Int}) = Nvec(sparsevec(V), sum(V))
+Nvec(V::SparseVector{Int, Int}) = Nvec(copy(V), sum(V))
 
 length(nvec::Nvec) = length(nvec.data)
 lastindex(nvec::Nvec) = length(nvec)

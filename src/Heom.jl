@@ -23,7 +23,7 @@ module Heom
         import ..HeomBase: isValidMatrixType
 
         export 
-            AbstractBath, BosonBath, FermionBath, Exponent,
+            AbstractBath, BosonBath, FermionBath, Exponent, C,
             AbstractBosonBath, bosonReal, bosonImag, bosonRealImag,
             AbstractFermionBath, fermionAbsorb, fermionEmit,
             spre, spost
@@ -69,7 +69,7 @@ module Heom
             AbstractHEOMMatrix, M_Fermion, M_Boson, M_Boson_Fermion,
             odd, even, none,
             ADOs, getRho, getADO, 
-            Nvec, AbstractHierarchyDict, HierarchyDict, MixHierarchyDict,
+            Nvec, AbstractHierarchyDict, HierarchyDict, MixHierarchyDict, getExcitation,
             Propagator, addDissipator, addTerminator,
             evolution, SteadyState
 
