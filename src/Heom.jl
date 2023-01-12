@@ -87,10 +87,9 @@ module Heom
         import ProgressMeter: Progress, next!        
         import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType
 
-        export PSD, DOS
+        export spectrum
 
-        include("spectrum/PowerSpectralDensity.jl")
-        include("spectrum/DensityOfStates.jl")
+        include("Spectrum.jl")
     end
     @reexport using .Spectrum
 
