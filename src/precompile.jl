@@ -46,8 +46,8 @@ import SnoopPrecompile: @precompile_setup, @precompile_all_calls
 
         # precompile Spectrum functions
         @info "Precompiling solvers for calculating spectrum..."
-        PSD(Mb,  [1. 0.; 0. 0.], op, [1]; verbose=false)
-        DOS(Mfo, [1. 0.; 0. 0.], op, [1]; verbose=false)
+        spectrum(Mb,  [1. 0.; 0. 0.], op, [1]; verbose=false)
+        spectrum(Mfo, [1. 0.; 0. 0.], op, [1]; verbose=false)
     end
     GC.gc() # clean garbage collection
     @info "Heom precompilation complete"

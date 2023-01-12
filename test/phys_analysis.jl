@@ -55,7 +55,7 @@ end
 
     ados_s = SteadyState(L; verbose=false)
     ωlist = 0.9:0.01:1.1
-    psd1 = PSD(L, ados_s, a, ωlist; verbose=false)
+    psd1 = spectrum(L, ados_s, a, ωlist; verbose=false)
     psd2 = [
         8.88036729e-04,
         1.06145358e-03,
@@ -85,7 +85,7 @@ end
 
     mat = spzeros(ComplexF64, 2, 2)
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
-    @test_throws ErrorException PSD(M_Fermion(mat, 2, bathf, :odd; verbose=false), mat, mat, [0])
+    @test_throws ErrorException spectrum(M_Fermion(mat, 2, bathf, :odd; verbose=false), mat, mat, [0])
 end
 
 @testset "Density of states" begin
@@ -116,7 +116,7 @@ end
 
     ados_s = SteadyState(Le; verbose=false)
     ωlist = -20:2:20
-    dos1 = DOS(Lo, ados_s, d_up, ωlist; verbose=false)
+    dos1 = spectrum(Lo, ados_s, d_up, ωlist; verbose=false)
     dos2 = [
         0.0007920428534358747,
         0.0012795202828027256,
@@ -146,6 +146,6 @@ end
 
     mat = spzeros(ComplexF64, 2, 2)
     bathb = Boson_DrudeLorentz_Pade(mat, 1, 1, 1, 2)
-    @test_throws ErrorException DOS(M_Boson(mat, 2, bathb; verbose=false), mat, mat, [0])
-    @test_throws ErrorException DOS(M_Fermion(mat, 2, fuL; verbose=false), mat, mat, [0])
+    @test_throws ErrorException spectrum(M_Boson(mat, 2, bathb; verbose=false), mat, mat, [0])
+    @test_throws ErrorException spectrum(M_Fermion(mat, 2, fuL; verbose=false), mat, mat, [0])
 end
