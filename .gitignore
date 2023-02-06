@@ -4,6 +4,8 @@
 Manifest.toml
 docs/build/
 
+*.test
+
 *.py
 *.ipynb_checkpoints
 **/*.ipynb_checkpoints

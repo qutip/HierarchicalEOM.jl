@@ -146,7 +146,7 @@ end
 
         if SAVE
             open(filename, "a") do file
-                write(file, "$(psd[i]),\n")
+                write(file, "$(Sω[i]),\n")
             end
         end
 
@@ -232,7 +232,7 @@ end
 
         if SAVE
             open(filename, "a") do file
-                write(file, "$(dos[i]),\n")
+                write(file, "$(Aω[i]),\n")
             end
         end
 

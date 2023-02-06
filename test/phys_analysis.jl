@@ -28,8 +28,20 @@ end
     Δt    = 10
     steps = 10
     tlist = 0:Δt:(Δt * steps)
-    ρ_list_p = getRho.(evolution(L, ρ0, Δt, steps; verbose=false))  # using the method based on propagator
-    ρ_list_e = getRho.(evolution(L, ρ0, tlist; verbose=false))      # using the method based on ODE solver
+    if isfile("evolution_p.test")
+        rm("evolution_p.test")
+    end
+    # using the method based on propagator
+    ρ_list_p = getRho.(evolution(L, ρ0, Δt, steps; verbose=false, filename="evolution_p.test"))
+    @test_throws ErrorException evolution(L, ρ0, Δt, steps; verbose=false, filename="evolution_p.test")
+    
+    if isfile("evolution_o.test")
+        rm("evolution_o.test")
+    end
+    # using the method based on ODE solver
+    ρ_list_e = getRho.(evolution(L, ρ0, tlist; verbose=false, filename="evolution_o.test"))
+    @test_throws ErrorException evolution(L, ρ0, tlist; verbose=false, filename="evolution_o.test")
+    
     for i in 1:(steps + 1)
         @test _is_Matrix_approx(ρ_list_p[i], ρ_list_e[i])
     end
@@ -55,7 +67,11 @@ end
 
     ados_s = SteadyState(L; verbose=false)
     ωlist = 0.9:0.01:1.1
-    psd1 = spectrum(L, ados_s, a, ωlist; verbose=false)
+
+    if isfile("PSD.test")
+        rm("PSD.test")
+    end
+    psd1 = spectrum(L, ados_s, a, ωlist; verbose=false, filename="PSD.test")
     psd2 = [
         8.88036729e-04,
         1.06145358e-03,
@@ -85,6 +101,7 @@ end
 
     mat = spzeros(ComplexF64, 2, 2)
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
+    @test_throws ErrorException spectrum(L, ados_s, a, ωlist; verbose=false, filename="PSD.test")
     @test_throws ErrorException spectrum(M_Fermion(mat, 2, bathf, :odd; verbose=false), mat, mat, [0])
 end
 
@@ -116,7 +133,11 @@ end
 
     ados_s = SteadyState(Le; verbose=false)
     ωlist = -20:2:20
-    dos1 = spectrum(Lo, ados_s, d_up, ωlist; verbose=false)
+
+    if isfile("DOS.test")
+        rm("DOS.test")
+    end
+    dos1 = spectrum(Lo, ados_s, d_up, ωlist; verbose=false, filename="DOS.test")
     dos2 = [
         0.0007920428534358747,
         0.0012795202828027256,
@@ -146,6 +167,13 @@ end
 
     mat = spzeros(ComplexF64, 2, 2)
     bathb = Boson_DrudeLorentz_Pade(mat, 1, 1, 1, 2)
+    @test_throws ErrorException spectrum(Lo, ados_s, d_up, ωlist; verbose=false, filename="DOS.test")
     @test_throws ErrorException spectrum(M_Boson(mat, 2, bathb; verbose=false), mat, mat, [0])
     @test_throws ErrorException spectrum(M_Fermion(mat, 2, fuL; verbose=false), mat, mat, [0])
 end
+
+# remove all the temporary files
+rm("evolution_p.test")
+rm("evolution_o.test")
+rm("PSD.test")
+rm("DOS.test")
