@@ -20,9 +20,9 @@ import SnoopPrecompile: @precompile_setup, @precompile_all_calls
 
         # precompile Heom matrices
         @info "Precompiling Heom liouvillian superoperator matrices..."
-        Mb   = M_Boson(op, 2, bB, verbose=false)
-        Mfo  = M_Fermion(op, 2, fB, :odd, verbose=false)
-        Mbfe = M_Boson_Fermion(op, 2, 2, bB, fB, verbose=false)
+        Mb   = M_Boson(op, 2, bB; verbose=false, threshold=1e-1)
+        Mfo  = M_Fermion(op, 2, fB, :odd; verbose=false, threshold=1e-1)
+        Mbfe = M_Boson_Fermion(op, 2, 2, bB, fB; verbose=false, threshold=1e-1)
 
         # precompile Steadystate
         @info "Precompiling steady state solver..."
