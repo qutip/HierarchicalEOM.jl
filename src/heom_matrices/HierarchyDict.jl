@@ -7,8 +7,8 @@ An object which contains all dictionaries for pure (bosonic or fermionic) bath-A
 # Fields
 - `idx2nvec` : Return the `Nvec` from a given index
 - `nvec2idx` : Return the index from a given `Nvec`
-- `lvl2idx` : Return the list of indices from a given level (excitation)
-- `bathPtr` : Records the tuple ``(k, \\nu)`` for each position in `Nvec`, where ``k`` and ``\\nu`` represents the ``\\nu``-th exponential-expansion term of the ``k``-th bath.
+- `lvl2idx` : Return the list of indices from a given level
+- `bathPtr` : Records the tuple ``(\\alpha, k)`` for each position in `Nvec`, where ``\\alpha`` and ``k`` represents the ``k``-th exponential-expansion term of the ``\\alpha``-th bath.
 """
 struct HierarchyDict <: AbstractHierarchyDict
     idx2nvec::Vector{Nvec}
@@ -26,8 +26,8 @@ An object which contains all dictionaries for mixed (bosonic and fermionic) bath
 - `nvec2idx` : Return the index from a given tuple `(Nvec_b, Nvec_f)`, where `b` represents boson and `f` represents fermion
 - `Blvl2idx` : Return the list of indices from a given bosonic level (excitation)
 - `Flvl2idx` : Return the list of indices from a given fermionic level (excitation)
-- `bosonPtr` : Records the tuple ``(k, \\nu)`` for each position in `Nvec_b`, where ``k`` and ``\\nu`` represents the ``\\nu``-th exponential-expansion term of the ``k``-th bosonic bath.
-- `fermionPtr` : Records the tuple ``(k, \\nu)`` for each position in `Nvec_f`, where ``k`` and ``\\nu`` represents the ``\\nu``-th exponential-expansion term of the ``k``-th fermionic bath.
+- `bosonPtr` : Records the tuple ``(\\alpha, k)`` for each position in `Nvec_b`, where ``\\alpha`` and ``k`` represents the ``k``-th exponential-expansion term of the ``\\alpha``-th bosonic bath.
+- `fermionPtr` : Records the tuple ``(\\alpha, k)`` for each position in `Nvec_f`, where ``\\alpha`` and ``k`` represents the ``k``-th exponential-expansion term of the ``\\alpha``-th fermionic bath.
 """
 struct MixHierarchyDict <: AbstractHierarchyDict
     idx2nvec::Vector{Tuple{Nvec, Nvec}}
@@ -75,11 +75,11 @@ function _Importance(B::Vector{T}, bathPtr::AbstractVector, nvec::Nvec) where T 
     
     for idx in findall(n_exc -> n_exc > 0, nvec)
         for _ in 1:(nvec[idx])
-            k, ν = bathPtr[idx]
-            γ = real(B[k][ν].γ)
+            α, k = bathPtr[idx]
+            γ = real(B[α][k].γ)
             sum_γ += γ
             
-            value *= ( B[k][ν].η / (γ * sum_γ) )
+            value *= ( B[α][k].η / (γ * sum_γ) )
         end
     end 
     return abs(value)
@@ -92,13 +92,13 @@ end
 
     if T == BosonBath
         baths = AbstractBosonBath[]
-        for (k, b) in enumerate(B)
+        for (α, b) in enumerate(B)
             if b.dim != dim 
                 error("The matrix size of the bosonic bath coupling operators are not consistent.")
             end
             push!(baths, b.bath...)
-            for ν in 1:b.Nterm
-                push!(bathPtr, (k, ν))
+            for k in 1:b.Nterm
+                push!(bathPtr, (α, k))
             end
             Nterm += b.Nterm
         end
@@ -106,13 +106,13 @@ end
     
     elseif T == FermionBath
         baths = AbstractFermionBath[]
-        for (k, b) in enumerate(B)
+        for (α, b) in enumerate(B)
             if b.dim != dim 
                 error("The matrix size of the fermionic bath coupling operators are not consistent.")
             end
             push!(baths, b.bath...)
-            for ν in 1:b.Nterm
-                push!(bathPtr, (k, ν))
+            for k in 1:b.Nterm
+                push!(bathPtr, (α, k))
             end
             Nterm += b.Nterm
         end
@@ -169,13 +169,13 @@ end
     Nterm_b   = 0
     bosonPtr = Tuple[]
     baths_b = AbstractBosonBath[]
-    for (k, b) in enumerate(bB)
+    for (α, b) in enumerate(bB)
         if b.dim != dim 
             error("The matrix size of the bosonic bath coupling operators are not consistent.")
         end
         push!(baths_b, b.bath...)
-        for ν in 1:b.Nterm
-            push!(bosonPtr, (k, ν))
+        for k in 1:b.Nterm
+            push!(bosonPtr, (α, k))
         end
         Nterm_b += b.Nterm
     end
@@ -186,13 +186,13 @@ end
     Nterm_f   = 0
     fermionPtr = Tuple[]
     baths_f = AbstractFermionBath[]
-    for (k, b) in enumerate(fB)
+    for (α, b) in enumerate(fB)
         if b.dim != dim 
             error("The matrix size of the fermionic bath coupling operators are not consistent.")
         end
         push!(baths_f, b.bath...)
-        for ν in 1:b.Nterm
-            push!(fermionPtr, (k, ν))
+        for k in 1:b.Nterm
+            push!(fermionPtr, (α, k))
         end
         Nterm_f += b.Nterm
     end
@@ -259,19 +259,19 @@ end
 end
 
 """
-    getExcitation(nvec, bathPtr)
-Search for all the tuples ``(k, \\nu, n)`` where the excitation number is greater than zero (``n>0``).  
-Here, ``n`` is the excitation number associated with the ``k``-th exponential-expansion term in the ``\\nu``-th bath
+    getEnsemble(nvec, bathPtr)
+Search for all the tuples ``(\\alpha, k, n)`` where ``n>0`` is the repetition number of multi-index ensemble ``\\{\\alpha, k\\}`` in ADOs.  
+Here, ``\\alpha`` and ``k`` represents the ``k``-th exponential-expansion term in the ``\\alpha``-th bath.
 
 # Parameters
 - `nvec::Nvec` : The bath object which describes a certain fermionic bath.
 - `bathPtr::Vector{Tuple{Int, Int}}`: This can be obtained from [`HierarchyDict.bathPtr`](@ref HierarchyDict), [`MixHierarchyDict.bosonPtr`](@ref MixHierarchyDict), or [`MixHierarchyDict.fermionPtr`](@ref MixHierarchyDict).
 
 # Returns
-- `Vector{Tuple{Int, Int, Int}}`: a vector (list) of the tuples ``(k, \\nu, n)``.
+- `Vector{Tuple{Int, Int, Int}}`: a vector (list) of the tuples ``(\\alpha, k, n)``.
 
 # Example
-Here is an example to use [`Bath`](@ref lib-Bath), [`Exponent`](@ref), [`HierarchyDict`](@ref), and `getExcitation` together:
+Here is an example to use [`Bath`](@ref lib-Bath), [`Exponent`](@ref), [`HierarchyDict`](@ref), and `getEnsemble` together:
 ```julia
 L::M_Fermion;          # suppose this is a fermion type of HEOM liouvillian superoperator matrix you create
 HDict = L.hierarchy;   # the hierarchy dictionary
@@ -284,26 +284,26 @@ for idx in idx_list
     ρ1 = ados[idx]  # one of the 1st-level ADO
     nvec = HDict.idx2nvec[idx]  # the nvec corresponding to ρ1
     
-    for (k, ν, n) in getExcitation(nvec, HDict.bathPtr)
-        k  # index of the bath
-        ν  # the index of the exponential-expansion term in k-th bath
-        n  # the excitation number for the ν-th exponential-expansion term in k-th bath
-        exponent = L.bath[k][ν]  # the ν-th exponential-expansion term in k-th bath
+    for (α, k, n) in getEnsemble(nvec, HDict.bathPtr)
+        α  # index of the bath
+        k  # the index of the exponential-expansion term in α-th bath
+        n  # the repetition number of the ensemble \\{\\alpha, k\\} in ADOs
+        exponent = L.bath[α][k]  # the k-th exponential-expansion term in α-th bath
 
         # do some calculations you want
     end
 end
 ```
 """
-function getExcitation(nvec::Nvec, bathPtr::Vector{Tuple{Int, Int}})
+function getEnsemble(nvec::Nvec, bathPtr::Vector{Tuple{Int, Int}})
     if length(nvec) != length(bathPtr)
         error("The given \"nvec\" and \"bathPtr\" are not consistent.")
     end
 
     result = Tuple{Int, Int, Int}[]
     for idx in nvec.data.nzind
-        k, ν = bathPtr[idx]
-        push!(result, (k, ν, nvec[idx]))
+        α, k = bathPtr[idx]
+        push!(result, (α, k, nvec[idx]))
     end
     return result
 end

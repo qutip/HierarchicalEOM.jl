@@ -69,7 +69,7 @@ module Heom
             AbstractHEOMMatrix, M_Fermion, M_Boson, M_Boson_Fermion,
             odd, even, none,
             ADOs, getRho, getADO, 
-            Nvec, AbstractHierarchyDict, HierarchyDict, MixHierarchyDict, getExcitation,
+            Nvec, AbstractHierarchyDict, HierarchyDict, MixHierarchyDict, getEnsemble,
             Propagator, addDissipator, addTerminator,
             evolution, SteadyState
 

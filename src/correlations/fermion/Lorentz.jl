@@ -45,19 +45,19 @@ function Fermion_Lorentz_Matsubara(
     return FermionBath(op, η_ab, γ_ab, η_em, γ_em)
 end
 
-function _fermion_lorentz_pade_param(σ::Real, λ::Real, μ::Real, W::Real, T::Real, N::Int)
+function _fermion_lorentz_pade_param(ν::Real, λ::Real, μ::Real, W::Real, T::Real, N::Int)
     β = 1. / T
-    κ, ϵ = pade_NmN(N, fermion=true)   
+    κ, ζ = pade_NmN(N, fermion=true)   
      
-    η = ComplexF64[0.5 * λ * W * _fermi_pade(1.0im * β * W, κ, ϵ, N)]
-    γ = ComplexF64[W - σ * 1.0im * μ]
+    η = ComplexF64[0.5 * λ * W * _fermi_pade(1.0im * β * W, κ, ζ, N)]
+    γ = ComplexF64[W - ν * 1.0im * μ]
 
     if N > 0
         for l in 2:(N + 1)
             append!(η, 
-                -1.0im * κ[l] * λ * T * W ^ 2 / (-(ϵ[l] * T) ^ 2 + W ^ 2)
+                -1.0im * κ[l] * λ * T * W ^ 2 / (-(ζ[l] * T) ^ 2 + W ^ 2)
             )
-            append!(γ, ϵ[l] * T - σ * 1.0im * μ)
+            append!(γ, ζ[l] * T - ν * 1.0im * μ)
         end
     end
     return η, γ
