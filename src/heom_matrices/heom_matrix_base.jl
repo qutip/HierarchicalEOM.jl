@@ -191,7 +191,7 @@ function add_operator!(op, I, J, V, N_he, row_idx, col_idx)
     nothing
 end
 
-# sum γ of bath for current gradient
+# sum γ of bath for current level
 function bath_sum_γ(nvec, baths::Vector{T}) where T <: Union{AbstractBosonBath, AbstractFermionBath}
     p = 0
     sum_γ = 0.0
@@ -205,49 +205,49 @@ function bath_sum_γ(nvec, baths::Vector{T}) where T <: Union{AbstractBosonBath,
     return sum_γ
 end
 
-# boson (Real & Imag combined) operator for previous gradient
-function prev_grad_boson(bath::bosonRealImag, k, n_k)
+# connect to bosonic (n-1)th-level for "Real & Imag combined operator"
+function _D_op(bath::bosonRealImag, k, n_k)
     return n_k * (
         -1im * bath.η_real[k] * bath.Comm  +
                bath.η_imag[k] * bath.anComm
     )
 end
 
-# boson (Real) operator for previous gradient
-function prev_grad_boson(bath::bosonReal, k, n_k)
+# connect to bosonic (n-1)th-level for (Real & Imag combined) operator "Real operator"
+function _D_op(bath::bosonReal, k, n_k)
     return -1im * n_k * bath.η[k] * bath.Comm
 end
 
-# boson (Imag) operator for previous gradient
-function prev_grad_boson(bath::bosonImag, k, n_k)
+# connect to bosonic (n-1)th-level for "Imag operator"
+function _D_op(bath::bosonImag, k, n_k)
     return n_k * bath.η[k] * bath.anComm
 end
 
-# absorption fermion operator for previous gradient
-function prev_grad_fermion(bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
-    return -1im * ((-1) ^ n_exc_before) * (
-        (-1) ^ eval(parity) * bath.η[k] * bath.spre - 
-        (-1) ^ (n_exc - 1)  * conj(bath.η_emit[k]) * bath.spost
+# connect to fermionic (n-1)th-level for "absorption operator"
+function _C_op(bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
+    return -1im * ((-1) ^ n_exc_before) * ((-1) ^ eval(parity)) * (
+        bath.η[k] * bath.spre +
+        (-1) ^ (eval(parity) + 1) * (-1) ^ (n_exc - 1) * conj(bath.η_emit[k]) * bath.spost
     )
 end
 
-# emission fermion operator for previous gradient
-function prev_grad_fermion(bath::fermionEmit, k, n_exc, n_exc_before, parity)
-    return -1im * ((-1) ^ n_exc_before) * (
-        (-1) ^ eval(parity) * bath.η[k] * bath.spre - 
-        (-1) ^ (n_exc - 1)  * conj(bath.η_absorb[k]) * bath.spost
+# connect to fermionic (n-1)th-level for "emission operator"
+function _C_op(bath::fermionEmit, k, n_exc, n_exc_before, parity)
+    return -1im * ((-1) ^ n_exc_before) * ((-1) ^ eval(parity)) * (
+        bath.η[k] * bath.spre + 
+        (-1) ^ (eval(parity) + 1) * (-1) ^ (n_exc - 1) * conj(bath.η_absorb[k]) * bath.spost
     )
 end
 
-# boson operator for next gradient
-function next_grad_boson(bath::T) where T <: AbstractBosonBath
+# connect to bosonic (n+1)th-level
+function _B_op(bath::T) where T <: AbstractBosonBath
     return -1im * bath.Comm
 end
 
-# fermion operator for next gradient
-function next_grad_fermion(bath::T, n_exc, n_exc_before, parity) where T <: AbstractFermionBath
-    return -1im * ((-1) ^ n_exc_before) * (
-        (-1) ^ eval(parity) * bath.spreD +
-        (-1) ^ (n_exc - 1)  * bath.spostD
+# connect to fermionic (n+1)th-level
+function _A_op(bath::T, n_exc, n_exc_before, parity) where T <: AbstractFermionBath
+    return -1im * ((-1) ^ n_exc_before) * ((-1) ^ eval(parity)) * (
+        bath.spreD -
+        (-1) ^ (eval(parity) + 1) * (-1) ^ (n_exc + 1) * bath.spostD
     )
 end

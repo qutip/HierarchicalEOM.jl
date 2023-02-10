@@ -4,8 +4,8 @@ Heom liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath
 
 # Fields
 - `data` : the sparse matrix of HEOM liouvillian superoperator
-- `Btier` : the tier (cutoff) for bosonic bath
-- `Ftier` : the tier (cutoff) for fermionic bath
+- `Btier` : the tier (cutoff level) for bosonic hierarchy
+- `Ftier` : the tier (cutoff level) for fermionic hierarchy
 - `dim` : the dimension of system
 - `N` : the number of total ADOs
 - `sup_dim` : the dimension of system superoperator
@@ -110,7 +110,7 @@ Generate the boson-fermion-type Heom liouvillian superoperator matrix
     @threads for idx in 1:Nado
         tID = threadid()
 
-        # boson and fermion (n tier) superoperator
+        # boson and fermion (current level) superoperator
         sum_γ   = 0.0
         nvec_b, nvec_f = idx2nvec[idx]
         if nvec_b.level >= 1
@@ -121,7 +121,7 @@ Generate the boson-fermion-type Heom liouvillian superoperator matrix
         end
         add_operator!(Lsys - sum_γ * I_sup, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx)
         
-        # boson (n+1 & n-1 tier) superoperator
+        # connect to bosonic (n+1)th- & (n-1)th- level superoperator
         count = 0
         nvec_neigh = copy(nvec_b)
         for bB in baths_b
@@ -129,23 +129,23 @@ Generate the boson-fermion-type Heom liouvillian superoperator matrix
                 count += 1
                 n_k = nvec_b[count]
 
-                # deal with prevous gradient
+                # connect to bosonic (n-1)th-level superoperator
                 if n_k > 0
                     Nvec_minus!(nvec_neigh, count)
                     if (threshold == 0.0) || haskey(nvec2idx, (nvec_neigh, nvec_f))
                         idx_neigh = nvec2idx[(nvec_neigh, nvec_f)]
-                        op = prev_grad_boson(bB, k, n_k)
+                        op = _D_op(bB, k, n_k)
                         add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
                     end
                     Nvec_plus!(nvec_neigh, count)
                 end
 
-                # deal with next gradient
+                # connect to bosonic (n+1)th-level superoperator
                 if nvec_b.level < Btier
                     Nvec_plus!(nvec_neigh, count)
                     if (threshold == 0.0) || haskey(nvec2idx, (nvec_neigh, nvec_f))
                         idx_neigh = nvec2idx[(nvec_neigh, nvec_f)]
-                        op = next_grad_boson(bB)
+                        op = _B_op(bB)
                         add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
                     end
                     Nvec_minus!(nvec_neigh, count)
@@ -153,7 +153,7 @@ Generate the boson-fermion-type Heom liouvillian superoperator matrix
             end
         end
         
-        # fermion (n+1 & n-1 tier) superoperator
+        # connect to fermionic (n+1)th- & (n-1)th- level superoperator
         count = 0
         nvec_neigh = copy(nvec_f)
         for fB in baths_f
@@ -161,22 +161,22 @@ Generate the boson-fermion-type Heom liouvillian superoperator matrix
                 count += 1
                 n_k = nvec_f[count]
 
-                # deal with prevous gradient
+                # connect to fermionic (n-1)th-level superoperator
                 if n_k > 0
                     Nvec_minus!(nvec_neigh, count)
                     if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
                         idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
-                        op = prev_grad_fermion(fB, k, nvec_f.level, sum(nvec_neigh[1:(count - 1)]), parity)
+                        op = _C_op(fB, k, nvec_f.level, sum(nvec_neigh[1:(count - 1)]), parity)
                         add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
                     end
                     Nvec_plus!(nvec_neigh, count)
 
-                # deal with next gradient
+                # connect to fermionic (n+1)th-level superoperator
                 elseif nvec_f.level < Ftier
                     Nvec_plus!(nvec_neigh, count)
                     if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
                         idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
-                        op = next_grad_fermion(fB, nvec_f.level, sum(nvec_neigh[1:(count - 1)]), parity)
+                        op = _A_op(fB, nvec_f.level, sum(nvec_neigh[1:(count - 1)]), parity)
                         add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
                     end
                     Nvec_minus!(nvec_neigh, count)

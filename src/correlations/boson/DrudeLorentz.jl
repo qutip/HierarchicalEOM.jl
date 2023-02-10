@@ -76,16 +76,16 @@ function Boson_DrudeLorentz_Pade(
     )
     
     β = 1. / T
-    κ, ϵ = pade_NmN(N, fermion=false)
+    κ, ζ = pade_NmN(N, fermion=false)
 
     η = ComplexF64[λ * W * (cot(W * β / 2.0) - 1.0im)]
     γ = ComplexF64[W]
     if N > 0
         for l in 2:(N + 1)
             append!(η,
-                κ[l] * 4 * λ * W * ϵ[l] * (T ^ 2) / (((ϵ[l] * T) ^ 2) - W ^ 2)
+                κ[l] * 4 * λ * W * ζ[l] * (T ^ 2) / (((ζ[l] * T) ^ 2) - W ^ 2)
             )
-            append!(γ, ϵ[l] * T)
+            append!(γ, ζ[l] * T)
         end
     end
 

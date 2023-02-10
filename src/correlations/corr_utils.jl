@@ -39,11 +39,11 @@ end
 function pade_NmN(N; fermion::Bool)
 
     if fermion
-        local ϵ = i_eigval(N    , 2 * N    , 0)
+        local ζ = i_eigval(N    , 2 * N    , 0)
         local χ = i_eigval(N - 1, 2 * N - 1, 2)
         prefactor = 0.5 * N * fb(N)
     else
-        local ϵ = i_eigval(N    , 2 * N    , 2)
+        local ζ = i_eigval(N    , 2 * N    , 2)
         local χ = i_eigval(N - 1, 2 * N - 1, 4)
         prefactor = 0.5 * N * (fb(N) + 2)
     end
@@ -52,21 +52,21 @@ function pade_NmN(N; fermion::Bool)
     for j in 1:N
         term = prefactor
         for k1 in 1:(N - 1)
-            term *= (χ[k1] ^ 2 - ϵ[j] ^ 2) / (ϵ[k1] ^ 2 - ϵ[j] ^ 2 + δ(j, k1))
+            term *= (χ[k1] ^ 2 - ζ[j] ^ 2) / (ζ[k1] ^ 2 - ζ[j] ^ 2 + δ(j, k1))
         end
 
-        term /= (ϵ[N] ^ 2 - ϵ[j] ^ 2 + δ(j, N))
+        term /= (ζ[N] ^ 2 - ζ[j] ^ 2 + δ(j, N))
 
         push!(κ, term)
     end
 
-    return append!([0.0], κ), append!([0.0], ϵ)
+    return append!([0.0], κ), append!([0.0], ζ)
 end
 
-function _fermi_pade(x, κ, ϵ, N)
+function _fermi_pade(x, κ, ζ, N)
     f = 0.5
     for l in 2:(N + 1)
-        f -= 2 * κ[l] * x / (x ^ 2 + ϵ[l] ^ 2)
+        f -= 2 * κ[l] * x / (x ^ 2 + ζ[l] ^ 2)
     end
     return f
 end

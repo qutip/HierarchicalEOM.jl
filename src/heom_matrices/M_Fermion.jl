@@ -4,7 +4,7 @@ Heom liouvillian superoperator matrix for fermionic bath
 
 # Fields
 - `data` : the sparse matrix of HEOM liouvillian superoperator
-- `tier` : the tier (cutoff) for the bath
+- `tier` : the tier (cutoff level) for the hierarchy
 - `dim` : the dimension of system
 - `N` : the number of total ADOs
 - `sup_dim` : the dimension of system superoperator
@@ -93,7 +93,7 @@ Generate the fermion-type Heom liouvillian superoperator matrix
     @threads for idx in 1:Nado
         tID = threadid()
 
-        # fermion (n tier) superoperator
+        # fermion (current level) superoperator
         nvec = idx2nvec[idx]
         if nvec.level >= 1
             sum_γ = bath_sum_γ(nvec, baths)
@@ -103,7 +103,7 @@ Generate the fermion-type Heom liouvillian superoperator matrix
         end
         add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx)
 
-        # fermion (n+1 & n-1 tier) superoperator
+        # connect to fermionic (n+1)th- & (n-1)th- level superoperator
         count = 0
         nvec_neigh = copy(nvec)
         for fB in baths
@@ -111,22 +111,22 @@ Generate the fermion-type Heom liouvillian superoperator matrix
                 count += 1
                 n_k = nvec[count]
 
-                # deal with prevous gradient
+                # connect to fermionic (n-1)th-level superoperator
                 if n_k > 0
                     Nvec_minus!(nvec_neigh, count)
                     if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                         idx_neigh = nvec2idx[nvec_neigh]
-                        op = prev_grad_fermion(fB, k, nvec.level, sum(nvec_neigh[1:(count - 1)]), parity)
+                        op = _C_op(fB, k, nvec.level, sum(nvec_neigh[1:(count - 1)]), parity)
                         add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
                     end
                     Nvec_plus!(nvec_neigh, count)
 
-                # deal with next gradient
+                # connect to fermionic (n+1)th-level superoperator
                 elseif nvec.level < tier
                     Nvec_plus!(nvec_neigh, count)
                     if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                         idx_neigh = nvec2idx[nvec_neigh]
-                        op = next_grad_fermion(fB, nvec.level, sum(nvec_neigh[1:(count - 1)]), parity)
+                        op = _A_op(fB, nvec.level, sum(nvec_neigh[1:(count - 1)]), parity)
                         add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
                     end
                     Nvec_minus!(nvec_neigh, count)
