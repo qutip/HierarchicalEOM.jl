@@ -64,5 +64,5 @@ MixHierarchyDict
 ```
 
 ```@docs
-getExcitation
+getIndexEnsemble
 ```

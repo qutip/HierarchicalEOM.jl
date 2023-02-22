@@ -249,8 +249,8 @@ end
     ados = SteadyState(L; verbose=false)
     @test ( Ic(ados, L, 1) * 2.434e-4 * 1e6 ) ≈ 0.2883004571425127
     nvec_b, nvec_f = L.hierarchy.idx2nvec[1]
-    @test_throws ErrorException getEnsemble(nvec_f, L.hierarchy.bosonPtr)
-    @test_throws ErrorException getEnsemble(nvec_b, L.hierarchy.fermionPtr)
+    @test_throws ErrorException getIndexEnsemble(nvec_f, L.hierarchy.bosonPtr)
+    @test_throws ErrorException getIndexEnsemble(nvec_b, L.hierarchy.fermionPtr)
 end
 
 @testset "Auxiliary density operators" begin

@@ -28,7 +28,7 @@ function Ic(ados, M::M_Boson_Fermion, bathIdx::Int)
 
         # find the corresponding bath index (α) and exponent term index (k)
         _, nvec_f = HDict.idx2nvec[idx]
-        for (α, k, _) in getEnsemble(nvec_f, HDict.fermionPtr)
+        for (α, k, _) in getIndexEnsemble(nvec_f, HDict.fermionPtr)
             if α == bathIdx
                 exponent = M.Fbath[α][k]
                 if exponent.types == "fA"     # fermion-absorption
