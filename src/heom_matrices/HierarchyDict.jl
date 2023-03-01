@@ -259,19 +259,18 @@ end
 end
 
 """
-    getEnsemble(nvec, bathPtr)
-Search for all the tuples ``(\\alpha, k, n)`` where ``n>0`` is the repetition number of multi-index ensemble ``\\{\\alpha, k\\}`` in ADOs.  
-Here, ``\\alpha`` and ``k`` represents the ``k``-th exponential-expansion term in the ``\\alpha``-th bath.
+    getIndexEnsemble(nvec, bathPtr)
+Search for all the multi-index ensemble ``(\\alpha, k)`` where ``\\alpha`` and ``k`` represents the ``k``-th exponential-expansion term in the ``\\alpha``-th bath.
 
 # Parameters
-- `nvec::Nvec` : The bath object which describes a certain fermionic bath.
+- `nvec::Nvec` : An object which records the repetition number of each multi-index ensembles in ADOs.
 - `bathPtr::Vector{Tuple{Int, Int}}`: This can be obtained from [`HierarchyDict.bathPtr`](@ref HierarchyDict), [`MixHierarchyDict.bosonPtr`](@ref MixHierarchyDict), or [`MixHierarchyDict.fermionPtr`](@ref MixHierarchyDict).
 
 # Returns
 - `Vector{Tuple{Int, Int, Int}}`: a vector (list) of the tuples ``(\\alpha, k, n)``.
 
 # Example
-Here is an example to use [`Bath`](@ref lib-Bath), [`Exponent`](@ref), [`HierarchyDict`](@ref), and `getEnsemble` together:
+Here is an example to use [`Bath`](@ref lib-Bath), [`Exponent`](@ref), [`HierarchyDict`](@ref), and `getIndexEnsemble` together:
 ```julia
 L::M_Fermion;          # suppose this is a fermion type of HEOM liouvillian superoperator matrix you create
 HDict = L.hierarchy;   # the hierarchy dictionary
@@ -295,7 +294,7 @@ for idx in idx_list
 end
 ```
 """
-function getEnsemble(nvec::Nvec, bathPtr::Vector{Tuple{Int, Int}})
+function getIndexEnsemble(nvec::Nvec, bathPtr::Vector{Tuple{Int, Int}})
     if length(nvec) != length(bathPtr)
         error("The given \"nvec\" and \"bathPtr\" are not consistent.")
     end

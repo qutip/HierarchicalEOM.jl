@@ -58,11 +58,11 @@ function spectrum(
             error("The number N between M and ρ are not consistent.")
         end
 
-        b = ρ.data
+        ados_vec = ρ.data
         
     elseif isValidMatrixType(ρ, M.dim)
         v = sparsevec(ρ)
-        b = sparsevec(v.nzind, v.nzval, Size)
+        ados_vec = sparsevec(v.nzind, v.nzval, Size)
     else
         error("Invalid matrix \"ρ\".")
     end
@@ -74,14 +74,14 @@ function spectrum(
 
     # check parity and calculate spectrum
     if (M.parity == :odd)
-        return _density_of_states(M, b, op, ω_list; 
+        return _density_of_states(M, ados_vec, op, ω_list; 
             solver = solver, 
             verbose = verbose,
             filename = filename,
             SOLVEROptions...
         )
     else
-        return _power_spectrum(M, b, op, ω_list; 
+        return _power_spectrum(M, ados_vec, op, ω_list; 
             solver = solver, 
             verbose = verbose,
             filename = filename,
@@ -92,7 +92,7 @@ end
 
 @noinline function _power_spectrum(
         M::AbstractHEOMMatrix, 
-        b::AbstractVector, 
+        ados_vec::AbstractVector, 
         op,
         ω_list::AbstractVector; 
         solver=UMFPACKFactorization(), 
@@ -111,9 +111,9 @@ end
     I_dual_vec = transpose(sparsevec([1 + n * (M.dim + 1) for n in 0:(M.dim - 1)], ones(M.dim), M.sup_dim))
 
     # operator for calculating two-time correlation functions in frequency domain
-    A_normal = kron(I_heom, spre(op))
-    A_dagger = kron(I_heom, spre(op'))
-    local B::Vector{ComplexF64} = -1 * A_normal * b
+    a_normal = kron(I_heom, spre(op))
+    a_dagger = kron(I_heom, spre(op'))
+    local X::Vector{ComplexF64} = a_normal * ados_vec
 
     Length = length(ω_list)
     Sω = Vector{Float64}(undef, Length)
@@ -124,7 +124,7 @@ end
         prog = Progress(Length; start=1, desc="Progress : ", PROGBAR_OPTIONS...)
     end
     Iω   = 1im * ω_list[1] * I_total
-    prob = init(LinearProblem(M.data - Iω, B), solver, SOLVEROptions...)
+    prob = init(LinearProblem(M.data - Iω, X), solver, SOLVEROptions...)
     sol = solve(prob)
     @inbounds for (i, ω) in enumerate(ω_list)
         if i > 1            
@@ -133,7 +133,7 @@ end
                 sol = solve(set_A(sol.cache, M.data - Iω))
             catch e
                 if isa(e, ArgumentError)
-                    prob = init(LinearProblem(M.data - Iω, B), solver, SOLVEROptions...)
+                    prob = init(LinearProblem(M.data - Iω, X), solver, SOLVEROptions...)
                     sol = solve(prob)
                 else
                     throw(e)
@@ -142,7 +142,7 @@ end
         end
 
         # trace over the Hilbert space of system (expectation value)
-        Sω[i] = real(I_dual_vec * (A_dagger * sol.u)[1:(M.sup_dim)])
+        Sω[i] = -1 * real(I_dual_vec * (a_dagger * sol.u)[1:(M.sup_dim)])
 
         if SAVE
             open(filename, "a") do file
@@ -163,7 +163,7 @@ end
 
 @noinline function _density_of_states(
         M::AbstractHEOMMatrix, 
-        b::AbstractVector, 
+        ados_vec::AbstractVector, 
         op,
         ω_list::AbstractVector; 
         solver=UMFPACKFactorization(), 
@@ -182,10 +182,10 @@ end
     I_dual_vec = transpose(sparsevec([1 + n * (M.dim + 1) for n in 0:(M.dim - 1)], ones(M.dim), M.sup_dim))
 
     # operators for calculating two-time correlation functions in frequency domain
-    A_normal = kron(I_heom, spre(op))
-    A_dagger = kron(I_heom, spre(op'))
-    local B_a ::Vector{ComplexF64} = -1 * A_normal * b
-    local B_ad::Vector{ComplexF64} = -1 * A_dagger * b
+    d_normal = kron(I_heom, spre(op))
+    d_dagger = kron(I_heom, spre(op'))
+    local X_m::Vector{ComplexF64} = d_normal * ados_vec
+    local X_p::Vector{ComplexF64} = d_dagger * ados_vec
 
     Length = length(ω_list)
     Aω = Vector{Float64}(undef, Length)
@@ -196,39 +196,42 @@ end
         prog = Progress(Length; start=1, desc="Progress : ", PROGBAR_OPTIONS...)
     end
     Iω = 1im * ω_list[1] * I_total
-    prob_a  = init(LinearProblem(M.data - Iω, B_a),  solver, SOLVEROptions...)
-    prob_ad = init(LinearProblem(M.data + Iω, B_ad), solver, SOLVEROptions...)
-    sol_a  = solve(prob_a)
-    sol_ad = solve(prob_ad)
+    prob_m = init(LinearProblem(M.data - Iω, X_m),  solver, SOLVEROptions...)
+    prob_p = init(LinearProblem(M.data + Iω, X_p), solver, SOLVEROptions...)
+    sol_m  = solve(prob_m)
+    sol_p  = solve(prob_p)
     @inbounds for (i, ω) in enumerate(ω_list)
         if i > 1
             Iω = 1im * ω * I_total
             try 
-                sol_a = solve(set_A(sol_a.cache, M.data - Iω))
+                sol_m = solve(set_A(sol_m.cache, M.data - Iω))
             catch e
                 if isa(e, ArgumentError)
-                    prob_a = init(LinearProblem(M.data - Iω, B_a), solver, SOLVEROptions...)
-                    sol_a  = solve(prob_a)
+                    prob_m = init(LinearProblem(M.data - Iω, X_m), solver, SOLVEROptions...)
+                    sol_m  = solve(prob_m)
                 else
                     throw(e)
                 end
             end
             try
-                sol_ad = solve(set_A(sol_ad.cache, M.data + Iω))
+                sol_p = solve(set_A(sol_p.cache, M.data + Iω))
             catch e
                 if isa(e, ArgumentError)
-                    prob_ad = init(LinearProblem(M.data + Iω, B_ad), solver, SOLVEROptions...)
-                    sol_ad  = solve(prob_ad)
+                    prob_p = init(LinearProblem(M.data + Iω, X_p), solver, SOLVEROptions...)
+                    sol_p  = solve(prob_p)
                 else
                     throw(e)
                 end
             end
         end
-        Cω_ad_a = A_dagger * sol_a.u
-        Cω_a_ad = A_normal * sol_ad.u
+        Cω_m = d_dagger * sol_m.u
+        Cω_p = d_normal * sol_p.u
         
         # trace over the Hilbert space of system (expectation value)
-        Aω[i] = real(I_dual_vec * Cω_ad_a[1:(M.sup_dim)]) + real(I_dual_vec * Cω_a_ad[1:(M.sup_dim)])
+        Aω[i] = -1 * (
+            real(I_dual_vec * Cω_p[1:(M.sup_dim)]) + 
+            real(I_dual_vec * Cω_m[1:(M.sup_dim)])
+        )
 
         if SAVE
             open(filename, "a") do file
