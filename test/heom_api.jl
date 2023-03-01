@@ -247,7 +247,7 @@ end
     @test nnz(L.data) == 13536
 
     ados = SteadyState(L; verbose=false)
-    @test ( Ic(ados, L, 1) * 2.434e-4 * 1e6 ) ≈ 0.2883004571425127
+    @test Ic(ados, L, 1) ≈ 0.2883390125832726
     nvec_b, nvec_f = L.hierarchy.idx2nvec[1]
     @test_throws ErrorException getIndexEnsemble(nvec_f, L.hierarchy.bosonPtr)
     @test_throws ErrorException getIndexEnsemble(nvec_b, L.hierarchy.fermionPtr)
