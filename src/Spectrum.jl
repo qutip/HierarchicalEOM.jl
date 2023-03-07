@@ -121,7 +121,7 @@ end
     if verbose
         print("Calculating spectrum for bosonic systems...\n")
         flush(stdout)
-        prog = Progress(Length; start=1, desc="Progress : ", PROGBAR_OPTIONS...)
+        prog = Progress(Length; desc="Progress : ", PROGBAR_OPTIONS...)
     end
     Iω   = 1im * ω_list[1] * I_total
     prob = init(LinearProblem(M.data - Iω, X), solver, SOLVEROptions...)
@@ -193,7 +193,7 @@ end
     if verbose
         print("Calculating spectrum for fermionic systems...\n")
         flush(stdout)
-        prog = Progress(Length; start=1, desc="Progress : ", PROGBAR_OPTIONS...)
+        prog = Progress(Length; desc="Progress : ", PROGBAR_OPTIONS...)
     end
     Iω = 1im * ω_list[1] * I_total
     prob_m = init(LinearProblem(M.data - Iω, X_m),  solver, SOLVEROptions...)
