@@ -44,7 +44,7 @@ end
 Generate the boson-fermion-type Heom liouvillian superoperator matrix
 
 # Parameters
-- `Hsys` : The system Hamiltonian
+- `Hsys` : The time-independent system Hamiltonian
 - `Btier::Int` : the tier (cutoff) for the bosonic bath
 - `Ftier::Int` : the tier (cutoff) for the fermionic bath
 - `Bbath::Vector{BosonBath}` : objects for different bosonic baths

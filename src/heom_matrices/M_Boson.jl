@@ -32,7 +32,7 @@ end
 Generate the boson-type Heom liouvillian superoperator matrix
 
 # Parameters
-- `Hsys` : The system Hamiltonian
+- `Hsys` : The time-independent system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
 - `Bath::Vector{BosonBath}` : objects for different bosonic baths
 - `threshold::Real` : The threshold of the importance value (see Ref. [1]). Defaults to `0.0`.
