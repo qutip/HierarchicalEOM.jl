@@ -6,7 +6,7 @@ function isValidMatrixType(M, dim::Int=0)
             if size(M) == (dim, dim)
                 return true
             else
-                @warn "The size of input matrix should be: ($(M.dim), $(M.dim))."
+                @warn "The size of input matrix should be: ($(dim), $(dim))."
                 return false
             end
         elseif dim == 0

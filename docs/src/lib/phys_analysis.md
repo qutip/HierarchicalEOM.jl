@@ -13,6 +13,12 @@ evolution(M::AbstractHEOMMatrix, ρ0, tlist::AbstractVector; solver = DP5(), rel
 evolution(M::AbstractHEOMMatrix, ados::ADOs, tlist::AbstractVector; solver = DP5(), reltol::Real = 1.0e-6, abstol::Real = 1.0e-8, maxiters::Real = 1e5, save_everystep::Bool=false, verbose::Bool = true, filename::String = "", SOLVEROptions...)
 ```
 
+Support for time-dependent system Hamiltonian using the method based on ODEs : [`OrdinaryDiffEq.jl`](https://github.com/SciML/OrdinaryDiffEq.jl)
+```@docs
+evolution(M::AbstractHEOMMatrix, ρ0, tlist::AbstractVector, H::Function, param::Tuple = (); solver = DP5(), reltol::Real = 1.0e-6, abstol::Real = 1.0e-8, maxiters::Real = 1e5, save_everystep::Bool=false, verbose::Bool = true, filename::String = "", SOLVEROptions...)
+evolution(M::AbstractHEOMMatrix, ados::ADOs, tlist::AbstractVector, H::Function, param::Tuple = (); solver = DP5(), reltol::Real = 1.0e-6, abstol::Real = 1.0e-8, maxiters::Real = 1e5, save_everystep::Bool=false, verbose::Bool = true, filename::String = "", SOLVEROptions...)
+```
+
 ## Steady State
 Using the method based on [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
 ```@docs

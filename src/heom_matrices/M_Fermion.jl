@@ -32,7 +32,7 @@ end
 Generate the fermion-type Heom liouvillian superoperator matrix
 
 # Parameters
-- `Hsys` : The system Hamiltonian
+- `Hsys` : The time-independent system Hamiltonian
 - `tier::Int` : the tier (cutoff) for the bath
 - `Bath::Vector{FermionBath}` : objects for different fermionic baths
 - `parity::Symbol` : The parity symbol of the density matrix (either `:odd` or `:even`). Defaults to `:even`.
