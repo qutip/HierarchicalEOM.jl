@@ -66,7 +66,7 @@ module Heom
         import SteadyStateDiffEq: DynamicSS
 
         export
-            AbstractHEOMMatrix, M_Fermion, M_Boson, M_Boson_Fermion,
+            AbstractHEOMMatrix, M_S, M_Boson, M_Fermion, M_Boson_Fermion,
             odd, even,
             ADOs, getRho, getADO, 
             Nvec, AbstractHierarchyDict, HierarchyDict, MixHierarchyDict, getIndexEnsemble,
@@ -80,7 +80,7 @@ module Heom
 
     # sub-module Spectrum for Heom
     module Spectrum
-        import ..HeomAPI: AbstractHEOMMatrix, ADOs, spre, M_Fermion
+        import ..HeomAPI: AbstractHEOMMatrix, ADOs, spre
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, sparsevec
         import LinearSolve: LinearProblem, init, set_A, solve, UMFPACKFactorization

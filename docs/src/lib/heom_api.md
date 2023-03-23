@@ -2,6 +2,15 @@
 
 ## Heom liouvillian superoperator matrices
 
+### Heom matrix for standard Schrodinger (Liouville-von Neumann) equation 
+```@docs
+M_S
+```
+
+```@docs
+M_S(Hsys, parity::Symbol=:even; verbose::Bool=true)
+```
+
 ### Boson Heom matrix
 ```@docs
 M_Boson

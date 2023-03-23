@@ -14,7 +14,9 @@ getindex(M::AbstractHEOMMatrix, i::Ti, j::Tj) where {Ti, Tj <: Any} = M.data[i, 
 
 function show(io::IO, M::AbstractHEOMMatrix)
     T = typeof(M)
-    if T == M_Boson
+    if T == M_S
+        type = "Schrodinger Eq."
+    elseif T == M_Boson
         type = "Boson"
     elseif T == M_Fermion
         type = "Fermion"
@@ -84,7 +86,9 @@ function addBosonicDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMMa
             end
         end
 
-        if T == M_Boson
+        if T == M_S
+            return M_S(M.data + L, M.tier, M.dim, M.N, M.sup_dim, M.parity)
+        elseif T == M_Boson
             return M_Boson(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
         elseif T == M_Fermion
             return M_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
@@ -128,8 +132,9 @@ function addFermionicDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOM
                 error("Invalid matrix in \"jumpOP\".")
             end
         end
-
-        if T == M_Boson
+        if T == M_S
+            return M_S(M.data + L, M.tier, M.dim, M.N, M.sup_dim, M.parity)
+        elseif T == M_Boson
             return M_Boson(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
         elseif T == M_Fermion
             return M_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
@@ -166,6 +171,8 @@ function addTerminator(M::Mtype, Bath::Union{BosonBath, FermionBath}) where Mtyp
         error("For $(Btype), the type of Heom matrix should be either M_Boson or M_Boson_Fermion.")
     elseif (Btype == FermionBath) && (Mtype == M_Boson)
         error("For $(Btype), the type of Heom matrix should be either M_Fermion or M_Boson_Fermion.")
+    elseif Mtype == M_S
+        error("The type of input Heom matrix does not support this functionality.")
     end
 
     if M.dim != Bath.dim

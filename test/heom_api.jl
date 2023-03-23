@@ -1,3 +1,45 @@
+# Test Schrodinger type Heom liouvillian superoperator matrix
+@testset "M_S" begin
+    t = 10
+    Hsys = [0 1; 1 0]
+    L = M_S(Hsys; verbose=false)
+    @test show(devnull, MIME("text/plain"), L) == nothing
+    @test size(L) == (4, 4)
+    @test L.N  == 1
+    @test nnz(L.data) == 8
+    ados_list = evolution(L, [1 0; 0 0], 0:1:t; reltol=1e-8, abstol=1e-10, verbose=false)
+    ados = ados_list[end]
+    @test ados.dim == L.dim
+    @test length(ados) == L.N
+    ρ0 = ados[1]
+    @test getRho(ados) == ρ0
+    ρ1 = [
+              cos(t)^2 -0.5im*sin(2*t);
+        0.5im*sin(2*t)        sin(t)^2
+    ]
+    @test _is_Matrix_approx(ρ0, ρ1)
+
+    L =   addBosonicDissipator(L, √(0.01) * [1 0; 0 -1])
+    L = addFermionicDissipator(L, √(0.01) * [1 0; 0 -1])
+    @test nnz(L.data) == 10
+    ados_list = evolution(L, [1 0; 0 0], 0:0.5:t; reltol=1e-8, abstol=1e-10, verbose=false)
+    ados = ados_list[end]
+    ρ0 = ados[1]
+    @test getRho(ados) == ρ0
+    ρ1 = [
+        0.6711641119639493+0.0im 0.3735796014268062im;
+        -0.3735796014268062im    0.32883588803605024
+    ]
+    @test _is_Matrix_approx(ρ0, ρ1)
+
+    ## check exceptions
+    @test_throws BoundsError L[1, 5]
+    @test_throws BoundsError L[1:5, 2]
+    @test_throws ErrorException ados[L.N + 1]
+    @test_throws ErrorException M_S(Hsys, :wrong; verbose=false)
+    @test_throws ErrorException @test_warn "Heom doesn't support matrix type : Vector{Int64}" M_S([0, 0]; verbose=false)
+end
+
 λ = 0.1450
 W = 0.6464
 T = 0.7414
@@ -63,6 +105,7 @@ J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
     @test_throws BoundsError L[1, 1821]
     @test_throws BoundsError L[1:1821, 336]
     @test_throws ErrorException ados[L.N + 1]
+    @test_throws ErrorException M_Boson(Hsys, tier, Bbath, :wrong; verbose=false)
     @test_throws ErrorException @test_warn "Heom doesn't support matrix type : Vector{Int64}" M_Boson([0, 0], tier, Bbath; verbose=false)
 end
 
@@ -116,6 +159,7 @@ end
     @test_throws BoundsError L[1, 9301]
     @test_throws BoundsError L[1:9301, 9300]
     @test_throws ErrorException ados[L.N + 1]
+    @test_throws ErrorException M_Fermion(Hsys, tier, Fbath, :wrong; verbose=false)
     @test_throws ErrorException @test_warn "Heom doesn't support matrix type : Vector{Int64}" M_Fermion([0, 0], tier, Fbath; verbose=false)
 end
 
@@ -187,6 +231,7 @@ end
 
     ## check exceptions
     @test_throws ErrorException ados[L.N + 1]
+    @test_throws ErrorException M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath, :wrong; verbose=false)
     @test_throws ErrorException @test_warn "Heom doesn't support matrix type : Vector{Int64}" M_Boson_Fermion([0, 0], tierb, tierf, Bbath, Fbath; verbose=false)
 end
 
