@@ -4,11 +4,11 @@ Heom liouvillian superoperator matrix for fermionic bath
 
 # Fields
 - `data` : the sparse matrix of HEOM liouvillian superoperator
-- `tier` : the tier (cutoff level) for the hierarchy
+- `tier` : the tier (cutoff level) for the fermionic hierarchy
 - `dim` : the dimension of system
 - `N` : the number of total ADOs
 - `sup_dim` : the dimension of system superoperator
-- `parity` : the parity of the density matrix
+- `parity` : the parity label of the fermionic system (usually `:even`, only set as `:odd` for calculating spectrum of fermionic system)
 - `bath::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
 - `hierarchy::HierarchyDict`: the object which contains all dictionaries for fermion-bath-ADOs hierarchy.
 """
@@ -33,9 +33,9 @@ Generate the fermion-type Heom liouvillian superoperator matrix
 
 # Parameters
 - `Hsys` : The time-independent system Hamiltonian
-- `tier::Int` : the tier (cutoff) for the bath
+- `tier::Int` : the tier (cutoff level) for the fermionic bath
 - `Bath::Vector{FermionBath}` : objects for different fermionic baths
-- `parity::Symbol` : The parity symbol of the density matrix (either `:odd` or `:even`). Defaults to `:even`.
+- `parity::Symbol` : the parity label of the fermionic system (only set as `:odd` for calculating spectrum of fermionic system). Defaults to `:even`.
 - `threshold::Real` : The threshold of the importance value (see Ref. [1]). Defaults to `0.0`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 
@@ -52,7 +52,7 @@ Generate the fermion-type Heom liouvillian superoperator matrix
 
     # check parity
     if (parity != :even) && (parity != :odd)
-        error("The parity symbol of density matrix should be either \":odd\" or \":even\".")
+        error("The parity symbol of density matrix should be either \":even\" or \":odd\".")
     end
 
     # check for system dimension

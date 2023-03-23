@@ -9,7 +9,7 @@ Heom liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath
 - `dim` : the dimension of system
 - `N` : the number of total ADOs
 - `sup_dim` : the dimension of system superoperator
-- `parity` : the parity of the density matrix
+- `parity` : the parity label of the fermionic system (usually `:even`, only set as `:odd` for calculating spectrum of fermionic system).
 - `Bbath::Vector{BosonBath}` : the vector which stores all `BosonBath` objects
 - `Fbath::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
 - `hierarchy::MixHierarchyDict`: the object which contains all dictionaries for mixed-bath-ADOs hierarchy.
@@ -45,13 +45,15 @@ Generate the boson-fermion-type Heom liouvillian superoperator matrix
 
 # Parameters
 - `Hsys` : The time-independent system Hamiltonian
-- `Btier::Int` : the tier (cutoff) for the bosonic bath
-- `Ftier::Int` : the tier (cutoff) for the fermionic bath
+- `Btier::Int` : the tier (cutoff level) for the bosonic bath
+- `Ftier::Int` : the tier (cutoff level) for the fermionic bath
 - `Bbath::Vector{BosonBath}` : objects for different bosonic baths
 - `Fbath::Vector{FermionBath}` : objects for different fermionic baths
-- `parity::Symbol` : The parity symbol of the density matrix (either `:odd` or `:even`). Defaults to `:even`.
+- `parity::Symbol` : the parity label of the fermionic system (only set as `:odd` for calculating spectrum of fermionic system). Defaults to `:even`.
 - `threshold::Real` : The threshold of the importance value (see Ref. [1, 2]). Defaults to `0.0`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
+
+Note that the parity only need to be set as `:odd` when the system contains fermion systems and you need to calculate the spectrum of it.
 
 [1] [Phys. Rev. B  88, 235426 (2013)](https://doi.org/10.1103/PhysRevB.88.235426)
 [2] [Phys. Rev. B 103, 235413 (2021)](https://doi.org/10.1103/PhysRevB.103.235413)
@@ -69,7 +71,7 @@ Generate the boson-fermion-type Heom liouvillian superoperator matrix
 
     # check parity
     if (parity != :even) && (parity != :odd)
-        error("The parity symbol of density matrix should be either \":odd\" or \":even\".")
+        error("The parity symbol of density matrix should be either \":even\" or \":odd\".")
     end
 
     # check for system dimension

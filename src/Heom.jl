@@ -67,10 +67,10 @@ module Heom
 
         export
             AbstractHEOMMatrix, M_Fermion, M_Boson, M_Boson_Fermion,
-            odd, even, none,
+            odd, even,
             ADOs, getRho, getADO, 
             Nvec, AbstractHierarchyDict, HierarchyDict, MixHierarchyDict, getIndexEnsemble,
-            Propagator, addDissipator, addTerminator,
+            Propagator, addBosonicDissipator, addFermionicDissipator, addTerminator,
             evolution, SteadyState
 
         include("heom_matrix.jl")

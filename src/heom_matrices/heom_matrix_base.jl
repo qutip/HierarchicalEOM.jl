@@ -1,9 +1,8 @@
 abstract type AbstractHEOMMatrix end
 
-# Parity for fermionic heom matrices
+# Parity label for fermionic systems
 const odd  = 1;
 const even = 0;
-const none = nothing;
 
 """
     size(M::AbstractHEOMMatrix)
@@ -59,17 +58,22 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
 end
 
 """
-    addDissipator(M, jumpOP)
-Adding dissipator to a given HEOM matrix.
+    addBosonicDissipator(M, jumpOP)
+Adding bosonic dissipator to a given HEOM matrix which describes how the system dissipatively interacts with an extra bosonic environment.  
+The dissipator is defined as follows
+```math
+D[J](\\cdot) = J(\\cdot) J^\\dagger - \\frac{1}{2}\\left(J^\\dagger J (\\cdot) + (\\cdot) J^\\dagger J \\right),
+```
+where ``J\\equiv \\sqrt{\\gamma}V`` is the jump operator, ``V`` describes the dissipative part (operator) of the dynamics, and ``\\gamma`` represents a non-negative damping rate.
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
-- `jumpOP::AbstractVector` : The collapse (jump) operators to add. Defaults to empty vector `[]`.
+- `jumpOP::AbstractVector` : The list of collapse (jump) operators to add. Defaults to empty vector `[]`.
 
 # Return 
 - `M_new::AbstractHEOMMatrix` : the new HEOM liouvillian superoperator matrix
 """
-function addDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMMatrix
+function addBosonicDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMMatrix
     if length(jumpOP) > 0
         L = spzeros(ComplexF64, M.sup_dim, M.sup_dim)
         for J in jumpOP
@@ -90,7 +94,53 @@ function addDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMMatrix
     end
 end
 
-function addDissipator(M::AbstractHEOMMatrix, jumpOP) return addDissipator(M, [jumpOP]) end
+"""
+    addFermionicDissipator(M, jumpOP)
+Adding fermionic dissipator to a given HEOM matrix which describes how the system dissipatively interacts with an extra fermionic environment.  
+The dissipator with `:even` parity is defined as follows
+```math
+D_{even}[J](\\cdot) = J(\\cdot) J^\\dagger - \\frac{1}{2}\\left(J^\\dagger J (\\cdot) + (\\cdot) J^\\dagger J \\right),
+```
+where ``J\\equiv \\sqrt{\\gamma}V`` is the jump operator, ``V`` describes the dissipative part (operator) of the dynamics, and ``\\gamma`` represents a non-negative damping rate.
+
+Similary, the dissipator with `:odd` parity is defined as follows
+```math
+D_{odd}[J](\\cdot) = - J(\\cdot) J^\\dagger - \\frac{1}{2}\\left(J^\\dagger J (\\cdot) + (\\cdot) J^\\dagger J \\right),
+```
+
+# Parameters
+- `M::AbstractHEOMMatrix` : the matrix given from HEOM model
+- `jumpOP::AbstractVector` : The list of collapse (jump) operators to add. Defaults to empty vector `[]`.
+
+Note that the parity of the dissipator will be determined by the parity of the given HEOM matrix `M`.
+
+# Return 
+- `M_new::AbstractHEOMMatrix` : the new HEOM liouvillian superoperator matrix
+"""
+function addFermionicDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMMatrix
+    if length(jumpOP) > 0
+        parity = eval(M.parity)
+        L = spzeros(ComplexF64, M.sup_dim, M.sup_dim)
+        for J in jumpOP
+            if isValidMatrixType(J, M.dim)
+                L += ((-1) ^ parity) * spre(J) * spost(J') - 0.5 * (spre(J' * J) + spost(J' * J))
+            else
+                error("Invalid matrix in \"jumpOP\".")
+            end
+        end
+
+        if T == M_Boson
+            return M_Boson(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+        elseif T == M_Fermion
+            return M_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+        else
+            return M_Boson_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
+        end
+    end
+end
+
+function   addBosonicDissipator(M::AbstractHEOMMatrix, jumpOP::AbstractMatrix) return   addBosonicDissipator(M, [jumpOP]) end
+function addFermionicDissipator(M::AbstractHEOMMatrix, jumpOP::AbstractMatrix) return addFermionicDissipator(M, [jumpOP]) end
 
 """
     addTerminator(M, Bath)
