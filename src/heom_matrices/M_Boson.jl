@@ -4,11 +4,11 @@ Heom liouvillian superoperator matrix for bosonic bath
 
 # Fields
 - `data` : the sparse matrix of HEOM liouvillian superoperator
-- `tier` : the tier (cutoff level) for the hierarchy
+- `tier` : the tier (cutoff level) for the bosonic hierarchy
 - `dim` : the dimension of system
 - `N` : the number of total ADOs
 - `sup_dim` : the dimension of system superoperator
-- `parity` : the parity of the density matrix (restrict to `:none` for boson)
+- `parity` : the parity label of the fermionic system (usually `:even`, only set as `:odd` for calculating spectrum of fermionic system).
 - `bath::Vector{BosonBath}` : the vector which stores all `BosonBath` objects
 - `hierarchy::HierarchyDict`: the object which contains all dictionaries for boson-bath-ADOs hierarchy.
 """
@@ -23,30 +23,39 @@ struct M_Boson <: AbstractHEOMMatrix
     hierarchy::HierarchyDict
 end
 
-function M_Boson(Hsys, tier::Int, Bath::BosonBath; threshold::Real = 0.0, verbose::Bool=true)
-    return M_Boson(Hsys, tier, [Bath], threshold = threshold, verbose = verbose)
+function M_Boson(Hsys, tier::Int, Bath::BosonBath, parity::Symbol=:even; threshold::Real = 0.0, verbose::Bool=true)
+    return M_Boson(Hsys, tier, [Bath], parity, threshold = threshold, verbose = verbose)
 end
 
 """
-    M_Boson(Hsys, tier, Bath; threshold=0.0, verbose=true)
+    M_Boson(Hsys, tier, Bath, parity=:even; threshold=0.0, verbose=true)
 Generate the boson-type Heom liouvillian superoperator matrix
 
 # Parameters
 - `Hsys` : The time-independent system Hamiltonian
-- `tier::Int` : the tier (cutoff) for the bath
+- `tier::Int` : the tier (cutoff level) for the bosonic bath
 - `Bath::Vector{BosonBath}` : objects for different bosonic baths
+- `parity::Symbol` : the parity label of the fermionic system (only set as `:odd` for calculating spectrum of fermionic system). Defaults to `:even`.
 - `threshold::Real` : The threshold of the importance value (see Ref. [1]). Defaults to `0.0`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
+
+Note that the parity only need to be set as `:odd` when the system contains fermionic systems and you need to calculate the spectrum (density of states) of it.
 
 [1] [Phys. Rev. B 88, 235426 (2013)](https://doi.org/10.1103/PhysRevB.88.235426)
 """
 @noinline function M_Boson(        
         Hsys,
         tier::Int,
-        Bath::Vector{BosonBath};
+        Bath::Vector{BosonBath},
+        parity::Symbol=:even;
         threshold::Real=0.0,
         verbose::Bool=true
     )
+
+    # check parity
+    if (parity != :even) && (parity != :odd)
+        error("The parity symbol of density matrix should be either \":even\" or \":odd\".")
+    end
 
     # check for system dimension
     if !isValidMatrixType(Hsys)
@@ -140,5 +149,5 @@ Generate the boson-type Heom liouvillian superoperator matrix
         println("[DONE]")
         flush(stdout)
     end
-    return M_Boson(L_he, tier, Nsys, Nado, sup_dim, :none, Bath, hierarchy)
+    return M_Boson(L_he, tier, Nsys, Nado, sup_dim, parity, Bath, hierarchy)
 end

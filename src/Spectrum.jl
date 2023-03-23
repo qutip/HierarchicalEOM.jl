@@ -7,7 +7,7 @@ Calculate spectrum for the system.
 \\pi S(\\omega)=\\textrm{Re}\\left\\{\\int_0^\\infty dt \\langle a^\\dagger(t) a(0)\\rangle e^{-i\\omega t}\\right\\},
 ```
 remember to set the parameters: 
-- `M::AbstractHEOMMatrix`: should be either `:none` or `:even` parity
+- `M::AbstractHEOMMatrix`: should be `:even` parity
 - `op`: the (annihilation) operator ``a`` for bosonic system as shown above 
 
 # To calculate spectrum for fermionic systems (usually known as density of states):

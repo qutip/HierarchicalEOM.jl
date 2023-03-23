@@ -115,25 +115,25 @@ function versioninfo(io::IO=stdout)
         "Copyright © NCKU-QFORT 2022 and later.\n",
         "Lead  developer : Yi-Te Huang\n",
         "Other developers:\n",
-        "    Neill Lambert, Po-Chen Kuo and Shen-Liang Yang\n"
+        "    Simon Cross, Neill Lambert, Po-Chen Kuo and Shen-Liang Yang\n"
     )
 
     # print package informations
     println(io,
         "Package information:\n",
-        "===================================\n",
-        "Heom              Version: 0.1.0\n",
-        "JLD2              Version: $(_get_pkg_version("JLD2"))\n",
-        "LinearSolve       Version: $(_get_pkg_version("LinearSolve"))\n",
-        "OrdinaryDiffEq    Version: $(_get_pkg_version("OrdinaryDiffEq"))\n",
-        "ProgressMeter     Version: $(_get_pkg_version("ProgressMeter"))\n",
-        "SnoopPrecompile   Version: $(_get_pkg_version("SnoopPrecompile"))\n"
+        "====================================\n",
+        "Heom            Version: $(_get_pkg_version("Heom"))\n",
+        "JLD2            Version: $(_get_pkg_version("JLD2"))\n",
+        "LinearSolve     Version: $(_get_pkg_version("LinearSolve"))\n",
+        "OrdinaryDiffEq  Version: $(_get_pkg_version("OrdinaryDiffEq"))\n",
+        "ProgressMeter   Version: $(_get_pkg_version("ProgressMeter"))\n",
+        "SnoopPrecompile Version: $(_get_pkg_version("SnoopPrecompile"))\n"
     )
 
     # print System informations
     println(io,
         "System information:\n",
-        "===================================\n",
+        "====================================\n",
         "Julia Version: $(VERSION)"
     )
     println(io, 

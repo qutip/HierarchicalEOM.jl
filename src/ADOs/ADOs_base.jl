@@ -1,6 +1,6 @@
 """
     mutable struct ADOs
-The Auxiliary Density Operators for Heom model.
+The Auxiliary Density Operators for HEOM model.
 
 # Fields
 - `data` : the vectorized auxiliary density operators

@@ -475,7 +475,7 @@ For more details about solvers and extra options, please refer to [`Differential
     return ADOs_list
 end
 
-# define the update function for evolution with time-dependent system Hamiltonian Hsys(param, t)
+# define the update function for evolution with time-dependent system Hamiltonian H(param, t)
 function _update_L!(L, u, p, t)
     M, H, param = p
 

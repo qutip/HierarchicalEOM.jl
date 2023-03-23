@@ -2,13 +2,22 @@
 
 ## Heom liouvillian superoperator matrices
 
+### Heom matrix for standard Schrodinger (Liouville-von Neumann) equation 
+```@docs
+M_S
+```
+
+```@docs
+M_S(Hsys, parity::Symbol=:even; verbose::Bool=true)
+```
+
 ### Boson Heom matrix
 ```@docs
 M_Boson
 ```
 
 ```@docs
-M_Boson(Hsys::AbstractMatrix, tier::Int, Bath::Vector{BosonBath}; threshold::Real=0.0, verbose::Bool=true)
+M_Boson(Hsys::AbstractMatrix, tier::Int, Bath::Vector{BosonBath}, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)
 ```
 
 ### Fermion Heom matrix
@@ -33,7 +42,8 @@ M_Boson_Fermion(Hsys::AbstractMatrix, tier_b::Int, tier_f::Int, Bath_b::Vector{B
 ```@docs
 size(M::AbstractHEOMMatrix)
 Propagator
-addDissipator
+addBosonicDissipator
+addFermionicDissipator
 addTerminator
 ```
 

@@ -205,7 +205,7 @@ end
 
     tier = 3
     L = M_Boson(Hsys, tier, bath; verbose=false)
-    L = addDissipator(L, 1e-3 * a')
+    L = addBosonicDissipator(L, 1e-3 * a')
     L = addTerminator(L, bath)
 
     ados_s = SteadyState(L; verbose=false)
