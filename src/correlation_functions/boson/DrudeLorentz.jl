@@ -6,7 +6,7 @@ function _boson_drude_lorentz_approx_discrepancy(λ::Real, W::Real, T::Real, N::
     return δ
 end
 
-"""
+@doc raw"""
     Boson_DrudeLorentz_Matsubara(op, λ, W, T, N)
 Constructing Drude-Lorentz bosonic bath with Matsubara expansion
 
@@ -47,7 +47,7 @@ function Boson_DrudeLorentz_Matsubara(
     return BosonBath(op, η, γ, δ)
 end
 
-"""
+@doc raw"""
     Boson_DrudeLorentz_Pade(op, λ, W, T, N)
 Constructing Drude-Lorentz bosonic bath with Padé expansion
 

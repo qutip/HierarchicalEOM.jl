@@ -16,7 +16,7 @@ function _fermion_lorentz_matsubara_param(σ::Real, λ::Real, μ::Real, W::Real,
     return η, γ
 end
 
-"""
+@doc raw"""
     Fermion_Lorentz_Matsubara(op, λ, μ, W, T, N)
 Constructing Lorentzian fermionic bath with Matsubara expansion
 
@@ -63,7 +63,7 @@ function _fermion_lorentz_pade_param(ν::Real, λ::Real, μ::Real, W::Real, T::R
     return η, γ
 end
 
-"""
+@doc raw"""
     Fermion_Lorentz_Pade(op, λ, μ, W, T, N)
 Constructing Lorentzian fermionic bath with Padé expansion
 

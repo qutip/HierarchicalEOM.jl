@@ -4,7 +4,7 @@ abstract type AbstractHEOMMatrix end
 const odd  = 1;
 const even = 0;
 
-"""
+@doc raw"""
     size(M::AbstractHEOMMatrix)
 Returns the size of the Heom liouvillian superoperator matrix
 """
@@ -34,10 +34,10 @@ end
 
 function show(io::IO, m::MIME"text/plain", M::AbstractHEOMMatrix) show(io, M) end
 
-"""
+@doc raw"""
     Propagator(M, Δt; threshold, nonzero_tol)
-Use `FastExpm.jl` to calculate the propagator matrix from a given Heom liouvillian superoperator matrix ``M`` with a specific time step ``Δt``.
-That is, ``\\exp(M * \\Delta t)``.
+Use `FastExpm.jl` to calculate the propagator matrix from a given Heom liouvillian superoperator matrix ``M`` with a specific time step ``\Delta t``.
+That is, ``\exp(M * \Delta t)``.
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
@@ -59,23 +59,23 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
     return fastExpm(M.data * Δt; threshold=threshold, nonzero_tol=nonzero_tol)
 end
 
-"""
-    addBosonicDissipator(M, jumpOP)
+@doc raw"""
+    addBosonDissipator(M, jumpOP)
 Adding bosonic dissipator to a given HEOM matrix which describes how the system dissipatively interacts with an extra bosonic environment.  
 The dissipator is defined as follows
 ```math
-D[J](\\cdot) = J(\\cdot) J^\\dagger - \\frac{1}{2}\\left(J^\\dagger J (\\cdot) + (\\cdot) J^\\dagger J \\right),
+D[J](\cdot) = J(\cdot) J^\dagger - \frac{1}{2}\left(J^\dagger J (\cdot) + (\cdot) J^\dagger J \right),
 ```
-where ``J\\equiv \\sqrt{\\gamma}V`` is the jump operator, ``V`` describes the dissipative part (operator) of the dynamics, and ``\\gamma`` represents a non-negative damping rate.
+where ``J\equiv \sqrt{\gamma}V`` is the jump operator, ``V`` describes the dissipative part (operator) of the dynamics, and ``\gamma`` represents a non-negative damping rate.
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
-- `jumpOP::AbstractVector` : The list of collapse (jump) operators to add. Defaults to empty vector `[]`.
+- `jumpOP::AbstractVector` : The list of collapse (jump) operators ``\{J_i\}_i`` to add. Defaults to empty vector `[]`.
 
 # Return 
 - `M_new::AbstractHEOMMatrix` : the new HEOM liouvillian superoperator matrix
 """
-function addBosonicDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMMatrix
+function addBosonDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMMatrix
     if length(jumpOP) > 0
         L = spzeros(ComplexF64, M.sup_dim, M.sup_dim)
         for J in jumpOP
@@ -98,30 +98,30 @@ function addBosonicDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMMa
     end
 end
 
-"""
-    addFermionicDissipator(M, jumpOP)
+@doc raw"""
+    addFermionDissipator(M, jumpOP)
 Adding fermionic dissipator to a given HEOM matrix which describes how the system dissipatively interacts with an extra fermionic environment.  
 The dissipator with `:even` parity is defined as follows
 ```math
-D_{even}[J](\\cdot) = J(\\cdot) J^\\dagger - \\frac{1}{2}\\left(J^\\dagger J (\\cdot) + (\\cdot) J^\\dagger J \\right),
+D_{\textrm{even}}[J](\cdot) = J(\cdot) J^\dagger - \frac{1}{2}\left(J^\dagger J (\cdot) + (\cdot) J^\dagger J \right),
 ```
-where ``J\\equiv \\sqrt{\\gamma}V`` is the jump operator, ``V`` describes the dissipative part (operator) of the dynamics, and ``\\gamma`` represents a non-negative damping rate.
+where ``J\equiv \sqrt{\gamma}V`` is the jump operator, ``V`` describes the dissipative part (operator) of the dynamics, and ``\gamma`` represents a non-negative damping rate.
 
 Similary, the dissipator with `:odd` parity is defined as follows
 ```math
-D_{odd}[J](\\cdot) = - J(\\cdot) J^\\dagger - \\frac{1}{2}\\left(J^\\dagger J (\\cdot) + (\\cdot) J^\\dagger J \\right),
+D_{\textrm{odd}}[J](\cdot) = - J(\cdot) J^\dagger - \frac{1}{2}\left(J^\dagger J (\cdot) + (\cdot) J^\dagger J \right),
 ```
+
+Note that the parity of the dissipator will be determined by the parity of the given HEOM matrix `M`.
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
 - `jumpOP::AbstractVector` : The list of collapse (jump) operators to add. Defaults to empty vector `[]`.
 
-Note that the parity of the dissipator will be determined by the parity of the given HEOM matrix `M`.
-
 # Return 
 - `M_new::AbstractHEOMMatrix` : the new HEOM liouvillian superoperator matrix
 """
-function addFermionicDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMMatrix
+function addFermionDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMMatrix
     if length(jumpOP) > 0
         parity = eval(M.parity)
         L = spzeros(ComplexF64, M.sup_dim, M.sup_dim)
@@ -144,10 +144,10 @@ function addFermionicDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOM
     end
 end
 
-function   addBosonicDissipator(M::AbstractHEOMMatrix, jumpOP::AbstractMatrix) return   addBosonicDissipator(M, [jumpOP]) end
-function addFermionicDissipator(M::AbstractHEOMMatrix, jumpOP::AbstractMatrix) return addFermionicDissipator(M, [jumpOP]) end
+function   addBosonDissipator(M::AbstractHEOMMatrix, jumpOP::AbstractMatrix) return   addBosonDissipator(M, [jumpOP]) end
+function addFermionDissipator(M::AbstractHEOMMatrix, jumpOP::AbstractMatrix) return addFermionDissipator(M, [jumpOP]) end
 
-"""
+@doc raw"""
     addTerminator(M, Bath)
 Adding terminator to a given HEOM matrix.
 

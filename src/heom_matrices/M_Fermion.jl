@@ -1,4 +1,4 @@
-"""
+@doc raw"""
     struct M_Fermion <: AbstractHEOMMatrix
 Heom liouvillian superoperator matrix for fermionic bath
 
@@ -27,7 +27,7 @@ function M_Fermion(Hsys, tier::Int, Bath::FermionBath, parity::Symbol=:even; thr
     return M_Fermion(Hsys, tier, [Bath], parity, threshold= threshold, verbose = verbose)
 end
 
-"""
+@doc raw"""
     M_Fermion(Hsys, tier, Bath, parity=:even; threshold=0.0, verbose=true)
 Generate the fermion-type Heom liouvillian superoperator matrix
 

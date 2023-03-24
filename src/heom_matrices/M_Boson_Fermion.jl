@@ -1,4 +1,4 @@
-"""
+@doc raw"""
     struct M_Boson_Fermion <: AbstractHEOMMatrix
 Heom liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath 
 
@@ -39,7 +39,7 @@ function M_Boson_Fermion(Hsys, Btier::Int, Ftier::Int, Bbath::BosonBath, Fbath::
     return M_Boson_Fermion(Hsys, Btier, Ftier, [Bbath], Fbath, parity, threshold = threshold, verbose = verbose)
 end
 
-"""
+@doc raw"""
     M_Boson_Fermion(Hsys, Btier, Ftier, Bbath, Fbath, parity=:even; threshold=0.0, verbose=true)
 Generate the boson-fermion-type Heom liouvillian superoperator matrix
 
