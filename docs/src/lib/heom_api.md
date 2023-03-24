@@ -42,8 +42,8 @@ M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_
 ```@docs
 size(M::AbstractHEOMMatrix)
 Propagator
-addBosonicDissipator
-addFermionicDissipator
+addBosonDissipator
+addFermionDissipator
 addTerminator
 ```
 

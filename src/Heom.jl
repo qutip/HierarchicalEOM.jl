@@ -70,7 +70,7 @@ module Heom
             odd, even,
             ADOs, getRho, getADO, 
             Nvec, AbstractHierarchyDict, HierarchyDict, MixHierarchyDict, getIndexEnsemble,
-            Propagator, addBosonicDissipator, addFermionicDissipator, addTerminator,
+            Propagator, addBosonDissipator, addFermionDissipator, addTerminator,
             evolution, SteadyState
 
         include("heom_api.jl")
