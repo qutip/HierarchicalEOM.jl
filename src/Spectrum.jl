@@ -1,10 +1,10 @@
-"""
+@doc raw"""
     spectrum(M, ρ, op, ω_list; solver, verbose, filename, SOLVEROptions...)
 Calculate spectrum for the system.
 
 # To calculate spectrum for bosonic systems (usually known as power spectrum):
 ```math
-\\pi S(\\omega)=\\textrm{Re}\\left\\{\\int_0^\\infty dt \\langle a^\\dagger(t) a(0)\\rangle e^{-i\\omega t}\\right\\},
+\pi S(\omega)=\textrm{Re}\left\{\int_0^\infty dt \langle a^\dagger(t) a(0)\rangle e^{-i\omega t}\right\},
 ```
 remember to set the parameters: 
 - `M::AbstractHEOMMatrix`: should be `:even` parity
@@ -12,7 +12,7 @@ remember to set the parameters:
 
 # To calculate spectrum for fermionic systems (usually known as density of states):
 ```math
-    \\pi A(\\omega)=\\textrm{Re}\\left\\{\\int_0^\\infty dt \\left[\\langle d(t) d^\\dagger(0)\\rangle^* + \\langle d^\\dagger(t) d(0)\\rangle \\right] e^{-i\\omega t}\\right\\},
+    \pi A(\omega)=\textrm{Re}\left\{\int_0^\infty dt \left[\langle d(t) d^\dagger(0)\rangle^* + \langle d^\dagger(t) d(0)\rangle \right] e^{-i\omega t}\right\},
 ```
 remember to set the parameters: 
 - `M::AbstractHEOMMatrix`: should be `:odd` parity

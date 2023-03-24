@@ -1,11 +1,11 @@
-"""
+@doc raw"""
     struct M_S <: AbstractHEOMMatrix
 HEOM Liouvillian superoperator matrix with cutoff level of the hierarchy equals to `0`.  
 This corresponds to the standard Schrodinger (Liouville-von Neumann) equation, namely
 ```math
-M[\\cdot]=-i \\left[H_{sys}, \\cdot \\right]_-,
+M[\cdot]=-i \left[H_{sys}, \cdot \right]_-,
 ```
-where ``[\\cdot, \\cdot]_-`` stands for commutator.
+where ``[\cdot, \cdot]_-`` stands for commutator.
 
 # Fields
 - `data` : the sparse matrix of HEOM liouvillian superoperator
@@ -24,14 +24,14 @@ struct M_S <: AbstractHEOMMatrix
     parity::Symbol
 end
 
-"""
+@doc raw"""
     M_S(Hsys, parity=:even; verbose=true)
 Generate HEOM Liouvillian superoperator matrix with cutoff level of the hierarchy equals to `0`.  
 This corresponds to the standard Schrodinger (Liouville-von Neumann) equation, namely
 ```math
-M[\\cdot]=-i \\left[H_{sys}, \\cdot \\right]_-,
+M[\cdot]=-i \left[H_{sys}, \cdot \right]_-,
 ```
-where ``[\\cdot, \\cdot]_-`` stands for commutator.
+where ``[\cdot, \cdot]_-`` stands for commutator.
 
 # Parameters
 - `Hsys` : The time-independent system Hamiltonian

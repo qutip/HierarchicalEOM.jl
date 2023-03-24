@@ -1,6 +1,6 @@
-"""
+@doc raw"""
     SteadyState(M; solver, verbose, SOLVEROptions...)
-Solve the steady state of the auxiliary density operators based on `LinearSolve.jl` (i.e., solving ``x`` where ``A × x = b``).
+Solve the steady state of the auxiliary density operators based on `LinearSolve.jl` (i.e., solving ``x`` where ``A \times x = b``).
 
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model, where the parity should be either `:none` (boson) or `:even` (fermion).
@@ -47,7 +47,7 @@ function _hierarchy!(dρ, ρ, L, t)
     @inbounds dρ .= L * ρ
 end
 
-"""
+@doc raw"""
     SteadyState(M, ρ0; solver, reltol, abstol, maxiters, save_everystep, verbose, SOLVEROptions...)
 Solve the steady state of the auxiliary density operators based on time evolution (ordinary differential equations)
 with initial state is given in the type of density-matrix (`ρ0`).
@@ -99,7 +99,7 @@ function SteadyState(
     )
 end
 
-"""
+@doc raw"""
     SteadyState(M, ados; solver, reltol, abstol, maxiters, save_everystep, verbose, SOLVEROptions...)
 Solve the steady state of the auxiliary density operators based on time evolution (ordinary differential equations)
 with initial state is given in the type of `ADOs`.

@@ -1,14 +1,14 @@
 abstract type AbstractHierarchyDict end
 
-"""
-    struct HierarchyDict <: AbstractHierarchyDict
+@doc raw"""
+struct HierarchyDict <: AbstractHierarchyDict
 An object which contains all dictionaries for pure (bosonic or fermionic) bath-ADOs hierarchy.
 
 # Fields
 - `idx2nvec` : Return the `Nvec` from a given index
 - `nvec2idx` : Return the index from a given `Nvec`
 - `lvl2idx` : Return the list of indices from a given level
-- `bathPtr` : Records the tuple ``(\\alpha, k)`` for each position in `Nvec`, where ``\\alpha`` and ``k`` represents the ``k``-th exponential-expansion term of the ``\\alpha``-th bath.
+- `bathPtr` : Records the tuple ``(\alpha, k)`` for each position in `Nvec`, where ``\alpha`` and ``k`` represents the ``k``-th exponential-expansion term of the ``\alpha``-th bath.
 """
 struct HierarchyDict <: AbstractHierarchyDict
     idx2nvec::Vector{Nvec}
@@ -17,7 +17,7 @@ struct HierarchyDict <: AbstractHierarchyDict
     bathPtr::Vector{Tuple{Int, Int}}
 end
 
-"""
+@doc raw"""
     struct MixHierarchyDict <: AbstractHierarchyDict
 An object which contains all dictionaries for mixed (bosonic and fermionic) bath-ADOs hierarchy.
 
@@ -26,8 +26,8 @@ An object which contains all dictionaries for mixed (bosonic and fermionic) bath
 - `nvec2idx` : Return the index from a given tuple `(Nvec_b, Nvec_f)`, where `b` represents boson and `f` represents fermion
 - `Blvl2idx` : Return the list of indices from a given bosonic level (excitation)
 - `Flvl2idx` : Return the list of indices from a given fermionic level (excitation)
-- `bosonPtr` : Records the tuple ``(\\alpha, k)`` for each position in `Nvec_b`, where ``\\alpha`` and ``k`` represents the ``k``-th exponential-expansion term of the ``\\alpha``-th bosonic bath.
-- `fermionPtr` : Records the tuple ``(\\alpha, k)`` for each position in `Nvec_f`, where ``\\alpha`` and ``k`` represents the ``k``-th exponential-expansion term of the ``\\alpha``-th fermionic bath.
+- `bosonPtr` : Records the tuple ``(\alpha, k)`` for each position in `Nvec_b`, where ``\alpha`` and ``k`` represents the ``k``-th exponential-expansion term of the ``\alpha``-th bosonic bath.
+- `fermionPtr` : Records the tuple ``(\alpha, k)`` for each position in `Nvec_f`, where ``\alpha`` and ``k`` represents the ``k``-th exponential-expansion term of the ``\alpha``-th fermionic bath.
 """
 struct MixHierarchyDict <: AbstractHierarchyDict
     idx2nvec::Vector{Tuple{Nvec, Nvec}}
@@ -258,16 +258,16 @@ end
     return length(idx2nvec), baths_b, baths_f, hierarchy
 end
 
-"""
+@doc raw"""
     getIndexEnsemble(nvec, bathPtr)
-Search for all the multi-index ensemble ``(\\alpha, k)`` where ``\\alpha`` and ``k`` represents the ``k``-th exponential-expansion term in the ``\\alpha``-th bath.
+Search for all the multi-index ensemble ``(\alpha, k)`` where ``\alpha`` and ``k`` represents the ``k``-th exponential-expansion term in the ``\alpha``-th bath.
 
 # Parameters
 - `nvec::Nvec` : An object which records the repetition number of each multi-index ensembles in ADOs.
 - `bathPtr::Vector{Tuple{Int, Int}}`: This can be obtained from [`HierarchyDict.bathPtr`](@ref HierarchyDict), [`MixHierarchyDict.bosonPtr`](@ref MixHierarchyDict), or [`MixHierarchyDict.fermionPtr`](@ref MixHierarchyDict).
 
 # Returns
-- `Vector{Tuple{Int, Int, Int}}`: a vector (list) of the tuples ``(\\alpha, k, n)``.
+- `Vector{Tuple{Int, Int, Int}}`: a vector (list) of the tuples ``(\alpha, k, n)``.
 
 # Example
 Here is an example to use [`Bath`](@ref lib-Bath), [`Exponent`](@ref), [`HierarchyDict`](@ref), and `getIndexEnsemble` together:
@@ -286,7 +286,7 @@ for idx in idx_list
     for (α, k, n) in getEnsemble(nvec, HDict.bathPtr)
         α  # index of the bath
         k  # the index of the exponential-expansion term in α-th bath
-        n  # the repetition number of the ensemble \\{\\alpha, k\\} in ADOs
+        n  # the repetition number of the ensemble {α, k} in ADOs
         exponent = L.bath[α][k]  # the k-th exponential-expansion term in α-th bath
 
         # do some calculations you want

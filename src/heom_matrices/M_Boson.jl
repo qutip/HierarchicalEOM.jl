@@ -1,4 +1,4 @@
-"""
+@doc raw"""
     struct M_Boson <: AbstractHEOMMatrix
 Heom liouvillian superoperator matrix for bosonic bath
 
@@ -27,7 +27,7 @@ function M_Boson(Hsys, tier::Int, Bath::BosonBath, parity::Symbol=:even; thresho
     return M_Boson(Hsys, tier, [Bath], parity, threshold = threshold, verbose = verbose)
 end
 
-"""
+@doc raw"""
     M_Boson(Hsys, tier, Bath, parity=:even; threshold=0.0, verbose=true)
 Generate the boson-type Heom liouvillian superoperator matrix
 

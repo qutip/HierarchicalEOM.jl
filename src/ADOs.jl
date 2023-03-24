@@ -1,4 +1,4 @@
-"""
+@doc raw"""
     mutable struct ADOs
 The Auxiliary Density Operators for HEOM model.
 
@@ -26,7 +26,7 @@ mutable struct ADOs
     const N::Int
 end
 
-"""
+@doc raw"""
     ADOs(V, N)
 Gernerate the object of auxiliary density operators for Heom model.
 
@@ -51,7 +51,7 @@ function checkbounds(A::ADOs, i::Int)
     end
 end
 
-"""
+@doc raw"""
     length(A::ADOs)
 Returns the total number of the Auxiliary Density Operators (ADOs)
 """
@@ -102,7 +102,7 @@ function show(io::IO, A::ADOs)
 end
 function show(io::IO, m::MIME"text/plain", A::ADOs) show(io, A) end
 
-"""
+@doc raw"""
     getRho(ados)
 Return the density matrix of the reduced state (system) from a given auxiliary density operators
 
@@ -116,7 +116,7 @@ function getRho(ados::ADOs)
     return sparse(reshape(ados.data[1:((ados.dim) ^ 2)], ados.dim, ados.dim))
 end
 
-"""
+@doc raw"""
     getADO(ados, idx)
 Return the auxiliary density operator with a specific index from auxiliary density operators
 
