@@ -430,9 +430,9 @@ A bosonic bath which the real part and imaginary part of the bath correlation fu
 - `Comm`  : the super-operator (commutator) for the coupling operator.
 - `anComm`  : the super-operator (anti-commutator) for the coupling operator.
 - `dim` : the dimension of the coupling operator (should be equal to the system dimension).
-- `η_real` : the real part of coefficients ``\eta_i`` in bath correlation function (``\sum_i \eta_i \exp(-\gamma_i t)``).
-- `η_imag` : the imaginary part of coefficients ``\eta_i`` in bath correlation function (``\sum_i \eta_i \exp(-\gamma_i t)``).
-- `γ` : the coefficients ``\gamma_i`` in bath correlation function (``\sum_i \eta_i \exp(-\gamma_i t)``).
+- `η_real` : the real part of coefficients ``\eta_i`` in bath correlation function ``\sum_i \eta_i \exp(-\gamma_i t)``.
+- `η_imag` : the imaginary part of coefficients ``\eta_i`` in bath correlation function ``\sum_i \eta_i \exp(-\gamma_i t)``.
+- `γ` : the coefficients ``\gamma_i`` in bath correlation function ``\sum_i \eta_i \exp(-\gamma_i t)``.
 - `Nterm` : the number of exponential-expansion term of correlation function
 """
 struct bosonRealImag <: AbstractBosonBath
@@ -451,9 +451,9 @@ Generate bosonic bath which the real part and imaginary part of the bath correla
 
 # Parameters
 - `op` : The system operator according to the system-bosonic-bath interaction.
-- `η_real::Vector{Ti<:Number}` : the real part of coefficients ``\eta_i`` in bath correlation function (``\sum_i \eta_i \exp(-\gamma_i t)``).
-- `η_imag::Vector{Tj<:Number}` : the imaginary part of coefficients ``\eta_i`` in bath correlation function (``\sum_i \eta_i \exp(-\gamma_i t)``).
-- `γ::Vector{Tk<:Number}` : the coefficients ``\gamma_i`` in bath correlation function (``\sum_i \eta_i \exp(-\gamma_i t)``).
+- `η_real::Vector{Ti<:Number}` : the real part of coefficients ``\eta_i`` in bath correlation function ``\sum_i \eta_i \exp(-\gamma_i t)``.
+- `η_imag::Vector{Tj<:Number}` : the imaginary part of coefficients ``\eta_i`` in bath correlation function ``\sum_i \eta_i \exp(-\gamma_i t)``.
+- `γ::Vector{Tk<:Number}` : the coefficients ``\gamma_i`` in bath correlation function ``\sum_i \eta_i \exp(-\gamma_i t)``.
 """
 function bosonRealImag(
         op,
@@ -523,10 +523,10 @@ where ``\nu=+`` (``\nu=-``) represents absorption (emission) process, ``J(\omega
 
 # Parameters
 - `op` : The system \"emission\" operator according to the system-fermionic-bath interaction.
-- `η_absorb::Vector{Ti<:Number}` : the coefficients ``\eta_i`` for absorption bath correlation function ``C^{\nu=+}(\tau)``.
-- `γ_absorb::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` for absorption bath correlation function ``C^{\nu=+}(\tau)``.
-- `η_emit::Vector{Tk<:Number}` : the coefficients ``\eta_i`` for emission bath correlation function ``C^{\nu=-}(\tau)``.
-- `γ_emit::Vector{Tl<:Number}` : the coefficients ``\gamma_i`` for emission bath correlation function ``C^{\nu=-}(\tau)``.
+- `η_absorb::Vector{Ti<:Number}` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}(\tau)``.
+- `γ_absorb::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` of absorption bath correlation function ``C^{\nu=+}(\tau)``.
+- `η_emit::Vector{Tk<:Number}` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}(\tau)``.
+- `γ_emit::Vector{Tl<:Number}` : the coefficients ``\gamma_i`` of emission bath correlation function ``C^{\nu=-}(\tau)``.
 - `δ::Number` : The approximation discrepancy (Defaults to `0.0`) which is used for adding the terminator to HEOM matrix (see function: addTerminator)
 """
 function FermionBath(
@@ -553,9 +553,9 @@ An bath object which describes the absorption process of the fermionic system by
 - `spreD`  : the super-operator (right side operator multiplication) for the adjoint of the coupling operator.
 - `spostD` : the super-operator (left side operator multiplication) for the adjoint of the coupling operator.
 - `dim` : the dimension of the coupling operator (should be equal to the system dimension).
-- `η` : the coefficients ``\eta_i`` for absorption bath correlation function ``C^{\nu=+}``.
-- `γ` : the coefficients ``\gamma_i`` for absorption bath correlation function ``C^{\nu=+}``.
-- `η_emit` : the coefficients ``\eta_i`` for emission bath correlation function ``C^{\nu=-}``.
+- `η` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
+- `γ` : the coefficients ``\gamma_i`` of absorption bath correlation function ``C^{\nu=+}``.
+- `η_emit` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
 - `Nterm` : the number of exponential-expansion term of correlation function
 """
 struct fermionAbsorb <: AbstractFermionBath
@@ -576,9 +576,9 @@ Generate fermionic bath which describes the absorption process of the fermionic 
 
     # Parameters
 - `op` : The system absorption operator according to the system-fermionic-bath interaction.
-- `η_absorb::Vector{Ti<:Number}` : the coefficients ``\eta_i`` for absorption bath correlation function ``C^{\nu=+}``.
-- `γ_absorb::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` for absorption bath correlation function ``C^{\nu=+}``.
-- `η_emit::Vector{Tk<:Number}` : the coefficients ``\eta_i`` for emission bath correlation function ``C^{\nu=-}``.
+- `η_absorb::Vector{Ti<:Number}` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
+- `γ_absorb::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` of absorption bath correlation function ``C^{\nu=+}``.
+- `η_emit::Vector{Tk<:Number}` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
 """
 function fermionAbsorb(
         op,
@@ -607,9 +607,9 @@ An bath object which describes the emission process of the fermionic system by a
 - `spreD`  : the super-operator (right side operator multiplication) for the adjoint of the coupling operator.
 - `spostD` : the super-operator (left side operator multiplication) for the adjoint of the coupling operator.
 - `dim` : the dimension of the coupling operator (should be equal to the system dimension).
-- `η` : the coefficients ``\eta_i`` for emission bath correlation function ``C^{\nu=-}``.
-- `γ` : the coefficients ``\gamma_i`` for emission bath correlation function ``C^{\nu=-}``.
-- `η_absorb` : the coefficients ``\eta_i`` for absorption bath correlation function ``C^{\nu=+}``.
+- `η` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
+- `γ` : the coefficients ``\gamma_i`` of emission bath correlation function ``C^{\nu=-}``.
+- `η_absorb` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
 - `Nterm` : the number of exponential-expansion term of correlation function
 """
 struct fermionEmit <: AbstractFermionBath
@@ -630,9 +630,9 @@ Generate fermionic bath which describes the emission process of the fermionic sy
 
 # Parameters
 - `op` : The system emission operator according to the system-fermionic-bath interaction.
-- `η_emit::Vector{Ti<:Number}` : the coefficients ``\eta_i`` for emission bath correlation function ``C^{\nu=-}``.
-- `γ_emit::Vector{Ti<:Number}` : the coefficients ``\gamma_i`` for emission bath correlation function ``C^{\nu=-}``.
-- `η_absorb::Vector{Ti<:Number}` : the coefficients ``\eta_i`` for absorption bath correlation function ``C^{\nu=+}``.
+- `η_emit::Vector{Ti<:Number}` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
+- `γ_emit::Vector{Ti<:Number}` : the coefficients ``\gamma_i`` of emission bath correlation function ``C^{\nu=-}``.
+- `η_absorb::Vector{Ti<:Number}` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
 """
 function fermionEmit(
         op,
@@ -683,7 +683,7 @@ end
 
 @doc raw"""
     C(bath, tlist)
-Calculate the correlation function ``C^{u=+}(t)`` and ``C^{u=-}(t)`` for a given fermionic bath and time list.
+Calculate the correlation function ``C^{\nu=+}(t)`` and ``C^{\nu=-}(t)`` for a given fermionic bath and time list.
 Here, ``\nu=+`` represents the absorption process and ``\nu=-`` represents the emmision process.
 
 # Parameters
