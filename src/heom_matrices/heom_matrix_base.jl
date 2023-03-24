@@ -112,11 +112,11 @@ Similary, the dissipator with `:odd` parity is defined as follows
 D_{odd}[J](\\cdot) = - J(\\cdot) J^\\dagger - \\frac{1}{2}\\left(J^\\dagger J (\\cdot) + (\\cdot) J^\\dagger J \\right),
 ```
 
+Note that the parity of the dissipator will be determined by the parity of the given HEOM matrix `M`.
+
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
 - `jumpOP::AbstractVector` : The list of collapse (jump) operators to add. Defaults to empty vector `[]`.
-
-Note that the parity of the dissipator will be determined by the parity of the given HEOM matrix `M`.
 
 # Return 
 - `M_new::AbstractHEOMMatrix` : the new HEOM liouvillian superoperator matrix

@@ -41,7 +41,7 @@ module Heom
             Boson_DrudeLorentz_Matsubara, Boson_DrudeLorentz_Pade, 
             Fermion_Lorentz_Matsubara, Fermion_Lorentz_Pade
 
-        include("correlations/CorrelationFunc.jl")
+        include("correlation_functions/CorrelationFunc.jl")
     end
     @reexport using .CorrelationFunc
     
@@ -73,8 +73,7 @@ module Heom
             Propagator, addBosonicDissipator, addFermionicDissipator, addTerminator,
             evolution, SteadyState
 
-        include("heom_matrix.jl")
-        include("ADOs.jl")
+        include("heom_api.jl")
     end
     @reexport using .HeomAPI
 
