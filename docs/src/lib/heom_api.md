@@ -61,6 +61,8 @@ ADOs(V::AbstractVector, N::Int)
 length(A::ADOs)
 getRho
 getADO(ados::ADOs, idx::Int)
+expect(op, ados::ADOs; take_real=true)
+expect(op, ados_list::Vector{ADOs}; take_real=true)
 ```
 
 ## [Hierarchy Dictionary](@id lib-Hierarchy-Dictionary)

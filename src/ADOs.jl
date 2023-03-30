@@ -130,3 +130,75 @@ This function equals to calling : `ados[idx]`.
 - `ρ_idx` : The auxiliary density operator
 """
 getADO(ados::ADOs, idx::Int) = ados[idx]
+
+@doc raw"""
+    expect(op, ados; take_real=true)
+Return the expectation value of the operator `op` for the reduced density operator in the given `ados`, namely
+```math
+\textrm{Re}\left\{\textrm{Tr}\left[ O \rho \right]\right\},
+```
+where ``O`` is the operator and ``\rho`` is the reduced density operator in the given ADOs.
+
+# Parameters
+- `op` : the operator ``O`` to take the expectation value
+- `ados::ADOs` : the auxiliary density operators for Heom model
+- `take_real::Bool` : whether to automatically take the real part of the trace or not. Default to `true`
+
+# Returns
+- `exp_val` : The expectation value
+"""
+function expect(op, ados::ADOs; take_real=true)
+    
+    if !isValidMatrixType(op, ados.dim)
+        error("The dimension of `op` is not consistent with `ados`.")
+    end
+
+    exp_val = tr(op * getRho(ados))
+
+    if take_real
+        return real(exp_val)
+    else
+        return exp_val
+    end
+end
+
+@doc raw"""
+    expect(op, ados_list; take_real=true)
+Return a list of expectation values of the operator `op` corresponds to the reduced density operators in the given `ados_list`, namely
+```math
+\textrm{Re}\left\{\textrm{Tr}\left[ O \rho \right]\right\},
+```
+where ``O`` is the operator and ``\rho`` is the reduced density operator in one of the `ADOs` from `ados_list`.
+
+# Parameters
+- `op` : the operator ``O`` to take the expectation value
+- `ados_list::Vector{ADOs}` : the list of auxiliary density operators for Heom model
+- `take_real::Bool` : whether to automatically take the real part of the trace or not. Default to `true`
+
+# Returns
+- `exp_val` : The expectation value
+"""
+function expect(op, ados_list::Vector{ADOs}; take_real=true)
+
+    dim = ados_list[1].dim
+    for i in 2:length(ados_list)
+        if ados_list[i].dim != dim
+            error("The dimension of the elements in `ados_list` should be consistent.")
+        end
+    end
+
+    if !isValidMatrixType(op, dim)
+        error("The dimension of `op` is not consistent with the elements in `ados_list`.")
+    end
+
+    ρlist = getRho.(ados_list)
+    exp_val = [
+        tr(op * ρlist[i]) for i in 1:length(ρlist)
+    ]
+
+    if take_real
+        return real.(exp_val)
+    else
+        return exp_val
+    end
+end

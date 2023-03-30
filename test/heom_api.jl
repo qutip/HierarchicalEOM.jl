@@ -311,4 +311,10 @@ end
     for (i, ado) in enumerate(ados_b)
        @test ρ_b[i] == ado
     end
+
+    # expections for expect
+    ados_wrong  = ADOs(spzeros(Int64, 18), 2)
+    @test_throws ErrorException("The dimension of `op` is not consistent with `ados`.") @test_warn "The size of input matrix should be: (2, 2)." expect([0 0 0; 0 0 0; 0 0 0], ados_f)
+    @test_throws ErrorException("The dimension of the elements in `ados_list` should be consistent.") expect([0 0; 0 0], [ados_b, ados_wrong])
+    @test_throws ErrorException("The dimension of `op` is not consistent with the elements in `ados_list`.") @test_warn "The size of input matrix should be: (2, 2)." expect([0 0 0; 0 0 0; 0 0 0], [ados_b, ados_f])
 end

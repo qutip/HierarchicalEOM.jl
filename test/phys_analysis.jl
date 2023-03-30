@@ -82,7 +82,7 @@ end
     if isfile("evolution_t.test")
         rm("evolution_t.test")
     end
-    fastDD = evolution(L, ρ0, tlist, Ht, (0.50, 20, π/2); reltol=1e-12, abstol=1e-12, verbose=false, filename="evolution_t.test");
+    fastDD_ados = evolution(L, ρ0, tlist, Ht, (0.50, 20, π/2); reltol=1e-12, abstol=1e-12, verbose=false, filename="evolution_t.test");
     @test_throws ErrorException evolution(L, ρ0, tlist, Ht, (0.50, 20, π/2); verbose=false, filename="evolution_t.test")
     @test_throws ErrorException @test_warn "The size of input matrix should be: (2, 2)." evolution(L, ρ_wrong, tlist, Ht; verbose=false)
     fastBoFiN = [
@@ -128,11 +128,13 @@ end
         0.47479965067847246,
         0.47451220871416044
     ]
+    fastDD = expect(P01, fastDD_ados)
+    @test typeof(fastDD) == Vector{Float64}
     for i in 1:length(tlist)
-        @test real(tr(fastDD[i][1][1, 2])) ≈ fastBoFiN[i] atol=1.0e-6
+        @test fastDD[i] ≈ fastBoFiN[i] atol=1.0e-6
     end
 
-    slowDD = evolution(L, ρ0, tlist, Ht, (0.01, 20, π/2); reltol=1e-12, abstol=1e-12, verbose=false);
+    slowDD_ados = evolution(L, ρ0, tlist, Ht, (0.01, 20, π/2); reltol=1e-12, abstol=1e-12, verbose=false);
     slowBoFiN = [
         0.4999999999999999,
         0.4949826158957288,
@@ -176,8 +178,10 @@ end
         0.14821389956195355,
         0.14240802098404504
     ]
+    slowDD = expect(P01, slowDD_ados; take_real=false)
+    @test typeof(slowDD) == Vector{ComplexF64}
     for i in 1:length(tlist)
-        @test real(tr(slowDD[i][1][1, 2])) ≈ slowBoFiN[i] atol=1.0e-6
+        @test slowDD[i] ≈ slowBoFiN[i] atol=1.0e-6
     end
 
     H_wrong1(param, t) = zeros(3, 3)
