@@ -3,7 +3,7 @@ import SnoopPrecompile: @precompile_setup, @precompile_all_calls
 @precompile_setup begin
     # Putting some things in `setup` can reduce the size of the
     # precompile file and potentially make loading faster.
-    op = [0.1 0.2; 0.3 0.4]
+    op = [0.1 0.2; 0.2 0.4]
     bB = Boson_DrudeLorentz_Pade(op, 1, 1., 1., 3)
     fB = Fermion_Lorentz_Pade(op, 1., 1., 1., 1., 2)
 

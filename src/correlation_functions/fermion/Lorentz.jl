@@ -21,7 +21,7 @@ end
 Constructing Lorentzian fermionic bath with Matsubara expansion
 
 # Parameters
-- `op` : The system \"emission\" operator according to the system-fermionic-bath interaction.
+- `op` : The system annihilation operator according to the system-fermionic-bath interaction.
 - `λ::Real`: The coupling strength between the system and the bath.
 - `μ::Real`: The chemical potential of the bath.
 - `W::Real`: The reorganization energy (band-width) of the bath.
@@ -74,7 +74,7 @@ The application of the Padé method to spectrum decompoisitions is described in 
 [1] [J. Chem. Phys. 134, 244106 (2011)](https://doi.org/10.1063/1.3602466)
 
 # Parameters
-- `op` : The system \"emission\" operator according to the system-fermionic-bath interaction.
+- `op` : The system annihilation operator according to the system-fermionic-bath interaction.
 - `λ::Real`: The coupling strength between the system and the bath.
 - `μ::Real`: The chemical potential of the bath.
 - `W::Real`: The reorganization energy (band-width) of the bath.

@@ -9,7 +9,7 @@ An object which describes a single exponential-expansion term (naively, an excit
 The expansion of a bath correlation function can be expressed as : ``C(t) = \sum_i \eta_i \exp(-\gamma_i t)``.
 
 # Fields
-- `op` : The coupling operator according to system-bath interaction.
+- `op` : The system coupling operator according to system-bath interaction.
 - `η::Number` : the coefficient ``\eta_i`` in bath correlation function.
 - `γ::Number` : the coefficient ``\gamma_i`` in bath correlation function.
 - `types::String` : The type-tag of the exponent.
@@ -141,7 +141,19 @@ end
 
 isclose(a::Number, b::Number, rtol=1e-05, atol=1e-08) = abs(a - b) <= (atol + rtol * abs(b))
 
-function _check_coupling_operator(op)
+function _check_bosonic_coupling_operator(op)
+    if isValidMatrixType(op)
+        N,  = size(op)
+        if !ishermitian(op)
+            @warn "The system-bosonic-bath coupling operator \"op\" should be Hermitian operator."
+        end
+        return N
+    else
+        error("Invalid matrix \"op\".")
+    end
+end
+
+function _check_fermionic_coupling_operator(op)
     if isValidMatrixType(op)
         N,  = size(op)
         return N
@@ -179,7 +191,7 @@ An object which describes the interaction between system and bosonic bath
 
 # Fields
 - `bath` : the different boson-bath-type objects which describes the interaction between system and bosonic bath
-- `op` : The system operator according to the system-bosonic-bath interaction.
+- `op` : The system coupling operator, must be Hermitian and, for fermionic systems, even-parity to be compatible with charge conservation.
 - `dim` : the dimension of the coupling operator (should be equal to the system dimension).
 - `Nterm` : the number of exponential-expansion term of correlation functions
 - `δ` : The approximation discrepancy which is used for adding the terminator to HEOM matrix (see function: addTerminator)
@@ -218,7 +230,7 @@ C(\tau)
 where ``J(\omega)`` is the spectral density of the bath and ``n(\omega)`` represents the Bose-Einstein distribution.
 
 # Parameters
-- `op` : The system operator according to the system-bosonic-bath interaction.
+- `op` : The system coupling operator, must be Hermitian and, for fermionic systems, even-parity to be compatible with charge conservation.
 - `η::Vector{Ti<:Number}` : the coefficients ``\eta_i`` in bath correlation function ``C(\tau)``.
 - `γ::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` in bath correlation function ``C(\tau)``.
 - `δ::Number` : The approximation discrepancy (Default to `0.0`) which is used for adding the terminator to HEOM matrix (see function: addTerminator)
@@ -261,7 +273,7 @@ C(\tau)=\sum_{u=\textrm{R},\textrm{I}}(\delta_{u, \textrm{R}} + i\delta_{u, \tex
 where ``\delta`` is the Kronecker delta function and ``C^{u}(\tau)=\sum_i \eta_i^u \exp(-\gamma_i^u \tau)``
 
 # Parameters
-- `op` : The system operator according to the system-bosonic-bath interaction.
+- `op` : The system coupling operator, must be Hermitian and, for fermionic systems, even-parity to be compatible with charge conservation.
 - `η_real::Vector{Ti<:Number}` : the coefficients ``\eta_i`` in real part of bath correlation function ``C^{u=\textrm{R}}``.
 - `γ_real::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` in real part of bath correlation function ``C^{u=\textrm{R}}``.
 - `η_imag::Vector{Tk<:Number}` : the coefficients ``\eta_i`` in imaginary part of bath correlation function ``C^{u=\textrm{I}}``.
@@ -353,7 +365,7 @@ end
 Generate bosonic bath for the real part of bath correlation function ``C^{u=\textrm{R}}``
 
 # Parameters
-- `op` : The system operator according to the system-bosonic-bath interaction.
+- `op` : The system coupling operator, must be Hermitian and, for fermionic systems, even-parity to be compatible with charge conservation.
 - `η_real::Vector{Ti<:Number}` : the coefficients ``\eta_i`` in real part of bath correlation function ``C^{u=\textrm{R}}``.
 - `γ_real::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` in real part of bath correlation function ``C^{u=\textrm{R}}``.
 """
@@ -363,7 +375,7 @@ function bosonReal(
         γ_real::Vector{Tj}
     ) where {Ti, Tj <: Number}
 
-    dim = _check_coupling_operator(op)
+    dim = _check_bosonic_coupling_operator(op)
 
     # check if the length of coefficients are valid
     N_exp_term = length(η_real)
@@ -400,7 +412,7 @@ end
 Generate bosonic bath for the imaginary part of correlation function ``C^{u=\textrm{I}}``
 
 # Parameters
-- `op` : The system operator according to the system-bosonic-bath interaction.
+- `op` : The system coupling operator, must be Hermitian and, for fermionic systems, even-parity to be compatible with charge conservation.
 - `η_imag::Vector{Ti<:Number}` : the coefficients ``\eta_i`` in imaginary part of bath correlation functions ``C^{u=\textrm{I}}``.
 - `γ_imag::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` in imaginary part of bath correlation functions ``C^{u=\textrm{I}}``.
 """
@@ -410,7 +422,7 @@ Generate bosonic bath for the imaginary part of correlation function ``C^{u=\tex
         γ_imag::Vector{Tj}
     ) where {Ti, Tj <: Number}
 
-    dim = _check_coupling_operator(op)
+    dim = _check_bosonic_coupling_operator(op)
 
     # check if the length of coefficients are valid
     N_exp_term = length(η_imag)
@@ -450,7 +462,7 @@ end
 Generate bosonic bath which the real part and imaginary part of the bath correlation function are combined
 
 # Parameters
-- `op` : The system operator according to the system-bosonic-bath interaction.
+- `op` : The system coupling operator, must be Hermitian and, for fermionic systems, even-parity to be compatible with charge conservation.
 - `η_real::Vector{Ti<:Number}` : the real part of coefficients ``\eta_i`` in bath correlation function ``\sum_i \eta_i \exp(-\gamma_i t)``.
 - `η_imag::Vector{Tj<:Number}` : the imaginary part of coefficients ``\eta_i`` in bath correlation function ``\sum_i \eta_i \exp(-\gamma_i t)``.
 - `γ::Vector{Tk<:Number}` : the coefficients ``\gamma_i`` in bath correlation function ``\sum_i \eta_i \exp(-\gamma_i t)``.
@@ -462,7 +474,7 @@ function bosonRealImag(
         γ::Vector{Tk}
     ) where {Ti, Tj, Tk <: Number}
 
-    dim = _check_coupling_operator(op)
+    dim = _check_bosonic_coupling_operator(op)
 
     # check if the length of coefficients are valid
     N_exp_term = length(η_real)
@@ -522,7 +534,7 @@ C^{\nu=-}(\tau)
 where ``\nu=+`` (``\nu=-``) represents absorption (emission) process, ``J(\omega)`` is the spectral density of the bath and ``n(\omega)`` is the Fermi-Dirac distribution.
 
 # Parameters
-- `op` : The system \"emission\" operator according to the system-fermionic-bath interaction.
+- `op` : The system annihilation operator according to the system-fermionic-bath interaction.
 - `η_absorb::Vector{Ti<:Number}` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}(\tau)``.
 - `γ_absorb::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` of absorption bath correlation function ``C^{\nu=+}(\tau)``.
 - `η_emit::Vector{Tk<:Number}` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}(\tau)``.
@@ -575,7 +587,7 @@ end
 Generate fermionic bath which describes the absorption process of the fermionic system by a correlation function ``C^{\nu=+}``
 
     # Parameters
-- `op` : The system absorption operator according to the system-fermionic-bath interaction.
+- `op` : The system creation operator according to the system-fermionic-bath interaction.
 - `η_absorb::Vector{Ti<:Number}` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
 - `γ_absorb::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` of absorption bath correlation function ``C^{\nu=+}``.
 - `η_emit::Vector{Tk<:Number}` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
@@ -587,7 +599,7 @@ function fermionAbsorb(
         η_emit::Vector{Tk}
     ) where {Ti, Tj, Tk <: Number}
 
-    dim = _check_coupling_operator(op)
+    dim = _check_fermionic_coupling_operator(op)
 
     # check if the length of coefficients are valid
     N_exp_term = length(η_absorb)
@@ -629,7 +641,7 @@ end
 Generate fermionic bath which describes the emission process of the fermionic system by a correlation function ``C^{\nu=-}``
 
 # Parameters
-- `op` : The system emission operator according to the system-fermionic-bath interaction.
+- `op` : The system annihilation operator according to the system-fermionic-bath interaction.
 - `η_emit::Vector{Ti<:Number}` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
 - `γ_emit::Vector{Ti<:Number}` : the coefficients ``\gamma_i`` of emission bath correlation function ``C^{\nu=-}``.
 - `η_absorb::Vector{Ti<:Number}` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
@@ -641,7 +653,7 @@ function fermionEmit(
         η_absorb::Vector{Tk}
     ) where {Ti, Tj, Tk <: Number}
 
-    dim = _check_coupling_operator(op)
+    dim = _check_fermionic_coupling_operator(op)
 
     # check if the length of coefficients are valid
     N_exp_term = length(η_emit)

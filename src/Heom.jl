@@ -18,7 +18,7 @@ module Heom
     # sub-module Bath for Heom
     module Bath
         import Base: show, length, getindex, lastindex, iterate, checkbounds
-        import LinearAlgebra: I, kron
+        import LinearAlgebra: I, kron, ishermitian
         import SparseArrays: sparse, SparseMatrixCSC
         import ..HeomBase: isValidMatrixType
 
@@ -50,7 +50,7 @@ module Heom
         using ..Bath
         import Base: ==, show, length, size, getindex, keys, setindex!, lastindex, iterate, checkbounds, hash, copy
         import Base.Threads: @threads, threadid, nthreads, lock, unlock, SpinLock
-        import LinearAlgebra: I, kron
+        import LinearAlgebra: I, kron, tr
         import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
         import ProgressMeter: Progress, next!
         import FastExpm: fastExpm
@@ -68,7 +68,7 @@ module Heom
         export
             AbstractHEOMMatrix, M_S, M_Boson, M_Fermion, M_Boson_Fermion,
             odd, even,
-            ADOs, getRho, getADO, 
+            ADOs, getRho, getADO, expect,
             Nvec, AbstractHierarchyDict, HierarchyDict, MixHierarchyDict, getIndexEnsemble,
             Propagator, addBosonDissipator, addFermionDissipator, addTerminator,
             evolution, SteadyState
