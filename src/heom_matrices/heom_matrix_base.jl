@@ -68,6 +68,8 @@ D[J](\cdot) = J(\cdot) J^\dagger - \frac{1}{2}\left(J^\dagger J (\cdot) + (\cdot
 ```
 where ``J\equiv \sqrt{\gamma}V`` is the jump operator, ``V`` describes the dissipative part (operator) of the dynamics, and ``\gamma`` represents a non-negative damping rate.
 
+Note that if ``V`` is acting on fermionic systems, it should be even-parity to be compatible with charge conservation.
+
 # Parameters
 - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
 - `jumpOP::AbstractVector` : The list of collapse (jump) operators ``\{J_i\}_i`` to add. Defaults to empty vector `[]`.

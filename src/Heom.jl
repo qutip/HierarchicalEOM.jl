@@ -18,7 +18,7 @@ module Heom
     # sub-module Bath for Heom
     module Bath
         import Base: show, length, getindex, lastindex, iterate, checkbounds
-        import LinearAlgebra: I, kron
+        import LinearAlgebra: I, kron, ishermitian
         import SparseArrays: sparse, SparseMatrixCSC
         import ..HeomBase: isValidMatrixType
 
