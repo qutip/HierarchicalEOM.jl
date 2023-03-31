@@ -1,4 +1,4 @@
-# Bosonic Bath
+# [Bosonic Bath](@id doc-Bosonic-Bath)
 
 ## Drude-Lorentz Spectral Density
 

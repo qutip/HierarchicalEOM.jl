@@ -1,4 +1,4 @@
-# Stationary State
+# [Stationary State](@id doc-Stationary-State)
 
 ## Solve with [LinearSolve.jl](http://linearsolve.sciml.ai/stable/)
 

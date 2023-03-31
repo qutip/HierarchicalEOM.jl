@@ -1,4 +1,4 @@
-# Fermionic Bath
+# [Fermionic Bath](@id doc-Fermionic-Bath)
 
 ## Lorentz Spectral Density
 
