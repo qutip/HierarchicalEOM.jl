@@ -51,7 +51,7 @@ Heom.print_logo(io::IO=stdout)
 ```
 The output will be something like the following:
 ```
-julia> Heom.versioninfo()
+julia> Heom.print_logo()
                                    __
                                   /  \
  __     __                     __ \__/ __
