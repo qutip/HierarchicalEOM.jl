@@ -26,7 +26,7 @@ Constructing Lorentzian fermionic bath with Matsubara expansion
 - `μ::Real`: The chemical potential of the bath.
 - `W::Real`: The reorganization energy (band-width) of the bath.
 - `T::Real`: The temperature of the bath.
-- `N::Int`: Number of exponential terms used to approximate the bath correlation functions.
+- `N::Int`: (N+1)-terms of exponential terms are used to approximate the bath correlation function.
 
 # Returns
 - `bath::FermionBath` : a fermionic bath object with describes the interaction between system and fermionic bath
@@ -79,7 +79,7 @@ The application of the Padé method to spectrum decompoisitions is described in 
 - `μ::Real`: The chemical potential of the bath.
 - `W::Real`: The reorganization energy (band-width) of the bath.
 - `T::Real`: The temperature of the bath.
-- `N::Int`: Number of exponential terms used to approximate the bath correlation functions.
+- `N::Int`: (N+1)-terms of exponential terms are used to approximate the bath correlation function.
 
 # Returns
 - `bath::FermionBath` : a fermionic bath object with describes the interaction between system and fermionic bath

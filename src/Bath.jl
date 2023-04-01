@@ -14,7 +14,7 @@ The expansion of a bath correlation function can be expressed as : ``C(t) = \sum
 - `γ::Number` : the coefficient ``\gamma_i`` in bath correlation function.
 - `types::String` : The type-tag of the exponent.
 
-The types different types of the Exponent:
+The different types of the Exponent:
 - `\"bR\"` : from real part of bosonic correlation function ``C^{u=\textrm{R}}(t)``
 - `\"bI\"` : from imaginary part of bosonic correlation function ``C^{u=\textrm{I}}(t)``
 - `\"bRI\"` : from combined (real and imaginary part) bosonic bath correlation function ``C(t)``
