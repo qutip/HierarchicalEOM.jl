@@ -45,7 +45,7 @@ FermionBath object with (system) dim = 2 and 4 exponential-expansion terms
 Note that [`FermionBath`](@ref) always have even number of exponential terms (half for ``C^{\nu=+}`` and half for ``C^{\nu=-}``)
 
 ### Calculate the correlation function
-To check whether the exponential terms in the [`FermionBath`](@ref) is correct or not, one can call [`C`](@ref) to calculate the correlation function ``C(t)``, where ``t=t_1-t_2``:
+To check whether the exponential terms in the [`FermionBath`](@ref) is correct or not, one can call [`C(bath::FermionBath, tlist::AbstractVector)`](@ref) to calculate the correlation function ``C(t)``, where ``t=t_1-t_2``:
 ```julia
 cp_list, cm_list = C(bath, tlist)
 ```
