@@ -24,7 +24,7 @@ This allows us to define an iterative procedure which leads to the hierarchical 
 ### Construct BosonBath (with real and imaginary parts are combined)
 One can construct the [`BosonBath`](@ref) object with the coupling operator `Vs::AbstractMatrix` and the two lists `η::AbstractVector` and `γ::AbstractVector` which corresponds to the exponential terms ``\{\eta_i\}_i`` and ``\{\gamma_i\}_i``, respectively.
 ```julia
-Bbath = BosonBath(Vs, η, γ)
+bath = BosonBath(Vs, η, γ)
 ```
 
 ### Construct BosonBath (with real and imaginary parts are separated)
@@ -36,7 +36,7 @@ where ``\delta`` is the Kronecker delta function and ``C^{u}(t_1, t_2)=\sum_i \e
 
 In this case, the [`BosonBath`](@ref) object can be constructed by the following method:
 ```julia
-Bbath = BosonBath(Vs, η_real, γ_real, η_imag, γ_imag)
+bath = BosonBath(Vs, η_real, γ_real, η_imag, γ_imag)
 ```
 Here, `η_real::AbstractVector`, `γ_real::AbstractVector`, `η_imag::AbstractVector` and `γ_imag::AbstractVector` correspond to the exponential terms ``\{\eta_i^{\textrm{R}}\}_i``, ``\{\gamma_i^{\textrm{R}}\}_i``, ``\{\eta_i^{\textrm{I}}\}_i`` and ``\{\gamma_i^{\textrm{I}}\}_i``, respectively.
 
@@ -46,7 +46,7 @@ Here, `η_real::AbstractVector`, `γ_real::AbstractVector`, `η_imag::AbstractVe
 ### Print Bosonic Bath
 One can check the information of the [`BosonBath`](@ref) by the `print` function, for example:
 ```julia
-print(Bbath)
+print(bath)
 ```
 ```
 BosonBath object with (system) dim = 2 and 4 exponential-expansion terms
@@ -55,7 +55,7 @@ BosonBath object with (system) dim = 2 and 4 exponential-expansion terms
 ### Methods for Exponent
 `Heom.jl` also supports users to access the specific exponential term with brakets `[]`. This returns an [`Exponent`](@ref) object, which contains the corresponding value of ``\eta_i`` and ``\gamma_i``:
 ```julia
-e = Bbath[2] # the 2nd-term
+e = bath[2] # the 2nd-term
 print(e)
 ```
 ```
@@ -64,7 +64,7 @@ Bath Exponent with types = "bRI", operator size = (2, 2), η = 1.592287402120654
 
 One can even obtain the [`Exponent`](@ref) with iterative method:
 ```julia
-for e in Bbath
+for e in bath
     println(e)
 end
 ```
@@ -93,7 +93,7 @@ Here, ``\Delta`` represents the coupling strength between system and the bosonic
 ### Matsubara Expansion
 With Matsubara Expansion, the correlation function can be analytically solved and expressed as follows:
 ```math
-C(t_1, t_2)\approx\sum_{l=1}^{\infty} \eta_l \exp(-\gamma_l (t_1-t_2))
+C(t_1, t_2)=\sum_{l=1}^{\infty} \eta_l \exp(-\gamma_l (t_1-t_2))
 ```
 with
 ```math
@@ -117,7 +117,7 @@ bath = Boson_DrudeLorentz_Matsubara(Vs, Δ, W, T, N - 1)
 ### Padé Expansion
 With Padé Expansion, the correlation function can be analytically solved and expressed as the following exponential terms:
 ```math
-C(t_1, t_2)\sum_{l=1}^{\infty} \eta_l \exp(-\gamma_l (t_1-t_2))
+C(t_1, t_2)=\sum_{l=1}^{\infty} \eta_l \exp(-\gamma_l (t_1-t_2))
 ```
 with
 ```math
