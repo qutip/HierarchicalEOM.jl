@@ -37,5 +37,5 @@ In order to get a better experience and take full advantage of `Heom`, we recomm
 ### [JLD2.jl](https://juliaio.github.io/JLD2.jl/stable/)
 `JLD2` saves and loads Julia data structures in a format comprising a subset of HDF5. Because the size of matrix in `Heom` is usually super large and leads to long time calculation, we support the functionality for saving and loading the `Heom`-type objects into files by `JLD2 >= 0.4.23`.
 
-### [Plots.jl](https://docs.juliaplots.org/stable/)
-`Plots` is a visualization interface and toolset for Julia.
+### [PyPlot.jl](https://github.com/JuliaPy/PyPlot.jl)
+`PyPlot.jl` provides a Julia interface to the [`Matplotlib`](https://matplotlib.org/) plotting library from `Python`, and specifically to the `matplotlib.pyplot` module.

@@ -1,1 +1,0 @@
-# [Hierarchical Equations of Motion (Heom) Liouvillian Superoperator Matrix](@id HEOM-Matrix)

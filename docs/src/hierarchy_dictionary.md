@@ -1,1 +1,1 @@
-# Hierarchy Dictionary
+# [Hierarchy Dictionary](@id doc-Hierarchy-Dictionary)
