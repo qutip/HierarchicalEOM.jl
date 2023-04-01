@@ -57,6 +57,13 @@ print(bath)
 BosonBath object with (system) dim = 2 and 4 exponential-expansion terms
 ```
 
+### Calculate the correlation function
+To check whether the exponential terms in the [`BosonBath`](@ref) is correct or not, one can call [`C`](@ref) to calculate the correlation function ``C(t)``, where ``t=t_1-t_2``:
+```julia
+c_list = C(bath, tlist)
+```
+Here, `c_list` is a list which contains the value of ``C(t)`` corresponds to the given time series `tlist`.
+
 ### Methods for Exponent
 `Heom.jl` also supports users to access the specific exponential term with brakets `[]`. This returns an [`Exponent`](@ref) object, which contains the corresponding value of ``\eta_i`` and ``\gamma_i``:
 ```julia
