@@ -26,6 +26,8 @@ One can construct the [`BosonBath`](@ref) object with the coupling operator `Vs:
 ```julia
 bath = BosonBath(Vs, η, γ)
 ```
+!!! warning "Warning"
+    Here, the length of `η` and `γ` should be the same.
 
 ### Construct BosonBath (with real and imaginary parts are separated)
 When ``\gamma_i \neq \gamma_i^*``, a closed form for the HEOM can be obtained by further decomposing ``C(t_1, t_2)`` into its real (R) and imaginary (I) parts as
@@ -38,6 +40,9 @@ In this case, the [`BosonBath`](@ref) object can be constructed by the following
 ```julia
 bath = BosonBath(Vs, η_real, γ_real, η_imag, γ_imag)
 ```
+!!! warning "Warning"
+    Here, the length of `η_real` and `γ_real` should be the same.  
+    Also, the length of `η_imag` and `γ_imag` should be the same.
 Here, `η_real::AbstractVector`, `γ_real::AbstractVector`, `η_imag::AbstractVector` and `γ_imag::AbstractVector` correspond to the exponential terms ``\{\eta_i^{\textrm{R}}\}_i``, ``\{\gamma_i^{\textrm{R}}\}_i``, ``\{\eta_i^{\textrm{I}}\}_i`` and ``\{\gamma_i^{\textrm{I}}\}_i``, respectively.
 
 !!! note "Note"
