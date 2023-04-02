@@ -14,8 +14,13 @@ bath = Boson_DrudeLorentz_Pade(Q, λ, W, T, N)
 tier = 5
 L = M_Boson(Hsys, tier, bath; verbose=false)
 
-ρs = getRho(SteadyState(L, ρ0; verbose=false))
+ados = SteadyState(L, ρ0; verbose=false)
+ρs   = getRho(ados)
 @testset "Steady state" begin
+    O = [1 0.5; 0.5 1]
+    @test expect(O, ados) ≈ real(tr(O * ρs))
+    @test expect(O, ados, take_real=false) ≈ tr(O * ρs)   
+
     ρ1 = getRho(SteadyState(L; verbose=false))
     @test _is_Matrix_approx(ρ1, ρs)
 
