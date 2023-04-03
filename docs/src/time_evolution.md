@@ -165,7 +165,7 @@ To solve the dynamics characterized by ``\hat{\mathcal{M}}`` together with the t
  - [`evolution(M::AbstractHEOMMatrix, ρ0, tlist::AbstractVector, H::Function, param::Tuple = ())`](@ref)
  - [`evolution(M::AbstractHEOMMatrix, ados::ADOs, tlist::AbstractVector, H::Function, param::Tuple = ())`](@ref).
 
-Here, the definition of user-defined function `H` must be in the form `H(p::Tuple, t)` and returns the time-dependent part of system Hamiltonian at any given time point `t`. The parameter `p` should be a `Tuple` which contains all the extra parameters you need for the function `H`. For example:
+Here, the definition of user-defined function `H` must be in the form `H(p::Tuple, t)` and returns the time-dependent part of system Hamiltonian (in `AbstractMatrix` type) at any given time point `t`. The parameter `p` should be a `Tuple` which contains all the extra parameters you need for the function `H`. For example:
 ```julia
 function H_pump(p, t)  
     p0, p1, p2 = p 
