@@ -78,7 +78,7 @@ Bath Exponent with types = "fE", operator size = (2, 2), η = 0.0 + 3.4090909090
 ```
 
 ### Types of Exponent
-The different types of the (fermionic-bath) Exponent:
+The different types of the (fermionic-bath) [`Exponent`](@ref):
  - `"fA"` : from absorption fermionic correlation function ``C^{\nu=+}(t_1, t_2)``
  - `"fE"` : from emission fermionic correlation function ``C^{\nu=-}(t_1, t_2)``
 

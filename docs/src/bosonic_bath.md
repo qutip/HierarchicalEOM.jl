@@ -91,7 +91,7 @@ Bath Exponent with types = "bRI", operator size = (2, 2), η = 3.100543980138729
 ```
 
 ### Types of Exponent
-The different types of the (bosonic-bath) Exponent:
+The different types of the (bosonic-bath) [`Exponent`](@ref):
  - `"bR"` : from real part of bosonic correlation function ``C^{u=\textrm{R}}(t_1, t_2)``
  - `"bI"` : from imaginary part of bosonic correlation function ``C^{u=\textrm{I}}(t_1, t_2)``
  - `"bRI"` : from combined (real and imaginary part) bosonic bath correlation function ``C(t_1, t_2)``
