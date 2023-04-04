@@ -2,4 +2,4 @@
 
 # [Importance Value and Threshold](@id doc-Importance-Value-and-Threshold)
 
-# Parity Support for HEOM Matrices
+# [Parity Support for HEOM Matrices](@id doc-Parity)
