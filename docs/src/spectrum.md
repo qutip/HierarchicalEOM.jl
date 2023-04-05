@@ -79,14 +79,23 @@ Finially, one can obtain the density of states for specific ``\omega``, namely
 \pi A(\omega) = -\textrm{Re}\left\{\textrm{Tr}\left[ d \textbf{x}_+\right]+\textrm{Tr}\left[ d^\dagger \textbf{x}_-\right]\right\}.
 ```
 
+!!! note "Odd-Parity for Density of States"
+    As shown above, the HEOMLS matrix ``\hat{\mathcal{M}}`` acts on the `:odd`-parity space, compatibly with the parity of both the operators ``d\rho^{(m,n,+)}_{\textbf{j} \vert \textbf{q}}`` and ``d^\dagger\rho^{(m,n,+)}_{\textbf{j} \vert \textbf{q}}``.  
+    Therefore, remember to construct ``\hat{\mathcal{M}}`` with `:odd` [parity](@ref doc-Parity) for solving spectrum of fermionic systems.
+
 See also the docstring : [`spectrum`](@ref)
 
 ```julia
-M::AbstractHEOMMatrix # need to be in ":odd" parity
+Hs::AbstractMatrix # system Hamiltonian
+bath::FermionBath  # fermionic bath object
+tier::Int          # fermionic truncation level 
 
-# the input state can be in either type (but usually ADOs):
-ρ::AbstractMatrix # the reduced density operator
-ρ::ADOs # the ADOs solved from "evolution" or "SteadyState"
+# create HEOMLS matrix in both :even and :odd parity
+M_even = M_Fermion(Hs, tier, bath) 
+M_odd  = M_Fermion(Hs, tier, bath, :odd) 
+
+# the input state can be in either type of density operator matrix or ADOs (but usually ADOs):
+ados = SteadyState(M_even)
 
 # the (usually annihilation) operator "d" as shown above
 d::AbstractMatrix 
@@ -94,7 +103,5 @@ d::AbstractMatrix
 # the spectrum value for the specific frequency ω which need to be solved
 ω_list = 0:0.5:2 # [0.0, 0.5, 1.0, 1.5, 2.0]
 
-πAω = spectrum(M, ρ, d, ω_list)
+πAω = spectrum(M_odd, ados, d, ω_list)
 ```
-!!! note "Note"
-    To calculate dentisy of states, remember to construct ``\hat{\mathcal{M}}`` with `:odd` parity.
