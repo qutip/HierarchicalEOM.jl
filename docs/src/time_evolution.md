@@ -18,12 +18,12 @@ Given an observable ``A`` and the [`ADOs`](@ref doc-ADOs) ``\rho^{(m,n,p)}_{\tex
 ```
 where, ``m=n=0`` represents the reduced density operator, see [`ADOs`](@ref doc-ADOs) for more details.
 
-One can directly calculate the expectation values using the function [`expect`](@ref) together with the output of [`evolution`](@ref):
+One can directly calculate the expectation values using the function [`Expect`](@ref) together with the output of [`evolution`](@ref):
 ```julia
 A::AbstractMatrix # observable
 ados_list = evolution(...) # the input parameters depend on the different methods you choose.
 
-Elist = expect(A, ados_list)
+Elist = Expect(A, ados_list)
 ```
 Here, `Elist` contains the expectation values corresponding to the `ados_list` (i.e., the reduced density operator in each time step).
 

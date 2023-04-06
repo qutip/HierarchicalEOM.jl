@@ -18,8 +18,8 @@ ados = SteadyState(L, ρ0; verbose=false)
 ρs   = getRho(ados)
 @testset "Steady state" begin
     O = [1 0.5; 0.5 1]
-    @test expect(O, ados) ≈ real(tr(O * ρs))
-    @test expect(O, ados, take_real=false) ≈ tr(O * ρs)   
+    @test Expect(O, ados) ≈ real(tr(O * ρs))
+    @test Expect(O, ados, take_real=false) ≈ tr(O * ρs)   
 
     ρ1 = getRho(SteadyState(L; verbose=false))
     @test _is_Matrix_approx(ρ1, ρs)
@@ -133,7 +133,7 @@ end
         0.47479965067847246,
         0.47451220871416044
     ]
-    fastDD = expect(P01, fastDD_ados)
+    fastDD = Expect(P01, fastDD_ados)
     @test typeof(fastDD) == Vector{Float64}
     for i in 1:length(tlist)
         @test fastDD[i] ≈ fastBoFiN[i] atol=1.0e-6
@@ -183,7 +183,7 @@ end
         0.14821389956195355,
         0.14240802098404504
     ]
-    slowDD = expect(P01, slowDD_ados; take_real=false)
+    slowDD = Expect(P01, slowDD_ados; take_real=false)
     @test typeof(slowDD) == Vector{ComplexF64}
     for i in 1:length(tlist)
         @test slowDD[i] ≈ slowBoFiN[i] atol=1.0e-6

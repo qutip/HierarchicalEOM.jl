@@ -132,7 +132,7 @@ This function equals to calling : `ados[idx]`.
 getADO(ados::ADOs, idx::Int) = ados[idx]
 
 @doc raw"""
-    expect(op, ados; take_real=true)
+    Expect(op, ados; take_real=true)
 Return the expectation value of the operator `op` for the reduced density operator in the given `ados`, namely
 ```math
 \textrm{Re}\left\{\textrm{Tr}\left[ O \rho \right]\right\},
@@ -147,7 +147,7 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in the 
 # Returns
 - `exp_val` : The expectation value
 """
-function expect(op, ados::ADOs; take_real=true)
+function Expect(op, ados::ADOs; take_real=true)
     
     if !isValidMatrixType(op, ados.dim)
         error("The dimension of `op` is not consistent with `ados`.")
@@ -163,7 +163,7 @@ function expect(op, ados::ADOs; take_real=true)
 end
 
 @doc raw"""
-    expect(op, ados_list; take_real=true)
+    Expect(op, ados_list; take_real=true)
 Return a list of expectation values of the operator `op` corresponds to the reduced density operators in the given `ados_list`, namely
 ```math
 \textrm{Re}\left\{\textrm{Tr}\left[ O \rho \right]\right\},
@@ -178,7 +178,7 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in one 
 # Returns
 - `exp_val` : The expectation value
 """
-function expect(op, ados_list::Vector{ADOs}; take_real=true)
+function Expect(op, ados_list::Vector{ADOs}; take_real=true)
 
     dim = ados_list[1].dim
     for i in 2:length(ados_list)
