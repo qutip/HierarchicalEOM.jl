@@ -57,6 +57,13 @@ print(bath)
 BosonBath object with (system) dim = 2 and 4 exponential-expansion terms
 ```
 
+### Calculate the correlation function
+To check whether the exponential terms in the [`BosonBath`](@ref) is correct or not, one can call [`C(bath::BosonBath, tlist::AbstractVector)`](@ref) to calculate the correlation function ``C(t)``, where ``t=t_1-t_2``:
+```julia
+c_list = C(bath, tlist)
+```
+Here, `c_list` is a list which contains the value of ``C(t)`` corresponds to the given time series `tlist`.
+
 ### Methods for Exponent
 `Heom.jl` also supports users to access the specific exponential term with brakets `[]`. This returns an [`Exponent`](@ref) object, which contains the corresponding value of ``\eta_i`` and ``\gamma_i``:
 ```julia
@@ -84,7 +91,7 @@ Bath Exponent with types = "bRI", operator size = (2, 2), η = 3.100543980138729
 ```
 
 ### Types of Exponent
-The different types of the (bosonic-bath) Exponent:
+The different types of the (bosonic-bath) [`Exponent`](@ref):
  - `"bR"` : from real part of bosonic correlation function ``C^{u=\textrm{R}}(t_1, t_2)``
  - `"bI"` : from imaginary part of bosonic correlation function ``C^{u=\textrm{I}}(t_1, t_2)``
  - `"bRI"` : from combined (real and imaginary part) bosonic bath correlation function ``C(t_1, t_2)``
