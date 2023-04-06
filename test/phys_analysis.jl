@@ -14,8 +14,13 @@ bath = Boson_DrudeLorentz_Pade(Q, λ, W, T, N)
 tier = 5
 L = M_Boson(Hsys, tier, bath; verbose=false)
 
-ρs = getRho(SteadyState(L, ρ0; verbose=false))
+ados = SteadyState(L, ρ0; verbose=false)
+ρs   = getRho(ados)
 @testset "Steady state" begin
+    O = [1 0.5; 0.5 1]
+    @test Expect(O, ados) ≈ real(tr(O * ρs))
+    @test Expect(O, ados, take_real=false) ≈ tr(O * ρs)   
+
     ρ1 = getRho(SteadyState(L; verbose=false))
     @test _is_Matrix_approx(ρ1, ρs)
 
@@ -33,20 +38,20 @@ end
     Δt    = 10
     steps = 10
     tlist = 0:Δt:(Δt * steps)
-    if isfile("evolution_p.test")
-        rm("evolution_p.test")
+    if isfile("evolution_p.jld2")
+        rm("evolution_p.jld2")
     end
     # using the method based on propagator
-    ρ_list_p = getRho.(evolution(L, ρ0, Δt, steps; verbose=false, filename="evolution_p.test"))
-    @test_throws ErrorException evolution(L, ρ0, Δt, steps; verbose=false, filename="evolution_p.test")
+    ρ_list_p = getRho.(evolution(L, ρ0, Δt, steps; verbose=false, filename="evolution_p"))
+    @test_throws ErrorException evolution(L, ρ0, Δt, steps; verbose=false, filename="evolution_p")
     @test_throws ErrorException @test_warn "The size of input matrix should be: (2, 2)." evolution(L, ρ_wrong, Δt, steps; verbose=false)
     
-    if isfile("evolution_o.test")
-        rm("evolution_o.test")
+    if isfile("evolution_o.jld2")
+        rm("evolution_o.jld2")
     end
     # using the method based on ODE solver
-    ρ_list_e = getRho.(evolution(L, ρ0, tlist; verbose=false, filename="evolution_o.test"))
-    @test_throws ErrorException evolution(L, ρ0, tlist; verbose=false, filename="evolution_o.test")
+    ρ_list_e = getRho.(evolution(L, ρ0, tlist; verbose=false, filename="evolution_o"))
+    @test_throws ErrorException evolution(L, ρ0, tlist; verbose=false, filename="evolution_o")
     @test_throws ErrorException @test_warn "The size of input matrix should be: (2, 2)." evolution(L, ρ_wrong, tlist; verbose=false)
     
     for i in 1:(steps + 1)
@@ -79,11 +84,11 @@ end
     end
 
     tlist = 0:10:400
-    if isfile("evolution_t.test")
-        rm("evolution_t.test")
+    if isfile("evolution_t.jld2")
+        rm("evolution_t.jld2")
     end
-    fastDD_ados = evolution(L, ρ0, tlist, Ht, (0.50, 20, π/2); reltol=1e-12, abstol=1e-12, verbose=false, filename="evolution_t.test");
-    @test_throws ErrorException evolution(L, ρ0, tlist, Ht, (0.50, 20, π/2); verbose=false, filename="evolution_t.test")
+    fastDD_ados = evolution(L, ρ0, tlist, Ht, (0.50, 20, π/2); reltol=1e-12, abstol=1e-12, verbose=false, filename="evolution_t");
+    @test_throws ErrorException evolution(L, ρ0, tlist, Ht, (0.50, 20, π/2); verbose=false, filename="evolution_t")
     @test_throws ErrorException @test_warn "The size of input matrix should be: (2, 2)." evolution(L, ρ_wrong, tlist, Ht; verbose=false)
     fastBoFiN = [
         0.4999999999999999,
@@ -128,7 +133,7 @@ end
         0.47479965067847246,
         0.47451220871416044
     ]
-    fastDD = expect(P01, fastDD_ados)
+    fastDD = Expect(P01, fastDD_ados)
     @test typeof(fastDD) == Vector{Float64}
     for i in 1:length(tlist)
         @test fastDD[i] ≈ fastBoFiN[i] atol=1.0e-6
@@ -178,7 +183,7 @@ end
         0.14821389956195355,
         0.14240802098404504
     ]
-    slowDD = expect(P01, slowDD_ados; take_real=false)
+    slowDD = Expect(P01, slowDD_ados; take_real=false)
     @test typeof(slowDD) == Vector{ComplexF64}
     for i in 1:length(tlist)
         @test slowDD[i] ≈ slowBoFiN[i] atol=1.0e-6
@@ -215,10 +220,10 @@ end
     ados_s = SteadyState(L; verbose=false)
     ωlist = 0.9:0.01:1.1
 
-    if isfile("PSD.test")
-        rm("PSD.test")
+    if isfile("PSD.txt")
+        rm("PSD.txt")
     end
-    psd1 = spectrum(L, ados_s, a, ωlist; verbose=false, filename="PSD.test")
+    psd1 = spectrum(L, ados_s, a, ωlist; verbose=false, filename="PSD")
     psd2 = [
         8.88036729e-04,
         1.06145358e-03,
@@ -248,7 +253,7 @@ end
 
     mat = spzeros(ComplexF64, 2, 2)
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
-    @test_throws ErrorException spectrum(L, ados_s, a, ωlist; verbose=false, filename="PSD.test")
+    @test_throws ErrorException spectrum(L, ados_s, a, ωlist; verbose=false, filename="PSD")
     @test_throws ErrorException spectrum(M_Fermion(mat, 2, bathf, :odd; verbose=false), mat, mat, [0])
 end
 
@@ -281,10 +286,10 @@ end
     ados_s = SteadyState(Le; verbose=false)
     ωlist = -20:2:20
 
-    if isfile("DOS.test")
-        rm("DOS.test")
+    if isfile("DOS.txt")
+        rm("DOS.txt")
     end
-    dos1 = spectrum(Lo, ados_s, d_up, ωlist; verbose=false, filename="DOS.test")
+    dos1 = spectrum(Lo, ados_s, d_up, ωlist; verbose=false, filename="DOS")
     dos2 = [
         0.0007920428534358747,
         0.0012795202828027256,
@@ -314,14 +319,14 @@ end
 
     mat = spzeros(ComplexF64, 2, 2)
     bathb = Boson_DrudeLorentz_Pade(mat, 1, 1, 1, 2)
-    @test_throws ErrorException spectrum(Lo, ados_s, d_up, ωlist; verbose=false, filename="DOS.test")
+    @test_throws ErrorException spectrum(Lo, ados_s, d_up, ωlist; verbose=false, filename="DOS")
     @test_throws ErrorException spectrum(M_Boson(mat, 2, bathb; verbose=false), mat, mat, [0])
     @test_throws ErrorException spectrum(M_Fermion(mat, 2, fuL; verbose=false), mat, mat, [0])
 end
 
 # remove all the temporary files
-rm("evolution_p.test")
-rm("evolution_o.test")
-rm("evolution_t.test")
-rm("PSD.test")
-rm("DOS.test")
+rm("evolution_p.jld2")
+rm("evolution_o.jld2")
+rm("evolution_t.jld2")
+rm("PSD.txt")
+rm("DOS.txt")

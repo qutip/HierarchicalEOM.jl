@@ -17,7 +17,7 @@ Here are the functions in `Heom.jl` that we will use in this tutorial (Quick Sta
 
 ```julia
 import Heom
-import Heom: Boson_DrudeLorentz_Pade, M_Boson, evolution, SteadyState, getRho, BosonBath, expect
+import Heom: Boson_DrudeLorentz_Pade, M_Boson, evolution, SteadyState, getRho, BosonBath, Expect
 ```
 
 Note that you can also type `using Heom` to import everything you need in `Heom.jl`.
@@ -158,12 +158,12 @@ P01 = Ket(basis, [1, 0]) ⊗ Bra(basis, [0, 1])
 
 ```julia
 # for steady state
-p00_s = expect(P00.data, ados_steady)
-p01_s = expect(P01.data, ados_steady)
+p00_s = Expect(P00.data, ados_steady)
+p01_s = Expect(P01.data, ados_steady)
 
 # for time evolution
-p00_e = expect(P00.data, ados_list)
-p01_e = expect(P01.data, ados_list)
+p00_e = Expect(P00.data, ados_list)
+p01_e = Expect(P01.data, ados_list)
 ```
 
 ### Plot the results
@@ -247,9 +247,9 @@ P11 = [0 0 0; 0 1 0; 0 0 0]
 P22 = [0 0 0; 0 0 0; 0 0 1]
 
 # calculate population for each system state:
-p0 = expect(P00, ados_list)
-p1 = expect(P11, ados_list)
-p2 = expect(P22, ados_list)
+p0 = Expect(P00, ados_list)
+p1 = Expect(P11, ados_list)
+p2 = Expect(P22, ados_list)
 ```
 
 
