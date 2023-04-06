@@ -25,7 +25,7 @@ remember to set the parameters:
 - `ω_list::AbstractVector` : the specific frequency points to solve.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
-- `filename::String` : If filename was specified, the value of spectrum for each ω will be saved into the file during the solving process.
+- `filename::String` : If filename was specified, the value of spectrum for each ω will be saved into the file "filename.txt" during the solving process.
 - `SOLVEROptions` : extra options for solver 
 
 For more details about solvers and extra options, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
@@ -43,9 +43,6 @@ function spectrum(
         filename::String = "",
         SOLVEROptions...
     )
-    if (filename != "") && isfile(filename)
-        error("FILE: $(filename) already exist.")
-    end
 
     Size, = size(M)
 
@@ -102,6 +99,12 @@ end
     )
 
     SAVE::Bool = (filename != "")
+    if SAVE
+        FILENAME = filename * ".txt"
+        if isfile(FILENAME)
+            error("FILE: $(FILENAME) already exist.")
+        end
+    end
 
     Size, = size(M)
     I_total = sparse(I, Size, Size)
@@ -145,7 +148,7 @@ end
         Sω[i] = -1 * real(I_dual_vec * (a_dagger * sol.u)[1:(M.sup_dim)])
 
         if SAVE
-            open(filename, "a") do file
+            open(FILENAME, "a") do file
                 write(file, "$(Sω[i]),\n")
             end
         end
@@ -173,6 +176,12 @@ end
     )
 
     SAVE::Bool = (filename != "")
+    if SAVE
+        FILENAME = filename * ".txt"
+        if isfile(FILENAME)
+            error("FILE: $(FILENAME) already exist.")
+        end
+    end
 
     Size, = size(M)
     I_total = sparse(I, Size, Size)
@@ -234,7 +243,7 @@ end
         )
 
         if SAVE
-            open(filename, "a") do file
+            open(FILENAME, "a") do file
                 write(file, "$(Aω[i]),\n")
             end
         end

@@ -10,7 +10,7 @@
 [![Runtests](https://github.com/NCKU-QFort/Heom.jl/actions/workflows/Runtests.yml/badge.svg)](https://github.com/NCKU-QFort/Heom.jl/actions/workflows/Runtests.yml)
 [![codecov](https://codecov.io/gh/NCKU-QFort/Heom.jl/branch/main/graph/badge.svg?token=237Z7F7OOV)](https://codecov.io/gh/NCKU-QFort/Heom.jl)
 
-An efficient julia framework for Hierarchical Equations of Motion (HEOM) in open quantum systems  
+`Heom.jl` is a numerical framework written in [`Julia`](https://julialang.org/). It provides a user-friendly and efficient tool based on hierarchical equations of motion (HEOM) approach to simulate complex open quantum systems, including non-Markovian effects due to non-perturbative interaction with one (or multiple) environment(s). It is inspired by the [Quantum Toolbox in Python (QuTiP)](https://qutip.org).
 
 ## Installation
 To install `Heom.jl`, run the following commands inside Julia's interactive session (also known as REPL):

@@ -23,19 +23,19 @@ Julia framework for Hierarchical Equations of Motion
 Copyright © NCKU-QFORT 2022 and later.
 Lead  developer : Yi-Te Huang
 Other developers:
-    Neill Lambert, Po-Chen Kuo and Shen-Liang Yang
+    Simon Cross, Neill Lambert, Po-Chen Kuo and Shen-Liang Yang
 
 Package information:
-===================================
-Heom              Version: 0.1.0
-JLD2              Version: 0.4.25
-LinearSolve       Version: 1.26.1
-OrdinaryDiffEq    Version: 6.28.1
-ProgressMeter     Version: 1.7.2
-SnoopPrecompile   Version: 1.0.1
+====================================
+Heom            Version: 0.1.0
+JLD2            Version: 0.4.31
+LinearSolve     Version: 1.38.0
+OrdinaryDiffEq  Version: 6.49.3
+ProgressMeter   Version: 1.7.2
+SnoopPrecompile Version: 1.0.3
 
 System information:
-===================================
+====================================
 Julia Version: 1.8.0
 OS       : macOS (x86_64-apple-darwin21.4.0)
 CPU      : 12 × Intel(R) Core(TM) i7-8700B CPU @ 3.20GHz
@@ -51,7 +51,7 @@ Heom.print_logo(io::IO=stdout)
 ```
 The output will be something like the following:
 ```
-julia> Heom.versioninfo()
+julia> Heom.print_logo()
                                    __
                                   /  \
  __     __                     __ \__/ __

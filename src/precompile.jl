@@ -27,28 +27,30 @@ import SnoopPrecompile: @precompile_setup, @precompile_all_calls
 
         # precompile Steadystate
         @info "Precompiling steady state solver..."
-        SteadyState(Mb; verbose=false)
-        SteadyState(Mb, [1. 0.; 0. 0.]; verbose=false)
+        ados1 = SteadyState(Mb; verbose=false)
+        ados1 = SteadyState(Mb, [1. 0.; 0. 0.]; verbose=false)
+        E1 = Expect(op, ados1)
 
         # precompile evolution
         @info "Precompiling time evolution solver..."
-        adosb  = evolution(Mb, [1. 0.; 0. 0.], 0:1:1; verbose=false)
-        adosb  = evolution(Mb, [1. 0.; 0. 0.], 1, 1; verbose=false)
+        ados2  = evolution(Mb, [1. 0.; 0. 0.], 0:1:1; verbose=false)
+        ados2  = evolution(Mb, [1. 0.; 0. 0.], 1, 1; verbose=false)
+        E2 = Expect(op, ados2)
 
         # precompile ADOs for the support of Base functions 
         @info "Precompiling Auxiliary Density Operators (ADOs)..."
-        ados1 = ADOs(zeros(8),  2)
-        length(ados1)
-        getRho(ados1)
-        getADO(ados1, 1)
-        ados1[end]
-        ados1[:]
-        for ad in ados1 nothing end
+        ados3 = ADOs(zeros(8),  2)
+        length(ados3)
+        getRho(ados3)
+        getADO(ados3, 1)
+        ados3[end]
+        ados3[:]
+        for ad in ados3 nothing end
 
         # precompile Spectrum functions
         @info "Precompiling solvers for calculating spectrum..."
-        spectrum(Mb,  [1. 0.; 0. 0.], op, [1]; verbose=false)
-        spectrum(Mfo, [1. 0.; 0. 0.], op, [1]; verbose=false)
+        psd = spectrum(Mb,  [1. 0.; 0. 0.], op, [1]; verbose=false)
+        dos = spectrum(Mfo, [1. 0.; 0. 0.], op, [1]; verbose=false)
     end
     GC.gc() # clean garbage collection
     @info "Heom precompilation complete"

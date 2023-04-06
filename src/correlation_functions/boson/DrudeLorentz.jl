@@ -15,7 +15,7 @@ Constructing Drude-Lorentz bosonic bath with Matsubara expansion
 - `λ::Real`: The coupling strength between the system and the bath.
 - `W::Real`: The reorganization energy (band-width) of the bath.
 - `T::Real`: The temperature of the bath.
-- `N::Int`: Number of exponential terms used to approximate the bath correlation functions.
+- `N::Int`: (N+1)-terms of exponential terms are used to approximate the bath correlation function.
 
 # Returns
 - `bath::BosonBath` : a bosonic bath object with describes the interaction between system and bosonic bath
@@ -62,7 +62,7 @@ The application of the Padé method to spectrum decompoisitions is described in 
 - `λ::Real`: The coupling strength between the system and the bath.
 - `W::Real`: The reorganization energy (band-width) of the bath.
 - `T::Real`: The temperature of the bath.
-- `N::Int`: Number of exponential terms used to approximate the bath correlation functions.
+- `N::Int`: (N+1)-terms of exponential terms are used to approximate the bath correlation function.
 
 # Returns
 - `bath::BosonBath` : a bosonic bath object with describes the interaction between system and bosonic bath

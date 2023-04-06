@@ -13,7 +13,7 @@ This method will return the time evolution of `ADOs` corresponds to `tlist = 0 :
 - `threshold::Real` : Determines the threshold for the Taylor series. Defaults to `1.0e-6`.
 - `nonzero_tol::Real` : Strips elements smaller than `nonzero_tol` at each computation step to preserve sparsity. Defaults to `1.0e-14`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
-- `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file during the solving process.
+- `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" during the solving process.
 
 For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/FastExpm.jl)
 
@@ -62,7 +62,7 @@ This method will return the time evolution of `ADOs` corresponds to `tlist = 0 :
 - `threshold::Real` : Determines the threshold for the Taylor series. Defaults to `1.0e-6`.
 - `nonzero_tol::Real` : Strips elements smaller than `nonzero_tol` at each computation step to preserve sparsity. Defaults to `1.0e-14`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
-- `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file during the solving process.
+- `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" during the solving process.
 
 For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/FastExpm.jl)
 
@@ -89,13 +89,16 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
     end
 
     SAVE::Bool = (filename != "")
-    if SAVE && isfile(filename)
-        error("FILE: $(filename) already exist.")
+    if SAVE 
+        FILENAME = filename * ".jld2"
+        if isfile(FILENAME)
+            error("FILE: $(FILENAME) already exist.")
+        end
     end
 
     ADOs_list::Vector{ADOs} = [ados]
     if SAVE
-        jldopen(filename, "a") do file
+        jldopen(FILENAME, "a") do file
             file["0"] = ados
         end
     end
@@ -126,7 +129,7 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
         push!(ADOs_list, ados)
         
         if SAVE
-            jldopen(filename, "a") do file
+            jldopen(FILENAME, "a") do file
                 file[string(n * Δt)] = ados
             end
         end
@@ -157,7 +160,7 @@ with initial state is given in the type of density-matrix (`ρ0`).
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
 - `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
-- `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file during the solving process.
+- `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" during the solving process.
 - `SOLVEROptions` : extra options for solver
 
 For more details about solvers and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
@@ -214,7 +217,7 @@ with initial state is given in the type of `ADOs`.
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
 - `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
-- `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file during the solving process.
+- `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" during the solving process.
 - `SOLVEROptions` : extra options for solver
 
 For more details about solvers and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
@@ -245,13 +248,16 @@ For more details about solvers and extra options, please refer to [`Differential
     end
 
     SAVE::Bool = (filename != "")
-    if SAVE && isfile(filename)
-        error("FILE: $(filename) already exist.")
+    if SAVE 
+        FILENAME = filename * ".jld2"
+        if isfile(FILENAME)
+            error("FILE: $(FILENAME) already exist.")
+        end
     end
 
     ADOs_list::Vector{ADOs} = [ados]
     if SAVE
-        jldopen(filename, "a") do file
+        jldopen(FILENAME, "a") do file
             file[string(tlist[1])] = ados
         end
     end
@@ -288,7 +294,7 @@ For more details about solvers and extra options, please refer to [`Differential
         push!(ADOs_list, ados)
         
         if SAVE
-            jldopen(filename, "a") do file
+            jldopen(FILENAME, "a") do file
                 file[string(tlist[idx])] = ados
             end
         end
@@ -320,7 +326,7 @@ with initial state is given in the type of density-matrix (`ρ0`).
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
 - `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
-- `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file during the solving process.
+- `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" during the solving process.
 - `SOLVEROptions` : extra options for solver
 
 For more details about solvers and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
@@ -380,7 +386,7 @@ with initial state is given in the type of `ADOs`.
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
 - `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
-- `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file during the solving process.
+- `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" during the solving process.
 - `SOLVEROptions` : extra options for solver
 
 For more details about solvers and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
@@ -413,13 +419,16 @@ For more details about solvers and extra options, please refer to [`Differential
     end
 
     SAVE::Bool = (filename != "")
-    if SAVE && isfile(filename)
-        error("FILE: $(filename) already exist.")
+    if SAVE 
+        FILENAME = filename * ".jld2"
+        if isfile(FILENAME)
+            error("FILE: $(FILENAME) already exist.")
+        end
     end
 
     ADOs_list::Vector{ADOs} = [ados]
     if SAVE
-        jldopen(filename, "a") do file
+        jldopen(FILENAME, "a") do file
             file[string(tlist[1])] = ados
         end
     end
@@ -463,7 +472,7 @@ For more details about solvers and extra options, please refer to [`Differential
         push!(ADOs_list, ados)
         
         if SAVE
-            jldopen(filename, "a") do file
+            jldopen(FILENAME, "a") do file
                 file[string(tlist[idx])] = ados
             end
         end

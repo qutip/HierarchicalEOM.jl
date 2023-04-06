@@ -8,16 +8,26 @@
  - [HEOM liouvillian superoperator](#HEOM-liouvillian-superoperator)
  - [Time Evolution](#Time-Evolution)
  - [Stationary State](#Stationary-State)
+ - [Reduced Density Operator](#Reduced-Density-Operator)
+ - [Expectation Value](#Expectation-Value)
  - [Multiple Baths](#Multiple-Baths)
 ### Import Heom.jl
 Here are the functions in `Heom.jl` that we will use in this tutorial (Quick Start):
 
 
 ```julia
-import Heom: Boson_DrudeLorentz_Pade, M_Boson, evolution, SteadyState, getRho, BosonBath
+import Heom
+import Heom: Boson_DrudeLorentz_Pade, M_Boson, evolution, SteadyState, getRho, BosonBath, Expect
 ```
 
 Note that you can also type `using Heom` to import everything you need in `Heom.jl`.
+To check the versions of dependencies of `Heom.jl` , run the following function
+
+
+```julia
+Heom.versioninfo()
+```
+    
 ### System and Bath
 Let us consider a simple two-level system coupled to a Drude-Lorentz bosonic bath. The system Hamiltonian, ``H_{sys}``, and the bath spectral density, ``J_D``, are
 
@@ -79,7 +89,7 @@ N = 2
 bath = Boson_DrudeLorentz_Pade(Q.data, λ, W, T, N)
 ```
 
-For other different expansions of the different spectral density correlation functions, please refer to [Bosonic Bath](@ref) and [Fermionic Bath](@ref).
+For other different expansions of the different spectral density correlation functions, please refer to [Bosonic Bath](@ref doc-Bosonic-Bath) and [Fermionic Bath](@ref doc-Fermionic-Bath).
 ### HEOM liouvillian superoperator
 For bosonic bath, we can construct the Heom liouvillian superoperator matrix by calling [`M_Boson`](@ref)
 
@@ -93,7 +103,7 @@ tier = 5
 L = M_Boson(Hsys.data, tier, bath; verbose=false)
 ```
 
-To learn more about the Heom liouvillian superoperator matrix (including other types: `M_Fermion`, `M_Boson_Fermion`), please refer to [HEOM Matrix](@ref).
+To learn more about the Heom liouvillian superoperator matrix (including other types: `M_Fermion`, `M_Boson_Fermion`), please refer to [HEOMLS Matrices](@ref doc-HEOMLS-Matrix).
 ### Time Evolution
 Next, we can calculate the time evolution for the entire auxiliary density operators (ADOs) by calling [`evolution`](@ref)
 
@@ -103,7 +113,7 @@ tlist = 0:0.2:50
 ados_list = evolution(L, ρ0.data, tlist; verbose=false)
 ```
 
-To learn more about `evolution`, please refer to [Auxiliary Density Operators](@ref).
+To learn more about `evolution`, please refer to [Time Evolution](@ref doc-Time-Evolution).
 ### Stationary State
 We can also solve the stationary state of the auxiliary density operators (ADOs) by calling [`SteadyState`](@ref).
 
@@ -112,15 +122,25 @@ We can also solve the stationary state of the auxiliary density operators (ADOs)
 ados_steady = SteadyState(L; verbose=false)
 ```
 
-To learn more about `SteadyState`, please refer to [Auxiliary Density Operators](@ref).
-#### Calculate population and coherence
-We can now compare the results obtained from `evolution` and `SteadyState`:
+To learn more about `SteadyState`, please refer to [Stationary State](@ref doc-Stationary-State).
+### Reduced Density Operator
+To obtain the reduced density operator, one can either access the first element of auxiliary density operator (`ADOs`) or call [`getRho`](@ref):
 
 
 ```julia
-import LinearAlgebra: tr  # import trace function
+# reduce density operator in third time step of the evolution
+ρ = ados_list[3][1]
+ρ = getRho(ados_list[3])
+
+# reduce density operator in stationary state
+ρ = ados_steady[1]
+ρ = getRho(ados_steady)
 ```
 
+One of the great features of `Heom.jl` is that we allow users to not only considering the density operator of the reduced
+state but also easily take high-order terms into account without struggling in finding the indices (see [Auxiliary Density Operators](@ref doc-ADOs) and [Hierarchy Dictionary](@ref doc-Hierarchy-Dictionary) for more details).
+### Expectation Value
+We can now compare the results obtained from `evolution` and `SteadyState`:
 
 
 ```julia
@@ -134,70 +154,48 @@ P11 = Ket(basis, [0, 1]) ⊗ Bra(basis, [0, 1])
 P01 = Ket(basis, [1, 0]) ⊗ Bra(basis, [0, 1])
 ```
 
-To obtain the reduced density operator, one can either access the first element of auxiliary density operator (`ADOs`) or call [`getRho`](@ref):
 
 
 ```julia
 # for steady state
-ρs = ados_steady[1]  # 1 represents the 1st auxiliary density operator (reduce state)
-p00_s = real(tr(P00.data * ρs))
-p01_s = real(tr(P01.data * ρs))
+p00_s = Expect(P00.data, ados_steady)
+p01_s = Expect(P01.data, ados_steady)
 
 # for time evolution
-p00_e = []
-p01_e = []
-for i in 1:length(tlist)
-    ρe = ados_list[i][1]
-    push!(p00_e, real(tr(P00.data * ρe)))
-    push!(p01_e, real(tr(P01.data * ρe)))
-end
+p00_e = Expect(P00.data, ados_list)
+p01_e = Expect(P01.data, ados_list)
 ```
 
-One of the great features of `Heom.jl` is that we allow users to not only considering the density operator of the reduced
-state but also easily take high-order terms into account without struggling in finding the indices (see [Hierarchy Dictionary](@ref) for more details).
-#### Plot the results
+### Plot the results
 
 
 ```julia
-using Plots
-Plots.scalefontsizes(1.5)
+using PyPlot, LaTeXStrings
 ```
-
-
 
 ```julia
-p = plot(
-    tlist, 
-    [
-        p00_e,
-        p01_e,
-        ones(length(tlist)) .* p00_s, 
-        ones(length(tlist)) .* p01_s,
-    ],
-    label=["P00" "P01" "P00 (Steady State)" "P01 (Steady State)"],
-    linecolor=[ :blue   :red :blue  :red],
-    linestyle=[:solid :solid :dash :dash],
-    xlabel="time",
-    ylabel="Population",
-    fontfamily="Computer Modern",
-    linewidth=3, 
-    grid=false,
-    dpi=300 
-)
-
-p
+lw = 3
+plot(tlist, p00_e, "-", linewidth=lw, color="blue", label=L"\textrm{P}_{00}")
+plot(tlist, p01_e, "-", linewidth=lw, color="red",  label=L"\textrm{P}_{01}")
+plot(tlist, ones(length(tlist)) .* p00_s, "--", linewidth=lw, color="blue", label=L"\textrm{P}_{00} \textrm{(Steady State)}")
+plot(tlist, ones(length(tlist)) .* p01_s, "--", linewidth=lw, color="red",  label=L"\textrm{P}_{01} \textrm{(Steady State)}")
+xlabel("time")
+ylabel("Population")
+legend()
 ```
 
 
 
 
 
-![svg](quick_start_files/quick_start_28_0.svg)
+![png](quick_start_files/quick_start_28_0.png)
 
 
 ### Multiple Baths
 `Heom.jl` also supports for system to interact with multiple baths.  
 All you need to do is to provide a list of baths instead of a single bath
+
+Note that, for the following, we use the built-in linear algebra in Julia (instead of `QuantumOptics.jl`) to construct the operators 
 
 
 ```julia
@@ -249,42 +247,25 @@ P11 = [0 0 0; 0 1 0; 0 0 0]
 P22 = [0 0 0; 0 0 0; 0 0 1]
 
 # calculate population for each system state:
-p0 = []
-p1 = []
-p2 = []
-for ados in ados_list
-    ρ = getRho(ados)  # same as ados[1]
-    push!(p0, real(tr(P00 * ρ)))
-    push!(p1, real(tr(P11 * ρ)))
-    push!(p2, real(tr(P22 * ρ)))
-end
+p0 = Expect(P00, ados_list)
+p1 = Expect(P11, ados_list)
+p2 = Expect(P22, ados_list)
 ```
 
 
 
 ```julia
-p = plot(
-    tlist, 
-    [p0, p1, p2],
-    label=["P0" "P1" "P2"],
-    linecolor=[ :blue :red :green],
-    linestyle=[:solid :dot  :dash],
-    xlabel="time",
-    ylabel="Population",
-    fontfamily="Computer Modern",
-    linewidth=2, 
-    grid=false,
-    dpi=300 
-)
-
-p
+lw = 2
+plot(tlist, p0, "-",  linewidth=lw, color="blue",   label=L"P_0")
+plot(tlist, p1, "-",  linewidth=lw, color="orange", label=L"P_1")
+plot(tlist, p2, "-", linewidth=lw, color="green",   label=L"P_2")
+xlabel("time")
+ylabel("Population")
+legend()
 ```
 
 
 
-
-
-![svg](quick_start_files/quick_start_34_0.svg)
-
+![png](quick_start_files/quick_start_38_0.png)
 
 Note that this example can also be found in [qutip documentation](https://qutip.org/docs/latest/guide/heom/bosonic.html).
