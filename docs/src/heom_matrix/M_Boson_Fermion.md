@@ -1,5 +1,5 @@
-# HEOM Matrix for Hybrid (Bosonic and Fermionic) Bath
-The HEOM Liouvillian superoperator matrix which describes the system simultaneously interacts with multiple [Bosonic baths](@ref doc-Bosonic-Bath) and [Fermionic baths](@ref doc-Fermionic-Bath). 
+# [HEOM Matrix for Hybrid (Bosonic and Fermionic) Baths](@id doc-M_Boson_Fermion)
+The HEOM Liouvillian superoperator matrix [`struct M_Boson_Fermion <: AbstractHEOMMatrix`](@ref M_Boson_Fermion) which describes the system simultaneously interacts with multiple [Bosonic baths](@ref doc-Bosonic-Bath) and [Fermionic baths](@ref doc-Fermionic-Bath). 
 
 ## Construct Matrix
 To construct the HEOM matrix in this case, one can call 

@@ -7,6 +7,8 @@ The hierarchical equations of motion Liouvillian superoperator (HEOMLS) ``\hat{\
 ```
 and it can, numerically, be expressed as a matrix. 
 
+In `Heom.jl`, all different types of HEOMLS ``\hat{\mathcal{M}}`` are subtype of `AbstractHEOMMatrix`.
+
 The HEOMLS ``\hat{\mathcal{M}}`` not only characterizes the bare system dynamics (based on system Hamiltonian), but it also encodes the system-and-multiple-bosonic-baths and system-and-multiple-fermionic-baths interactions based on [Bosonic Bath](@ref doc-Bosonic-Bath) and [Fermionic Bath](@ref doc-Fermionic-Bath), respectively. For a specific ``m``th-level-bosonic-and-``n``th-level-fermionic auxiliary density operator ``\rho^{(m,n,p)}_{\textbf{j} \vert \textbf{q}}``, it will be coupled to the following ADOs through ``\hat{\mathcal{M}}``:
  - ``(m+1)``th-level-bosonic-and-``n``th-level-fermionic ADOs
  - ``(m-1)``th-level-bosonic-and-``n``th-level-fermionic ADOs

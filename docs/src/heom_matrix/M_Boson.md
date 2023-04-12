@@ -1,5 +1,5 @@
-# HEOM Matrix for Bosonic Baths
-The HEOM Liouvillian superoperator matrix which describes the interactions between the system and multiple [Bosonic baths](@ref doc-Bosonic-Bath). 
+# [HEOM Matrix for Bosonic Baths](@id doc-M_Boson)
+The HEOM Liouvillian superoperator matrix [`struct M_Boson <: AbstractHEOMMatrix`](@ref M_Boson) which describes the interactions between the system and multiple [Bosonic baths](@ref doc-Bosonic-Bath).
 
 ## Construct Matrix
 To construct the HEOM matrix in this case, one can call 
