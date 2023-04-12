@@ -1,4 +1,6 @@
 # [Spectrum](@id doc-Spectrum)
+
+## Introduction
 We briefly summarize how to numerically compute the spectrum associated with the system degree of freedom. [Phys. Rev. Lett. 109, 266403 (2012)](https://link.aps.org/doi/10.1103/PhysRevLett.109.266403) showed that the spectrum can be evaluated either in time or frequency domain.
 
 `Heom.jl` provides a function [`spectrum`](@ref) which performs the calculation in frequency domain. There are two different methods (as shown below) which depends on the [parity](@ref doc-Parity) of the HEOMLS matrices ``\hat{\mathcal{M}}`` corresponds to different system degree of freedom. 
