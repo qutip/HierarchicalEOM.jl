@@ -15,7 +15,7 @@ length(ados);  # returns the total number of `ADOs`
 ados[1:idx];   # returns a vector which contains the `ADO` (in matrix form) from index `1` to `idx`
 ados[1:end];   # returns a vector which contains all the `ADO` (in matrix form)
 ados[:];       # returns a vector which contains all the `ADO` (in matrix form)
-from rho in ados  # iteration
+for rho in ados  # iteration
     # do something
 end
 ```

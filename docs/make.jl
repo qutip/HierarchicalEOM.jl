@@ -10,6 +10,7 @@ const PAGES = Any[
     ],
     "Bosonic Bath" => "bosonic_bath.md",
     "Fermionic Bath" => "fermionic_bath.md",
+    "Auxiliary Density Operators" => "ADOs.md",
     "HEOMLS Matrices" => Any[
         "Introduction" => "heom_matrix/intro.md",
         "Schrödinger Equation" => "heom_matrix/schrodinger_eq.md",
@@ -18,7 +19,6 @@ const PAGES = Any[
         "Bosonic and Fermionic Bath" => "heom_matrix/M_Boson_Fermion.md",
         "Master Equation" => "heom_matrix/master_eq.md",
     ],
-    "Auxiliary Density Operators" => "ADOs.md",
     "Hierarchy Dictionary" => "hierarchy_dictionary.md",
     "Time Evolution" => "time_evolution.md",
     "Stationary State" => "stationary_state.md",
