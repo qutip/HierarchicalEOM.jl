@@ -1,4 +1,4 @@
-# [HEOM Matrix for Fermionic Baths](@id doc-M_Fermion)
+# [HEOMLS Matrix for Fermionic Baths](@id doc-M_Fermion)
 The HEOM Liouvillian superoperator matrix [`struct M_Fermion <: AbstractHEOMMatrix`](@ref M_Fermion) which describes the interactions between the system and multiple [Fermionic baths](@ref doc-Fermionic-Bath).
 
 ## Construct Matrix

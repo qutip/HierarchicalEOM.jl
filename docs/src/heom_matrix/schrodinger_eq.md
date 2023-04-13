@@ -1,4 +1,4 @@
-# [HEOM Matrix for Schrödinger Equation](@id doc-M_S)
+# [HEOMLS Matrix for Schrödinger Equation](@id doc-M_S)
 The HEOM Liouvillian superoperator matrix with cutoff level of the hierarchy equals to `0`: [`struct M_S <: AbstractHEOMMatrix`](@ref M_S) 
 
 This corresponds to the standard Schrodinger (Liouville-von Neumann) equation, namely

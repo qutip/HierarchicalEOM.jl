@@ -49,7 +49,7 @@ M = M_Boson_Fermion(Hs, Btier, Ftier, Bbath, Fbath; threshold=1e-7)
 !!! note "Default value of importance threshold"
     The full hierarchical equations can be recovered in the limiting case ``\mathcal{I}_\textrm{th}\rightarrow 0``, which is the default value of the parameter : `threshold=0.0`. This means that all of the ADOs will be taken into account by default.
 
-# [Parity Support for HEOM Matrices](@id doc-Parity)
+# [Parity Support for HEOMLS Matrices](@id doc-Parity)
 When the system Hamiltonian contains fermionic systems, the HEOMLS matrix ``\hat{\mathcal{M}}`` might be constructed into a different one depend on the parity of the operator it is acting on. Usually, it is acting on the reduced density operator and [auxiliary density operators (ADOs)](@ref doc-ADOs), which are all in `:even`-parity. However, there are some situations (for example, [calculating spectrum for fermionic systems](@ref doc-DOS)) where ``\hat{\mathcal{M}}`` is acting on operators with `:odd`-parity.
 
 One can specify the parameter `parity::Symbol` in the function of constructing ``\hat{\mathcal{M}}`` to be `:even` or `:odd`. The default value of the parameter is `parity=:even`.

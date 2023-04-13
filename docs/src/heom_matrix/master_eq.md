@@ -1,4 +1,4 @@
-# [HEOM Matrix for Master Equation](@id doc-Master-Equation)
+# [HEOMLS Matrix for Master Equation](@id doc-Master-Equation)
 
 `Heom.jl` allows users to further add the Lindbladian (superoperator) on any types (`AbstractHEOMMatrix`) of HEOM Liouvillian superoperator ``\hat{\mathcal{M}}``. The Lindbladian describes the dissipative interaction between the system and extra environment.
 
