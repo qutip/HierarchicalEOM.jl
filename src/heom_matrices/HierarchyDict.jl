@@ -5,9 +5,9 @@ struct HierarchyDict <: AbstractHierarchyDict
 An object which contains all dictionaries for pure (bosonic or fermionic) bath-ADOs hierarchy.
 
 # Fields
-- `idx2nvec` : Return the `Nvec` from a given index
-- `nvec2idx` : Return the index from a given `Nvec`
-- `lvl2idx` : Return the list of indices from a given level
+- `idx2nvec` : Return the `Nvec` from a given index of ADO
+- `nvec2idx` : Return the index of ADO from a given `Nvec`
+- `lvl2idx` : Return the list of ADO-indices from a given hierarchy level
 - `bathPtr` : Records the tuple ``(\alpha, k)`` for each position in `Nvec`, where ``\alpha`` and ``k`` represents the ``k``-th exponential-expansion term of the ``\alpha``-th bath.
 """
 struct HierarchyDict <: AbstractHierarchyDict
@@ -22,10 +22,10 @@ end
 An object which contains all dictionaries for mixed (bosonic and fermionic) bath-ADOs hierarchy.
 
 # Fields
-- `idx2nvec` : Return the tuple `(Nvec_b, Nvec_f)` from a given index, where `b` represents boson and `f` represents fermion
+- `idx2nvec` : Return the tuple `(Nvec_b, Nvec_f)` from a given index of ADO, where `b` represents boson and `f` represents fermion
 - `nvec2idx` : Return the index from a given tuple `(Nvec_b, Nvec_f)`, where `b` represents boson and `f` represents fermion
-- `Blvl2idx` : Return the list of indices from a given bosonic level (excitation)
-- `Flvl2idx` : Return the list of indices from a given fermionic level (excitation)
+- `Blvl2idx` : Return the list of ADO-indices from a given bosonic-hierarchy level
+- `Flvl2idx` : Return the list of ADO-indices from a given fermionic-hierarchy level
 - `bosonPtr` : Records the tuple ``(\alpha, k)`` for each position in `Nvec_b`, where ``\alpha`` and ``k`` represents the ``k``-th exponential-expansion term of the ``\alpha``-th bosonic bath.
 - `fermionPtr` : Records the tuple ``(\alpha, k)`` for each position in `Nvec_f`, where ``\alpha`` and ``k`` represents the ``k``-th exponential-expansion term of the ``\alpha``-th fermionic bath.
 """
@@ -163,7 +163,7 @@ end
     return length(idx2nvec), baths, hierarchy
 end
 
-# for max hierarchy dictionary
+# for mixed hierarchy dictionary
 @noinline function genBathHierarchy(bB::Vector{BosonBath}, fB::Vector{FermionBath}, tier_b::Int, tier_f::Int, dim::Int; threshold::Real=0.0)
     # deal with boson bath
     Nterm_b   = 0
@@ -283,7 +283,7 @@ for idx in idx_list
     ρ1 = ados[idx]  # one of the 1st-level ADO
     nvec = HDict.idx2nvec[idx]  # the nvec corresponding to ρ1
     
-    for (α, k, n) in getEnsemble(nvec, HDict.bathPtr)
+    for (α, k, n) in getIndexEnsemble(nvec, HDict.bathPtr)
         α  # index of the bath
         k  # the index of the exponential-expansion term in α-th bath
         n  # the repetition number of the ensemble {α, k} in ADOs
