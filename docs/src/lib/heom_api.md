@@ -3,37 +3,41 @@
 ## Heom liouvillian superoperator matrices
 
 ### Heom matrix for standard Schrodinger (Liouville-von Neumann) equation 
+#### Type Definition
 ```@docs
 M_S
 ```
-
+#### [Constructor](@id M_S_Constructor)
 ```@docs
 M_S(Hsys, parity::Symbol=:even; verbose::Bool=true)
 ```
 
 ### Boson Heom matrix
+#### Type Definition
 ```@docs
 M_Boson
 ```
-
+#### [Constructor](@id M_Boson_Constructor)
 ```@docs
 M_Boson(Hsys, tier::Int, Bath::Vector{BosonBath}, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)
 ```
 
 ### Fermion Heom matrix
+#### Type Definition
 ```@docs
 M_Fermion
 ```
-
+#### [Constructor](@id M_Fermion_Constructor)
 ```@docs
 M_Fermion(Hsys, tier::Int, Bath::Vector{FermionBath}, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)
 ```
 
 ### Boson-Fermion Heom matrix
+#### Type Definition
 ```@docs
 M_Boson_Fermion
 ```
-
+#### [Constructor](@id M_Boson_Fermion_Constructor)
 ```@docs
 M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::Vector{FermionBath}, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)
 ```

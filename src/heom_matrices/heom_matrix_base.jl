@@ -66,7 +66,7 @@ The dissipator is defined as follows
 ```math
 D[J](\cdot) = J(\cdot) J^\dagger - \frac{1}{2}\left(J^\dagger J (\cdot) + (\cdot) J^\dagger J \right),
 ```
-where ``J\equiv \sqrt{\gamma}V`` is the jump operator, ``V`` describes the dissipative part (operator) of the dynamics, and ``\gamma`` represents a non-negative damping rate.
+where ``J\equiv \sqrt{\gamma}V`` is the jump operator, ``V`` describes the dissipative part (operator) of the dynamics, ``\gamma`` represents a non-negative damping rate and ``[\cdot, \cdot]_+`` stands for anti-commutator.
 
 Note that if ``V`` is acting on fermionic systems, it should be even-parity to be compatible with charge conservation.
 
@@ -107,7 +107,7 @@ The dissipator with `:even` parity is defined as follows
 ```math
 D_{\textrm{even}}[J](\cdot) = J(\cdot) J^\dagger - \frac{1}{2}\left(J^\dagger J (\cdot) + (\cdot) J^\dagger J \right),
 ```
-where ``J\equiv \sqrt{\gamma}V`` is the jump operator, ``V`` describes the dissipative part (operator) of the dynamics, and ``\gamma`` represents a non-negative damping rate.
+where ``J\equiv \sqrt{\gamma}V`` is the jump operator, ``V`` describes the dissipative part (operator) of the dynamics, ``\gamma`` represents a non-negative damping rate and ``[\cdot, \cdot]_+`` stands for anti-commutator.
 
 Similary, the dissipator with `:odd` parity is defined as follows
 ```math
