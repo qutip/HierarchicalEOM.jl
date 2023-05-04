@@ -1,13 +1,13 @@
-import SnoopPrecompile: @precompile_setup, @precompile_all_calls
+import PrecompileTools
 
-@precompile_setup begin
+PrecompileTools.@setup_workload begin
     # Putting some things in `setup` can reduce the size of the
     # precompile file and potentially make loading faster.
     op = [0.1 0.2; 0.2 0.4]
     bB = Boson_DrudeLorentz_Pade(op, 1, 1., 1., 3)
     fB = Fermion_Lorentz_Pade(op, 1., 1., 1., 1., 2)
 
-    @precompile_all_calls begin
+    PrecompileTools.@compile_workload begin
         # all calls in this block will be precompiled, regardless of whether
         # they belong to your package or not (on Julia 1.8 and higher)
         
@@ -52,6 +52,5 @@ import SnoopPrecompile: @precompile_setup, @precompile_all_calls
         psd = spectrum(Mb,  [1. 0.; 0. 0.], op, [1]; verbose=false)
         dos = spectrum(Mfo, [1. 0.; 0. 0.], op, [1]; verbose=false)
     end
-    GC.gc() # clean garbage collection
     @info "Heom precompilation complete"
 end

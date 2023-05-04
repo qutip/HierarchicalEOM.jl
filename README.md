@@ -32,8 +32,8 @@ julia> Heom.versioninfo()
 ```
 
 ## Documentation
-The documentation and examples can be found in :
-- [**STABLE (not ready yet)**](https://ncku-qfort.github.io/Heom.jl/stable) : most recently tagged version.
+The documentation can be found in :
+- [**STABLE**](https://ncku-qfort.github.io/Heom.jl/stable) : most recently tagged version.
 - [**DEVELOP**](https://ncku-qfort.github.io/Heom.jl/dev/) : in-development version.
 
 ## Cite `Heom.jl`
