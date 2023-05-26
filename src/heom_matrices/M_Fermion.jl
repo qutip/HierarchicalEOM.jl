@@ -104,32 +104,32 @@ Generate the fermion-type Heom liouvillian superoperator matrix
         add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx)
 
         # connect to fermionic (n+1)th- & (n-1)th- level superoperator
-        count = 0
+        mode = 0
         nvec_neigh = copy(nvec)
         for fB in baths
             for k in 1:fB.Nterm
-                count += 1
-                n_k = nvec[count]
+                mode += 1
+                n_k = nvec[mode]
 
                 # connect to fermionic (n-1)th-level superoperator
                 if n_k > 0
-                    Nvec_minus!(nvec_neigh, count)
+                    Nvec_minus!(nvec_neigh, mode)
                     if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                         idx_neigh = nvec2idx[nvec_neigh]
-                        op = _C_op(fB, k, nvec.level, sum(nvec_neigh[1:(count - 1)]), parity)
+                        op = _C_op(fB, k, nvec.level, sum(nvec_neigh[1:(mode - 1)]), parity)
                         add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
                     end
-                    Nvec_plus!(nvec_neigh, count)
+                    Nvec_plus!(nvec_neigh, mode)
 
                 # connect to fermionic (n+1)th-level superoperator
                 elseif nvec.level < tier
-                    Nvec_plus!(nvec_neigh, count)
+                    Nvec_plus!(nvec_neigh, mode)
                     if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                         idx_neigh = nvec2idx[nvec_neigh]
-                        op = _A_op(fB, nvec.level, sum(nvec_neigh[1:(count - 1)]), parity)
+                        op = _A_op(fB, nvec.level, sum(nvec_neigh[1:(mode - 1)]), parity)
                         add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
                     end
-                    Nvec_minus!(nvec_neigh, count)
+                    Nvec_minus!(nvec_neigh, mode)
                 end
             end
         end
