@@ -98,7 +98,7 @@ The different types of the (bosonic-bath) [`Exponent`](@ref):
 
 ## Drude-Lorentz Spectral Density
 ```math
-J(\omega)=\frac{2\Delta W\omega}{\omega^2+W^2}
+J(\omega)=\frac{4\pi\Delta W\omega}{\omega^2+W^2}
 ```
 Here, ``\Delta`` represents the coupling strength between system and the bosonic environment with band-width ``W``.
 

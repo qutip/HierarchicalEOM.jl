@@ -284,17 +284,17 @@ end
 
 # connect to fermionic (n-1)th-level for "absorption operator"
 function _C_op(bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
-    return -1im * ((-1) ^ n_exc_before) * ((-1) ^ eval(parity)) * (
-        bath.η[k] * bath.spre +
-        (-1) ^ (eval(parity) + 1) * (-1) ^ (n_exc - 1) * conj(bath.η_emit[k]) * bath.spost
+    return -1im * ((-1) ^ n_exc_before) * (
+        ((-1) ^ eval(parity)) * bath.η[k] * bath.spre -
+        (-1) ^ (n_exc - 1)    * conj(bath.η_emit[k]) * bath.spost
     )
 end
 
 # connect to fermionic (n-1)th-level for "emission operator"
 function _C_op(bath::fermionEmit, k, n_exc, n_exc_before, parity)
-    return -1im * ((-1) ^ n_exc_before) * ((-1) ^ eval(parity)) * (
-        bath.η[k] * bath.spre + 
-        (-1) ^ (eval(parity) + 1) * (-1) ^ (n_exc - 1) * conj(bath.η_absorb[k]) * bath.spost
+    return -1im * ((-1) ^ n_exc_before) * (
+        (-1) ^ (eval(parity)) * bath.η[k] * bath.spre -
+        (-1) ^ (n_exc - 1)    * conj(bath.η_absorb[k]) * bath.spost
     )
 end
 
@@ -305,8 +305,8 @@ end
 
 # connect to fermionic (n+1)th-level
 function _A_op(bath::T, n_exc, n_exc_before, parity) where T <: AbstractFermionBath
-    return -1im * ((-1) ^ n_exc_before) * ((-1) ^ eval(parity)) * (
-        bath.spreD -
-        (-1) ^ (eval(parity) + 1) * (-1) ^ (n_exc + 1) * bath.spostD
+    return -1im * ((-1) ^ n_exc_before) * (
+        (-1) ^ (eval(parity)) * bath.spreD  +
+        (-1) ^ (n_exc + 1)    * bath.spostD
     )
 end
