@@ -29,10 +29,10 @@ Package information:
 ====================================
 Heom            Version: 0.1.0
 JLD2            Version: 0.4.31
-LinearSolve     Version: 1.38.0
-OrdinaryDiffEq  Version: 6.49.3
+LinearSolve     Version: 1.42.0
+OrdinaryDiffEq  Version: 6.52.0
 ProgressMeter   Version: 1.7.2
-SnoopPrecompile Version: 1.0.3
+PrecompileTools Version: 1.1.2
 
 System information:
 ====================================
