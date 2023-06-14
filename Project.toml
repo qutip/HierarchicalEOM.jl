@@ -18,9 +18,14 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 SteadyStateDiffEq = "9672c7b4-1e72-59bd-8a11-6ac3964bc41f"
 
 [compat]
-JLD2 = ">= 0.4.23"
-LinearSolve = ">= 1.28"
+Crayons = "4.1"
+FastExpm = "1.1.0"
+JLD2 = "0.4.31"
+LinearSolve = "1.42.0"
+OrdinaryDiffEq = "6.52.0"
 PrecompileTools = "1"
+ProgressMeter = "1.7"
+SteadyStateDiffEq = "1.15.0"
 julia = "1.8"
 
 [extras]
