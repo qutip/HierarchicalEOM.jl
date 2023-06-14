@@ -127,7 +127,7 @@ function versioninfo(io::IO=stdout)
         "LinearSolve     Version: $(_get_pkg_version("LinearSolve"))\n",
         "OrdinaryDiffEq  Version: $(_get_pkg_version("OrdinaryDiffEq"))\n",
         "ProgressMeter   Version: $(_get_pkg_version("ProgressMeter"))\n",
-        "SnoopPrecompile Version: $(_get_pkg_version("SnoopPrecompile"))\n"
+        "PrecompileTools Version: $(_get_pkg_version("PrecompileTools"))\n"
     )
 
     # print System informations
