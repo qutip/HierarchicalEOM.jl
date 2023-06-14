@@ -38,7 +38,7 @@ idx = HDict.nvec2idx[nvec]
 idx_list = HDict.lvl2idx[3] 
 ```
 
-`Heom.jl` also provides a function [`getIndexEnsemble(nvec, bathPtr)`](@ref) to obtain the index of the [`Exponent`](@ref) and it's corresponding index of bath:
+`HEOM.jl` also provides a function [`getIndexEnsemble(nvec, bathPtr)`](@ref) to obtain the index of the [`Exponent`](@ref) and it's corresponding index of bath:
 ```julia
 # HEOMLS
 M::M_Boson
@@ -99,7 +99,7 @@ idx_list = HDict.Blvl2idx[3]
 idx_list = HDict.Flvl2idx[4] 
 ```
 
-`Heom.jl` also provides a function [`getIndexEnsemble(nvec, bathPtr)`](@ref) to obtain the index of the [`Exponent`](@ref) and it's corresponding index of bath:
+`HEOM.jl` also provides a function [`getIndexEnsemble(nvec, bathPtr)`](@ref) to obtain the index of the [`Exponent`](@ref) and it's corresponding index of bath:
 ```julia
 # HEOMLS
 M::M_Boson_Fermion

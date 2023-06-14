@@ -1,12 +1,12 @@
 push!(LOAD_PATH, "../src/")
-using Documenter, Heom
+using Documenter, HEOM
 
 const PAGES = Any[
     "Home" => Any[
         "Introduction" => "index.md",
         "Installation" => "install.md",
         "QuickStart"   => "examples/quick_start.md",
-        "Cite Heom"    => "cite.md"
+        "Cite HEOM"    => "cite.md"
     ],
     "Bosonic Bath" => "bosonic_bath.md",
     "Fermionic Bath" => "fermionic_bath.md",
@@ -25,7 +25,7 @@ const PAGES = Any[
     "Spectrum" => "spectrum.md",
     # "Examples" => Any[],
     "Library" => Any[
-        "Heom API" => "lib/heom_api.md",
+        "HEOM API" => "lib/heom_api.md",
         "Bath" => "lib/bath.md",
         "Bath Correlation Functions" => "lib/corr_func.md",
         "Physical Analysis Functions" => "lib/phys_analysis.md",
@@ -34,10 +34,10 @@ const PAGES = Any[
 ]
 
 makedocs(
-    sitename = "Documentation | Heom.jl",
+    sitename = "Documentation | HEOM.jl",
     pages=PAGES
 )
 
 deploydocs(
-    repo="github.com/NCKU-QFort/Heom.jl.git",
+    repo="github.com/NCKU-QFort/HEOM.jl.git",
 )

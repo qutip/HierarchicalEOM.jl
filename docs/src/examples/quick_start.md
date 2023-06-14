@@ -1,31 +1,31 @@
 # Quick Start
 
-(*This notebook can be found on* [github](https://github.com/NCKU-QFort/Heom.jl/tree/main/docs/src/notebooks))
+(*This notebook can be found on* [github](https://github.com/NCKU-QFort/HEOM.jl/tree/main/docs/src/notebooks))
 
 ### Content
- - [Import Heom.jl](#Import-Heom.jl)
+ - [Import HEOM.jl](#Import-HEOM.jl)
  - [System and Bath](#System-and-Bath)
- - [HEOM liouvillian superoperator](#HEOM-liouvillian-superoperator)
+ - [HEOM Liouvillian superoperator](#HEOM-Liouvillian-superoperator)
  - [Time Evolution](#Time-Evolution)
  - [Stationary State](#Stationary-State)
  - [Reduced Density Operator](#Reduced-Density-Operator)
  - [Expectation Value](#Expectation-Value)
  - [Multiple Baths](#Multiple-Baths)
-### Import Heom.jl
-Here are the functions in `Heom.jl` that we will use in this tutorial (Quick Start):
+### Import HEOM.jl
+Here are the functions in `HEOM.jl` that we will use in this tutorial (Quick Start):
 
 
 ```julia
-import Heom
-import Heom: Boson_DrudeLorentz_Pade, M_Boson, evolution, SteadyState, getRho, BosonBath, Expect
+import HEOM
+import HEOM: Boson_DrudeLorentz_Pade, M_Boson, evolution, SteadyState, getRho, BosonBath, Expect
 ```
 
-Note that you can also type `using Heom` to import everything you need in `Heom.jl`.
-To check the versions of dependencies of `Heom.jl` , run the following function
+Note that you can also type `using HEOM` to import everything you need in `HEOM.jl`.
+To check the versions of dependencies of `HEOM.jl` , run the following function
 
 
 ```julia
-Heom.versioninfo()
+HEOM.versioninfo()
 ```
     
 ### System and Bath
@@ -43,8 +43,8 @@ You can construct system hamiltonian, initial state, and coupling operators by s
 
 Moreover, it is also convenient to use [QuantumOptics](https://qojulia.org/) framework. It provides many useful functions to create arbitrary quantum states and operators which can be combined in all the expected ways.
 
-Note that `Heom.jl` only accept standard julia bulit-in types. If you use `QuantumOptics` to construct the operators, remember that the matrix (or vector) in standard type are stored in `.data` field of the objects, i.e., `op.data` where `op` is a `QuantumOptics`-type object.  
-Thus, you should take it as the inputs of `Heom.jl` for objects in `QuantumOptics` package.
+Note that `HEOM.jl` only accept standard julia bulit-in types. If you use `QuantumOptics` to construct the operators, remember that the matrix (or vector) in standard type are stored in `.data` field of the objects, i.e., `op.data` where `op` is a `QuantumOptics`-type object.  
+Thus, you should take it as the inputs of `HEOM.jl` for objects in `QuantumOptics` package.
 
 We demonstrate this tutorial by `QuantumOptics`:
 
@@ -90,8 +90,8 @@ bath = Boson_DrudeLorentz_Pade(Q.data, λ, W, T, N)
 ```
 
 For other different expansions of the different spectral density correlation functions, please refer to [Bosonic Bath](@ref doc-Bosonic-Bath) and [Fermionic Bath](@ref doc-Fermionic-Bath).
-### HEOM liouvillian superoperator
-For bosonic bath, we can construct the Heom liouvillian superoperator matrix by calling [`M_Boson`](@ref)
+### HEOM Liouvillian superoperator
+For bosonic bath, we can construct the HEOM Liouvillian superoperator matrix by calling [`M_Boson`](@ref)
 
 
 ```julia
@@ -103,7 +103,7 @@ tier = 5
 L = M_Boson(Hsys.data, tier, bath; verbose=false)
 ```
 
-To learn more about the Heom liouvillian superoperator matrix (including other types: `M_Fermion`, `M_Boson_Fermion`), please refer to [HEOMLS Matrices](@ref doc-HEOMLS-Matrix).
+To learn more about the HEOM Liouvillian superoperator matrix (including other types: `M_Fermion`, `M_Boson_Fermion`), please refer to [HEOMLS Matrices](@ref doc-HEOMLS-Matrix).
 ### Time Evolution
 Next, we can calculate the time evolution for the entire auxiliary density operators (ADOs) by calling [`evolution`](@ref)
 
@@ -137,7 +137,7 @@ To obtain the reduced density operator, one can either access the first element 
 ρ = getRho(ados_steady)
 ```
 
-One of the great features of `Heom.jl` is that we allow users to not only considering the density operator of the reduced
+One of the great features of `HEOM.jl` is that we allow users to not only considering the density operator of the reduced
 state but also easily take high-order terms into account without struggling in finding the indices (see [Auxiliary Density Operators](@ref doc-ADOs) and [Hierarchy Dictionary](@ref doc-Hierarchy-Dictionary) for more details).
 ### Expectation Value
 We can now compare the results obtained from `evolution` and `SteadyState`:
@@ -192,7 +192,7 @@ legend()
 
 
 ### Multiple Baths
-`Heom.jl` also supports for system to interact with multiple baths.  
+`HEOM.jl` also supports for system to interact with multiple baths.  
 All you need to do is to provide a list of baths instead of a single bath
 
 Note that, for the following, we use the built-in linear algebra in Julia (instead of `QuantumOptics.jl`) to construct the operators 

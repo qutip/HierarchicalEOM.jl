@@ -19,7 +19,7 @@ The hierarchy level (``L``) for an `n_vector` is given by ``L=\sum_{\alpha, k} n
 One can obtain the repetition number for specific index (`idx`) by calling : `n_vector[idx]`.
 To obtain the corresponding tuple ``(\alpha, k)`` for a given index `idx`, see `bathPtr` in [`HierarchyDict`](@ref) for more details.
 
-`Heom.jl` also supports the following calls (methods) :
+`HEOM.jl` also supports the following calls (methods) :
 ```julia
 length(n_vector);  # returns the length of `Nvec`
 n_vector[1:idx];   # returns a vector which contains the excitation number of `n_vector` from index `1` to `idx`

@@ -10,7 +10,7 @@ N = 2
 Q = [1 0; 0 -1]  # System-bath coupling operator
 bath = Boson_DrudeLorentz_Pade(Q, λ, W, T, N)
 
-# Heom liouvillian superoperator matrix
+# HEOM Liouvillian superoperator matrix
 tier = 5
 L = M_Boson(Hsys, tier, bath; verbose=false)
 

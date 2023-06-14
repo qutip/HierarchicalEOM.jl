@@ -6,7 +6,7 @@ const even = 0;
 
 @doc raw"""
     size(M::AbstractHEOMMatrix)
-Returns the size of the Heom liouvillian superoperator matrix
+Returns the size of the HEOM Liouvillian superoperator matrix
 """
 size(M::AbstractHEOMMatrix) = size(M.data)
 
@@ -36,7 +36,7 @@ function show(io::IO, m::MIME"text/plain", M::AbstractHEOMMatrix) show(io, M) en
 
 @doc raw"""
     Propagator(M, Δt; threshold, nonzero_tol)
-Use `FastExpm.jl` to calculate the propagator matrix from a given Heom liouvillian superoperator matrix ``M`` with a specific time step ``\Delta t``.
+Use `FastExpm.jl` to calculate the propagator matrix from a given HEOM Liouvillian superoperator matrix ``M`` with a specific time step ``\Delta t``.
 That is, ``\exp(M * \Delta t)``.
 
 # Parameters
@@ -75,7 +75,7 @@ Note that if ``V`` is acting on fermionic systems, it should be even-parity to b
 - `jumpOP::AbstractVector` : The list of collapse (jump) operators ``\{J_i\}_i`` to add. Defaults to empty vector `[]`.
 
 # Return 
-- `M_new::AbstractHEOMMatrix` : the new HEOM liouvillian superoperator matrix
+- `M_new::AbstractHEOMMatrix` : the new HEOM Liouvillian superoperator matrix
 """
 function addBosonDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMMatrix
     if length(jumpOP) > 0
@@ -121,7 +121,7 @@ Note that the parity of the dissipator will be determined by the parity of the g
 - `jumpOP::AbstractVector` : The list of collapse (jump) operators to add. Defaults to empty vector `[]`.
 
 # Return 
-- `M_new::AbstractHEOMMatrix` : the new HEOM liouvillian superoperator matrix
+- `M_new::AbstractHEOMMatrix` : the new HEOM Liouvillian superoperator matrix
 """
 function addFermionDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMMatrix
     if length(jumpOP) > 0
@@ -153,7 +153,7 @@ function addFermionDissipator(M::AbstractHEOMMatrix, jumpOP::AbstractMatrix) ret
     addTerminator(M, Bath)
 Adding terminator to a given HEOM matrix.
 
-The terminator is a liouvillian term representing the contribution to 
+The terminator is a Liouvillian term representing the contribution to 
 the system-bath dynamics of all exponential-expansion terms beyond `Bath.Nterm`
 
 The difference between the true correlation function and the sum of the 
@@ -165,20 +165,20 @@ Here, `δ` is the approximation discrepancy and `dirac(t)` denotes the Dirac-del
 - `Bath::Union{BosonBath, FermionBath}` : The bath object which contains the approximation discrepancy δ
 
 # Return 
-- `M_new::AbstractHEOMMatrix` : the new HEOM liouvillian superoperator matrix
+- `M_new::AbstractHEOMMatrix` : the new HEOM Liouvillian superoperator matrix
 """
 function addTerminator(M::Mtype, Bath::Union{BosonBath, FermionBath}) where Mtype <: AbstractHEOMMatrix
     Btype = typeof(Bath)
     if (Btype == BosonBath) && (Mtype == M_Fermion)
-        error("For $(Btype), the type of Heom matrix should be either M_Boson or M_Boson_Fermion.")
+        error("For $(Btype), the type of HEOM matrix should be either M_Boson or M_Boson_Fermion.")
     elseif (Btype == FermionBath) && (Mtype == M_Boson)
-        error("For $(Btype), the type of Heom matrix should be either M_Fermion or M_Boson_Fermion.")
+        error("For $(Btype), the type of HEOM matrix should be either M_Fermion or M_Boson_Fermion.")
     elseif Mtype == M_S
-        error("The type of input Heom matrix does not support this functionality.")
+        error("The type of input HEOM matrix does not support this functionality.")
     end
 
     if M.dim != Bath.dim
-        error("The system dimension between the Heom matrix and Bath are not consistent.")
+        error("The system dimension between the HEOM matrix and Bath are not consistent.")
     end
 
     if Bath.δ == 0

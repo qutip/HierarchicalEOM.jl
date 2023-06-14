@@ -29,7 +29,7 @@ M_odd  = M_S(Hs, :odd)
 
 ## Fields
 The fields of the structure [`M_S`](@ref) are as follows:
- - `data` : the sparse matrix of HEOM liouvillian superoperator
+ - `data` : the sparse matrix of HEOM Liouvillian superoperator
  - `tier` : the tier (cutoff level) for the hierarchy, which equals to `0` in this case
  - `dim` : the dimension of system
  - `N` : the number of total [ADOs](@ref doc-ADOs), which equals to `1` (only the reduced density operator) in this case

@@ -1,6 +1,6 @@
 # [Time Evolution](@id doc-Time-Evolution)
 ## Introduction
-`Heom.jl` implements various methods and solvers to simulate the open quantum system dynamics. 
+`HEOM.jl` implements various methods and solvers to simulate the open quantum system dynamics. 
 The [HEOM Liouvillian superoperator (HEOMLS) matrix](@ref doc-HEOMLS-Matrix) ``\hat{\mathcal{M}}`` characterizes the dynamics of the reduce state and in the full extended space of all [auxiliary density operators (ADOs)](@ref doc-ADOs) ``\rho^{(m,n,p)}_{\textbf{j} \vert \textbf{q}}(t)``, namely
 ```math
 \begin{equation}
@@ -41,7 +41,7 @@ The solution of the ADOs for each time step in `tlist` is saved in the file name
 To retrieve the solution ([`ADOs`](@ref)) from a previously saved file `"text.jld2"`, just read the file with the methods provided by [`JLD2.jl`](https://juliaio.github.io/JLD2.jl/stable/). The solution for a specific time step can be extract by using the string of the time step as the `"key"`.
 For example, if you want to obtain the solution at time `1.5`, which is one of the time steps in `tlist`:
 ```julia
-using Heom, JLD2 # rembember to import these before retrieving the solution
+using HEOM, JLD2 # rembember to import these before retrieving the solution
 
 t = 1.5
 filename = "test.jld2"
@@ -51,7 +51,7 @@ end
 ```
 
 ## Ordinary Differential Equation Method
-The first method is implemented by solving the ordinary differential equation (ODE) as shown above. `Heom.jl` wraps some of the functions in [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/), which is a very rich numerical library for solving the differential equations and provides many ODE solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to the documentation of [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/).
+The first method is implemented by solving the ordinary differential equation (ODE) as shown above. `HEOM.jl` wraps some of the functions in [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/), which is a very rich numerical library for solving the differential equations and provides many ODE solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to the documentation of [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/).
 
 ### Given the initial state as Density Operator (`AbstractMatrix` type)
 
@@ -154,7 +154,7 @@ H_s (t) = H_0 + H_1(t).
 ```
 We again wrap some of the functions in [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/) to solve the time-dependent problems here.
 
-To deal with the time-dependent system Hamiltonian problem in `Heom.jl`, we first construct the [HEOMLS matrices](@ref doc-HEOMLS-Matrix) ``\hat{\mathcal{M}}`` with **time-independent** Hamiltonian ``H_0``:
+To deal with the time-dependent system Hamiltonian problem in `HEOM.jl`, we first construct the [HEOMLS matrices](@ref doc-HEOMLS-Matrix) ``\hat{\mathcal{M}}`` with **time-independent** Hamiltonian ``H_0``:
 ```julia
 M = M_S(H0, ...)
 M = M_Boson(H0, ...)

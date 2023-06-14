@@ -55,7 +55,7 @@ end
 @test_throws ErrorException BosonBath(op, [0], [0, 0])
 @test_throws ErrorException BosonBath(op, [0, 0], [0, 0],    [0], [0, 0])
 @test_throws ErrorException BosonBath(op, [0, 0],    [0], [0, 0], [0, 0])
-@test_throws ErrorException @test_warn "Heom doesn't support matrix type : Vector{Int64}"  BosonBath([0, 0], [0, 0], [0, 0], [0, 0], [0, 0])
+@test_throws ErrorException @test_warn "HEOM doesn't support matrix type : Vector{Int64}"  BosonBath([0, 0], [0, 0], [0, 0], [0, 0], [0, 0])
 @test_warn "The system-bosonic-bath coupling operator \"op\" should be Hermitian operator" BosonBath([0 1; 0 0], [0, 0], [0, 0], [0, 0], [0, 0])
 ################################################
 

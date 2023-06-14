@@ -1,4 +1,4 @@
-The Heom.jl package is licensed under the Apache License, Version 2.0:
+The HEOM.jl package is licensed under the Apache License, Version 2.0:
 
 > COPYRIGHT
 >

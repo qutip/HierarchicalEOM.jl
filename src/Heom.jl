@@ -1,4 +1,4 @@
-module Heom
+module HEOM
     import Reexport: @reexport
     
     export 

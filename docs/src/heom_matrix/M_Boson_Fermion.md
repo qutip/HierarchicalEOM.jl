@@ -33,7 +33,7 @@ M_odd  = M_Fermion(Hs, Btier, Ftier, Bbath, Fbath, :odd)
 
 ## Fields
 The fields of the structure [`M_Boson_Fermion`](@ref) are as follows:
- - `data` : the sparse matrix of HEOM liouvillian superoperator
+ - `data` : the sparse matrix of HEOM Liouvillian superoperator
  - `Btier` : the tier (cutoff level) for bosonic hierarchy
  - `Ftier` : the tier (cutoff level) for fermionic hierarchy
  - `dim` : the dimension of system

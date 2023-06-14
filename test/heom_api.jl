@@ -1,4 +1,4 @@
-# Test Schrodinger type Heom liouvillian superoperator matrix
+# Test Schrodinger type HEOM Liouvillian superoperator matrix
 @testset "M_S" begin
     t = 10
     Hsys = [0 1; 1 0]
@@ -37,7 +37,7 @@
     @test_throws BoundsError L[1:5, 2]
     @test_throws ErrorException ados[L.N + 1]
     @test_throws ErrorException M_S(Hsys, :wrong; verbose=false)
-    @test_throws ErrorException @test_warn "Heom doesn't support matrix type : Vector{Int64}" M_S([0, 0]; verbose=false)
+    @test_throws ErrorException @test_warn "HEOM doesn't support matrix type : Vector{Int64}" M_S([0, 0]; verbose=false)
 end
 
 λ = 0.1450
@@ -64,7 +64,7 @@ Fbath = Fermion_Lorentz_Pade(Q, λ, μ, W, T, N)
 # jump operator
 J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
 
-# Test Boson-type Heom liouvillian superoperator matrix
+# Test Boson-type HEOM Liouvillian superoperator matrix
 @testset "M_Boson" begin
     L = M_Boson(Hsys, tier, Bbath; verbose=false)
     @test show(devnull, MIME("text/plain"), L) == nothing
@@ -106,10 +106,10 @@ J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
     @test_throws BoundsError L[1:1821, 336]
     @test_throws ErrorException ados[L.N + 1]
     @test_throws ErrorException M_Boson(Hsys, tier, Bbath, :wrong; verbose=false)
-    @test_throws ErrorException @test_warn "Heom doesn't support matrix type : Vector{Int64}" M_Boson([0, 0], tier, Bbath; verbose=false)
+    @test_throws ErrorException @test_warn "HEOM doesn't support matrix type : Vector{Int64}" M_Boson([0, 0], tier, Bbath; verbose=false)
 end
 
-# Test Fermion-type Heom liouvillian superoperator matrix
+# Test Fermion-type HEOM Liouvillian superoperator matrix
 @testset "M_Fermion" begin
     L = M_Fermion(Hsys, tier, Fbath; verbose=false)
     @test show(devnull, MIME("text/plain"), L) == nothing
@@ -160,10 +160,10 @@ end
     @test_throws BoundsError L[1:9301, 9300]
     @test_throws ErrorException ados[L.N + 1]
     @test_throws ErrorException M_Fermion(Hsys, tier, Fbath, :wrong; verbose=false)
-    @test_throws ErrorException @test_warn "Heom doesn't support matrix type : Vector{Int64}" M_Fermion([0, 0], tier, Fbath; verbose=false)
+    @test_throws ErrorException @test_warn "HEOM doesn't support matrix type : Vector{Int64}" M_Fermion([0, 0], tier, Fbath; verbose=false)
 end
 
-# Test Boson-Fermion-type Heom liouvillian superoperator matrix
+# Test Boson-Fermion-type HEOM Liouvillian superoperator matrix
 @testset "M_Boson_Fermion" begin
     # re-define the bath (make the matrix smaller)
     λ = 0.1450
@@ -232,7 +232,7 @@ end
     ## check exceptions
     @test_throws ErrorException ados[L.N + 1]
     @test_throws ErrorException M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath, :wrong; verbose=false)
-    @test_throws ErrorException @test_warn "Heom doesn't support matrix type : Vector{Int64}" M_Boson_Fermion([0, 0], tierb, tierf, Bbath, Fbath; verbose=false)
+    @test_throws ErrorException @test_warn "HEOM doesn't support matrix type : Vector{Int64}" M_Boson_Fermion([0, 0], tierb, tierf, Bbath, Fbath; verbose=false)
 end
 
 @testset "Hierarchy Dictionary" begin

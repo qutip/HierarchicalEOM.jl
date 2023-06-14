@@ -8,7 +8,7 @@ M[\cdot]=-i \left[H_{sys}, \cdot \right]_-,
 where ``[\cdot, \cdot]_-`` stands for commutator.
 
 # Fields
-- `data` : the sparse matrix of HEOM liouvillian superoperator
+- `data` : the sparse matrix of HEOM Liouvillian superoperator
 - `tier` : the tier (cutoff level) for the hierarchy, which equals to `0` in this case
 - `dim` : the dimension of system
 - `N` : the number of total ADOs, which equals to `1` (only the reduced density operator) in this case
@@ -58,7 +58,7 @@ Note that the parity only need to be set as `:odd` when the system contains ferm
     Nsys,   = size(Hsys)
     sup_dim = Nsys ^ 2
 
-    # the liouvillian operator for free Hamiltonian
+    # the Liouvillian operator for free Hamiltonian
     if verbose
         println("Constructing Liouville-von Neumann superoperator...")
         flush(stdout)

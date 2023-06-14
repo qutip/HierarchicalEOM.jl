@@ -272,7 +272,7 @@ Search for all the multi-index ensemble ``(\alpha, k)`` where ``\alpha`` and ``k
 # Example
 Here is an example to use [`Bath`](@ref lib-Bath), [`Exponent`](@ref), [`HierarchyDict`](@ref), and `getIndexEnsemble` together:
 ```julia
-L::M_Fermion;          # suppose this is a fermion type of HEOM liouvillian superoperator matrix you create
+L::M_Fermion;          # suppose this is a fermion type of HEOM Liouvillian superoperator matrix you create
 HDict = L.hierarchy;   # the hierarchy dictionary
 ados = SteadyState(L); # the stationary state (ADOs) for L 
 

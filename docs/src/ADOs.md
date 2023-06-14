@@ -12,7 +12,7 @@ In ``\rho_{\textbf{j}\vert\textbf{q}}^{(m,n,p)}(t)``, the tuple ``(m, n, p)`` re
 !!! note "Reduced Density Operator"
     The system reduced density operator refers to ``m=n=0``, namely ``\rho_{\vert}^{(0,0,p)}(t)``.
 
-In `Heom.jl`, we express all the auxiliary density operators into a single column vector and store it in the object defined as : 
+In `HEOM.jl`, we express all the auxiliary density operators into a single column vector and store it in the object defined as : 
 
 [`struct ADOs`](@ref ADOs), 
 

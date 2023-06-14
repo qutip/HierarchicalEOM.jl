@@ -1,9 +1,9 @@
 @doc raw"""
     struct M_Fermion <: AbstractHEOMMatrix
-Heom liouvillian superoperator matrix for fermionic bath
+HEOM Liouvillian superoperator matrix for fermionic bath
 
 # Fields
-- `data` : the sparse matrix of HEOM liouvillian superoperator
+- `data` : the sparse matrix of HEOM Liouvillian superoperator
 - `tier` : the tier (cutoff level) for the fermionic hierarchy
 - `dim` : the dimension of system
 - `N` : the number of total ADOs
@@ -29,7 +29,7 @@ end
 
 @doc raw"""
     M_Fermion(Hsys, tier, Bath, parity=:even; threshold=0.0, verbose=true)
-Generate the fermion-type Heom liouvillian superoperator matrix
+Generate the fermion-type HEOM Liouvillian superoperator matrix
 
 # Parameters
 - `Hsys` : The time-independent system Hamiltonian
@@ -63,7 +63,7 @@ Generate the fermion-type Heom liouvillian superoperator matrix
     sup_dim = Nsys ^ 2
     I_sup   = sparse(I, sup_dim, sup_dim)
     
-    # the liouvillian operator for free Hamiltonian term
+    # the Liouvillian operator for free Hamiltonian term
     Lsys = -1im * (spre(Hsys) - spost(Hsys))
 
     # fermionic bath
@@ -86,7 +86,7 @@ Generate the fermion-type Heom liouvillian superoperator matrix
     L_val = [ComplexF64[] for _ in 1:Nthread]
 
     if verbose
-        println("Preparing block matrices for HEOM liouvillian superoperator (using $(Nthread) threads)...")
+        println("Preparing block matrices for HEOM Liouvillian superoperator (using $(Nthread) threads)...")
         flush(stdout)
         prog = Progress(Nado; desc="Processing: ", PROGBAR_OPTIONS...)
     end

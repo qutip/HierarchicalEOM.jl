@@ -9,7 +9,7 @@ The first method is implemented by solving the linear problem
 0=\hat{\mathcal{M}}\rho^{(m,n,p)}_{\textbf{j} \vert \textbf{q}}(t)
 ```
 
-Heom.jl wraps some of the functions in [LinearSolve.jl](http://linearsolve.sciml.ai/stable/), which is a very rich numerical library for solving the linear problems and provides many solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to the documentation of [LinearSolve.jl](http://linearsolve.sciml.ai/stable/).
+HEOM.jl wraps some of the functions in [LinearSolve.jl](http://linearsolve.sciml.ai/stable/), which is a very rich numerical library for solving the linear problems and provides many solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to the documentation of [LinearSolve.jl](http://linearsolve.sciml.ai/stable/).
 
 See the docstring of this method:  
 
@@ -30,7 +30,7 @@ The second method is implemented by solving the ordinary differential equation (
 ```
 until finding a stationary solution.
 
-Heom.jl wraps some of the functions in [DifferentialEquations.jl](https://diffeq.sciml.ai/stable/), which is a very rich numerical library for solving the differential equations and provides many ODE solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to the documentation of [DifferentialEquations.jl](https://diffeq.sciml.ai/stable/).
+HEOM.jl wraps some of the functions in [DifferentialEquations.jl](https://diffeq.sciml.ai/stable/), which is a very rich numerical library for solving the differential equations and provides many ODE solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to the documentation of [DifferentialEquations.jl](https://diffeq.sciml.ai/stable/).
 
 
 ### Given the initial state as Density Operator (`AbstractMatrix` type)

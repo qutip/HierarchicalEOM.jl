@@ -1,4 +1,4 @@
-using Heom
+using HEOM
 using Test
 using SparseArrays
 using LinearAlgebra
@@ -6,7 +6,7 @@ using LinearAlgebra
 include("utils.jl")
 
 @testset "Print version information" begin
-    @test Heom.versioninfo() == nothing
+    @test HEOM.versioninfo() == nothing
 end
 
 @testset "Bath and Exponent" begin

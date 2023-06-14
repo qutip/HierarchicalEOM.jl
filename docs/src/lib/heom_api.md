@@ -1,8 +1,8 @@
-# Heom API Module
+# HEOM API Module
 
-## Heom liouvillian superoperator matrices
+## HEOM Liouvillian superoperator matrices
 
-### Heom matrix for standard Schrodinger (Liouville-von Neumann) equation 
+### HEOM matrix for standard Schrodinger (Liouville-von Neumann) equation 
 #### Type Definition
 ```@docs
 M_S
@@ -12,7 +12,7 @@ M_S
 M_S(Hsys, parity::Symbol=:even; verbose::Bool=true)
 ```
 
-### Boson Heom matrix
+### Boson HEOM matrix
 #### Type Definition
 ```@docs
 M_Boson
@@ -22,7 +22,7 @@ M_Boson
 M_Boson(Hsys, tier::Int, Bath::Vector{BosonBath}, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)
 ```
 
-### Fermion Heom matrix
+### Fermion HEOM matrix
 #### Type Definition
 ```@docs
 M_Fermion
@@ -32,7 +32,7 @@ M_Fermion
 M_Fermion(Hsys, tier::Int, Bath::Vector{FermionBath}, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)
 ```
 
-### Boson-Fermion Heom matrix
+### Boson-Fermion HEOM matrix
 #### Type Definition
 ```@docs
 M_Boson_Fermion
@@ -42,7 +42,7 @@ M_Boson_Fermion
 M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::Vector{FermionBath}, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)
 ```
 
-### Functions for Heom Matrices
+### Functions for HEOM Matrices
 ```@docs
 size(M::AbstractHEOMMatrix)
 Propagator

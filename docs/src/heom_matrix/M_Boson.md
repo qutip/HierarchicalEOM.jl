@@ -29,7 +29,7 @@ M_odd  = M_Boson(Hs, tier, Bath, :odd)
 
 ## Fields
 The fields of the structure [`M_Boson`](@ref) are as follows:
- - `data` : the sparse matrix of HEOM liouvillian superoperator
+ - `data` : the sparse matrix of HEOM Liouvillian superoperator
  - `tier` : the tier (cutoff level) for the bosonic hierarchy
  - `dim` : the dimension of system
  - `N` : the number of total [ADOs](@ref doc-ADOs)

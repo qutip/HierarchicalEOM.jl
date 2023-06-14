@@ -22,7 +22,7 @@ function isValidMatrixType(M, dim::Int=0)
         end
 
     else
-        @warn "Heom doesn't support matrix type : $(typeof(M))"
+        @warn "HEOM doesn't support matrix type : $(typeof(M))"
         return false
     end
 end
@@ -37,8 +37,8 @@ function _get_pkg_version(pkg_name::String)
 end
 
 """
-    Heom.print_logo(io::IO=stdout)
-Print the Logo of Heom package
+    HEOM.print_logo(io::IO=stdout)
+Print the Logo of HEOM package
 """
 function print_logo(io::IO=stdout)
     default = Crayon(foreground = :default)
@@ -96,14 +96,14 @@ function print_logo(io::IO=stdout)
 end
 
 """
-    Heom.versioninfo(io::IO=stdout)
-Command line output of information on Heom, dependencies, and system informations.
+    HEOM.versioninfo(io::IO=stdout)
+Command line output of information on HEOM, dependencies, and system informations.
 """
 function versioninfo(io::IO=stdout)
     cpu = Sys.cpu_info()
     BLAS_info = BLAS.get_config().loaded_libs[1]
 
-    # print the logo of Heom package
+    # print the logo of HEOM package
     print("\n")
     print_logo(io)
 
@@ -122,7 +122,7 @@ function versioninfo(io::IO=stdout)
     println(io,
         "Package information:\n",
         "====================================\n",
-        "Heom            Version: $(_get_pkg_version("Heom"))\n",
+        "HEOM            Version: $(_get_pkg_version("HEOM"))\n",
         "JLD2            Version: $(_get_pkg_version("JLD2"))\n",
         "LinearSolve     Version: $(_get_pkg_version("LinearSolve"))\n",
         "OrdinaryDiffEq  Version: $(_get_pkg_version("OrdinaryDiffEq"))\n",

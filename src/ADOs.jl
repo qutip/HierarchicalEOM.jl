@@ -9,7 +9,7 @@ The Auxiliary Density Operators for HEOM model.
 
 # Methods
 One can obtain the density matrix for specific index (`idx`) by calling : `ados[idx]`.
-`Heom.jl` also supports the following calls (methods) :
+`HEOM.jl` also supports the following calls (methods) :
 ```julia
 length(ados);  # returns the total number of `ADOs`
 ados[1:idx];   # returns a vector which contains the `ADO` (in matrix form) from index `1` to `idx`
@@ -28,7 +28,7 @@ end
 
 @doc raw"""
     ADOs(V, N)
-Gernerate the object of auxiliary density operators for Heom model.
+Gernerate the object of auxiliary density operators for HEOM model.
 
 # Parameters
 - `V::AbstractVector` : the vectorized auxiliary density operators
@@ -107,7 +107,7 @@ function show(io::IO, m::MIME"text/plain", A::ADOs) show(io, A) end
 Return the density matrix of the reduced state (system) from a given auxiliary density operators
 
 # Parameters
-- `ados::ADOs` : the auxiliary density operators for Heom model
+- `ados::ADOs` : the auxiliary density operators for HEOM model
 
 # Returns
 - `ρ` : The density matrix of the reduced state
@@ -123,7 +123,7 @@ Return the auxiliary density operator with a specific index from auxiliary densi
 This function equals to calling : `ados[idx]`.
 
 # Parameters
-- `ados::ADOs` : the auxiliary density operators for Heom model
+- `ados::ADOs` : the auxiliary density operators for HEOM model
 - `idx::Int` : the index of the auxiliary density operator
 
 # Returns
@@ -141,7 +141,7 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in the 
 
 # Parameters
 - `op` : the operator ``O`` to take the expectation value
-- `ados::ADOs` : the auxiliary density operators for Heom model
+- `ados::ADOs` : the auxiliary density operators for HEOM model
 - `take_real::Bool` : whether to automatically take the real part of the trace or not. Default to `true`
 
 # Returns
@@ -172,7 +172,7 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in one 
 
 # Parameters
 - `op` : the operator ``O`` to take the expectation value
-- `ados_list::Vector{ADOs}` : the list of auxiliary density operators for Heom model
+- `ados_list::Vector{ADOs}` : the list of auxiliary density operators for HEOM model
 - `take_real::Bool` : whether to automatically take the real part of the trace or not. Default to `true`
 
 # Returns

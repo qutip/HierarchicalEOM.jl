@@ -198,7 +198,7 @@ An object which describes the interaction between system and bosonic bath
 
 # Methods
 One can obtain the ``k``-th exponent (exponential-expansion term) from `bath::BosonBath` by calling : `bath[k]`.
-`Heom.jl` also supports the following calls (methods) :
+`HEOM.jl` also supports the following calls (methods) :
 ```julia
 bath[1:k];   # returns a vector which contains the exponents from the `1`-st to the `k`-th term.
 bath[1:end]; # returns a vector which contains all the exponential-expansion terms
@@ -499,7 +499,7 @@ An object which describes the interaction between system and fermionic bath
 
 # Methods
 One can obtain the ``k``-th exponent (exponential-expansion term) from `bath::FermionBath` by calling : `bath[k]`.
-`Heom.jl` also supports the following calls (methods) :
+`HEOM.jl` also supports the following calls (methods) :
 ```julia
 bath[1:k];   # returns a vector which contains the exponents from the `1`-st to the `k`-th term.
 bath[1:end]; # returns a vector which contains all the exponential-expansion terms

@@ -18,8 +18,8 @@ PrecompileTools.@setup_workload begin
         for b in bB nothing end
         for b in fB nothing end
 
-        # precompile Heom matrices
-        @info "Precompiling Heom liouvillian superoperator matrices..."
+        # precompile HEOM matrices
+        @info "Precompiling HEOM Liouvillian superoperator matrices..."
         Ms   = M_S(op; verbose=false)
         Mb   = M_Boson(op, 2, bB; verbose=false, threshold=1e-1)
         Mfo  = M_Fermion(op, 2, fB, :odd; verbose=false, threshold=1e-1)
@@ -52,5 +52,5 @@ PrecompileTools.@setup_workload begin
         psd = spectrum(Mb,  [1. 0.; 0. 0.], op, [1]; verbose=false)
         dos = spectrum(Mfo, [1. 0.; 0. 0.], op, [1]; verbose=false)
     end
-    @info "Heom precompilation complete"
+    @info "HEOM precompilation complete"
 end
