@@ -37,13 +37,13 @@ The documentation can be found in :
 - [**DEVELOP**](https://ncku-qfort.github.io/Heom.jl/dev/) : in-development version.
 
 ## Cite `Heom.jl`
-If you like `Heom.jl`, we would appreciate it if you starred the repository in order to help us increase its visibility. Furthermore, if you find the framework useful in your research, we would be grateful if you could cite our publication ([`Update when we published the paper`](https://unknown)  ) using the following bibtex entry:
+If you like `Heom.jl`, we would appreciate it if you starred the repository in order to help us increase its visibility. Furthermore, if you find the framework useful in your research, we would be grateful if you could cite our publication ( [`arXiv:2306.07522`](https://doi.org/10.48550/arXiv.2306.07522)  ) using the following bibtex entry:
 ```bib
-@article{Heom2023
-  title={},
-  author={},
-  journal={},
-  year={}
+@article{Heom-jl2023,
+  title={{Heom.jl}: {A}n efficient {J}ulia framework for hierarchical equations of motion in open quantum systems},
+  author={Huang, Yi-Te and Kuo, Po-Chen and Lambert, Neill and Cirio, Mauro and Cross, Simon and Yang, Shen-Liang and Nori, Franco and Chen, Yueh-Nan},
+  journal={arXiv preprint arXiv:2306.07522},
+  year={2023}
 }
 ```
 
