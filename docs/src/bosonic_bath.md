@@ -65,7 +65,7 @@ c_list = C(bath, tlist)
 Here, `c_list` is a list which contains the value of ``C(t)`` corresponds to the given time series `tlist`.
 
 ### Methods for Exponent
-`HEOM.jl` also supports users to access the specific exponential term with brakets `[]`. This returns an [`Exponent`](@ref) object, which contains the corresponding value of ``\eta_i`` and ``\gamma_i``:
+`HierarchicalEOM.jl` also supports users to access the specific exponential term with brakets `[]`. This returns an [`Exponent`](@ref) object, which contains the corresponding value of ``\eta_i`` and ``\gamma_i``:
 ```julia
 e = bath[2] # the 2nd-term
 print(e)

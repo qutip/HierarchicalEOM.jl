@@ -1,9 +1,9 @@
-The HEOM.jl package is licensed under the Apache License, Version 2.0:
+The HierarchicalEOM.jl package is licensed under the Apache License, Version 2.0:
 
 > COPYRIGHT
 >
 > All contributions by Yi-Te Huang
-> Copyright (c) 2018 Yi-Te Huang
+> Copyright (c) 2023 Yi-Te Huang
 > All rights reserved.
 >
 > Each contributor holds copyright over their respective contributions.

@@ -1,4 +1,4 @@
-# [Cite HEOM.jl](@id doc-Cite)
+# [Cite HierarchicalEOM](@id doc-Cite)
 ```bib
 @article{HEOM-jl2023,
   title={{HEOM.jl}: {A}n efficient {J}ulia framework for hierarchical equations of motion in open quantum systems},

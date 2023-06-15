@@ -1,9 +1,9 @@
 # Quick Start
 
-(*This notebook can be found on* [github](https://github.com/NCKU-QFort/HEOM.jl/tree/main/docs/src/notebooks))
+(*This notebook can be found on* [github](https://github.com/NCKU-QFort/HierarchicalEOM.jl/blob/main/docs/src/notebooks/quick_start.ipynb))
 
 ### Content
- - [Import HEOM.jl](#Import-HEOM.jl)
+ - [Import HierarchicalEOM.jl](#Import-HierarchicalEOM.jl)
  - [System and Bath](#System-and-Bath)
  - [HEOM Liouvillian superoperator](#HEOM-Liouvillian-superoperator)
  - [Time Evolution](#Time-Evolution)
@@ -11,21 +11,21 @@
  - [Reduced Density Operator](#Reduced-Density-Operator)
  - [Expectation Value](#Expectation-Value)
  - [Multiple Baths](#Multiple-Baths)
-### Import HEOM.jl
-Here are the functions in `HEOM.jl` that we will use in this tutorial (Quick Start):
+### Import HierarchicalEOM.jl
+Here are the functions in `HierarchicalEOM.jl` that we will use in this tutorial (Quick Start):
 
 
 ```julia
-import HEOM
-import HEOM: Boson_DrudeLorentz_Pade, M_Boson, evolution, SteadyState, getRho, BosonBath, Expect
+import HierarchicalEOM
+import HierarchicalEOM: Boson_DrudeLorentz_Pade, M_Boson, evolution, SteadyState, getRho, BosonBath, Expect
 ```
 
-Note that you can also type `using HEOM` to import everything you need in `HEOM.jl`.
-To check the versions of dependencies of `HEOM.jl` , run the following function
+Note that you can also type `using HierarchicalEOM` to import everything you need in `HierarchicalEOM.jl`.
+To check the versions of dependencies of `HierarchicalEOM.jl` , run the following function
 
 
 ```julia
-HEOM.versioninfo()
+HierarchicalEOM.versioninfo()
 ```
     
 ### System and Bath
@@ -43,8 +43,8 @@ You can construct system hamiltonian, initial state, and coupling operators by s
 
 Moreover, it is also convenient to use [QuantumOptics](https://qojulia.org/) framework. It provides many useful functions to create arbitrary quantum states and operators which can be combined in all the expected ways.
 
-Note that `HEOM.jl` only accept standard julia bulit-in types. If you use `QuantumOptics` to construct the operators, remember that the matrix (or vector) in standard type are stored in `.data` field of the objects, i.e., `op.data` where `op` is a `QuantumOptics`-type object.  
-Thus, you should take it as the inputs of `HEOM.jl` for objects in `QuantumOptics` package.
+Note that `HierarchicalEOM.jl` only accept standard julia bulit-in types. If you use `QuantumOptics` to construct the operators, remember that the matrix (or vector) in standard type are stored in `.data` field of the objects, i.e., `op.data` where `op` is a `QuantumOptics`-type object.  
+Thus, you should take it as the inputs of `HierarchicalEOM.jl` for objects in `QuantumOptics` package.
 
 We demonstrate this tutorial by `QuantumOptics`:
 
@@ -137,7 +137,7 @@ To obtain the reduced density operator, one can either access the first element 
 ρ = getRho(ados_steady)
 ```
 
-One of the great features of `HEOM.jl` is that we allow users to not only considering the density operator of the reduced
+One of the great features of `HierarchicalEOM.jl` is that we allow users to not only considering the density operator of the reduced
 state but also easily take high-order terms into account without struggling in finding the indices (see [Auxiliary Density Operators](@ref doc-ADOs) and [Hierarchy Dictionary](@ref doc-Hierarchy-Dictionary) for more details).
 ### Expectation Value
 We can now compare the results obtained from `evolution` and `SteadyState`:
@@ -192,7 +192,7 @@ legend()
 
 
 ### Multiple Baths
-`HEOM.jl` also supports for system to interact with multiple baths.  
+`HierarchicalEOM.jl` also supports for system to interact with multiple baths.  
 All you need to do is to provide a list of baths instead of a single bath
 
 Note that, for the following, we use the built-in linear algebra in Julia (instead of `QuantumOptics.jl`) to construct the operators 

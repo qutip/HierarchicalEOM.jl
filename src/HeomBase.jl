@@ -37,8 +37,8 @@ function _get_pkg_version(pkg_name::String)
 end
 
 """
-    HEOM.print_logo(io::IO=stdout)
-Print the Logo of HEOM package
+    HierarchicalEOM.print_logo(io::IO=stdout)
+Print the Logo of HierarchicalEOM package
 """
 function print_logo(io::IO=stdout)
     default = Crayon(foreground = :default)
@@ -96,8 +96,8 @@ function print_logo(io::IO=stdout)
 end
 
 """
-    HEOM.versioninfo(io::IO=stdout)
-Command line output of information on HEOM, dependencies, and system informations.
+    HierarchicalEOM.versioninfo(io::IO=stdout)
+Command line output of information on HierarchicalEOM, dependencies, and system informations.
 """
 function versioninfo(io::IO=stdout)
     cpu = Sys.cpu_info()
@@ -122,7 +122,7 @@ function versioninfo(io::IO=stdout)
     println(io,
         "Package information:\n",
         "====================================\n",
-        "HEOM            Version: $(_get_pkg_version("HEOM"))\n",
+        "HierarchicalEOM Version: $(_get_pkg_version("HierarchicalEOM"))\n",
         "JLD2            Version: $(_get_pkg_version("JLD2"))\n",
         "LinearSolve     Version: $(_get_pkg_version("LinearSolve"))\n",
         "OrdinaryDiffEq  Version: $(_get_pkg_version("OrdinaryDiffEq"))\n",
