@@ -1,12 +1,12 @@
 push!(LOAD_PATH, "../src/")
-using Documenter, HEOM
+using Documenter, HierarchicalEOM
 
 const PAGES = Any[
     "Home" => Any[
         "Introduction" => "index.md",
         "Installation" => "install.md",
         "QuickStart"   => "examples/quick_start.md",
-        "Cite HEOM"    => "cite.md"
+        "Cite HierarchicalEOM"    => "cite.md"
     ],
     "Bosonic Bath" => "bosonic_bath.md",
     "Fermionic Bath" => "fermionic_bath.md",
@@ -34,10 +34,10 @@ const PAGES = Any[
 ]
 
 makedocs(
-    sitename = "Documentation | HEOM.jl",
+    sitename = "Documentation | HierarchicalEOM.jl",
     pages=PAGES
 )
 
 deploydocs(
-    repo="github.com/NCKU-QFort/HEOM.jl.git",
+    repo="github.com/NCKU-QFort/HierarchicalEOM.jl.git",
 )

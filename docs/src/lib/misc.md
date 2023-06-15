@@ -1,11 +1,11 @@
 # Misc.
 
 ```@docs
-HEOM.versioninfo()
+HierarchicalEOM.versioninfo()
 ```
 The outputs will be something like the following:
 ```
-julia> HEOM.versioninfo()
+julia> HierarchicalEOM.versioninfo()
 
                                    __
                                   /  \
@@ -27,7 +27,7 @@ Other developers:
 
 Package information:
 ====================================
-HEOM            Version: 0.1.0
+HierarchicalEOM Version: 0.1.0
 JLD2            Version: 0.4.31
 LinearSolve     Version: 1.42.0
 OrdinaryDiffEq  Version: 6.52.0
@@ -47,11 +47,11 @@ BLAS     : libopenblas64_.0.3.20.dylib (ilp64)
 ```
 
 ```@docs
-HEOM.print_logo(io::IO=stdout)
+HierarchicalEOM.print_logo(io::IO=stdout)
 ```
 The output will be something like the following:
 ```
-julia> HEOM.print_logo()
+julia> HierarchicalEOM.print_logo()
                                    __
                                   /  \
  __     __                     __ \__/ __

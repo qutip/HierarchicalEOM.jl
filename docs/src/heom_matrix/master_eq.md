@@ -1,6 +1,6 @@
 # [HEOMLS Matrix for Master Equation](@id doc-Master-Equation)
 
-`HEOM.jl` allows users to further add the Lindbladian (superoperator) on any types (`AbstractHEOMMatrix`) of HEOM Liouvillian superoperator ``\hat{\mathcal{M}}``. The Lindbladian describes the dissipative interaction between the system and extra environment.
+`HierarchicalEOM.jl` allows users to further add the Lindbladian (superoperator) on any types (`AbstractHEOMMatrix`) of HEOM Liouvillian superoperator ``\hat{\mathcal{M}}``. The Lindbladian describes the dissipative interaction between the system and extra environment.
 
 This method is more efficient than the full HEOM when some of the baths are weakly coupled to the system since it does not require any extra [ADOs](@ref doc-ADOs) space to describe the dynamics and hence reduces the size of ``\hat{\mathcal{M}}``.
 

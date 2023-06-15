@@ -9,7 +9,7 @@ The Auxiliary Density Operators for HEOM model.
 
 # Methods
 One can obtain the density matrix for specific index (`idx`) by calling : `ados[idx]`.
-`HEOM.jl` also supports the following calls (methods) :
+`HierarchicalEOM.jl` also supports the following calls (methods) :
 ```julia
 length(ados);  # returns the total number of `ADOs`
 ados[1:idx];   # returns a vector which contains the `ADO` (in matrix form) from index `1` to `idx`

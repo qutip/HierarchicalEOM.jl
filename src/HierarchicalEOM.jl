@@ -1,10 +1,10 @@
-module HEOM
+module HierarchicalEOM
     import Reexport: @reexport
     
     export 
         Bath, HeomAPI, Spectrum
 
-    # sub-module HeomBase for Heom
+    # sub-module HeomBase for HierarchicalEOM
     module HeomBase
         import Pkg
         import LinearAlgebra: BLAS
@@ -15,7 +15,7 @@ module HEOM
     import .HeomBase.versioninfo as versioninfo
     import .HeomBase.print_logo  as print_logo
     
-    # sub-module Bath for Heom
+    # sub-module Bath for HierarchicalEOM
     module Bath
         import Base: show, length, getindex, lastindex, iterate, checkbounds
         import LinearAlgebra: I, kron, ishermitian
@@ -32,7 +32,7 @@ module HEOM
     end
     @reexport using .Bath
 
-    # sub-module CorrelationFunc for Heom
+    # sub-module CorrelationFunc for HierarchicalEOM
     module CorrelationFunc
         import ..Bath: BosonBath, FermionBath
         import LinearAlgebra: eigvals
@@ -45,7 +45,7 @@ module HEOM
     end
     @reexport using .CorrelationFunc
     
-    # sub-module HeomAPI for Heom
+    # sub-module HeomAPI for HierarchicalEOM
     module HeomAPI
         using ..Bath
         import Base: ==, show, length, size, getindex, keys, setindex!, lastindex, iterate, checkbounds, hash, copy
@@ -77,7 +77,7 @@ module HEOM
     end
     @reexport using .HeomAPI
 
-    # sub-module Spectrum for Heom
+    # sub-module Spectrum for HierarchicalEOM
     module Spectrum
         import ..HeomAPI: AbstractHEOMMatrix, ADOs, spre
         import LinearAlgebra: I, kron

@@ -1,4 +1,4 @@
-using HEOM
+using HierarchicalEOM
 using Test
 using SparseArrays
 using LinearAlgebra
@@ -6,7 +6,7 @@ using LinearAlgebra
 include("utils.jl")
 
 @testset "Print version information" begin
-    @test HEOM.versioninfo() == nothing
+    @test HierarchicalEOM.versioninfo() == nothing
 end
 
 @testset "Bath and Exponent" begin

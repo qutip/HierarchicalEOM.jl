@@ -3,7 +3,7 @@
 ## Introduction
 We briefly summarize how to numerically compute the spectrum associated with the system degree of freedom. [Phys. Rev. Lett. 109, 266403 (2012)](https://link.aps.org/doi/10.1103/PhysRevLett.109.266403) showed that the spectrum can be evaluated either in time or frequency domain.
 
-`HEOM.jl` provides a function [`spectrum`](@ref) which performs the calculation in frequency domain. There are two different methods (as shown below) which depends on the [parity](@ref doc-Parity) of the HEOMLS matrices ``\hat{\mathcal{M}}`` corresponds to different system degree of freedom. 
+`HierarchicalEOM.jl` provides a function [`spectrum`](@ref) which performs the calculation in frequency domain. There are two different methods (as shown below) which depends on the [parity](@ref doc-Parity) of the HEOMLS matrices ``\hat{\mathcal{M}}`` corresponds to different system degree of freedom. 
 
 If you want to calculate the spectrum associated with
  - [bosonic systems (Power Spectral Density)](@ref doc-PSD) : you have to provide ``\hat{\mathcal{M}}`` constructed in `:even` parity.
@@ -11,7 +11,7 @@ If you want to calculate the spectrum associated with
 
 The function [`spectrum`](@ref) will automatically detect the [parity](@ref doc-Parity) of ``\hat{\mathcal{M}}`` by itself. Furthermore, the output of the function [`spectrum`](@ref) for both cases will always be in the type of `Vector{Float64}`, which contains the list of the spectrum values corresponding to the given `ω_list`.
 
-`HEOM.jl` wraps some of the functions in [LinearSolve.jl](http://linearsolve.sciml.ai/stable/), which is a very rich numerical library for solving the linear problems and provides many solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to the documentation of [LinearSolve.jl](http://linearsolve.sciml.ai/stable/).
+`HierarchicalEOM.jl` wraps some of the functions in [LinearSolve.jl](http://linearsolve.sciml.ai/stable/), which is a very rich numerical library for solving the linear problems and provides many solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to the documentation of [LinearSolve.jl](http://linearsolve.sciml.ai/stable/).
 
 ## [Power Spectral Density](@id doc-PSD)
 Start from the spectrum for bosonic systems (power spectral density) in the time-domain. We write the system two-time correlation function in terms of the propagator ``\hat{\mathcal{G}}(t)=\exp(\hat{\mathcal{M}} t)`` for ``t>0``. The power spectral density ``S(\omega)`` can be obtained as

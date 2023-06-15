@@ -52,5 +52,5 @@ PrecompileTools.@setup_workload begin
         psd = spectrum(Mb,  [1. 0.; 0. 0.], op, [1]; verbose=false)
         dos = spectrum(Mfo, [1. 0.; 0. 0.], op, [1]; verbose=false)
     end
-    @info "HEOM precompilation complete"
+    @info "HierarchicalEOM precompilation complete"
 end
