@@ -3,7 +3,7 @@
 
 # HierarchicalEOM.jl
 [![](https://img.shields.io/github/release/NCKU-QFort/HierarchicalEOM.jl.svg)](https://github.com/NCKU-QFort/HierarchicalEOM.jl/releases)
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://ncku-qfort.github.io/HierarchicalEOM.jl/dev/)
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://ncku-qfort.github.io/HierarchicalEOM.jl/stable/)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://ncku-qfort.github.io/HierarchicalEOM.jl/dev/)  
 [![Runtests](https://github.com/NCKU-QFort/HierarchicalEOM.jl/actions/workflows/Runtests.yml/badge.svg)](https://github.com/NCKU-QFort/HierarchicalEOM.jl/actions/workflows/Runtests.yml)
 [![codecov](https://codecov.io/gh/NCKU-QFort/HierarchicalEOM.jl/branch/main/graph/badge.svg?token=237Z7F7OOV)](https://codecov.io/gh/NCKU-QFort/HierarchicalEOM.jl)
