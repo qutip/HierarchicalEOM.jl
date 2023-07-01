@@ -33,7 +33,8 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
         print("Solving steady state for auxiliary density operators...")
         flush(stdout)
     end
-    sol = solve(LinearProblem(A, Vector(b)), solver, SOLVEROptions...)
+    cache = init(LinearProblem(A, Vector(b), solver, SOLVEROptions...)
+    sol = solve!(cache)
     if verbose
         println("[DONE]")
         flush(stdout)
@@ -145,19 +146,9 @@ For more details about solvers and extra options, please refer to [`Differential
         error("The number N between M and ados are not consistent.")
     end
 
-    # setup ode function
-    jac_p = undef
-    try
-        if solver.linsolve == nothing
-            jac_p = SparseMatrixCSC{ComplexF64, Int64}
-        else
-            S, = size(M)
-            jac_p = spzeros(ComplexF64, S, S)
-        end
-    catch
-        jac_p = SparseMatrixCSC{ComplexF64, Int64}
-    end
-    hierarchy = ODEFunction(_hierarchy!; jac_prototype = jac_p)
+    # problem: dρ/dt = L * ρ(0)
+    L = DiffEqArrayOperator(M.data)
+    prob = ODEProblem(L, Vector(ados.data), (0, Inf))
 
     # solving steady state of the ODE problem
     if verbose
@@ -165,7 +156,7 @@ For more details about solvers and extra options, please refer to [`Differential
         flush(stdout)
     end
     sol = solve(
-        SteadyStateProblem(hierarchy, Vector(ados.data), M.data), 
+        SteadyStateProblem(prob), 
         DynamicSS(solver; abstol = abstol, reltol = reltol);
         maxiters = maxiters,
         save_everystep = save_everystep,

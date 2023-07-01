@@ -61,8 +61,8 @@ module HierarchicalEOM
         import JLD2: jldopen
 
         # for solving steady state
-        import LinearSolve: LinearProblem, solve, UMFPACKFactorization
-        import OrdinaryDiffEq: ODEFunction, SteadyStateProblem, solve, FBDF
+        import LinearSolve: LinearProblem, init, solve!, UMFPACKFactorization
+        import OrdinaryDiffEq: SteadyStateProblem, solve, FBDF
         import SteadyStateDiffEq: DynamicSS
 
         export
@@ -82,7 +82,7 @@ module HierarchicalEOM
         import ..HeomAPI: AbstractHEOMMatrix, ADOs, spre
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, sparsevec
-        import LinearSolve: LinearProblem, init, set_A, solve, UMFPACKFactorization
+        import LinearSolve: LinearProblem, init, solve!, UMFPACKFactorization
         import ProgressMeter: Progress, next!        
         import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType
 
