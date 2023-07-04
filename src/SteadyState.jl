@@ -33,7 +33,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
         print("Solving steady state for auxiliary density operators...")
         flush(stdout)
     end
-    cache = init(LinearProblem(A, Vector(b), solver, SOLVEROptions...)
+    cache = init(LinearProblem(A, Vector(b)), solver, SOLVEROptions...)
     sol = solve!(cache)
     if verbose
         println("[DONE]")
@@ -41,11 +41,6 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
     end
     
     return ADOs(sol.u, M.dim, M.N)
-end
-
-# func. for solving ODE
-function _hierarchy!(dρ, ρ, L, t)
-    @inbounds dρ .= L * ρ
 end
 
 @doc raw"""
@@ -146,7 +141,7 @@ For more details about solvers and extra options, please refer to [`Differential
         error("The number N between M and ados are not consistent.")
     end
 
-    # problem: dρ/dt = L * ρ(0)
+    # problem: dρ(t)/dt = L * ρ(t)
     L = DiffEqArrayOperator(M.data)
     prob = ODEProblem(L, Vector(ados.data), (0, Inf))
 
