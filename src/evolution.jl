@@ -263,7 +263,7 @@ For more details about solvers and extra options, please refer to [`Differential
     end
 
     # problem: dρ/dt = L * ρ(0)
-    L = DiffEqArrayOperator(M.data)
+    L = MatrixOperator(M.data)
     prob = ODEProblem(L, Vector(ados.data), (tlist[1], tlist[end]))
 
     # setup integrator
@@ -438,7 +438,7 @@ For more details about solvers and extra options, please refer to [`Differential
         error("The dimension of `H` at t=$(tlist[1]) is not consistent with `M.dim`.")
     end
     Lt = kron(sparse(I, M.N, M.N), - 1im * (spre(Ht) - spost(Ht)))
-    L = DiffEqArrayOperator(M.data + Lt, update_func = _update_L!)
+    L = MatrixOperator(M.data + Lt, update_func = _update_L!)
     
     # problem: dρ/dt = L(t) * ρ(0)
     ## M.dim will check whether the returned time-dependent Hamiltonian has the correct dimension

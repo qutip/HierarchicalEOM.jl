@@ -57,7 +57,8 @@ module HierarchicalEOM
         import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType
 
         # for solving time evolution
-        import OrdinaryDiffEq: DiffEqArrayOperator, ODEProblem, init, DP5, step!
+        import SciMLOperators: MatrixOperator
+        import OrdinaryDiffEq: ODEProblem, init, DP5, step!
         import JLD2: jldopen
 
         # for solving steady state
