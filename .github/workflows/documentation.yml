@@ -8,6 +8,7 @@ on:
     tags: 
       - '*'
   pull_request:
+    branches:
       - 'develop'
 
 jobs:
