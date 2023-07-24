@@ -3,12 +3,12 @@ name: Documenter
 on:
   push:
     branches:
-      - main # update to match your development branch (master, main, dev, trunk, ...)
-      - develop
+      - 'main' # update to match your development branch (master, main, dev, trunk, ...)
+      - 'develop'
     tags: 
       - '*'
   pull_request:
-      - develop
+      - 'develop'
 
 jobs:
   build:
