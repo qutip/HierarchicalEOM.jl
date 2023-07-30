@@ -7,7 +7,7 @@ using HierarchicalEOM
 const DRAFT = false # set `true` to disable cell evaluation
 
 doc_output_path = abspath(joinpath(@__DIR__, "src", "examples"))
-if !isdir(doc_output_path) makedir(doc_output_path) end
+if !isdir(doc_output_path) mkdir(doc_output_path) end
 
 # Generate page: Quick Start
 QS_source_file = abspath(joinpath(@__DIR__, "..",  "examples", "quick_start.jl"))
