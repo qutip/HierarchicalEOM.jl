@@ -1,12 +1,24 @@
+# julia --project=@. make.jl
 push!(LOAD_PATH, "../src/")
-using Documenter, HierarchicalEOM
+using Documenter
+import Literate
+using HierarchicalEOM
+
+const DRAFT = false # set `true` to disable cell evaluation
+
+doc_output_path = abspath(joinpath(@__DIR__, "src", "examples"))
+if !isdir(doc_output_path) makedir(doc_output_path) end
+
+# Generate page: Quick Start
+QS_source_file = abspath(joinpath(@__DIR__, "..",  "examples", "quick_start.jl"))
+Literate.markdown(QS_source_file, doc_output_path)
 
 const PAGES = Any[
     "Home" => Any[
         "Introduction" => "index.md",
         "Installation" => "install.md",
-        "QuickStart"   => "examples/quick_start.md",
-        "Cite HierarchicalEOM"    => "cite.md"
+        "Quick Start"  => "examples/quick_start.md",
+        "Cite HierarchicalEOM" => "cite.md"
     ],
     "Bosonic Bath" => "bosonic_bath.md",
     "Fermionic Bath" => "fermionic_bath.md",
@@ -35,9 +47,15 @@ const PAGES = Any[
 
 makedocs(
     sitename = "Documentation | HierarchicalEOM.jl",
-    pages=PAGES
+    pages  = PAGES,
+    format = Documenter.HTML(
+        prettyurls = (get(ENV, "CI", nothing) == "true"),    
+        ansicolor  = true
+    ),
+    draft  = DRAFT
 )
 
 deploydocs(
     repo="github.com/NCKU-QFort/HierarchicalEOM.jl.git",
+    devbranch = "main"
 )
