@@ -1,7 +1,7 @@
 name = "HierarchicalEOM"
 uuid = "a62dbcb7-80f5-4d31-9a88-8b19fd92b128"
 authors = ["Yi-Te Huang <y.t.d.huang@phys.ncku.edu.tw>"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 Crayons = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
@@ -14,6 +14,7 @@ Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 PrecompileTools = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
 ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
+SciMLOperators = "c0aeaf25-5076-4817-a8d5-81caf7dfa961"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 SteadyStateDiffEq = "9672c7b4-1e72-59bd-8a11-6ac3964bc41f"
 
@@ -21,18 +22,22 @@ SteadyStateDiffEq = "9672c7b4-1e72-59bd-8a11-6ac3964bc41f"
 Crayons = "4.1"
 FastExpm = "1.1.0"
 JLD2 = "0.4.31"
-LinearSolve = "1.42.0"
-OrdinaryDiffEq = "6.52.0"
+LinearSolve = "2.4.2"
+OrdinaryDiffEq = "6.53.4"
 PrecompileTools = "1"
 ProgressMeter = "1.7"
 Reexport = "1"
-SteadyStateDiffEq = "1.15.0"
+SciMLOperators = "0.3.5"
+SteadyStateDiffEq = "1.16.0"
 julia = "1.8"
 
 [extras]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
+Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 QuantumOptics = "6e0679c1-51ea-5a7c-ac74-d61b76210b0c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["Documenter", "LaTeXStrings", "Literate", "Plots", "QuantumOptics", "Test"]

@@ -126,22 +126,14 @@ end
         flush(stdout)
         prog = Progress(Length; desc="Progress : ", PROGBAR_OPTIONS...)
     end
-    Iω   = 1im * ω_list[1] * I_total
-    prob = init(LinearProblem(M.data - Iω, X), solver, SOLVEROptions...)
-    sol = solve(prob)
+    Iω    = 1im * ω_list[1] * I_total
+    cache = init(LinearProblem(M.data - Iω, X), solver, SOLVEROptions...)
+    sol   = solve!(cache)
     @inbounds for (i, ω) in enumerate(ω_list)
         if i > 1            
             Iω  = 1im * ω * I_total
-            try 
-                sol = solve(set_A(sol.cache, M.data - Iω))
-            catch e
-                if isa(e, ArgumentError)
-                    prob = init(LinearProblem(M.data - Iω, X), solver, SOLVEROptions...)
-                    sol = solve(prob)
-                else
-                    throw(e)
-                end
-            end
+            cache.A = M.data - Iω
+            sol = solve!(cache)
         end
 
         # trace over the Hilbert space of system (expectation value)
@@ -205,33 +197,19 @@ end
         prog = Progress(Length; desc="Progress : ", PROGBAR_OPTIONS...)
     end
     Iω = 1im * ω_list[1] * I_total
-    prob_m = init(LinearProblem(M.data - Iω, X_m),  solver, SOLVEROptions...)
-    prob_p = init(LinearProblem(M.data + Iω, X_p), solver, SOLVEROptions...)
-    sol_m  = solve(prob_m)
-    sol_p  = solve(prob_p)
+    cache_m = init(LinearProblem(M.data - Iω, X_m),  solver, SOLVEROptions...)
+    cache_p = init(LinearProblem(M.data + Iω, X_p), solver, SOLVEROptions...)
+    sol_m  = solve!(cache_m)
+    sol_p  = solve!(cache_p)
     @inbounds for (i, ω) in enumerate(ω_list)
         if i > 1
             Iω = 1im * ω * I_total
-            try 
-                sol_m = solve(set_A(sol_m.cache, M.data - Iω))
-            catch e
-                if isa(e, ArgumentError)
-                    prob_m = init(LinearProblem(M.data - Iω, X_m), solver, SOLVEROptions...)
-                    sol_m  = solve(prob_m)
-                else
-                    throw(e)
-                end
-            end
-            try
-                sol_p = solve(set_A(sol_p.cache, M.data + Iω))
-            catch e
-                if isa(e, ArgumentError)
-                    prob_p = init(LinearProblem(M.data + Iω, X_p), solver, SOLVEROptions...)
-                    sol_p  = solve(prob_p)
-                else
-                    throw(e)
-                end
-            end
+
+            cache_m.A = M.data - Iω
+            sol_m = solve!(cache_m)
+            
+            cache_p.A = M.data + Iω
+            sol_p = solve!(cache_p)
         end
         Cω_m = d_dagger * sol_m.u
         Cω_p = d_normal * sol_p.u

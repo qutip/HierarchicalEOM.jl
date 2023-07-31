@@ -73,7 +73,7 @@ J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
     @test nnz(L.data) == 4422
     L = addBosonDissipator(L, J)
     @test nnz(L.data) == 4760
-    ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
+    ados = SteadyState(L; verbose=false)
     @test ados.dim == L.dim
     @test length(ados) == L.N
     ρ0 = ados[1]
@@ -90,7 +90,7 @@ J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
     @test nnz(L.data) == 27662
     L = addBosonDissipator(L, J)
     @test nnz(L.data) == 29484
-    ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
+    ados = SteadyState(L; verbose=false)
     @test ados.dim == L.dim
     @test length(ados) == L.N
     ρ0 = ados[1]
@@ -118,7 +118,7 @@ end
     @test nnz(L.data) == 21318
     L = addFermionDissipator(L, J)
     @test nnz(L.data) == 22516
-    ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
+    ados = SteadyState(L; verbose=false)
     @test ados.dim == L.dim
     @test length(ados) == L.N
     ρ0 = ados[1]
@@ -134,7 +134,7 @@ end
     @test size(L) == (148, 148)
     @test L.N  == 37
     @test nnz(L.data) == 2054
-    ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
+    ados = SteadyState(L; verbose=false)
     ρ2 = ados[1]
     @test _is_Matrix_approx(ρ0, ρ2)
 
@@ -144,7 +144,7 @@ end
     @test nnz(L.data) == 174338
     L = addFermionDissipator(L, J)
     @test nnz(L.data) == 183640
-    ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
+    ados = SteadyState(L; verbose=false)
     @test ados.dim == L.dim
     @test length(ados) == L.N
     ρ0 = ados[1]
@@ -184,7 +184,7 @@ end
     @test nnz(L.data) == 43368
     L = addBosonDissipator(L, J)
     @test nnz(L.data) == 45590
-    ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
+    ados = SteadyState(L; verbose=false)
     @test ados.dim == L.dim
     @test length(ados) == L.N
     ρ0 = ados[1]
@@ -201,7 +201,7 @@ end
     @test nnz(L.data) == 139210
     L = addFermionDissipator(L, J)
     @test nnz(L.data) == 145872
-    ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
+    ados = SteadyState(L; verbose=false)
     @test ados.dim == L.dim
     @test length(ados) == L.N
     ρ0 = ados[1]
@@ -218,7 +218,7 @@ end
     @test nnz(L.data) == 167108
     L = addBosonDissipator(L, J)
     @test nnz(L.data) == 175330
-    ados = SteadyState(L, [0.64 0; 0 0.36]; verbose=false)
+    ados = SteadyState(L; verbose=false)
     @test ados.dim == L.dim
     @test length(ados) == L.N
     ρ0 = ados[1]

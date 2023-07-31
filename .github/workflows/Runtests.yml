@@ -3,10 +3,11 @@ name: Runtests
 on:
   pull_request:
     branches:
-      - main
+      - 'main'
+      - 'develop'
   push:
     branches:
-      - main
+      - 'main'
 
 jobs:
   test:
