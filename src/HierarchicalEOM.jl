@@ -63,7 +63,7 @@ module HierarchicalEOM
 
         # for solving steady state
         import LinearSolve: LinearProblem, init, solve!, UMFPACKFactorization
-        import OrdinaryDiffEq: SteadyStateProblem, solve, FBDF
+        import OrdinaryDiffEq: SteadyStateProblem, solve
         import SteadyStateDiffEq: DynamicSS
 
         export
