@@ -3,7 +3,7 @@
 Solve the steady state of the auxiliary density operators based on `LinearSolve.jl` (i.e., solving ``x`` where ``A \times x = b``).
 
 # Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model, where the parity should be either `:none` (boson) or `:even` (fermion).
+- `M::AbstractHEOMMatrix` : the matrix given from HEOM model, where the parity should be `:even`.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver 
@@ -33,7 +33,8 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
         print("Solving steady state for auxiliary density operators...")
         flush(stdout)
     end
-    sol = solve(LinearProblem(A, Vector(b)), solver, SOLVEROptions...)
+    cache = init(LinearProblem(A, Vector(b)), solver, SOLVEROptions...)
+    sol = solve!(cache)
     if verbose
         println("[DONE]")
         flush(stdout)
@@ -42,20 +43,15 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
     return ADOs(sol.u, M.dim, M.N)
 end
 
-# func. for solving ODE
-function _hierarchy!(dρ, ρ, L, t)
-    @inbounds dρ .= L * ρ
-end
-
 @doc raw"""
     SteadyState(M, ρ0; solver, reltol, abstol, maxiters, save_everystep, verbose, SOLVEROptions...)
 Solve the steady state of the auxiliary density operators based on time evolution (ordinary differential equations)
 with initial state is given in the type of density-matrix (`ρ0`).
 
 # Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model
+- `M::AbstractHEOMMatrix` : the matrix given from HEOM model, where the parity should be `:even`.
 - `ρ0` : system initial state (density matrix)
-- `solver` : The ODE solvers in package `DifferentialEquations.jl`. Default to `FBDF(autodiff=false)`.
+- `solver` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
 - `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
@@ -71,7 +67,7 @@ For more details about solvers and extra options, please refer to [`Differential
 function SteadyState(
         M::AbstractHEOMMatrix, 
         ρ0;
-        solver = FBDF(autodiff=false),
+        solver = DP5(),
         reltol::Real = 1.0e-6,
         abstol::Real = 1.0e-8,
         maxiters::Real = 1e5,
@@ -105,11 +101,11 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 with initial state is given in the type of `ADOs`.
 
 # Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model
+- `M::AbstractHEOMMatrix` : the matrix given from HEOM model, where the parity should be `:even`.
 - `ados::ADOs` : initial auxiliary density operators
-- `solver` : The ODE solvers in package `DifferentialEquations.jl`. Default to `FBDF(autodiff=false)`.
-- `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
-- `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
+- `solver` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-3`.
+- `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-6`.
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
 - `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
@@ -123,7 +119,7 @@ For more details about solvers and extra options, please refer to [`Differential
 @noinline function SteadyState(
         M::AbstractHEOMMatrix, 
         ados::ADOs;
-        solver = FBDF(autodiff=false),
+        solver = DP5(),
         reltol = 1.0e-6,
         abstol = 1.0e-8,
         maxiters = 1e5,
@@ -134,7 +130,7 @@ For more details about solvers and extra options, please refer to [`Differential
     
     # check parity
     if M.parity == :odd
-        error("The parity of M should be either \":none\" (bonson) or \":even\" (fermion).")
+        error("The parity of M should be \":even\".")
     end
 
     if (M.dim != ados.dim)
@@ -145,19 +141,9 @@ For more details about solvers and extra options, please refer to [`Differential
         error("The number N between M and ados are not consistent.")
     end
 
-    # setup ode function
-    jac_p = undef
-    try
-        if solver.linsolve == nothing
-            jac_p = SparseMatrixCSC{ComplexF64, Int64}
-        else
-            S, = size(M)
-            jac_p = spzeros(ComplexF64, S, S)
-        end
-    catch
-        jac_p = SparseMatrixCSC{ComplexF64, Int64}
-    end
-    hierarchy = ODEFunction(_hierarchy!; jac_prototype = jac_p)
+    # problem: dρ(t)/dt = L * ρ(t)
+    L = MatrixOperator(M.data)
+    prob = ODEProblem(L, Vector(ados.data), (0, Inf))
 
     # solving steady state of the ODE problem
     if verbose
@@ -165,7 +151,7 @@ For more details about solvers and extra options, please refer to [`Differential
         flush(stdout)
     end
     sol = solve(
-        SteadyStateProblem(hierarchy, Vector(ados.data), M.data), 
+        SteadyStateProblem(prob), 
         DynamicSS(solver; abstol = abstol, reltol = reltol);
         maxiters = maxiters,
         save_everystep = save_everystep,
