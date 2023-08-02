@@ -130,7 +130,7 @@ for (idx, ado) in enumerate(ados)
         α  # index of the fermionic bath
         h  # the index of the exponential-expansion term in α-th fermionic bath
         nf # the repetition number of the ensemble {α, h} in vector q in ADOs
-        exponent = M.Bbath[α][h]  # the h-th exponential-expansion term in α-th fermionic bath
+        exponent = M.Fbath[α][h]  # the h-th exponential-expansion term in α-th fermionic bath
 
         # do some calculations you want
     end
