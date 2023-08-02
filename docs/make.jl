@@ -1,8 +1,9 @@
 # julia --project=@. make.jl
-push!(LOAD_PATH, "../src/")
+import Pkg; Pkg.activate("../")
+using HierarchicalEOM
+
 using Documenter
 import Literate
-using HierarchicalEOM
 
 const DRAFT = false # set `true` to disable cell evaluation
 
@@ -12,6 +13,16 @@ if !isdir(doc_output_path) mkdir(doc_output_path) end
 # Generate page: Quick Start
 QS_source_file = abspath(joinpath(@__DIR__, "..",  "examples", "quick_start.jl"))
 Literate.markdown(QS_source_file, doc_output_path)
+
+# Generate example pages
+EXAMPLES = Any[
+    "SIAM"
+]
+EX_source_files = [abspath(joinpath(@__DIR__, "..",  "examples", "$(ex_name).jl")) for ex_name in EXAMPLES]
+EX_output_files = ["examples/$(ex_name).md" for ex_name in EXAMPLES]
+for file in EX_source_files
+    Literate.markdown(file, doc_output_path)
+end
 
 const PAGES = Any[
     "Home" => Any[
@@ -35,7 +46,7 @@ const PAGES = Any[
     "Time Evolution" => "time_evolution.md",
     "Stationary State" => "stationary_state.md",
     "Spectrum" => "spectrum.md",
-    # "Examples" => Any[],
+    "Examples" => EX_output_files,
     "Library" => Any[
         "HEOM API" => "lib/heom_api.md",
         "Bath" => "lib/bath.md",
