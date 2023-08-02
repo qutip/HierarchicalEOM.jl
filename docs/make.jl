@@ -1,7 +1,5 @@
-# julia --project=@. make.jl
-import Pkg; Pkg.activate("../")
+# julia make.jl local
 using HierarchicalEOM
-
 using Documenter
 import Literate
 
@@ -57,6 +55,7 @@ const PAGES = Any[
 ]
 
 makedocs(
+    modules = [HierarchicalEOM],
     sitename = "Documentation | HierarchicalEOM.jl",
     pages  = PAGES,
     format = Documenter.HTML(
