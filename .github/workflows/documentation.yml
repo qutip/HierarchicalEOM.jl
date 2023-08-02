@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - 'main' # update to match your development branch (master, main, dev, trunk, ...)
-      - 'develop'
     tags: 
       - '*'
   pull_request:
     branches:
+      - 'main'
       - 'develop'
 
 jobs:
