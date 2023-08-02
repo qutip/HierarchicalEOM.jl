@@ -1,7 +1,7 @@
-# julia make.jl local
-using HierarchicalEOM
-using Documenter
+# julia --project=@. make.jl
+push!(LOAD_PATH, "../src/")  # for local build
 import Literate
+using Documenter, HierarchicalEOM
 
 const DRAFT = false # set `true` to disable cell evaluation
 
