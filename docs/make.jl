@@ -1,5 +1,7 @@
-# julia --project=@. make.jl
-push!(LOAD_PATH, "../src/")  # for local build
+## run the following command under HierarchicalEOM.jl root directory
+# julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd()));Pkg.instantiate()'
+# julia --project=docs/ docs/make.jl
+
 import Literate
 using Documenter, HierarchicalEOM
 
