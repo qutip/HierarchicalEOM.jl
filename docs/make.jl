@@ -16,7 +16,8 @@ Literate.markdown(QS_source_file, doc_output_path)
 
 # Generate example pages
 EXAMPLES = [
-    "SIAM"
+    "SIAM",
+    "electronic_current"
 ]
 EX_source_files = [abspath(joinpath(@__DIR__, "..",  "examples", "$(ex_name).jl")) for ex_name in EXAMPLES]
 EX_output_files = ["examples/$(ex_name).md" for ex_name in EXAMPLES]
