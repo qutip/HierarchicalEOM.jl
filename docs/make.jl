@@ -15,12 +15,22 @@ QS_source_file = abspath(joinpath(@__DIR__, "..",  "examples", "quick_start.jl")
 Literate.markdown(QS_source_file, doc_output_path)
 
 # Generate example pages
-EXAMPLES = Any[
+EXAMPLES = [
     "SIAM"
 ]
 EX_source_files = [abspath(joinpath(@__DIR__, "..",  "examples", "$(ex_name).jl")) for ex_name in EXAMPLES]
 EX_output_files = ["examples/$(ex_name).md" for ex_name in EXAMPLES]
 for file in EX_source_files
+    Literate.markdown(file, doc_output_path)
+end
+
+# Generate benchmark pages
+BENCHMARKS = [
+    "benchmark_LS_solvers"
+]
+BM_source_files = [abspath(joinpath(@__DIR__, "..",  "examples", "$(bm_name).jl")) for bm_name in BENCHMARKS]
+BM_output_files = ["examples/$(bm_name).md" for bm_name in BENCHMARKS]
+for file in BM_source_files
     Literate.markdown(file, doc_output_path)
 end
 
@@ -47,12 +57,13 @@ const PAGES = Any[
     "Stationary State" => "stationary_state.md",
     "Spectrum" => "spectrum.md",
     "Examples" => EX_output_files,
+    "Benchmark Solvers" => BM_output_files,
     "Library" => Any[
-        "HEOM API" => "lib/heom_api.md",
-        "Bath" => "lib/bath.md",
-        "Bath Correlation Functions" => "lib/corr_func.md",
-        "Physical Analysis Functions" => "lib/phys_analysis.md",
-        "Misc." => "lib/misc.md"
+        "lib/heom_api.md",
+        "lib/bath.md",
+        "lib/corr_func.md",
+        "lib/phys_analysis.md",
+        "lib/misc.md"
     ]
 ]
 

@@ -1,4 +1,4 @@
-# # The single-impurity Anderson model
+# # [The single-impurity Anderson model](@id exp-SIAM)
 
 # The investigation of the Kondo effect in single-impurity Anderson model is crucial as it serves both as a valuable testing ground for the theories of the Kondo effect and has the potential to lead to a better understanding of this intrinsic many-body phenomena.
 
