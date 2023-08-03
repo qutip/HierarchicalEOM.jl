@@ -8,13 +8,11 @@ import Plots
 # ## Hamiltonian
 # We consider a single-level electronic system [which can be populated by a spin-up ($\uparrow$) or spin-down ($\downarrow$) electron] coupled to a fermionic reservoir ($\textrm{f}$). The total Hamiltonian is given by $H_{\textrm{T}}=H_\textrm{s}+H_\textrm{f}+H_\textrm{sf}$, where each terms takes the form
 # ```math
-# H_{\textrm{s}} = \epsilon \left(d^\dagger_\uparrow d_\uparrow + d^\dagger_\downarrow d_\downarrow \right) + U\left(d^\dagger_\uparrow d_\uparrow d^\dagger_\downarrow d_\downarrow\right),
-# ```
-# ```math
-# H_{\textrm{f}} =\sum_{\sigma=\uparrow,\downarrow}\sum_{k}\epsilon_{\sigma,k}c_{\sigma,k}^{\dagger}c_{\sigma,k},
-# ```
-# ```math
-# H_{\textrm{sf}} =\sum_{\sigma=\uparrow,\downarrow}\sum_{k}g_{k}c_{\sigma,k}^{\dagger}d_{\sigma} + g_{k}^*d_{\sigma}^{\dagger}c_{\sigma,k}.
+# \begin{aligned}
+# H_{\textrm{s}}  &= \epsilon \left(d^\dagger_\uparrow d_\uparrow + d^\dagger_\downarrow d_\downarrow \right) + U\left(d^\dagger_\uparrow d_\uparrow d^\dagger_\downarrow d_\downarrow\right),\\
+# H_{\textrm{f}}  &=\sum_{\sigma=\uparrow,\downarrow}\sum_{k}\epsilon_{\sigma,k}c_{\sigma,k}^{\dagger}c_{\sigma,k},\\
+# H_{\textrm{sf}} &=\sum_{\sigma=\uparrow,\downarrow}\sum_{k}g_{k}c_{\sigma,k}^{\dagger}d_{\sigma} + g_{k}^*d_{\sigma}^{\dagger}c_{\sigma,k}.
+# \end{aligned}
 # ```
 # Here, $d_\uparrow$ $(d_\downarrow)$ annihilates a spin-up (spin-down) electron in the system, $\epsilon$ is the energy of the electron, and $U$ is the Coulomb repulsion energy for double occupation. Furthermore, $c_{\sigma,k}$ $(c_{\sigma,k}^{\dagger})$ annihilates (creates) an electron in the state $k$ (with energy $\epsilon_{\sigma,k}$) of the reservoir.
 # 

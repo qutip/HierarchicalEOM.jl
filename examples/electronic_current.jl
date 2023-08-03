@@ -9,13 +9,11 @@ import Plots
 # ## Hamiltonian
 # We consider a single-level charge system coupled to two [left (L) and right (R)] fermionic reservoirs ($\textrm{f}$). The total Hamiltonian is given by $H_{\textrm{T}}=H_\textrm{s}+H_\textrm{f}+H_\textrm{sf}$, where each terms takes the form
 # ```math
-# H_{\textrm{s}} = \epsilon d^\dagger d,
-# ```
-# ```math
-# H_{\textrm{f}} =\sum_{\alpha=\textrm{L},\textrm{R}}\sum_{k}\epsilon_{\alpha,k}c_{\alpha,k}^{\dagger}c_{\alpha,k},
-# ```
-# ```math
-# H_{\textrm{sf}} =\sum_{\alpha=\textrm{L},\textrm{R}}\sum_{k}g_{\alpha,k}c_{\alpha,k}^{\dagger}d + g_{\alpha,k}^* d^{\dagger}c_{\alpha,k}.
+# \begin{aligned}
+# H_{\textrm{s}}  &= \epsilon d^\dagger d,\\
+# H_{\textrm{f}}  &=\sum_{\alpha=\textrm{L},\textrm{R}}\sum_{k}\epsilon_{\alpha,k}c_{\alpha,k}^{\dagger}c_{\alpha,k},\\
+# H_{\textrm{sf}} &=\sum_{\alpha=\textrm{L},\textrm{R}}\sum_{k}g_{\alpha,k}c_{\alpha,k}^{\dagger}d + g_{\alpha,k}^* d^{\dagger}c_{\alpha,k}.
+# \end{aligned}
 # ```
 # Here, $d$ $(d^\dagger)$ annihilates (creates) an electron in the system and $\epsilon$ is the energy of the electron. Furthermore, $c_{\alpha,k}$ $(c_{\alpha,k}^{\dagger})$ annihilates (creates) an electron in the state $k$ (with energy $\epsilon_{\alpha,k}$) of the $\alpha$-th reservoir.
 # 
