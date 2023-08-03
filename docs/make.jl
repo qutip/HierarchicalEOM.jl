@@ -41,30 +41,26 @@ const PAGES = Any[
         "Quick Start"  => "examples/quick_start.md",
         "Cite HierarchicalEOM" => "cite.md"
     ],
-    "Bosonic Bath" => "bosonic_bath.md",
-    "Fermionic Bath" => "fermionic_bath.md",
-    "Auxiliary Density Operators" => "ADOs.md",
-    "HEOMLS Matrices" => Any[
-        "Introduction" => "heom_matrix/intro.md",
-        "HEOMLS for Schrödinger Equation" => "heom_matrix/schrodinger_eq.md",
-        "HEOMLS for Bosonic Bath" => "heom_matrix/M_Boson.md",
-        "HEOMLS for Fermionic Bath" => "heom_matrix/M_Fermion.md",
-        "HEOMLS for Bosonic and Fermionic Bath" => "heom_matrix/M_Boson_Fermion.md",
-        "HEOMLS for Master Equation" => "heom_matrix/master_eq.md",
+    "Manual" => Any[
+        "Bosonic Bath" => "bosonic_bath.md",
+        "Fermionic Bath" => "fermionic_bath.md",
+        "Auxiliary Density Operators" => "ADOs.md",
+        "HEOMLS Matrices" => Any[
+            "Introduction" => "heom_matrix/intro.md",
+            "HEOMLS for Schrödinger Equation" => "heom_matrix/schrodinger_eq.md",
+            "HEOMLS for Bosonic Bath" => "heom_matrix/M_Boson.md",
+            "HEOMLS for Fermionic Bath" => "heom_matrix/M_Fermion.md",
+            "HEOMLS for Bosonic and Fermionic Bath" => "heom_matrix/M_Boson_Fermion.md",
+            "HEOMLS for Master Equation" => "heom_matrix/master_eq.md",
+        ],
+        "Hierarchy Dictionary" => "hierarchy_dictionary.md",
+        "Time Evolution" => "time_evolution.md",
+        "Stationary State" => "stationary_state.md",
+        "Spectrum" => "spectrum.md",
+        "Examples" => EX_output_files,
+        "Benchmark Solvers" => BM_output_files
     ],
-    "Hierarchy Dictionary" => "hierarchy_dictionary.md",
-    "Time Evolution" => "time_evolution.md",
-    "Stationary State" => "stationary_state.md",
-    "Spectrum" => "spectrum.md",
-    "Examples" => EX_output_files,
-    "Benchmark Solvers" => BM_output_files,
-    "Library" => Any[
-        "lib/heom_api.md",
-        "lib/bath.md",
-        "lib/corr_func.md",
-        "lib/phys_analysis.md",
-        "lib/misc.md"
-    ]
+    "Library API" => "libraryAPI.md"
 ]
 
 makedocs(
