@@ -28,8 +28,11 @@ bosonImag(op::AbstractMatrix, η_real::Vector{Ti}, γ_real::Vector{Tj}) where {T
 bosonRealImag
 bosonRealImag(op::AbstractMatrix, η_real::Vector{Ti}, η_imag::Vector{Tj}, γ::Vector{Tk}) where {Ti, Tj, Tk <: Number}
 FermionBath
+FermionBath(op::AbstractMatrix, η_absorb::Vector{Ti}, γ_absorb::Vector{Tj}, η_emit::Vector{Tk}, γ_emit::Vector{Tl}, δ::Tm=0.0) where {Ti, Tj, Tk, Tl, Tm <: Number}
 fermionAbsorb
+fermionAbsorb(op::AbstractMatrix, η_absorb::Vector{Ti}, γ_absorb::Vector{Tj}, η_emit::Vector{Tk}) where {Ti, Tj, Tk <: Number}
 fermionEmit
+fermionEmit(op::AbstractMatrix, η_emit::Vector{Ti}, γ_emit::Vector{Tj}, η_absorb::Vector{Tk}) where {Ti, Tj, Tk <: Number}
 ```
 
 ## Correlation Functions

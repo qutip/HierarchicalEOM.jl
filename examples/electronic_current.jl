@@ -61,7 +61,7 @@ ados_steady = SteadyState(M);
 # ## Calculate current
 # Within the influence functional approach, the expectation value of the electronic current from the $\alpha$-fermionic bath into the system can be written in terms of the first-level-fermionic ($n=1$) auxiliary density operators, namely
 # ```math
-# \langle I_\alpha(t) \rangle =(-e) \frac{d\langle \mathcal{N}_\alpha\rangle}{dt}=i e \sum_{q}(-1)^{\delta_{\nu,-}} ~\textrm{Tr}\left[d^{\bar{\nu}}\rho^{(0,1,+)}_{\vert \textbf{q}}(t)\right],
+# \langle I_\alpha(t) \rangle =(-e) \frac{d\langle \mathcal{N}_\alpha\rangle}{dt}=i e \sum_{q\in\textbf{q}}(-1)^{\delta_{\nu,-}} ~\textrm{Tr}\left[d^{\bar{\nu}}\rho^{(0,1,+)}_{\vert \textbf{q}}(t)\right],
 # ```
 # where $e$ represents the value of the elementary charge, and $\mathcal{N}_\alpha=\sum_k c^\dagger_{\alpha,k}c_{\alpha,k}$ is the occupation number operator for the $\alpha$-fermionic bath.
 # 
