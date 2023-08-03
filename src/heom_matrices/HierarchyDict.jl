@@ -1,7 +1,7 @@
 abstract type AbstractHierarchyDict end
 
 @doc raw"""
-struct HierarchyDict <: AbstractHierarchyDict
+    struct HierarchyDict <: AbstractHierarchyDict
 An object which contains all dictionaries for pure (bosonic or fermionic) bath-ADOs hierarchy.
 
 # Fields
