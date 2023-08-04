@@ -20,6 +20,7 @@ Literate.markdown(QS_source_file, doc_output_path)
 
 # Generate example pages
 EXAMPLES = [
+    "cavityQED",
     "dynamical_decoupling",
     "SIAM",
     "electronic_current"
