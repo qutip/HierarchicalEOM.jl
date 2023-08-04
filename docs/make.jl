@@ -7,8 +7,12 @@ using Documenter, HierarchicalEOM
 
 const DRAFT = false # set `true` to disable cell evaluation
 
+# clean and rebuild the output markdown directory for examples
 doc_output_path = abspath(joinpath(@__DIR__, "src", "examples"))
-if !isdir(doc_output_path) mkdir(doc_output_path) end
+if isdir(doc_output_path)
+    rm(doc_output_path, recursive=true)
+end
+mkdir(doc_output_path)
 
 # Generate page: Quick Start
 QS_source_file = abspath(joinpath(@__DIR__, "..",  "examples", "quick_start.jl"))
@@ -28,6 +32,7 @@ end
 
 # Generate benchmark pages
 BENCHMARKS = [
+    "benchmark_ODE_solvers",
     "benchmark_LS_solvers"
 ]
 BM_source_files = [abspath(joinpath(@__DIR__, "..",  "examples", "$(bm_name).jl")) for bm_name in BENCHMARKS]
