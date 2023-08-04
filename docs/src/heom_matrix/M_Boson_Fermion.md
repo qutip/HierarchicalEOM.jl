@@ -4,7 +4,7 @@ The HEOM Liouvillian superoperator matrix [`struct M_Boson_Fermion <: AbstractHE
 ## Construct Matrix
 To construct the HEOM matrix in this case, one can call 
 
-[`M_Boson_Fermion(Hsys, Btier, Ftier, Bbath, Fbath, parity)`](@ref M_Boson_Fermion_Constructor) with the following parameters:
+[`M_Boson_Fermion(Hsys, Btier, Ftier, Bbath, Fbath, parity)`](@ref M_Boson_Fermion) with the following parameters:
 
 *args* (Arguments)
  - `Hsys` : The time-independent system Hamiltonian

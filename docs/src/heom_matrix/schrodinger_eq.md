@@ -10,7 +10,7 @@ where ``[\cdot, \cdot]_-`` stands for commutator.
 ## Construct Matrix
 To construct the HEOM matrix for Schrödinger Equation, one can call 
 
-[`M_S(Hsys, parity)`](@ref M_S_Constructor) with the following parameters:
+[`M_S(Hsys, parity)`](@ref M_S) with the following parameters:
 
 *args* (Arguments)
  - `Hsys` : The time-independent system Hamiltonian
