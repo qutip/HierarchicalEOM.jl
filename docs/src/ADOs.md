@@ -3,7 +3,7 @@
 ## Introduction
 The auxiliary density operators ([`ADOs`](@ref)) ``\rho_{\textbf{j}\vert\textbf{q}}^{(m,n,p)}(t)`` encode environmental effects related to different exponential terms ([`Exponent`](@ref)) present in the [`Bosonic Bath`](@ref doc-Bosonic-Bath) and [`Fermionic Bath`](@ref doc-Fermionic-Bath) correlation functions and provide an iterative description of high-order system-baths memory effects.
 
-In ``\rho_{\textbf{j}\vert\textbf{q}}^{(m,n,p)}(t)``, the tuple ``(m, n, p)`` represents the ``m``th-level-bosonic-and-``n``th-level-fermionic ADO with parity ``p``, and ``\textbf{j}`` (``\textbf{q}``) denotes a vector ``[j_1,\cdot\cdot\cdot,j_m]`` (``[q_1,\cdot\cdot\cdot,q_n]``) where each ``j`` (``q``) represents a specific multi-index ensemble ``\{\beta, l\}`` (``\{\alpha, h\}``) with
+In ``\rho_{\textbf{j}\vert\textbf{q}}^{(m,n,p)}(t)``, the tuple ``(m, n, p)`` represents the ``m``th-level-bosonic-and-``n``th-level-fermionic ADO with parity ``p``, and ``\textbf{j}`` (``\textbf{q}``) denotes a vector ``[j_m,\cdots,j_1]`` (``[q_n,\cdots,q_1]``) where each ``j`` (``q``) represents a specific multi-index ensemble ``\{\beta, l\}`` (``\{\alpha, h\}``) with
  - ``\beta`` : denotes the index of bosonic bath
  - ``\alpha`` : denotes the index of fermionic bath
  - ``l`` : denotes the index of exponent in the bosonic bath

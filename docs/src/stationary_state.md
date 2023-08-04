@@ -9,7 +9,7 @@ The first method is implemented by solving the linear problem
 0=\hat{\mathcal{M}}\rho^{(m,n,p)}_{\textbf{j} \vert \textbf{q}}(t)
 ```
 
-`HierarchicalEOM.jl` wraps some of the functions in [LinearSolve.jl](http://linearsolve.sciml.ai/stable/), which is a very rich numerical library for solving the linear problems and provides many solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to the documentation of [LinearSolve.jl](http://linearsolve.sciml.ai/stable/).
+`HierarchicalEOM.jl` wraps some of the functions in [LinearSolve.jl](http://linearsolve.sciml.ai/stable/), which is a very rich numerical library for solving the linear problems and provides many solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to [benchmark for LinearSolve solvers](@ref benchmark-LS-solvers) and also the documentation of [LinearSolve.jl](http://linearsolve.sciml.ai/stable/).
 
 See the docstring of this method:  
 

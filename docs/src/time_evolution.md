@@ -51,7 +51,7 @@ end
 ```
 
 ## Ordinary Differential Equation Method
-The first method is implemented by solving the ordinary differential equation (ODE) as shown above. `HierarchicalEOM.jl` wraps some of the functions in [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/), which is a very rich numerical library for solving the differential equations and provides many ODE solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to the documentation of [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/).
+The first method is implemented by solving the ordinary differential equation (ODE) as shown above. `HierarchicalEOM.jl` wraps some of the functions in [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/), which is a very rich numerical library for solving the differential equations and provides many ODE solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to [benchmarks for DifferentialEquations solvers](@ref benchmark-ODE-solvers) and also the documentation of [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/).
 
 ### Given the initial state as Density Operator (`AbstractMatrix` type)
 

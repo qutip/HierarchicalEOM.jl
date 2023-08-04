@@ -41,7 +41,7 @@ function ADOs(V::AbstractVector, N::Int)
     if isinteger(dim)
         return ADOs(sparsevec(V), Int(dim), N)
     else
-        error("The dimension of vector is not consistent with N.")
+        error("The dimension of vector is not consistent with the ADOs number \"N\".")
     end    
 end
 

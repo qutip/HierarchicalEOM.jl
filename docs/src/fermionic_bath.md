@@ -82,7 +82,7 @@ The different types of the (fermionic-bath) [`Exponent`](@ref):
  - `"fA"` : from absorption fermionic correlation function ``C^{\nu=+}(t_1, t_2)``
  - `"fE"` : from emission fermionic correlation function ``C^{\nu=-}(t_1, t_2)``
 
-## Lorentz Spectral Density
+## [Lorentz Spectral Density](@id doc-Fermion-Lorentz)
 ```math
 J(\omega)=\frac{\Gamma W^2}{(\omega-\mu)^2+W^2}
 ```

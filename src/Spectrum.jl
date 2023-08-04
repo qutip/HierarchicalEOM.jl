@@ -52,7 +52,7 @@ function spectrum(
             error("The system dimension between M and ρ are not consistent.")
         end
         if (M.N != ρ.N)
-            error("The number N between M and ρ are not consistent.")
+            error("The ADOs number \"N\" between M and ados are not consistent.")
         end
 
         ados_vec = ρ.data
