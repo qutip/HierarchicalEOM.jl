@@ -46,14 +46,17 @@ bath_dn = Fermion_Lorentz_Pade(d_dn, Γ, μ, W, T, N)
 bath_list = [bath_up, bath_dn]
 
 # ## Construct HEOMLS matrix
+# (see also [HEOMLS Matrix for Fermionic Baths](@ref doc-M_Fermion))
 tier = 3
 M_even = M_Fermion(Hsys, tier, bath_list)
 M_odd  = M_Fermion(Hsys, tier, bath_list, :odd)
 
 # ## Solve stationary state of ADOs
+# (see also [Stationary State](@ref doc-Stationary-State))
 ados_s = SteadyState(M_even)
 
 # ## Calculate density of states (DOS)
+# (see also [Spectrum](@ref doc-Spectrum))
 ωlist = -10:1:10
 dos = spectrum(M_odd, ados_s, d_up, ωlist)
 
