@@ -96,7 +96,7 @@ The different types of the (bosonic-bath) [`Exponent`](@ref):
  - `"bI"` : from imaginary part of bosonic correlation function ``C^{u=\textrm{I}}(t_1, t_2)``
  - `"bRI"` : from combined (real and imaginary part) bosonic bath correlation function ``C(t_1, t_2)``
 
-## Drude-Lorentz Spectral Density
+## [Drude-Lorentz Spectral Density](@id Boson-Drude-Lorentz)
 ```math
 J(\omega)=\frac{4\pi\Delta W\omega}{\omega^2+W^2}
 ```
