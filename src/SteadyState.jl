@@ -138,7 +138,7 @@ For more details about solvers and extra options, please refer to [`Differential
     end
 
     if (M.N != ados.N)
-        error("The number N between M and ados are not consistent.")
+        error("The ADOs number \"N\" between M and ados are not consistent.")
     end
 
     # problem: dρ(t)/dt = L * ρ(t)
