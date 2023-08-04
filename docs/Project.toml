@@ -13,6 +13,7 @@ QuantumOptics = "6e0679c1-51ea-5a7c-ac74-d61b76210b0c"
 [compat]
 BenchmarkTools = "1.3"
 Documenter = "0.27"
+HierarchicalEOM = "0.2"
 LaTeXStrings = "1"
 LinearSolve = "2.4"
 Literate = "2"
