@@ -54,7 +54,7 @@ M_Fermion
 M_Fermion(Hsys, tier::Int, Bath::Vector{FermionBath}, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)
 M_Boson_Fermion
 M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::Vector{FermionBath}, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)
-size(M::AbstractHEOMMatrix)
+size(M::AbstractHEOMLSMatrix)
 Propagator
 addBosonDissipator
 addFermionDissipator

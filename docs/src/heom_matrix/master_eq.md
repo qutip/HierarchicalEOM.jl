@@ -1,6 +1,6 @@
 # [HEOMLS Matrix for Master Equation](@id doc-Master-Equation)
 
-`HierarchicalEOM.jl` allows users to further add the Lindbladian (superoperator) on any types (`AbstractHEOMMatrix`) of HEOM Liouvillian superoperator ``\hat{\mathcal{M}}``. The Lindbladian describes the dissipative interaction between the system and extra environment.
+`HierarchicalEOM.jl` allows users to further add the Lindbladian (superoperator) on any types (`AbstractHEOMLSMatrix`) of HEOM Liouvillian superoperator ``\hat{\mathcal{M}}``. The Lindbladian describes the dissipative interaction between the system and extra environment.
 
 This method is more efficient than the full HEOM when some of the baths are weakly coupled to the system since it does not require any extra [ADOs](@ref doc-ADOs) space to describe the dynamics and hence reduces the size of ``\hat{\mathcal{M}}``.
 
@@ -16,13 +16,13 @@ where ``J\equiv \sqrt{\gamma}V`` is the jump operator, ``V`` describes the dissi
 
 One can add the Lindbladian ``\hat{\mathcal{D}}`` of bosonic environment to the HEOM Liouvillian superoperator ``\hat{\mathcal{M}}`` by calling 
 
-[`addBosonDissipator(M::AbstractHEOMMatrix, jumpOP)`](@ref addBosonDissipator) with the parameters:
- - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
+[`addBosonDissipator(M::AbstractHEOMLSMatrix, jumpOP)`](@ref addBosonDissipator) with the parameters:
+ - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
  - `jumpOP::AbstractVector` : The list of collapse (jump) operators ``\{J_i\}_i`` to add. Defaults to empty vector `[]`.
 
 Finally, the function returns a new ``\hat{\mathcal{M}}`` with the same type:
 ```julia
-M0::AbstractHEOMMatrix
+M0::AbstractHEOMLSMatrix
 J = [J1, J2, ..., Jn]  # jump operators
 
 M1 = addBosonDissipator(M0, J)
@@ -42,17 +42,17 @@ For acting on `:odd`-parity operators, the explicit form of the Lindbladian is g
 
 One can add the Lindbladian ``\hat{\mathcal{D}}`` of fermionic environment to the HEOM Liouvillian superoperator ``\hat{\mathcal{M}}`` by calling 
 
-[`addFermionDissipator(M::AbstractHEOMMatrix, jumpOP)`](@ref addFermionDissipator) with the parameters:
- - `M::AbstractHEOMMatrix` : the matrix given from HEOM model
+[`addFermionDissipator(M::AbstractHEOMLSMatrix, jumpOP)`](@ref addFermionDissipator) with the parameters:
+ - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
  - `jumpOP::AbstractVector` : The list of collapse (jump) operators ``\{J_i\}_i`` to add. Defaults to empty vector `[]`.
 
 !!! note "Parity"
-    The parity of the dissipator will be automatically determined by the [parity](@ref doc-Parity) of the given HEOM matrix `M`.
+    The parity of the dissipator will be automatically determined by the [parity](@ref doc-Parity) of the given HEOMLS matrix `M`.
 
 Finally, the function returns a new ``\hat{\mathcal{M}}`` with the same type and parity:
 ```julia
-M0_even::AbstractHEOMMatrix # constructed with :even-parity
-M0_odd::AbstractHEOMMatrix  # constructed with :odd-parity
+M0_even::AbstractHEOMLSMatrix # constructed with :even-parity
+M0_odd::AbstractHEOMLSMatrix  # constructed with :odd-parity
 J = [J1, J2, ..., Jn]  # jump operators
 
 M1_even = addFermionDissipator(M0_even, J)

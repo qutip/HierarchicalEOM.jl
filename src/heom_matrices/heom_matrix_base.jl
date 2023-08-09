@@ -1,18 +1,18 @@
-abstract type AbstractHEOMMatrix end
+abstract type AbstractHEOMLSMatrix end
 
-# Parity label for fermionic systems
+# Parity label
 const odd  = 1;
 const even = 0;
 
 @doc raw"""
-    size(M::AbstractHEOMMatrix)
+    size(M::AbstractHEOMLSMatrix)
 Returns the size of the HEOM Liouvillian superoperator matrix
 """
-size(M::AbstractHEOMMatrix) = size(M.data)
+size(M::AbstractHEOMLSMatrix) = size(M.data)
 
-getindex(M::AbstractHEOMMatrix, i::Ti, j::Tj) where {Ti, Tj <: Any} = M.data[i, j]
+getindex(M::AbstractHEOMLSMatrix, i::Ti, j::Tj) where {Ti, Tj <: Any} = M.data[i, j]
 
-function show(io::IO, M::AbstractHEOMMatrix)
+function show(io::IO, M::AbstractHEOMLSMatrix)
     T = typeof(M)
     if T == M_S
         type = "Schrodinger Eq."
@@ -32,7 +32,7 @@ function show(io::IO, M::AbstractHEOMMatrix)
     show(io, MIME("text/plain"), M.data)
 end
 
-function show(io::IO, m::MIME"text/plain", M::AbstractHEOMMatrix) show(io, M) end
+function show(io::IO, m::MIME"text/plain", M::AbstractHEOMLSMatrix) show(io, M) end
 
 @doc raw"""
     Propagator(M, Δt; threshold, nonzero_tol)
@@ -40,7 +40,7 @@ Use `FastExpm.jl` to calculate the propagator matrix from a given HEOM Liouvilli
 That is, ``\exp(M * \Delta t)``.
 
 # Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
 - `Δt::Real` : A specific time step (time interval).
 - `threshold::Real` : Determines the threshold for the Taylor series. Defaults to `1.0e-6`.
 - `nonzero_tol::Real` : Strips elements smaller than `nonzero_tol` at each computation step to preserve sparsity. Defaults to `1.0e-14`.
@@ -51,7 +51,7 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
 - `::SparseMatrixCSC{ComplexF64, Int64}` : the propagator matrix
 """
 @noinline function Propagator(
-        M::AbstractHEOMMatrix,
+        M::AbstractHEOMLSMatrix,
         Δt::Real;
         threshold   = 1.0e-6,
         nonzero_tol = 1.0e-14
@@ -71,13 +71,13 @@ where ``J\equiv \sqrt{\gamma}V`` is the jump operator, ``V`` describes the dissi
 Note that if ``V`` is acting on fermionic systems, it should be even-parity to be compatible with charge conservation.
 
 # Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
 - `jumpOP::AbstractVector` : The list of collapse (jump) operators ``\{J_i\}_i`` to add. Defaults to empty vector `[]`.
 
 # Return 
-- `M_new::AbstractHEOMMatrix` : the new HEOM Liouvillian superoperator matrix
+- `M_new::AbstractHEOMLSMatrix` : the new HEOM Liouvillian superoperator matrix
 """
-function addBosonDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMMatrix
+function addBosonDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMLSMatrix
     if length(jumpOP) > 0
         L = spzeros(ComplexF64, M.sup_dim, M.sup_dim)
         for J in jumpOP
@@ -117,13 +117,13 @@ D_{\textrm{odd}}[J](\cdot) = - J(\cdot) J^\dagger - \frac{1}{2}\left(J^\dagger J
 Note that the parity of the dissipator will be determined by the parity of the given HEOM matrix `M`.
 
 # Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
 - `jumpOP::AbstractVector` : The list of collapse (jump) operators to add. Defaults to empty vector `[]`.
 
 # Return 
-- `M_new::AbstractHEOMMatrix` : the new HEOM Liouvillian superoperator matrix
+- `M_new::AbstractHEOMLSMatrix` : the new HEOM Liouvillian superoperator matrix
 """
-function addFermionDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMMatrix
+function addFermionDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMLSMatrix
     if length(jumpOP) > 0
         parity = eval(M.parity)
         L = spzeros(ComplexF64, M.sup_dim, M.sup_dim)
@@ -146,8 +146,8 @@ function addFermionDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMMa
     end
 end
 
-function   addBosonDissipator(M::AbstractHEOMMatrix, jumpOP::AbstractMatrix) return   addBosonDissipator(M, [jumpOP]) end
-function addFermionDissipator(M::AbstractHEOMMatrix, jumpOP::AbstractMatrix) return addFermionDissipator(M, [jumpOP]) end
+function   addBosonDissipator(M::AbstractHEOMLSMatrix, jumpOP::AbstractMatrix) return   addBosonDissipator(M, [jumpOP]) end
+function addFermionDissipator(M::AbstractHEOMLSMatrix, jumpOP::AbstractMatrix) return addFermionDissipator(M, [jumpOP]) end
 
 @doc raw"""
     addTerminator(M, Bath)
@@ -161,13 +161,13 @@ The difference between the true correlation function and the sum of the
 Here, `δ` is the approximation discrepancy and `dirac(t)` denotes the Dirac-delta function.
 
 # Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
 - `Bath::Union{BosonBath, FermionBath}` : The bath object which contains the approximation discrepancy δ
 
 # Return 
-- `M_new::AbstractHEOMMatrix` : the new HEOM Liouvillian superoperator matrix
+- `M_new::AbstractHEOMLSMatrix` : the new HEOM Liouvillian superoperator matrix
 """
-function addTerminator(M::Mtype, Bath::Union{BosonBath, FermionBath}) where Mtype <: AbstractHEOMMatrix
+function addTerminator(M::Mtype, Bath::Union{BosonBath, FermionBath}) where Mtype <: AbstractHEOMLSMatrix
     Btype = typeof(Bath)
     if (Btype == BosonBath) && (Mtype == M_Fermion)
         error("For $(Btype), the type of HEOM matrix should be either M_Boson or M_Boson_Fermion.")

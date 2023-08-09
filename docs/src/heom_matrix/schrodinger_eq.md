@@ -1,5 +1,5 @@
 # [HEOMLS Matrix for Schrödinger Equation](@id doc-M_S)
-The HEOM Liouvillian superoperator matrix with cutoff level of the hierarchy equals to `0`: [`struct M_S <: AbstractHEOMMatrix`](@ref M_S) 
+The HEOM Liouvillian superoperator matrix with cutoff level of the hierarchy equals to `0`: [`struct M_S <: AbstractHEOMLSMatrix`](@ref M_S) 
 
 This corresponds to the standard Schrodinger (Liouville-von Neumann) equation, namely
 ```math
@@ -14,7 +14,7 @@ To construct the HEOM matrix for Schrödinger Equation, one can call
 
 *args* (Arguments)
  - `Hsys` : The time-independent system Hamiltonian
- - `parity::Symbol` : the [parity](@ref doc-Parity) label of the fermionic system. Defaults to `:even`.
+ - `parity::Symbol` : the [parity](@ref doc-Parity) label. This depends on the parity of the ADOs which the HEOMLS is acting on. Defaults to `:even`.
 *kwargs* (Keyword Arguments)
  - `verbose::Bool` : To display verbose output during the process or not. Defaults to `true`.
 
@@ -34,7 +34,7 @@ The fields of the structure [`M_S`](@ref) are as follows:
  - `dim` : the dimension of system
  - `N` : the number of total [ADOs](@ref doc-ADOs), which equals to `1` (only the reduced density operator) in this case
  - `sup_dim` : the dimension of system superoperator
- - `parity` : the [parity](@ref doc-Parity) label of the fermionic system
+ - `parity` : the [parity](@ref doc-Parity) label. This depends on the parity of the ADOs which the HEOMLS is acting on.
 
 One obtain the value of each fields as follows:
 ```julia

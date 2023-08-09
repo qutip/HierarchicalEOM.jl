@@ -16,13 +16,14 @@ In `HierarchicalEOM.jl`, we express all the auxiliary density operators into a s
 
 [`struct ADOs`](@ref ADOs), 
 
-which is usually obtained after solving the time [evolution](@ref doc-Time-Evolution) or [stationary state](@ref doc-Stationary-State) by a given [HEOM Liouvillian Matrix](@ref doc-HEOMLS-Matrix).
+which is usually obtained after solving the time [evolution](@ref doc-Time-Evolution) or [stationary state](@ref doc-Stationary-State) by a given [HEOM Liouvillian superoperator Matrix](@ref doc-HEOMLS-Matrix).
 
 ## Fields
 The fields of the structure [`ADOs`](@ref) are as follows:
  - `data` : the vectorized auxiliary density operators
  - `dim` : the dimension of the system
  - `N` : the number of auxiliary density operators
+- `parity`: the [parity](@ref doc-Parity) label
 
 One obtain the value of each fields as follows:
 ```julia
@@ -32,6 +33,7 @@ ados::ADOs
 ados.data
 ados.dim
 ados.N
+ados.parity
 ```
 !!! warning "Warning"
     We express all the auxiliary density operators in only a single column vector `ADOs.data`. To obtain each auxiliary density operators in matrix form, please use the following methods and functions.

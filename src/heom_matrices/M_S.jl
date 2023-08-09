@@ -1,5 +1,5 @@
 @doc raw"""
-    struct M_S <: AbstractHEOMMatrix
+    struct M_S <: AbstractHEOMLSMatrix
 HEOM Liouvillian superoperator matrix with cutoff level of the hierarchy equals to `0`.  
 This corresponds to the standard Schrodinger (Liouville-von Neumann) equation, namely
 ```math
@@ -15,7 +15,7 @@ where ``[\cdot, \cdot]_-`` stands for commutator.
 - `sup_dim` : the dimension of system superoperator
 - `parity` : the parity label of the fermionic system (usually `:even`, only set as `:odd` for calculating spectrum of fermionic system)
 """
-struct M_S <: AbstractHEOMMatrix
+struct M_S <: AbstractHEOMLSMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
     tier::Int
     dim::Int

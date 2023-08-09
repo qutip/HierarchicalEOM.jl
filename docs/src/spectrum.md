@@ -39,7 +39,7 @@ Finially, one can obtain the value of the power spectral density for specific ``
 See also the docstring : [`spectrum`](@ref)
 
 ```julia
-M::AbstractHEOMMatrix # need to be in ":even" parity
+M::AbstractHEOMLSMatrix # need to be in ":even" parity
 
 # the input state can be in either type (but usually ADOs):
 ρ::AbstractMatrix # the reduced density operator

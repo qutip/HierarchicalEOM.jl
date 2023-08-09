@@ -3,7 +3,7 @@
 Solve the steady state of the auxiliary density operators based on `LinearSolve.jl` (i.e., solving ``x`` where ``A \times x = b``).
 
 # Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model, where the parity should be `:even`.
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `:even`.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver 
@@ -13,10 +13,10 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
 """
-@noinline function SteadyState(M::AbstractHEOMMatrix; solver=UMFPACKFactorization(), verbose::Bool=true, SOLVEROptions...)
+@noinline function SteadyState(M::AbstractHEOMLSMatrix; solver=UMFPACKFactorization(), verbose::Bool=true, SOLVEROptions...)
     # check parity
-    if (M.parity != :even) && (M.parity != :none)
-        error("The parity of M should be either \":none\" (bonson) or \":even\" (fermion).")
+    if M.parity != :even
+        error("The parity of M should be \":even\".")
     end    
 
     A = copy(M.data)
@@ -40,7 +40,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
         flush(stdout)
     end
     
-    return ADOs(sol.u, M.dim, M.N)
+    return ADOs(sol.u, M.dim, M.N, M.parity)
 end
 
 @doc raw"""
@@ -49,7 +49,7 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 with initial state is given in the type of density-matrix (`ρ0`).
 
 # Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model, where the parity should be `:even`.
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `:even`.
 - `ρ0` : system initial state (density matrix)
 - `solver` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
@@ -65,7 +65,7 @@ For more details about solvers and extra options, please refer to [`Differential
 - `::ADOs` : The steady state of auxiliary density operators.
 """
 function SteadyState(
-        M::AbstractHEOMMatrix, 
+        M::AbstractHEOMLSMatrix, 
         ρ0;
         solver = DP5(),
         reltol::Real = 1.0e-6,
@@ -82,7 +82,7 @@ function SteadyState(
 
     # vectorize initial state
     ρ1   = sparse(sparsevec(ρ0))
-    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N)
+    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N, M.parity)
     
     return SteadyState(M, ados;
         solver = solver,
@@ -101,7 +101,7 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 with initial state is given in the type of `ADOs`.
 
 # Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model, where the parity should be `:even`.
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `:even`.
 - `ados::ADOs` : initial auxiliary density operators
 - `solver` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-3`.
@@ -117,7 +117,7 @@ For more details about solvers and extra options, please refer to [`Differential
 - `::ADOs` : The steady state of auxiliary density operators.
 """
 @noinline function SteadyState(
-        M::AbstractHEOMMatrix, 
+        M::AbstractHEOMLSMatrix, 
         ados::ADOs;
         solver = DP5(),
         reltol = 1.0e-6,
@@ -139,6 +139,10 @@ For more details about solvers and extra options, please refer to [`Differential
 
     if (M.N != ados.N)
         error("The ADOs number \"N\" between M and ados are not consistent.")
+    end
+
+    if (M.parity != ados.parity)
+        error("The parity between M and ados are not consistent.")
     end
 
     # problem: dρ(t)/dt = L * ρ(t)
@@ -163,5 +167,5 @@ For more details about solvers and extra options, please refer to [`Differential
         flush(stdout)
     end
 
-    return ADOs(sol.u, M.dim, M.N)
+    return ADOs(sol.u, M.dim, M.N, M.parity)
 end

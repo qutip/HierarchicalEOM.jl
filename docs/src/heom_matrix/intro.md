@@ -7,7 +7,7 @@ The hierarchical equations of motion Liouvillian superoperator (HEOMLS) ``\hat{\
 ```
 and it can, numerically, be expressed as a matrix. 
 
-In `HierarchicalEOM.jl`, all different types of HEOMLS ``\hat{\mathcal{M}}`` are subtype of `AbstractHEOMMatrix`.
+In `HierarchicalEOM.jl`, all different types of HEOMLS ``\hat{\mathcal{M}}`` are subtype of `AbstractHEOMLSMatrix`.
 
 The HEOMLS ``\hat{\mathcal{M}}`` not only characterizes the bare system dynamics (based on system Hamiltonian), but it also encodes the system-and-multiple-bosonic-baths and system-and-multiple-fermionic-baths interactions based on [Bosonic Bath](@ref doc-Bosonic-Bath) and [Fermionic Bath](@ref doc-Fermionic-Bath), respectively. For a specific ``m``th-level-bosonic-and-``n``th-level-fermionic auxiliary density operator ``\rho^{(m,n,p)}_{\textbf{j} \vert \textbf{q}}``, it will be coupled to the following ADOs through ``\hat{\mathcal{M}}``:
  - ``(m+1)``th-level-bosonic-and-``n``th-level-fermionic ADOs
@@ -50,7 +50,7 @@ M = M_Boson_Fermion(Hs, Btier, Ftier, Bbath, Fbath; threshold=1e-7)
     The full hierarchical equations can be recovered in the limiting case ``\mathcal{I}_\textrm{th}\rightarrow 0``, which is the default value of the parameter : `threshold=0.0`. This means that all of the ADOs will be taken into account by default.
 
 # [Parity Support for HEOMLS Matrices](@id doc-Parity)
-When the system Hamiltonian contains fermionic systems, the HEOMLS matrix ``\hat{\mathcal{M}}`` might be constructed into a different one depend on the parity of the operator it is acting on. Usually, it is acting on the reduced density operator and [auxiliary density operators (ADOs)](@ref doc-ADOs), which are all in `:even`-parity. However, there are some situations (for example, [calculating spectrum for fermionic systems](@ref doc-DOS)) where ``\hat{\mathcal{M}}`` is acting on operators with `:odd`-parity.
+When the system Hamiltonian contains fermionic systems, the HEOMLS matrix ``\hat{\mathcal{M}}`` might be constructed into a different one depend on the parity of the input operator (HEOMLS) it is acting on. Usually, it is acting on the reduced density operator and [auxiliary density operators (ADOs)](@ref doc-ADOs), which are all in `:even`-parity. However, there are some situations (for example, [calculating spectrum for fermionic systems](@ref doc-DOS)) where ``\hat{\mathcal{M}}`` is acting on ADOs with `:odd`-parity.
 
 One can specify the parameter `parity::Symbol` in the function of constructing ``\hat{\mathcal{M}}`` to be `:even` or `:odd`. The default value of the parameter is `parity=:even`.
 ```julia
@@ -76,10 +76,10 @@ M_odd  = M_Boson_Fermion(Hs, Btier, Ftier, Bbath, Fbath, :odd)
 
 # Methods
 All of the HEOMLS matrices supports the following two `Base` Functions :
- - `size(M::AbstractHEOMMatrix)` : Returns the size of the HEOMLS matrix.
+ - `size(M::AbstractHEOMLSMatrix)` : Returns the size of the HEOMLS matrix.
  - Bracket operator `[i,j]` : Returns the `(i, j)`-element(s) in the HEOMLS matrix.
 ```julia
-M::AbstractHEOMMatrix
+M::AbstractHEOMLSMatrix
 
 m, n = size(M)
 M[10, 12]
