@@ -57,11 +57,11 @@ The first method is implemented by solving the ordinary differential equation (O
 
 See the docstring of this method:  
 
-[`evolution(M::AbstractHEOMMatrix, ρ0, tlist::AbstractVector)`](@ref)
+[`evolution(M::AbstractHEOMLSMatrix, ρ0, tlist::AbstractVector)`](@ref)
 
 ```julia
 # the time-independent HEOMLS matrix
-M::AbstractHEOMMatrix  
+M::AbstractHEOMLSMatrix  
 
 # the initial state of the system density operator
 ρ0::AbstractMatrix
@@ -77,11 +77,11 @@ ados_list = evolution(M, ρ0, tlist)
     This method is usually used when you want to solve the time evolution again with the initial state are given from the last time point of the previous result.
 See the docstring of this method:   
 
-[`evolution(M::AbstractHEOMMatrix, ados::ADOs, tlist::AbstractVector)`](@ref)
+[`evolution(M::AbstractHEOMLSMatrix, ados::ADOs, tlist::AbstractVector)`](@ref)
 
 ```julia
 # the time-independent HEOMLS matrix
-M::AbstractHEOMMatrix  
+M::AbstractHEOMLSMatrix  
 
 # the initial state of the ADOs (usually obtianed from previous solving result)
 ados::ADOs      
@@ -104,11 +104,11 @@ To construct the propagator, we wrap the function in the package [`fastExpm.jl`]
 ### Given the initial state as Density Operator (`AbstractMatrix` type)
 See the docstring of this method:  
 
-[`evolution(M::AbstractHEOMMatrix, ρ0, Δt::Real, steps::Int)`](@ref)
+[`evolution(M::AbstractHEOMLSMatrix, ρ0, Δt::Real, steps::Int)`](@ref)
 
 ```julia
 # the time-independent HEOMLS matrix
-M::AbstractHEOMMatrix  
+M::AbstractHEOMLSMatrix  
 
 # the initial state of the system density operator
 ρ0::AbstractMatrix
@@ -128,11 +128,11 @@ ados_list = evolution(M, ρ0, Δt, steps)
     This method is usually used when you want to solve the time evolution again with the initial state are given from the last time point of the previous result.
 See the docstring of this method:  
 
-[`evolution(M::AbstractHEOMMatrix, ados::ADOs, Δt::Real, steps::Int)`](@ref)
+[`evolution(M::AbstractHEOMLSMatrix, ados::ADOs, Δt::Real, steps::Int)`](@ref)
 
 ```julia
 # the time-independent HEOMLS matrix
-M::AbstractHEOMMatrix  
+M::AbstractHEOMLSMatrix  
 
 # the initial state of the ADOs (usually obtianed from previous solving result)
 ados::ADOs
@@ -162,8 +162,8 @@ M = M_Fermion(H0, ...)
 M = M_BosonFermion(H0, ...)
 ```
 To solve the dynamics characterized by ``\hat{\mathcal{M}}`` together with the time-dependent part of system Hamiltonian ``H_1(t)``, you can call either of the following two functions (one takes the type of initial state as density matrix and the other one takes [`ADOs`](@ref)):
- - [`evolution(M::AbstractHEOMMatrix, ρ0, tlist::AbstractVector, H::Function, param::Tuple = ())`](@ref)
- - [`evolution(M::AbstractHEOMMatrix, ados::ADOs, tlist::AbstractVector, H::Function, param::Tuple = ())`](@ref).
+ - [`evolution(M::AbstractHEOMLSMatrix, ρ0, tlist::AbstractVector, H::Function, param::Tuple = ())`](@ref)
+ - [`evolution(M::AbstractHEOMLSMatrix, ados::ADOs, tlist::AbstractVector, H::Function, param::Tuple = ())`](@ref).
 
 Here, the definition of user-defined function `H` must be in the form `H(p::Tuple, t)` and returns the time-dependent part of system Hamiltonian (in `AbstractMatrix` type) at any given time point `t`. The parameter `p` should be a `Tuple` which contains all the extra parameters you need for the function `H`. For example:
 ```julia
@@ -177,7 +177,7 @@ end
 ```
 The parameter tuple `p` will be passed to your function `H` directly from one of the parameter in `evolution` called `param`:
 ```julia
-M::AbstractHEOMMatrix
+M::AbstractHEOMLSMatrix
 ρ0::AbstractMatrix
 tlist = 0:0.1:10
 p = (0.1, 1, 10)
@@ -194,7 +194,7 @@ function H_pump(p, t)
     return sin(0.1 * t) * σx
 end
 
-M::AbstractHEOMMatrix
+M::AbstractHEOMLSMatrix
 ρ0::AbstractMatrix
 tlist = 0:0.1:10
 
@@ -206,7 +206,7 @@ ados_list = evolution(M, ρ0, tlist, H_pump)
 ### Given the initial state as Density Operator (`AbstractMatrix` type)
 See the docstring of this method:  
 
-[`evolution(M::AbstractHEOMMatrix, ρ0, tlist::AbstractVector, H::Function, param::Tuple = ())`](@ref)
+[`evolution(M::AbstractHEOMLSMatrix, ρ0, tlist::AbstractVector, H::Function, param::Tuple = ())`](@ref)
 
 
 ### Given the initial state as Auxiliary Density Operators
@@ -214,4 +214,4 @@ See the docstring of this method:
     This method is usually used when you want to solve the time evolution again with the initial state are given from the last time point of the previous result.
 
 See the docstring of this method:  
-[`evolution(M::AbstractHEOMMatrix, ados::ADOs, tlist::AbstractVector, H::Function, param::Tuple = ())`](@ref)
+[`evolution(M::AbstractHEOMLSMatrix, ados::ADOs, tlist::AbstractVector, H::Function, param::Tuple = ())`](@ref)

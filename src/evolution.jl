@@ -6,7 +6,7 @@ with initial state is given in the type of density-matrix (`ρ0`).
 This method will return the time evolution of `ADOs` corresponds to `tlist = 0 : Δt : (Δt * steps)`
 
 # Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
 - `ρ0` : system initial state (density matrix)
 - `Δt::Real` : A specific time step (time interval).
 - `steps::Int` : The number of time steps
@@ -21,7 +21,7 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
 - `ADOs_list` : The auxiliary density operators of each time step.
 """
 function evolution(
-        M::AbstractHEOMMatrix, 
+        M::AbstractHEOMLSMatrix, 
         ρ0, 
         Δt::Real,
         steps::Int;
@@ -37,7 +37,7 @@ function evolution(
 
     # vectorize initial state
     ρ1   = sparse(sparsevec(ρ0))
-    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N)
+    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N, M.parity)
 
     return evolution(M, ados, Δt, steps;
         threshold   = threshold,
@@ -55,7 +55,7 @@ with initial state is given in the type of `ADOs`.
 This method will return the time evolution of `ADOs` corresponds to `tlist = 0 : Δt : (Δt * steps)`
 
 # Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
 - `ados::ADOs` : initial auxiliary density operators
 - `Δt::Real` : A specific time step (time interval).
 - `steps::Int` : The number of time steps
@@ -70,7 +70,7 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
 - `ADOs_list` : The auxiliary density operators of each time step.
 """
 @noinline function evolution(
-        M::AbstractHEOMMatrix, 
+        M::AbstractHEOMLSMatrix, 
         ados::ADOs,
         Δt::Real,
         steps::Int;
@@ -86,6 +86,10 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
 
     if (M.N != ados.N)
         error("The number N between M and ados are not consistent.")
+    end
+
+    if (M.parity != ados.parity)
+        error("The parity between M and ados are not consistent.")
     end
 
     SAVE::Bool = (filename != "")
@@ -125,7 +129,7 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
         ρvec = exp_Mt * ρvec
         
         # save the ADOs
-        ados = ADOs(ρvec, M.dim, M.N)
+        ados = ADOs(ρvec, M.dim, M.N, M.parity)
         push!(ADOs_list, ados)
         
         if SAVE
@@ -151,7 +155,7 @@ Solve the time evolution for auxiliary density operators based on ordinary diffe
 with initial state is given in the type of density-matrix (`ρ0`).
 
 # Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
 - `ρ0` : system initial state (density matrix)
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
@@ -169,7 +173,7 @@ For more details about solvers and extra options, please refer to [`Differential
 - `ADOs_list` : The auxiliary density operators in each time point.
 """
 function evolution(
-        M::AbstractHEOMMatrix, 
+        M::AbstractHEOMLSMatrix, 
         ρ0, 
         tlist::AbstractVector;
         solver = DP5(),
@@ -188,7 +192,7 @@ function evolution(
 
     # vectorize initial state
     ρ1   = sparse(sparsevec(ρ0))
-    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N)
+    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N, M.parity)
 
     return evolution(M, ados, tlist;
         solver = solver,
@@ -208,7 +212,7 @@ Solve the time evolution for auxiliary density operators based on ordinary diffe
 with initial state is given in the type of `ADOs`.
 
 # Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
 - `ados::ADOs` : initial auxiliary density operators
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
@@ -226,7 +230,7 @@ For more details about solvers and extra options, please refer to [`Differential
 - `ADOs_list` : The auxiliary density operators in each time point.
 """
 @noinline function evolution(
-        M::AbstractHEOMMatrix, 
+        M::AbstractHEOMLSMatrix, 
         ados::ADOs, 
         tlist::AbstractVector;
         solver = DP5(),
@@ -245,6 +249,10 @@ For more details about solvers and extra options, please refer to [`Differential
 
     if (M.N != ados.N)
         error("The ADOs number \"N\" between M and ados are not consistent.")
+    end
+
+    if (M.parity != ados.parity)
+        error("The parity between M and ados are not consistent.")
     end
 
     SAVE::Bool = (filename != "")
@@ -290,7 +298,7 @@ For more details about solvers and extra options, please refer to [`Differential
         step!(integrator, dt, true)
         
         # save the ADOs
-        ados = ADOs(copy(integrator.u), M.dim, M.N)
+        ados = ADOs(copy(integrator.u), M.dim, M.N, M.parity)
         push!(ADOs_list, ados)
         
         if SAVE
@@ -315,7 +323,7 @@ end
 Solve the time evolution for auxiliary density operators with time-dependent system Hamiltonian based on ordinary differential equations
 with initial state is given in the type of density-matrix (`ρ0`).
 # Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model (with time-independent system Hamiltonian)
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model (with time-independent system Hamiltonian)
 - `ρ0` : system initial state (density matrix)
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `H::Function` : a function for time-dependent part of system Hamiltonian. The function will be called by `H(param, t)` and should return the time-dependent part system Hamiltonian matrix at time `t` with `AbstractMatrix` type.
@@ -335,7 +343,7 @@ For more details about solvers and extra options, please refer to [`Differential
 - `ADOs_list` : The auxiliary density operators in each time point.
 """
 function evolution(
-        M::AbstractHEOMMatrix,
+        M::AbstractHEOMLSMatrix,
         ρ0, 
         tlist::AbstractVector,
         H::Function,
@@ -356,7 +364,7 @@ function evolution(
 
     # vectorize initial state
     ρ1   = sparse(sparsevec(ρ0))
-    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N)
+    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N, M.parity)
 
     return evolution(M, ados, tlist, H, param;
         solver = solver,
@@ -375,7 +383,7 @@ end
 Solve the time evolution for auxiliary density operators with time-dependent system Hamiltonian based on ordinary differential equations
 with initial state is given in the type of `ADOs`.
 # Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model (with time-independent system Hamiltonian)
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model (with time-independent system Hamiltonian)
 - `ados::ADOs` : initial auxiliary density operators
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `H::Function` : a function for time-dependent part of system Hamiltonian. The function will be called by `H(param, t)` and should return the time-dependent part system Hamiltonian matrix at time `t` with `AbstractMatrix` type.
@@ -395,7 +403,7 @@ For more details about solvers and extra options, please refer to [`Differential
 - `ADOs_list` : The auxiliary density operators in each time point.
 """
 @noinline function evolution(
-        M::AbstractHEOMMatrix,
+        M::AbstractHEOMLSMatrix,
         ados::ADOs, 
         tlist::AbstractVector,
         H::Function,
@@ -416,6 +424,10 @@ For more details about solvers and extra options, please refer to [`Differential
 
     if (M.N != ados.N)
         error("The ADOs number \"N\" between M and ados are not consistent.")
+    end
+
+    if (M.parity != ados.parity)
+        error("The parity between M and ados are not consistent.")
     end
 
     SAVE::Bool = (filename != "")
@@ -468,7 +480,7 @@ For more details about solvers and extra options, please refer to [`Differential
         step!(integrator, dt, true)
         
         # save the ADOs
-        ados = ADOs(copy(integrator.u), M.dim, M.N)
+        ados = ADOs(copy(integrator.u), M.dim, M.N, M.parity)
         push!(ADOs_list, ados)
         
         if SAVE

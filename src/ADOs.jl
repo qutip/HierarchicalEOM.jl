@@ -6,6 +6,7 @@ The Auxiliary Density Operators for HEOM model.
 - `data` : the vectorized auxiliary density operators
 - `dim` : the dimension of the system
 - `N` : the number of auxiliary density operators
+- `parity`: the parity label (`:even` or `:odd`).
 
 # Methods
 One can obtain the density matrix for specific index (`idx`) by calling : `ados[idx]`.
@@ -24,22 +25,28 @@ mutable struct ADOs
     data::SparseVector{ComplexF64, Int64}
     const dim::Int
     const N::Int
+    const parity::Symbol
 end
 
 @doc raw"""
-    ADOs(V, N)
+    ADOs(V, N, parity)
 Gernerate the object of auxiliary density operators for HEOM model.
 
 # Parameters
 - `V::AbstractVector` : the vectorized auxiliary density operators
 - `N::Int` : the number of auxiliary density operators.
+- `parity::Symbol` : the parity label (`:even` or `:odd`). Default to `:even`.
 """
-function ADOs(V::AbstractVector, N::Int)
+function ADOs(V::AbstractVector, N::Int, parity::Symbol=:even)
     # check the dimension of V
     d,  = size(V)
     dim = √(d / N)
     if isinteger(dim)
-        return ADOs(sparsevec(V), Int(dim), N)
+        if (parity == :even) || (parity == :odd)
+            return ADOs(sparsevec(V), Int(dim), N, parity)
+        else
+            error("The parity label should be either \":even\" or \":odd\".")
+        end
     else
         error("The dimension of vector is not consistent with the ADOs number \"N\".")
     end    
@@ -97,7 +104,7 @@ iterate(A::ADOs, ::Nothing) = nothing
 
 function show(io::IO, A::ADOs)
     print(io, 
-        "Auxiliary Density Operators with (system) dim = $(A.dim), N = $(A.N)\n"
+        "Auxiliary Density Operators with $(A.parity) parity, (system) dim = $(A.dim), number N = $(A.N)\n"
     )
 end
 function show(io::IO, m::MIME"text/plain", A::ADOs) show(io, A) end

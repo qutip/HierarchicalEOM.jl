@@ -305,6 +305,8 @@ end
     @test show(devnull, MIME("text/plain"), ados_b)  == nothing
     @test show(devnull, MIME("text/plain"), ados_f)  == nothing
     @test show(devnull, MIME("text/plain"), ados_bf) == nothing
+    @test_throws ErrorException ADOs(zeros(8), 4)
+    @test_throws ErrorException ADOs(zeros(8), 2, :wrong)
 
     ρ_b = ados_b[:]
     # check iteration

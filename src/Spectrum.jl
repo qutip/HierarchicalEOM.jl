@@ -7,7 +7,7 @@ Calculate spectrum for the system.
 \pi S(\omega)=\textrm{Re}\left\{\int_0^\infty dt \langle a^\dagger(t) a(0)\rangle e^{-i\omega t}\right\},
 ```
 remember to set the parameters: 
-- `M::AbstractHEOMMatrix`: should be `:even` parity
+- `M::AbstractHEOMLSMatrix`: should be `:even` parity
 - `op`: the (annihilation) operator ``a`` for bosonic system as shown above 
 
 # To calculate spectrum for fermionic systems (usually known as density of states):
@@ -15,11 +15,11 @@ remember to set the parameters:
     \pi A(\omega)=\textrm{Re}\left\{\int_0^\infty dt \left[\langle d(t) d^\dagger(0)\rangle^* + \langle d^\dagger(t) d(0)\rangle \right] e^{-i\omega t}\right\},
 ```
 remember to set the parameters: 
-- `M::AbstractHEOMMatrix`: should be `:odd` parity
+- `M::AbstractHEOMLSMatrix`: should be `:odd` parity
 - `op`: the (annihilation) operator ``d`` for fermionic system as shown above 
 
 # Parameters
-- `M::AbstractHEOMMatrix` : the matrix given from HEOM model.
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model.
 - `ρ` :  the system density matrix or the auxiliary density operators.
 - `op` : The annihilation operator acting on the system.
 - `ω_list::AbstractVector` : the specific frequency points to solve.
@@ -34,7 +34,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 - `spec::AbstractVector` : the spectrum list corresponds to the specified `ω_list`
 """
 function spectrum(
-        M::AbstractHEOMMatrix, 
+        M::AbstractHEOMLSMatrix, 
         ρ, 
         op, 
         ω_list::AbstractVector; 
@@ -53,6 +53,9 @@ function spectrum(
         end
         if (M.N != ρ.N)
             error("The ADOs number \"N\" between M and ados are not consistent.")
+        end
+        if (ρ.parity == :odd)
+            error("The parity of ρ or the ADOs must be `:even`.")
         end
 
         ados_vec = ρ.data
@@ -88,7 +91,7 @@ function spectrum(
 end
 
 @noinline function _power_spectrum(
-        M::AbstractHEOMMatrix, 
+        M::AbstractHEOMLSMatrix, 
         ados_vec::AbstractVector, 
         op,
         ω_list::AbstractVector; 
@@ -157,7 +160,7 @@ end
 end
 
 @noinline function _density_of_states(
-        M::AbstractHEOMMatrix, 
+        M::AbstractHEOMLSMatrix, 
         ados_vec::AbstractVector, 
         op,
         ω_list::AbstractVector; 

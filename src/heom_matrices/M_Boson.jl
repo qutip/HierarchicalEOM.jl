@@ -1,5 +1,5 @@
 @doc raw"""
-    struct M_Boson <: AbstractHEOMMatrix
+    struct M_Boson <: AbstractHEOMLSMatrix
 HEOM Liouvillian superoperator matrix for bosonic bath
 
 # Fields
@@ -12,7 +12,7 @@ HEOM Liouvillian superoperator matrix for bosonic bath
 - `bath::Vector{BosonBath}` : the vector which stores all `BosonBath` objects
 - `hierarchy::HierarchyDict`: the object which contains all dictionaries for boson-bath-ADOs hierarchy.
 """
-struct M_Boson <: AbstractHEOMMatrix
+struct M_Boson <: AbstractHEOMLSMatrix
     data::SparseMatrixCSC{ComplexF64, Int64}
     tier::Int
     dim::Int

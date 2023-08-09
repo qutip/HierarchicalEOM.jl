@@ -39,7 +39,7 @@ PrecompileTools.@setup_workload begin
 
         # precompile ADOs for the support of Base functions 
         @info "Precompiling Auxiliary Density Operators (ADOs)..."
-        ados3 = ADOs(zeros(8),  2)
+        ados3 = ADOs(zeros(8), 2)
         length(ados3)
         getRho(ados3)
         getADO(ados3, 1)

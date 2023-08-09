@@ -13,11 +13,11 @@ The first method is implemented by solving the linear problem
 
 See the docstring of this method:  
 
-[`SteadyState(M::AbstractHEOMMatrix)`](@ref)
+[`SteadyState(M::AbstractHEOMLSMatrix)`](@ref)
 
 ```julia
 # the HEOMLS matrix
-M::AbstractHEOMMatrix  
+M::AbstractHEOMLSMatrix  
 ados_steady = SteadyState(M)
 ```
 !!! warning "Unphysical solution"
@@ -36,11 +36,11 @@ until finding a stationary solution.
 ### Given the initial state as Density Operator (`AbstractMatrix` type)
 See the docstring of this method:  
 
-[`SteadyState(M::AbstractHEOMMatrix, ρ0)`](@ref)
+[`SteadyState(M::AbstractHEOMLSMatrix, ρ0)`](@ref)
 
 ```julia
 # the HEOMLS matrix
-M::AbstractHEOMMatrix  
+M::AbstractHEOMLSMatrix  
 
 # the initial state of the system density operator
 ρ0::AbstractMatrix
@@ -50,11 +50,11 @@ ados_steady = SteadyState(M, ρ0)
 
 ### Given the initial state as Auxiliary Density Operators
 See the docstring of this method:  
-[`SteadyState(M::AbstractHEOMMatrix, ados::ADOs)`](@ref)
+[`SteadyState(M::AbstractHEOMLSMatrix, ados::ADOs)`](@ref)
 
 ```julia
 # the HEOMLS matrix
-M::AbstractHEOMMatrix  
+M::AbstractHEOMLSMatrix  
 
 # the initial state of the ADOs
 ados::AbstractMatrix
