@@ -48,14 +48,14 @@ julia_solver = LUFactorization();
 # ### MKL
 # This solver is based on Intel openAPI Math Kernel Library (MKL)
 # !!! note "Note"
-#     Using this solver requires adding the package MKLjll.jl, i.e. `using MKLjll`
-using MKLjll
+#     Using this solver requires adding the package [`MKL_jll.jl`](https://github.com/JuliaBinaryWrappers/MKL_jll.jl), i.e. `using MKL_jll`
+using MKL_jll
 mkl_solver = MKLLUFactorization();
 
 # ### Pardiso
 # This solver is based on Intel openAPI Math Kernel Library (MKL) Pardiso
 # !!! note "Note"
-#     Using this solver requires adding the package [Pardiso.jl](https://github.com/JuliaSparse/Pardiso.jl), i.e. `using Pardiso`
+#     Using this solver requires adding the package [`Pardiso.jl`](https://github.com/JuliaSparse/Pardiso.jl), i.e. `using Pardiso`
 using Pardiso
 pds_solver     = MKLPardisoFactorize()
 pds_ite_solver = MKLPardisoIterate();
