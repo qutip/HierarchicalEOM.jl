@@ -45,13 +45,20 @@ klu_solver = KLUFactorization();
 # ### Julia's built-in LU factorization
 julia_solver = LUFactorization();
 
+# ### MKL
+# This solver is based on Intel openAPI Math Kernel Library (MKL)
+# !!! note "Note"
+#     Using this solver requires adding the package MKLjll.jl, i.e. `using MKLjll`
+using MKLjll
+mkl_solver = MKLLUFactorization();
+
 # ### Pardiso
 # This solver is based on Intel openAPI Math Kernel Library (MKL) Pardiso
 # !!! note "Note"
 #     Using this solver requires adding the package [Pardiso.jl](https://github.com/JuliaSparse/Pardiso.jl), i.e. `using Pardiso`
 using Pardiso
-mkl_solver     = MKLPardisoFactorize()
-mkl_ite_solver = MKLPardisoIterate();
+pds_solver     = MKLPardisoFactorize()
+pds_ite_solver = MKLPardisoIterate();
 
 # ## Solving Stationary State
 # Since we are using [`BenchmarkTools`](https://juliaci.github.io/BenchmarkTools.jl/stable/) (`@benchmark`) in the following, we set `verbose = false` to disable the output message.
@@ -64,11 +71,14 @@ mkl_ite_solver = MKLPardisoIterate();
 # ### Julia's built-in generic LU factorization
 @benchmark SteadyState(M_even; solver = julia_solver, verbose = false)
 
-# ### MKLPardisoFactorize
+# ### MKLLUFactorization
 @benchmark SteadyState(M_even; solver = mkl_solver, verbose = false)
 
+# ### MKLPardisoFactorize
+@benchmark SteadyState(M_even; solver = pds_solver, verbose = false)
+
 # ### MKLPardisoIterate
-@benchmark SteadyState(M_even; solver = mkl_ite_solver, verbose = false)
+@benchmark SteadyState(M_even; solver = pds_ite_solver, verbose = false)
 
 # ## Calculate Spectrum
 # ### UMFPACKFactorization (Default solver)
@@ -80,8 +90,11 @@ mkl_ite_solver = MKLPardisoIterate();
 # ### Julia's built-in LU factorization
 @benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = julia_solver, verbose = false)
 
-# ### MKLPardisoFactorize
+# ### MKLLUFactorization
 @benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = mkl_solver, verbose = false)
 
+# ### MKLPardisoFactorize
+@benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = pds_solver, verbose = false)
+
 # ### MKLPardisoIterate
-@benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = mkl_ite_solver, verbose = false)
+@benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = pds_ite_solver, verbose = false)
