@@ -9,7 +9,7 @@ HEOM Liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath
 - `dim` : the dimension of system
 - `N` : the number of total ADOs
 - `sup_dim` : the dimension of system superoperator
-- `parity` : the parity label of the fermionic system (usually `:even`, only set as `:odd` for calculating spectrum of fermionic system).
+- `parity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
 - `Bbath::Vector{BosonBath}` : the vector which stores all `BosonBath` objects
 - `Fbath::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
 - `hierarchy::MixHierarchyDict`: the object which contains all dictionaries for mixed-bath-ADOs hierarchy.
@@ -21,26 +21,26 @@ struct M_Boson_Fermion <: AbstractHEOMLSMatrix
     dim::Int
     N::Int
     sup_dim::Int
-    parity::Symbol
+    parity::AbstractParity
     Bbath::Vector{BosonBath}
     Fbath::Vector{FermionBath}
     hierarchy::MixHierarchyDict
 end
 
-function M_Boson_Fermion(Hsys, Btier::Int, Ftier::Int, Bbath::BosonBath, Fbath::FermionBath, parity::Symbol=:even; threshold::Real = 0.0, verbose::Bool=true)
+function M_Boson_Fermion(Hsys, Btier::Int, Ftier::Int, Bbath::BosonBath, Fbath::FermionBath, parity::AbstractParity=EVEN; threshold::Real = 0.0, verbose::Bool=true)
     return M_Boson_Fermion(Hsys, Btier, Ftier, [Bbath], [Fbath], parity, threshold = threshold, verbose = verbose)
 end
 
-function M_Boson_Fermion(Hsys, Btier::Int, Ftier::Int, Bbath::Vector{BosonBath}, Fbath::FermionBath, parity::Symbol=:even; threshold::Real = 0.0, verbose::Bool=true)
+function M_Boson_Fermion(Hsys, Btier::Int, Ftier::Int, Bbath::Vector{BosonBath}, Fbath::FermionBath, parity::AbstractParity=EVEN; threshold::Real = 0.0, verbose::Bool=true)
     return M_Boson_Fermion(Hsys, Btier, Ftier, Bbath, [Fbath], parity, threshold = threshold, verbose = verbose)
 end
 
-function M_Boson_Fermion(Hsys, Btier::Int, Ftier::Int, Bbath::BosonBath, Fbath::Vector{FermionBath}, parity::Symbol=:even; threshold::Real = 0.0, verbose::Bool=true)
+function M_Boson_Fermion(Hsys, Btier::Int, Ftier::Int, Bbath::BosonBath, Fbath::Vector{FermionBath}, parity::AbstractParity=EVEN; threshold::Real = 0.0, verbose::Bool=true)
     return M_Boson_Fermion(Hsys, Btier, Ftier, [Bbath], Fbath, parity, threshold = threshold, verbose = verbose)
 end
 
 @doc raw"""
-    M_Boson_Fermion(Hsys, Btier, Ftier, Bbath, Fbath, parity=:even; threshold=0.0, verbose=true)
+    M_Boson_Fermion(Hsys, Btier, Ftier, Bbath, Fbath, parity=EVEN; threshold=0.0, verbose=true)
 Generate the boson-fermion-type HEOM Liouvillian superoperator matrix
 
 # Parameters
@@ -49,11 +49,11 @@ Generate the boson-fermion-type HEOM Liouvillian superoperator matrix
 - `Ftier::Int` : the tier (cutoff level) for the fermionic bath
 - `Bbath::Vector{BosonBath}` : objects for different bosonic baths
 - `Fbath::Vector{FermionBath}` : objects for different fermionic baths
-- `parity::Symbol` : the parity label of the fermionic system (only set as `:odd` for calculating spectrum of fermionic system). Defaults to `:even`.
+- `parity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
 - `threshold::Real` : The threshold of the importance value (see Ref. [1, 2]). Defaults to `0.0`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 
-Note that the parity only need to be set as `:odd` when the system contains fermion systems and you need to calculate the spectrum of it.
+Note that the parity only need to be set as `ODD` when the system contains fermion systems and you need to calculate the spectrum of it.
 
 [1] [Phys. Rev. B  88, 235426 (2013)](https://doi.org/10.1103/PhysRevB.88.235426)
 [2] [Phys. Rev. B 103, 235413 (2021)](https://doi.org/10.1103/PhysRevB.103.235413)
@@ -64,15 +64,10 @@ Note that the parity only need to be set as `:odd` when the system contains ferm
         Ftier::Int,
         Bbath::Vector{BosonBath},
         Fbath::Vector{FermionBath},
-        parity::Symbol=:even;
+        parity::AbstractParity=EVEN;
         threshold::Real=0.0,
         verbose::Bool=true
     )
-
-    # check parity
-    if (parity != :even) && (parity != :odd)
-        error("The parity symbol of density matrix should be either \":even\" or \":odd\".")
-    end
 
     # check for system dimension
     if !isValidMatrixType(Hsys)

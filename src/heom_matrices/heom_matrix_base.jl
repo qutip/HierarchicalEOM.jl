@@ -1,8 +1,30 @@
 abstract type AbstractHEOMLSMatrix end
+abstract type AbstractParity end
+
+@doc raw"""
+    struct OddParity <: AbstractParity
+"""
+struct OddParity  <: AbstractParity end
+
+@doc raw"""
+    struct EvenParity <: AbstractParity
+"""
+struct EvenParity <: AbstractParity end
+
+value(p::OddParity)  = 1
+value(p::EvenParity) = 0
+
+function show(io::IO, p::OddParity)
+    print(io, "odd-parity")
+end
+
+function show(io::IO, p::EvenParity)
+    print(io, "even-parity")
+end
 
 # Parity label
-const odd  = 1;
-const even = 0;
+const ODD  = OddParity()
+const EVEN = EvenParity()
 
 @doc raw"""
     size(M::AbstractHEOMLSMatrix)
@@ -25,7 +47,7 @@ function show(io::IO, M::AbstractHEOMLSMatrix)
     end
 
     print(io, 
-        type, " type HEOM matrix with (system) dim = $(M.dim) and parity = :$(M.parity)\n",
+        type, " type HEOM matrix with $(M.parity) and (system) dim = $(M.dim) \n",
         "number of ADOs N = $(M.N)\n",
         "data =\n"
     )
@@ -103,13 +125,13 @@ end
 @doc raw"""
     addFermionDissipator(M, jumpOP)
 Adding fermionic dissipator to a given HEOM matrix which describes how the system dissipatively interacts with an extra fermionic environment.  
-The dissipator with `:even` parity is defined as follows
+The dissipator with `EVEN` parity is defined as follows
 ```math
 D_{\textrm{even}}[J](\cdot) = J(\cdot) J^\dagger - \frac{1}{2}\left(J^\dagger J (\cdot) + (\cdot) J^\dagger J \right),
 ```
 where ``J\equiv \sqrt{\gamma}V`` is the jump operator, ``V`` describes the dissipative part (operator) of the dynamics, ``\gamma`` represents a non-negative damping rate and ``[\cdot, \cdot]_+`` stands for anti-commutator.
 
-Similary, the dissipator with `:odd` parity is defined as follows
+Similary, the dissipator with `ODD` parity is defined as follows
 ```math
 D_{\textrm{odd}}[J](\cdot) = - J(\cdot) J^\dagger - \frac{1}{2}\left(J^\dagger J (\cdot) + (\cdot) J^\dagger J \right),
 ```
@@ -125,7 +147,7 @@ Note that the parity of the dissipator will be determined by the parity of the g
 """
 function addFermionDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMLSMatrix
     if length(jumpOP) > 0
-        parity = eval(M.parity)
+        parity = value(M.parity)
         L = spzeros(ComplexF64, M.sup_dim, M.sup_dim)
         for J in jumpOP
             if isValidMatrixType(J, M.dim)
@@ -285,7 +307,7 @@ end
 # connect to fermionic (n-1)th-level for "absorption operator"
 function _C_op(bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
     return -1im * ((-1) ^ n_exc_before) * (
-        ((-1) ^ eval(parity)) * bath.η[k] * bath.spre -
+        ((-1) ^ value(parity)) * bath.η[k] * bath.spre -
         (-1) ^ (n_exc - 1)    * conj(bath.η_emit[k]) * bath.spost
     )
 end
@@ -293,7 +315,7 @@ end
 # connect to fermionic (n-1)th-level for "emission operator"
 function _C_op(bath::fermionEmit, k, n_exc, n_exc_before, parity)
     return -1im * ((-1) ^ n_exc_before) * (
-        (-1) ^ (eval(parity)) * bath.η[k] * bath.spre -
+        (-1) ^ (value(parity)) * bath.η[k] * bath.spre -
         (-1) ^ (n_exc - 1)    * conj(bath.η_absorb[k]) * bath.spost
     )
 end
@@ -306,7 +328,7 @@ end
 # connect to fermionic (n+1)th-level
 function _A_op(bath::T, n_exc, n_exc_before, parity) where T <: AbstractFermionBath
     return -1im * ((-1) ^ n_exc_before) * (
-        (-1) ^ (eval(parity)) * bath.spreD  +
+        (-1) ^ (value(parity)) * bath.spreD  +
         (-1) ^ (n_exc + 1)    * bath.spostD
     )
 end

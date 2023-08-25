@@ -8,7 +8,7 @@ HEOM Liouvillian superoperator matrix for fermionic bath
 - `dim` : the dimension of system
 - `N` : the number of total ADOs
 - `sup_dim` : the dimension of system superoperator
-- `parity` : the parity label of the fermionic system (usually `:even`, only set as `:odd` for calculating spectrum of fermionic system)
+- `parity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
 - `bath::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
 - `hierarchy::HierarchyDict`: the object which contains all dictionaries for fermion-bath-ADOs hierarchy.
 """
@@ -18,24 +18,24 @@ struct M_Fermion <: AbstractHEOMLSMatrix
     dim::Int
     N::Int
     sup_dim::Int
-    parity::Symbol
+    parity::AbstractParity
     bath::Vector{FermionBath}
     hierarchy::HierarchyDict
 end
 
-function M_Fermion(Hsys, tier::Int, Bath::FermionBath, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)
+function M_Fermion(Hsys, tier::Int, Bath::FermionBath, parity::AbstractParity=EVEN; threshold::Real=0.0, verbose::Bool=true)
     return M_Fermion(Hsys, tier, [Bath], parity, threshold= threshold, verbose = verbose)
 end
 
 @doc raw"""
-    M_Fermion(Hsys, tier, Bath, parity=:even; threshold=0.0, verbose=true)
+    M_Fermion(Hsys, tier, Bath, parity=EVEN; threshold=0.0, verbose=true)
 Generate the fermion-type HEOM Liouvillian superoperator matrix
 
 # Parameters
 - `Hsys` : The time-independent system Hamiltonian
 - `tier::Int` : the tier (cutoff level) for the fermionic bath
 - `Bath::Vector{FermionBath}` : objects for different fermionic baths
-- `parity::Symbol` : the parity label of the fermionic system (only set as `:odd` for calculating spectrum of fermionic system). Defaults to `:even`.
+- `parity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
 - `threshold::Real` : The threshold of the importance value (see Ref. [1]). Defaults to `0.0`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 
@@ -45,15 +45,10 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         Hsys,
         tier::Int,
         Bath::Vector{FermionBath},
-        parity::Symbol=:even;
+        parity::AbstractParity=EVEN;
         threshold::Real=0.0,
         verbose::Bool=true
     )
-
-    # check parity
-    if (parity != :even) && (parity != :odd)
-        error("The parity symbol of density matrix should be either \":even\" or \":odd\".")
-    end
 
     # check for system dimension
     if !isValidMatrixType(Hsys)

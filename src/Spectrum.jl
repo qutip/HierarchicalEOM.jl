@@ -4,18 +4,18 @@ Calculate spectrum for the system.
 
 # To calculate spectrum for bosonic systems (usually known as power spectrum):
 ```math
-\pi S(\omega)=\textrm{Re}\left\{\int_0^\infty dt \langle a^\dagger(t) a(0)\rangle e^{-i\omega t}\right\},
+\pi S(\omega)=\textrm{Re}\left\{\int_0^\infty dt \langle A^\dagger(t) A(0)\rangle e^{-i\omega t}\right\},
 ```
 remember to set the parameters: 
-- `M::AbstractHEOMLSMatrix`: should be `:even` parity
-- `op`: the (annihilation) operator ``a`` for bosonic system as shown above 
+- `M::AbstractHEOMLSMatrix`: should be `EVEN` parity
+- `op`: the operator ``A`` for bosonic system as shown above 
 
 # To calculate spectrum for fermionic systems (usually known as density of states):
 ```math
     \pi A(\omega)=\textrm{Re}\left\{\int_0^\infty dt \left[\langle d(t) d^\dagger(0)\rangle^* + \langle d^\dagger(t) d(0)\rangle \right] e^{-i\omega t}\right\},
 ```
 remember to set the parameters: 
-- `M::AbstractHEOMLSMatrix`: should be `:odd` parity
+- `M::AbstractHEOMLSMatrix`: should be `ODD` parity
 - `op`: the (annihilation) operator ``d`` for fermionic system as shown above 
 
 # Parameters
@@ -54,8 +54,8 @@ function spectrum(
         if (M.N != ρ.N)
             error("The ADOs number \"N\" between M and ados are not consistent.")
         end
-        if (ρ.parity == :odd)
-            error("The parity of ρ or the ADOs must be `:even`.")
+        if (typeof(ρ.parity) == OddParity)
+            error("The parity of ρ or the ADOs must be `EVEN`.")
         end
 
         ados_vec = ρ.data
@@ -73,7 +73,7 @@ function spectrum(
     end
 
     # check parity and calculate spectrum
-    if (M.parity == :odd)
+    if (typeof(M.parity) == OddParity)
         return _density_of_states(M, ados_vec, op, ω_list; 
             solver = solver, 
             verbose = verbose,

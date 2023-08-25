@@ -88,7 +88,7 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
         error("The number N between M and ados are not consistent.")
     end
 
-    if (M.parity != ados.parity)
+    if (typeof(M.parity) != typeof(ados.parity))
         error("The parity between M and ados are not consistent.")
     end
 
@@ -251,7 +251,7 @@ For more details about solvers and extra options, please refer to [`Differential
         error("The ADOs number \"N\" between M and ados are not consistent.")
     end
 
-    if (M.parity != ados.parity)
+    if (typeof(M.parity) != typeof(ados.parity))
         error("The parity between M and ados are not consistent.")
     end
 
@@ -426,7 +426,7 @@ For more details about solvers and extra options, please refer to [`Differential
         error("The ADOs number \"N\" between M and ados are not consistent.")
     end
 
-    if (M.parity != ados.parity)
+    if (typeof(M.parity) != typeof(ados.parity))
         error("The parity between M and ados are not consistent.")
     end
 
