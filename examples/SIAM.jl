@@ -49,7 +49,7 @@ bath_list = [bath_up, bath_dn]
 # (see also [HEOMLS Matrix for Fermionic Baths](@ref doc-M_Fermion))
 tier = 3
 M_even = M_Fermion(Hsys, tier, bath_list)
-M_odd  = M_Fermion(Hsys, tier, bath_list, :odd)
+M_odd  = M_Fermion(Hsys, tier, bath_list, ODD)
 
 # ## Solve stationary state of ADOs
 # (see also [Stationary State](@ref doc-Stationary-State))

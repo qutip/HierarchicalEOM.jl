@@ -29,7 +29,7 @@ bath_up = Fermion_Lorentz_Pade(d_up, Γ, μ, W, T, N)
 bath_dn = Fermion_Lorentz_Pade(d_dn, Γ, μ, W, T, N)
 bath_list = [bath_up, bath_dn]
 M_even = M_Fermion(Hsys, tier, bath_list)
-M_odd  = M_Fermion(Hsys, tier, bath_list, :odd)
+M_odd  = M_Fermion(Hsys, tier, bath_list, ODD)
 ados_s = SteadyState(M_even);
 
 # ## LinearSolve Solver List
