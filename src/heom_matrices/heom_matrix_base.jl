@@ -23,7 +23,16 @@ function show(io::IO, p::EvenParity)
 end
 
 # Parity label
+@doc raw"""
+    const ODD  = OddParity()
+Label of odd-parity
+"""
 const ODD  = OddParity()
+
+@doc raw"""
+    const EVEN = EvenParity()
+Label of even-parity
+"""
 const EVEN = EvenParity()
 
 @doc raw"""

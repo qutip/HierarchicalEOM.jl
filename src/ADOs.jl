@@ -35,7 +35,7 @@ Gernerate the object of auxiliary density operators for HEOM model.
 # Parameters
 - `V::AbstractVector` : the vectorized auxiliary density operators
 - `N::Int` : the number of auxiliary density operators.
-- `parity::Symbol` : the parity label (`EVEN` or `ODD`). Default to `EVEN`.
+- `parity::AbstractParity` : the parity label (`EVEN` or `ODD`). Default to `EVEN`.
 """
 function ADOs(V::AbstractVector, N::Int, parity::AbstractParity=EVEN)
     # check the dimension of V

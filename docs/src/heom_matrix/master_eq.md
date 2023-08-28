@@ -29,13 +29,13 @@ M1 = addBosonDissipator(M0, J)
 ```
 
 ## Fermionic Dissipative Env.
-If the fermionic system is weakly coupled to an extra fermionic environment, the explicit form of the Lindbladian acting on `:even`-parity operators is given by
+If the fermionic system is weakly coupled to an extra fermionic environment, the explicit form of the Lindbladian acting on `EVEN`-parity operators is given by
 ```math
 \hat{\mathcal{D}}_{\textrm{even}}(J)\Big[\cdot\Big]=J\left[\cdot\right]J^\dagger-\frac{1}{2}\Big[J^\dagger J, \cdot\Big]_+,
 ```
 where ``J\equiv \sqrt{\gamma}V`` is the jump operator, ``V`` describes the dissipative part (operator) of the dynamics, ``\gamma`` represents a non-negative damping rate and ``[\cdot, \cdot]_+`` stands for anti-commutator.
 
-For acting on `:odd`-parity operators, the explicit form of the Lindbladian is given by
+For acting on `ODD`-parity operators, the explicit form of the Lindbladian is given by
 ```math
 \hat{\mathcal{D}}_{\textrm{odd}}(J)\Big[\cdot\Big]=-J\left[\cdot\right]J^\dagger-\frac{1}{2}\Big[J^\dagger J, \cdot\Big]_+,
 ```
@@ -47,12 +47,12 @@ One can add the Lindbladian ``\hat{\mathcal{D}}`` of fermionic environment to th
  - `jumpOP::AbstractVector` : The list of collapse (jump) operators ``\{J_i\}_i`` to add. Defaults to empty vector `[]`.
 
 !!! note "Parity"
-    The parity of the dissipator will be automatically determined by the [parity](@ref doc-Parity) of the given HEOMLS matrix `M`.
+    The parity of the dissipator will be automatically determined by the [`parity`](@ref doc-Parity) of the given HEOMLS matrix `M`.
 
 Finally, the function returns a new ``\hat{\mathcal{M}}`` with the same type and parity:
 ```julia
-M0_even::AbstractHEOMLSMatrix # constructed with :even-parity
-M0_odd::AbstractHEOMLSMatrix  # constructed with :odd-parity
+M0_even::AbstractHEOMLSMatrix # constructed with EVEN-parity
+M0_odd::AbstractHEOMLSMatrix  # constructed with  ODD-parity
 J = [J1, J2, ..., Jn]  # jump operators
 
 M1_even = addFermionDissipator(M0_even, J)

@@ -49,7 +49,7 @@ Generate the boson-fermion-type HEOM Liouvillian superoperator matrix
 - `Ftier::Int` : the tier (cutoff level) for the fermionic bath
 - `Bbath::Vector{BosonBath}` : objects for different bosonic baths
 - `Fbath::Vector{FermionBath}` : objects for different fermionic baths
-- `parity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
+- `parity::AbstractParity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
 - `threshold::Real` : The threshold of the importance value (see Ref. [1, 2]). Defaults to `0.0`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 
