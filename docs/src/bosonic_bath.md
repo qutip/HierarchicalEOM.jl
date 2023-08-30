@@ -121,9 +121,9 @@ This can be constructed by the built-in function [`Boson_DrudeLorentz_Matsubara`
 Vs # coupling operator
 Δ  # coupling strength
 W  # band-width  of the environment
-T  # temperature of the environment
+kT # the product of the Boltzmann constant k and the absolute temperature T
 N  # Number of exponential terms
-bath = Boson_DrudeLorentz_Matsubara(Vs, Δ, W, T, N - 1)
+bath = Boson_DrudeLorentz_Matsubara(Vs, Δ, W, kT, N - 1)
 ```
 
 ### Padé Expansion
@@ -145,7 +145,7 @@ where the parameters ``\kappa_l`` and ``\zeta_l`` are described in [J. Chem. Phy
 Vs # coupling operator
 Δ  # coupling strength
 W  # band-width  of the environment
-T  # temperature of the environment
+kT # the product of the Boltzmann constant k and the absolute temperature T
 N  # Number of exponential terms
-bath = Boson_DrudeLorentz_Pade(Vs, Δ, W, T, N - 1)
+bath = Boson_DrudeLorentz_Pade(Vs, Δ, W, kT, N - 1)
 ```

@@ -1,5 +1,5 @@
-function _boson_drude_lorentz_approx_discrepancy(λ::Real, W::Real, T::Real, N::Int, η::Vector{Ti}, γ::Vector{Tj}) where {Ti, Tj <: Number}
-    δ = 2 * λ * T / W - 1.0im * λ
+function _boson_drude_lorentz_approx_discrepancy(λ::Real, W::Real, kT::Real, N::Int, η::Vector{Ti}, γ::Vector{Tj}) where {Ti, Tj <: Number}
+    δ = 2 * λ * kT / W - 1.0im * λ
     for k in 1:(N + 1)
         δ -= η[k] / γ[k]
     end
@@ -7,14 +7,14 @@ function _boson_drude_lorentz_approx_discrepancy(λ::Real, W::Real, T::Real, N::
 end
 
 @doc raw"""
-    Boson_DrudeLorentz_Matsubara(op, λ, W, T, N)
+    Boson_DrudeLorentz_Matsubara(op, λ, W, kT, N)
 Constructing Drude-Lorentz bosonic bath with Matsubara expansion
 
 # Parameters
 - `op` : The system coupling operator, must be Hermitian and, for fermionic systems, even-parity to be compatible with charge conservation.
 - `λ::Real`: The coupling strength between the system and the bath.
 - `W::Real`: The reorganization energy (band-width) of the bath.
-- `T::Real`: The temperature of the bath.
+- `kT::Real`: The product of the Boltzmann constant ``k`` and the absolute temperature ``T`` of the bath.
 - `N::Int`: (N+1)-terms of exponential terms are used to approximate the bath correlation function.
 
 # Returns
@@ -24,10 +24,10 @@ function Boson_DrudeLorentz_Matsubara(
         op,
         λ::Real,
         W::Real,
-        T::Real,
+        kT::Real,
         N::Int
     )
-    β = 1. / T
+    β = 1. / kT
     ϵ = matsubara(N, fermion=false)
 
     η = ComplexF64[λ * W * (cot(W * β / 2.0) - 1.0im)]
@@ -36,19 +36,19 @@ function Boson_DrudeLorentz_Matsubara(
     if N > 0
         for l in 2:(N + 1)
             append!(η,
-                4 * λ * W * ϵ[l] * (T ^ 2) / (((ϵ[l] * T) ^ 2) - W ^ 2)
+                4 * λ * W * ϵ[l] * (kT ^ 2) / (((ϵ[l] * kT) ^ 2) - W ^ 2)
             )
-            append!(γ, ϵ[l] * T)
+            append!(γ, ϵ[l] * kT)
         end
     end
 
-    δ = _boson_drude_lorentz_approx_discrepancy(λ, W, T, N, η, γ)
+    δ = _boson_drude_lorentz_approx_discrepancy(λ, W, kT, N, η, γ)
 
     return BosonBath(op, η, γ, δ)
 end
 
 @doc raw"""
-    Boson_DrudeLorentz_Pade(op, λ, W, T, N)
+    Boson_DrudeLorentz_Pade(op, λ, W, kT, N)
 Constructing Drude-Lorentz bosonic bath with Padé expansion
 
 A Padé approximant is a sum-over-poles expansion (see [here](https://en.wikipedia.org/wiki/Pad%C3%A9_approximant) for more details).
@@ -61,7 +61,7 @@ The application of the Padé method to spectrum decompoisitions is described in 
 - `op` : The system coupling operator, must be Hermitian and, for fermionic systems, even-parity to be compatible with charge conservation.
 - `λ::Real`: The coupling strength between the system and the bath.
 - `W::Real`: The reorganization energy (band-width) of the bath.
-- `T::Real`: The temperature of the bath.
+- `kT::Real`: The product of the Boltzmann constant ``k`` and the absolute temperature ``T`` of the bath.
 - `N::Int`: (N+1)-terms of exponential terms are used to approximate the bath correlation function.
 
 # Returns
@@ -71,11 +71,11 @@ function Boson_DrudeLorentz_Pade(
         op,
         λ::Real,
         W::Real,
-        T::Real,
+        kT::Real,
         N::Int
     )
     
-    β = 1. / T
+    β = 1. / kT
     κ, ζ = pade_NmN(N, fermion=false)
 
     η = ComplexF64[λ * W * (cot(W * β / 2.0) - 1.0im)]
@@ -83,13 +83,13 @@ function Boson_DrudeLorentz_Pade(
     if N > 0
         for l in 2:(N + 1)
             append!(η,
-                κ[l] * 4 * λ * W * ζ[l] * (T ^ 2) / (((ζ[l] * T) ^ 2) - W ^ 2)
+                κ[l] * 4 * λ * W * ζ[l] * (kT ^ 2) / (((ζ[l] * kT) ^ 2) - W ^ 2)
             )
-            append!(γ, ζ[l] * T)
+            append!(γ, ζ[l] * kT)
         end
     end
 
-    δ = _boson_drude_lorentz_approx_discrepancy(λ, W, T, N, η, γ)
+    δ = _boson_drude_lorentz_approx_discrepancy(λ, W, kT, N, η, γ)
 
     return BosonBath(op, η, γ, δ)
 end

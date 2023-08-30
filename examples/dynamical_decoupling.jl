@@ -75,13 +75,13 @@ Plots.plot(
 # We assume the bosonic reservoir to have a [Drude-Lorentz Spectral Density](@ref Boson-Drude-Lorentz), and we utilize the Padé decomposition. Furthermore, the spectral densities depend on the following physical parameters: 
 # - the coupling strength $\Gamma$ between system and reservoir
 # - the band-width $W$
-# - the temperature $T$
+# - $kT$ (the product of the Boltzmann constant $k$ and the absolute temperature $T$)
 # - the total number of exponentials for the reservoir $(N + 1)$
-Γ = 0.0005
-W = 0.005
-T = 0.05
-N = 3
-bath = Boson_DrudeLorentz_Pade(σz, Γ, W, T, N)
+Γ  = 0.0005
+W  = 0.005
+kT = 0.05
+N  = 3
+bath = Boson_DrudeLorentz_Pade(σz, Γ, W, kT, N)
 
 # ## Construct HEOMLS matrix
 # (see also [HEOMLS Matrix for Bosonic Baths](@ref doc-M_Boson))

@@ -3,12 +3,12 @@ Hsys = 0.25 * [1 0; 0 -1] + 0.5 * [0 1; 1 0]
 ρ0   = [1 0; 0 0]
 
 # Bath properties:
-λ = 0.1
-W = 0.5
-T = 0.5
-N = 2
+λ  = 0.1
+W  = 0.5
+kT = 0.5
+N  = 2
 Q = [1 0; 0 -1]  # System-bath coupling operator
-bath = Boson_DrudeLorentz_Pade(Q, λ, W, T, N)
+bath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
 
 # HEOM Liouvillian superoperator matrix
 tier = 5
@@ -35,7 +35,7 @@ ados = SteadyState(L, ρ0; verbose=false)
 end
 
 @testset "Time evolution" begin
-    bath = Boson_DrudeLorentz_Pade(Q, λ, W, T, N)
+    bath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
     L = M_Boson(Hsys, tier, bath; verbose=false)
     ρ0   = [1 0; 0 0]
     ρ_wrong = zeros(3, 3)
@@ -220,11 +220,11 @@ end
 
     Hsys = a' * a
 
-    λ = 1e-4
-    W = 2e-1
-    T = 0.5
-    N = 5
-    bath = Boson_DrudeLorentz_Matsubara((a' + a), λ, W, T, N)
+    λ  = 1e-4
+    W  = 2e-1
+    kT = 0.5
+    N  = 5
+    bath = Boson_DrudeLorentz_Matsubara((a' + a), λ, W, kT, N)
 
     tier = 3
     L = M_Boson(Hsys, tier, bath; verbose=false)
@@ -286,16 +286,16 @@ end
     H1 = U * (d_up' * d_up * d_dn' * d_dn)
     Hsys = H0 + H1
 
-    λ = 1
+    λ   =  1
     μ_l =  1
     μ_r = -1
-    W = 10
-    T = 0.5
+    W   = 10
+    kT  =  0.5
     N = 5
-    fuL = Fermion_Lorentz_Pade(d_up, λ, μ_l, W, T, N)
-    fdL = Fermion_Lorentz_Pade(d_dn, λ, μ_l, W, T, N)
-    fuR = Fermion_Lorentz_Pade(d_up, λ, μ_r, W, T, N)
-    fdR = Fermion_Lorentz_Pade(d_dn, λ, μ_r, W, T, N)
+    fuL = Fermion_Lorentz_Pade(d_up, λ, μ_l, W, kT, N)
+    fdL = Fermion_Lorentz_Pade(d_dn, λ, μ_l, W, kT, N)
+    fuR = Fermion_Lorentz_Pade(d_up, λ, μ_r, W, kT, N)
+    fdR = Fermion_Lorentz_Pade(d_dn, λ, μ_r, W, kT, N)
 
     tier = 2
     Le = M_Fermion(Hsys, tier, [fuL, fdL, fuR, fdR]; verbose=false)

@@ -69,19 +69,19 @@ ket0 = QuantumOptics.tensor(QuantumOptics.Ket(a_basis,[1,0,0]),QuantumOptics.Ket
 # We assume the bosonic reservoir to have a [Drude-Lorentz Spectral Density](@ref Boson-Drude-Lorentz), and we utilize the Padé decomposition. Furthermore, the spectral densities depend on the following physical parameters: 
 # - the coupling strength $\Gamma$ between system and reservoir
 # - the band-width $W$
-# - the temperature $T$
+# - $kT$ (the product of the Boltzmann constant $k$ and the absolute temperature $T$)
 # - the total number of exponentials for the reservoir $(N + 1)$
-Γ = 0.01
-W = 1
-T = 0.025
-N = 20
-Bath = Boson_DrudeLorentz_Pade((a + a').data, Γ, W, T, N)
+Γ  = 0.01
+W  = 1
+kT = 0.025
+N  = 20
+Bath = Boson_DrudeLorentz_Pade((a + a').data, Γ, W, kT, N)
 
 # Before incorporating the correlation function into the HEOMLS matrix, it is essential to verify if the total number of exponentials for the reservoir sufficiently describes the practical situation.
 
 tlist_test = 0:0.1:10;
 
-Bath_test = Boson_DrudeLorentz_Pade((a + a').data, Γ, W, T, 1000);
+Bath_test = Boson_DrudeLorentz_Pade((a + a').data, Γ, W, kT, 1000);
 Ct  = C(Bath, tlist_test);
 Ct2 = C(Bath_test, tlist_test);
 
@@ -163,12 +163,12 @@ Plots.xaxis!(L"\omega")
 Drude_Lorentz(ω, Γ, W) = 4 * Γ * W * ω / ( (ω)^2 + (W)^2 )
 
 ## Bose-Einstein distribution
-n_b(ω, T) = 1 / (exp(ω / T) - 1)
+n_b(ω, kT) = 1 / (exp(ω / kT) - 1)
 
 ## build the jump operators
 jump_op = [
-    sqrt(Drude_Lorentz(ωc, Γ, W) * (n_b(ωc, T) + 1)) * a.data,
-    sqrt(Drude_Lorentz(ωc, Γ, W) * (n_b(ωc, T)))     * (a').data,
+    sqrt(Drude_Lorentz(ωc, Γ, W) * (n_b(ωc, kT) + 1)) * a.data,
+    sqrt(Drude_Lorentz(ωc, Γ, W) * (n_b(ωc, kT)))     * (a').data,
     J_pump
 ];
 
