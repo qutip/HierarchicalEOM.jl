@@ -40,11 +40,11 @@
     @test_throws ErrorException @test_warn "HEOM doesn't support matrix type : Vector{Int64}" M_S([0, 0]; verbose=false)
 end
 
-λ = 0.1450
-W = 0.6464
-T = 0.7414
-μ = 0.8787
-N = 5
+λ  = 0.1450
+W  = 0.6464
+kT = 0.7414
+μ  = 0.8787
+N  = 5
 tier = 3
 
 # System Hamiltonian
@@ -58,8 +58,8 @@ Q = [
                0.1234 0.1357 + 0.2468im; 
     0.1357 - 0.2468im            0.5678
 ]
-Bbath = Boson_DrudeLorentz_Pade(Q, λ, W, T, N)
-Fbath = Fermion_Lorentz_Pade(Q, λ, μ, W, T, N)
+Bbath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
+Fbath = Fermion_Lorentz_Pade(Q, λ, μ, W, kT, N)
 
 # jump operator
 J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
@@ -168,14 +168,14 @@ end
     # re-define the bath (make the matrix smaller)
     λ = 0.1450
     W = 0.6464
-    T = 0.7414
+    kT = 0.7414
     μ = 0.8787
     N = 3
     tierb = 2
     tierf = 2
 
-    Bbath = Boson_DrudeLorentz_Pade(Q, λ, W, T, N)
-    Fbath = Fermion_Lorentz_Pade(Q, λ, μ, W, T, N)
+    Bbath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
+    Fbath = Fermion_Lorentz_Pade(Q, λ, μ, W, kT, N)
 
     L = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose=false)
     @test show(devnull, MIME("text/plain"), L) == nothing
@@ -242,13 +242,13 @@ end
     Nf = 3
     threshold = 1e-5
 
-    Γ = 0.0025
+    Γ   = 0.0025
     Dα  = 30
     Λ   = 0.0025
     ωcα = 0.2
-    μL =  0.5
-    μR = -0.5
-    T = 0.025
+    μL  =  0.5
+    μR  = -0.5
+    kT  = 0.025
     
     Hsys = [
         0   0     0     0;
@@ -278,10 +278,10 @@ end
         0 0 0 0
     ]
 
-    bbath = Boson_DrudeLorentz_Matsubara(cop, Λ, ωcα, T, Nb)
+    bbath = Boson_DrudeLorentz_Matsubara(cop, Λ, ωcα, kT, Nb)
     fbath = [
-        Fermion_Lorentz_Pade(dop, Γ, μL, Dα, T, Nf),
-        Fermion_Lorentz_Pade(dop, Γ, μR, Dα, T, Nf)
+        Fermion_Lorentz_Pade(dop, Γ, μL, Dα, kT, Nf),
+        Fermion_Lorentz_Pade(dop, Γ, μR, Dα, kT, Nf)
     ]
 
     L = M_Boson_Fermion(Hsys, Btier, Ftier, bbath, fbath; threshold = threshold, verbose=false)

@@ -1,11 +1,11 @@
-λ = 0.1450
-W = 0.6464
-T = 0.7414
-μ = 0.8787
-N = 4
+λ  = 0.1450
+W  = 0.6464
+kT = 0.7414
+μ  = 0.8787
+N  = 4
 
 # Boson DrudeLorentz Matsubara
-b = Boson_DrudeLorentz_Matsubara([0 0; 0 0], λ, W, T, N)
+b = Boson_DrudeLorentz_Matsubara([0 0; 0 0], λ, W, kT, N)
 η = [
     0.20121058848333528 - 0.09372799999999999im, 
     0.06084056770606083 + 0.0im, 
@@ -27,7 +27,7 @@ for (i, e) in enumerate(b)
 end
 
 # Boson DrudeLorentz Pade
-b = Boson_DrudeLorentz_Pade([0 0; 0 0], λ, W, T, N)
+b = Boson_DrudeLorentz_Pade([0 0; 0 0], λ, W, kT, N)
 η = [
     0.20121058848333528 - 0.09372799999999999im,
     0.060840591418808695 + 0.0im,
@@ -49,7 +49,7 @@ for (i, e) in enumerate(b)
 end
 
 # Fermion Lorentz Matsubara
-b = Fermion_Lorentz_Matsubara([0 0; 0 0], λ, μ, W, T, N)
+b = Fermion_Lorentz_Matsubara([0 0; 0 0], λ, μ, W, kT, N)
 η = [
     0.023431999999999998 - 0.010915103984112131im,
     0.0 + 0.008970684904033346im,
@@ -81,7 +81,7 @@ for (i, e) in enumerate(b)
 end
 
 # Fermion Lorentz Pade
-b = Fermion_Lorentz_Pade([0 0; 0 0], λ, μ, W, T, N)
+b = Fermion_Lorentz_Pade([0 0; 0 0], λ, μ, W, kT, N)
 η = [
     0.023431999999999998 - 0.01091510398411206im,
     0.0 + 0.008970684906245254im,

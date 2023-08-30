@@ -56,9 +56,9 @@ Hsys = 0.5 * ϵ * sigmaz(basis) + 0.5 * Δ * sigmax(basis)
 # #### Bath Properties
 # Now, we demonstrate how to describe the bath using the built-in implementation of ``J_D(\omega)`` under Pade expansion by calling [`Boson_DrudeLorentz_Pade`](@ref)
 
-λ = 0.1  # coupling strength
-W = 0.5  # cut-off frequency
-T = 0.5  # temperature
+λ  = 0.1  # coupling strength
+W  = 0.5  # cut-off frequency
+kT = 0.5  # the product of the Boltzmann constant k and the absolute temperature T
 
 Q = sigmaz(basis) # system-bath coupling operator
 
@@ -67,7 +67,7 @@ N = 2 # Number of expansion terms to retain:
 ## Padé expansion:
 ## Remember to give the operator in Standard matrix (AbstractMatrix) type
 ## That is, if using QuantumOptics package, give system coupling operator as Q.data
-bath = Boson_DrudeLorentz_Pade(Q.data, λ, W, T, N)
+bath = Boson_DrudeLorentz_Pade(Q.data, λ, W, kT, N)
 
 
 # For other different expansions of the different spectral density correlation functions, please refer to [Bosonic Bath](@ref doc-Bosonic-Bath) and [Fermionic Bath](@ref doc-Fermionic-Bath).
@@ -171,7 +171,7 @@ for i in 1:3
     Q = zeros(3, 3)
     Q[i, i] = 1
     
-    push!(baths, Boson_DrudeLorentz_Pade(Q, λ, W, T, N))
+    push!(baths, Boson_DrudeLorentz_Pade(Q, λ, W, kT, N))
 end
 
 L = M_Boson(Hsys, tier, baths)

@@ -109,9 +109,9 @@ ds # coupling operator
 Γ  # coupling strength
 μ  # chemical potential of the environment
 W  # band-width  of the environment
-T  # temperature of the environment
+kT # the product of the Boltzmann constant k and the absolute temperature T
 N  # Number of exponential terms for each correlation functions (C^{+} and C^{-})
-bath = Fermion_Lorentz_Matsubara(ds, Γ, μ, W, T, N - 1)
+bath = Fermion_Lorentz_Matsubara(ds, Γ, μ, W, kT, N - 1)
 ```
 
 ### Padé Expansion
@@ -135,7 +135,7 @@ ds # coupling operator
 Γ  # coupling strength
 μ  # chemical potential of the environment
 W  # band-width  of the environment
-T  # temperature of the environment
+kT # the product of the Boltzmann constant k and the absolute temperature T
 N  # Number of exponential terms for each correlation functions (C^{+} and C^{-})
-bath = Fermion_Lorentz_Pade(ds, Γ, μ, W, T, N - 1)
+bath = Fermion_Lorentz_Pade(ds, Γ, μ, W, kT, N - 1)
 ```
