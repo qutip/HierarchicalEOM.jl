@@ -25,7 +25,7 @@ function show(io::IO, M::AbstractHEOMLSMatrix)
     end
 
     print(io, 
-        type, " type HEOM matrix with (system) dim = $(M.dim) and parity = :$(M.parity)\n",
+        type, " type HEOMLS matrix with (system) dim = $(M.dim) and parity = :$(M.parity)\n",
         "number of ADOs N = $(M.N)\n",
         "data =\n"
     )
@@ -61,7 +61,7 @@ end
 
 @doc raw"""
     addBosonDissipator(M, jumpOP)
-Adding bosonic dissipator to a given HEOM matrix which describes how the system dissipatively interacts with an extra bosonic environment.  
+Adding bosonic dissipator to a given HEOMLS matrix which describes how the system dissipatively interacts with an extra bosonic environment.  
 The dissipator is defined as follows
 ```math
 D[J](\cdot) = J(\cdot) J^\dagger - \frac{1}{2}\left(J^\dagger J (\cdot) + (\cdot) J^\dagger J \right),
@@ -102,7 +102,7 @@ end
 
 @doc raw"""
     addFermionDissipator(M, jumpOP)
-Adding fermionic dissipator to a given HEOM matrix which describes how the system dissipatively interacts with an extra fermionic environment.  
+Adding fermionic dissipator to a given HEOMLS matrix which describes how the system dissipatively interacts with an extra fermionic environment.  
 The dissipator with `:even` parity is defined as follows
 ```math
 D_{\textrm{even}}[J](\cdot) = J(\cdot) J^\dagger - \frac{1}{2}\left(J^\dagger J (\cdot) + (\cdot) J^\dagger J \right),
@@ -114,7 +114,7 @@ Similary, the dissipator with `:odd` parity is defined as follows
 D_{\textrm{odd}}[J](\cdot) = - J(\cdot) J^\dagger - \frac{1}{2}\left(J^\dagger J (\cdot) + (\cdot) J^\dagger J \right),
 ```
 
-Note that the parity of the dissipator will be determined by the parity of the given HEOM matrix `M`.
+Note that the parity of the dissipator will be determined by the parity of the given HEOMLS matrix `M`.
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
@@ -151,7 +151,7 @@ function addFermionDissipator(M::AbstractHEOMLSMatrix, jumpOP::AbstractMatrix) r
 
 @doc raw"""
     addTerminator(M, Bath)
-Adding terminator to a given HEOM matrix.
+Adding terminator to a given HEOMLS matrix.
 
 The terminator is a Liouvillian term representing the contribution to 
 the system-bath dynamics of all exponential-expansion terms beyond `Bath.Nterm`
@@ -170,15 +170,15 @@ Here, `δ` is the approximation discrepancy and `dirac(t)` denotes the Dirac-del
 function addTerminator(M::Mtype, Bath::Union{BosonBath, FermionBath}) where Mtype <: AbstractHEOMLSMatrix
     Btype = typeof(Bath)
     if (Btype == BosonBath) && (Mtype == M_Fermion)
-        error("For $(Btype), the type of HEOM matrix should be either M_Boson or M_Boson_Fermion.")
+        error("For $(Btype), the type of HEOMLS matrix should be either M_Boson or M_Boson_Fermion.")
     elseif (Btype == FermionBath) && (Mtype == M_Boson)
-        error("For $(Btype), the type of HEOM matrix should be either M_Fermion or M_Boson_Fermion.")
+        error("For $(Btype), the type of HEOMLS matrix should be either M_Fermion or M_Boson_Fermion.")
     elseif Mtype == M_S
-        error("The type of input HEOM matrix does not support this functionality.")
+        error("The type of input HEOMLS matrix does not support this functionality.")
     end
 
     if M.dim != Bath.dim
-        error("The system dimension between the HEOM matrix and Bath are not consistent.")
+        error("The system dimension between the HEOMLS matrix and Bath are not consistent.")
     end
 
     if Bath.δ == 0
