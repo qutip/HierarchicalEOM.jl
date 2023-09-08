@@ -33,7 +33,7 @@ Hsys = ϵ * (d_up' * d_up + d_dn' * d_dn) + U * (d_up' * d_up * d_dn' * d_dn)
 # We assume the fermionic reservoir to have a [Lorentzian-shaped spectral density](@ref doc-Fermion-Lorentz), and we utilize the Padé decomposition. Furthermore, the spectral densities depend on the following physical parameters: 
 # - the coupling strength $\Gamma$ between system and reservoirs
 # - the band-width $W$
-# - $kT$ (the product of the Boltzmann constant $k$ and the absolute temperature $T$)
+# - the product of the Boltzmann constant $k$ and the absolute temperature $T$ : $kT$
 # - the chemical potential $\mu$
 # - the total number of exponentials for the reservoir $2(N + 1)$
 Γ  = 2

@@ -75,7 +75,7 @@ Plots.plot(
 # We assume the bosonic reservoir to have a [Drude-Lorentz Spectral Density](@ref Boson-Drude-Lorentz), and we utilize the Padé decomposition. Furthermore, the spectral densities depend on the following physical parameters: 
 # - the coupling strength $\Gamma$ between system and reservoir
 # - the band-width $W$
-# - $kT$ (the product of the Boltzmann constant $k$ and the absolute temperature $T$)
+# - the product of the Boltzmann constant $k$ and the absolute temperature $T$ : $kT$
 # - the total number of exponentials for the reservoir $(N + 1)$
 Γ  = 0.0005
 W  = 0.005

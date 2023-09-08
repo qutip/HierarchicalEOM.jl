@@ -63,13 +63,13 @@ H_s = H_A + H_c + H_int
 
 ## initial state
 ket0 = QuantumOptics.tensor(QuantumOptics.Ket(a_basis,[1,0,0]),QuantumOptics.Ket(b_spin,[1,0]))
-ρ0   = QuantumOptics.tensor(ket0, ket0');
+ρ0   = QuantumOptics.dm(ket0);
 
 # ## Construct bath objects
 # We assume the bosonic reservoir to have a [Drude-Lorentz Spectral Density](@ref Boson-Drude-Lorentz), and we utilize the Padé decomposition. Furthermore, the spectral densities depend on the following physical parameters: 
 # - the coupling strength $\Gamma$ between system and reservoir
 # - the band-width $W$
-# - $kT$ (the product of the Boltzmann constant $k$ and the absolute temperature $T$)
+# - the product of the Boltzmann constant $k$ and the absolute temperature $T$ : $kT$
 # - the total number of exponentials for the reservoir $(N + 1)$
 Γ  = 0.01
 W  = 1
