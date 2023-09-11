@@ -29,7 +29,7 @@ M = M_Fermion(Hs, Ftier, Fbath)
 M = M_Boson_Fermion(Hs, Btier, Ftier, Bbath, Fbath)
 ```
 
-# [Importance Value and Threshold](@id doc-Importance-Value-and-Threshold)
+## [Importance Value and Threshold](@id doc-Importance-Value-and-Threshold)
 The main computational complexity can be quantified by the total number of [auxiliary density operators (ADOs)](@ref doc-ADOs) because it directly affects the size of ``\hat{\mathcal{M}}``. 
 
 The computational effort can be further optimized by associating an **importance value** ``\mathcal{I}`` to each ADO and then discarding all the ADOs (in the second and higher levels) whose importance value is smaller than a threshold value ``\mathcal{I}_\textrm{th}``. The importance value for a given ADO : ``\mathcal{I}\left(\rho^{(m,n,p)}_{\textbf{j} \vert \textbf{q}}\right)`` is determined by its corresponding exponential terms of bath correlation function [see [Phys. Rev. B 88, 235426 (2013)](https://doi.org/10.1103/PhysRevB.88.235426) and [Phys. Rev. B 103, 235413 (2021)](https://doi.org/10.1103/PhysRevB.103.235413)]. This allows us to only consider the ADOs which affects the dynamics more, and thus, reduce the size of ``\hat{\mathcal{M}}``. Also see our paper for more details.
@@ -49,7 +49,7 @@ M = M_Boson_Fermion(Hs, Btier, Ftier, Bbath, Fbath; threshold=1e-7)
 !!! note "Default value of importance threshold"
     The full hierarchical equations can be recovered in the limiting case ``\mathcal{I}_\textrm{th}\rightarrow 0``, which is the default value of the parameter : `threshold=0.0`. This means that all of the ADOs will be taken into account by default.
 
-# [Parity Support for HEOMLS Matrices](@id doc-Parity)
+## [Parity Support for HEOMLS Matrices](@id doc-Parity)
 When the system Hamiltonian contains fermionic systems, the HEOMLS matrix ``\hat{\mathcal{M}}`` might be constructed into a different one depend on the parity of the input operator (HEOMLS) it is acting on. Usually, it is acting on the reduced density operator and [auxiliary density operators (ADOs)](@ref doc-ADOs), which are all in `:even`-parity. However, there are some situations (for example, [calculating spectrum for fermionic systems](@ref doc-DOS)) where ``\hat{\mathcal{M}}`` is acting on ADOs with `:odd`-parity.
 
 One can specify the parameter `parity::Symbol` in the function of constructing ``\hat{\mathcal{M}}`` to be `:even` or `:odd`. The default value of the parameter is `parity=:even`.
@@ -74,7 +74,7 @@ M_even = M_Boson_Fermion(Hs, Btier, Ftier, Bbath, Fbath, :even)
 M_odd  = M_Boson_Fermion(Hs, Btier, Ftier, Bbath, Fbath, :odd) 
 ```
 
-# Methods
+## Methods
 All of the HEOMLS matrices supports the following two `Base` Functions :
  - `size(M::AbstractHEOMLSMatrix)` : Returns the size of the HEOMLS matrix.
  - Bracket operator `[i,j]` : Returns the `(i, j)`-element(s) in the HEOMLS matrix.

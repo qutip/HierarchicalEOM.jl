@@ -50,11 +50,17 @@ const PAGES = Any[
         "Cite HierarchicalEOM" => "cite.md"
     ],
     "Manual" => Any[
-        "Bosonic Bath" => "bosonic_bath.md",
-        "Fermionic Bath" => "fermionic_bath.md",
+        "Bosonic Bath" => Any[
+            "Introduction" => "bath_boson/bosonic_bath_intro.md",
+            "Drude-Lorentz Spectral Density" => "bath_boson/Boson_Drude_Lorentz.md"
+        ],
+        "Fermionic Bath" => Any[
+            "Introduction" => "bath_fermion/fermionic_bath_intro.md",
+            "Lorentz Spectral Density" => "bath_fermion/Fermion_Lorentz.md"
+        ],
         "Auxiliary Density Operators" => "ADOs.md",
         "HEOMLS Matrices" => Any[
-            "Introduction" => "heom_matrix/intro.md",
+            "Introduction" => "heom_matrix/HEOMLS_intro.md",
             "HEOMLS for Schrödinger Equation" => "heom_matrix/schrodinger_eq.md",
             "HEOMLS for Bosonic Bath" => "heom_matrix/M_Boson.md",
             "HEOMLS for Fermionic Bath" => "heom_matrix/M_Fermion.md",
