@@ -37,7 +37,7 @@
     @test_throws BoundsError L[1:5, 2]
     @test_throws ErrorException ados[L.N + 1]
     @test_throws ErrorException M_S(Hsys, :wrong; verbose=false)
-    @test_throws ErrorException @test_warn "HEOM doesn't support matrix type : Vector{Int64}" M_S([0, 0]; verbose=false)
+    @test_throws ErrorException M_S([0, 0]; verbose=false)
 end
 
 λ  = 0.1450
@@ -106,7 +106,7 @@ J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
     @test_throws BoundsError L[1:1821, 336]
     @test_throws ErrorException ados[L.N + 1]
     @test_throws ErrorException M_Boson(Hsys, tier, Bbath, :wrong; verbose=false)
-    @test_throws ErrorException @test_warn "HEOM doesn't support matrix type : Vector{Int64}" M_Boson([0, 0], tier, Bbath; verbose=false)
+    @test_throws ErrorException M_Boson([0, 0], tier, Bbath; verbose=false)
 end
 
 # Test Fermion-type HEOM Liouvillian superoperator matrix
@@ -160,7 +160,7 @@ end
     @test_throws BoundsError L[1:9301, 9300]
     @test_throws ErrorException ados[L.N + 1]
     @test_throws ErrorException M_Fermion(Hsys, tier, Fbath, :wrong; verbose=false)
-    @test_throws ErrorException @test_warn "HEOM doesn't support matrix type : Vector{Int64}" M_Fermion([0, 0], tier, Fbath; verbose=false)
+    @test_throws ErrorException M_Fermion([0, 0], tier, Fbath; verbose=false)
 end
 
 # Test Boson-Fermion-type HEOM Liouvillian superoperator matrix
@@ -232,7 +232,7 @@ end
     ## check exceptions
     @test_throws ErrorException ados[L.N + 1]
     @test_throws ErrorException M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath, :wrong; verbose=false)
-    @test_throws ErrorException @test_warn "HEOM doesn't support matrix type : Vector{Int64}" M_Boson_Fermion([0, 0], tierb, tierf, Bbath, Fbath; verbose=false)
+    @test_throws ErrorException M_Boson_Fermion([0, 0], tierb, tierf, Bbath, Fbath; verbose=false)
 end
 
 @testset "Hierarchy Dictionary" begin
@@ -316,7 +316,7 @@ end
 
     # expections for expect
     ados_wrong  = ADOs(spzeros(Int64, 18), 2)
-    @test_throws ErrorException("The dimension of `op` is not consistent with `ados`.") @test_warn "The size of input matrix should be: (2, 2)." Expect([0 0 0; 0 0 0; 0 0 0], ados_f)
-    @test_throws ErrorException("The dimension of the elements in `ados_list` should be consistent.") Expect([0 0; 0 0], [ados_b, ados_wrong])
-    @test_throws ErrorException("The dimension of `op` is not consistent with the elements in `ados_list`.") @test_warn "The size of input matrix should be: (2, 2)." Expect([0 0 0; 0 0 0; 0 0 0], [ados_b, ados_f])
+    @test_throws ErrorException Expect([0 0 0; 0 0 0; 0 0 0], ados_f)
+    @test_throws ErrorException Expect([0 0; 0 0], [ados_b, ados_wrong])
+    @test_throws ErrorException Expect([0 0 0; 0 0 0; 0 0 0], [ados_b, ados_f])
 end

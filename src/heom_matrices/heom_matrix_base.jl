@@ -81,11 +81,8 @@ function addBosonDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMLSMa
     if length(jumpOP) > 0
         L = spzeros(ComplexF64, M.sup_dim, M.sup_dim)
         for J in jumpOP
-            if isValidMatrixType(J, M.dim)
-                L += spre(J) * spost(J') - 0.5 * (spre(J' * J) + spost(J' * J))
-            else
-                error("Invalid matrix in \"jumpOP\".")
-            end
+            _J = HandleMatrixType(J, M.dim, "in jumpOP")
+            L += spre(_J) * spost(_J') - 0.5 * (spre(_J' * _J) + spost(_J' * _J))
         end
 
         if T == M_S
@@ -128,11 +125,8 @@ function addFermionDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMLS
         parity = eval(M.parity)
         L = spzeros(ComplexF64, M.sup_dim, M.sup_dim)
         for J in jumpOP
-            if isValidMatrixType(J, M.dim)
-                L += ((-1) ^ parity) * spre(J) * spost(J') - 0.5 * (spre(J' * J) + spost(J' * J))
-            else
-                error("Invalid matrix in \"jumpOP\".")
-            end
+            _J = HandleMatrixType(J, M.dim, "in jumpOP")
+            L += ((-1) ^ parity) * spre(_J) * spost(_J') - 0.5 * (spre(_J' * _J) + spost(_J' * _J))
         end
         if T == M_S
             return M_S(M.data + L, M.tier, M.dim, M.N, M.sup_dim, M.parity)

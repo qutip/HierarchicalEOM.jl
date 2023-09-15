@@ -56,15 +56,13 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
     end
 
     # check for system dimension
-    if !isValidMatrixType(Hsys)
-        error("Invalid matrix \"Hsys\" (system Hamiltonian).")
-    end
-    Nsys,   = size(Hsys)
+    _Hsys = HandleMatrixType(Hsys, 0, "Hsys (system Hamiltonian)")
+    Nsys,   = size(_Hsys)
     sup_dim = Nsys ^ 2
     I_sup   = sparse(I, sup_dim, sup_dim)
-    
+
     # the Liouvillian operator for free Hamiltonian term
-    Lsys = -1im * (spre(Hsys) - spost(Hsys))
+    Lsys = -1im * (spre(_Hsys) - spost(_Hsys))
 
     # fermionic bath
     if verbose && (threshold > 0.0)

@@ -142,24 +142,18 @@ end
 isclose(a::Number, b::Number, rtol=1e-05, atol=1e-08) = abs(a - b) <= (atol + rtol * abs(b))
 
 function _check_bosonic_coupling_operator(op)
-    if isValidMatrixType(op)
-        N,  = size(op)
-        if !ishermitian(op)
-            @warn "The system-bosonic-bath coupling operator \"op\" should be Hermitian operator."
-        end
-        return N
-    else
-        error("Invalid matrix \"op\".")
+    _op = HandleMatrixType(op)
+    N,  = size(_op)
+    if !ishermitian(_op)
+        @warn "The system-bosonic-bath coupling operator \"op\" should be Hermitian operator."
     end
+    return N
 end
 
 function _check_fermionic_coupling_operator(op)
-    if isValidMatrixType(op)
-        N,  = size(op)
-        return N
-    else
-        error("Invalid matrix \"op\".")
-    end
+    _op = HandleMatrixType(op)
+    N,  = size(_op)
+    return N
 end
 
 function _combine_same_gamma(η::Vector{Ti}, γ::Vector{Tj}) where {Ti, Tj <: Number}

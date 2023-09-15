@@ -156,11 +156,9 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in the 
 """
 function Expect(op, ados::ADOs; take_real=true)
     
-    if !isValidMatrixType(op, ados.dim)
-        error("The dimension of `op` is not consistent with `ados`.")
-    end
+    _op = HandleMatrixType(op, ados.dim, "op (observable)")
 
-    exp_val = tr(op * getRho(ados))
+    exp_val = tr(_op * getRho(ados))
 
     if take_real
         return real(exp_val)
@@ -194,13 +192,11 @@ function Expect(op, ados_list::Vector{ADOs}; take_real=true)
         end
     end
 
-    if !isValidMatrixType(op, dim)
-        error("The dimension of `op` is not consistent with the elements in `ados_list`.")
-    end
+    _op = HandleMatrixType(op, dim, "op (observable)")
 
     ρlist = getRho.(ados_list)
     exp_val = [
-        tr(op * ρlist[i]) for i in 1:length(ρlist)
+        tr(_op * ρlist[i]) for i in 1:length(ρlist)
     ]
 
     if take_real

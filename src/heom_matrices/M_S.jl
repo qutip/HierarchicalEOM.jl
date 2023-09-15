@@ -52,10 +52,8 @@ Note that the parity only need to be set as `:odd` when the system contains ferm
     end
 
     # check for system dimension
-    if !isValidMatrixType(Hsys)
-        error("Invalid matrix \"Hsys\" (system Hamiltonian).")
-    end
-    Nsys,   = size(Hsys)
+    _Hsys = HandleMatrixType(Hsys, 0, "Hsys (system Hamiltonian)")
+    Nsys,   = size(_Hsys)
     sup_dim = Nsys ^ 2
 
     # the Liouvillian operator for free Hamiltonian
@@ -63,7 +61,7 @@ Note that the parity only need to be set as `:odd` when the system contains ferm
         println("Constructing Liouville-von Neumann superoperator...")
         flush(stdout)
     end
-    Lsys = -1im * (spre(Hsys) - spost(Hsys))
+    Lsys = -1im * (spre(_Hsys) - spost(_Hsys))
     if verbose
         println("[DONE]")
         flush(stdout)
