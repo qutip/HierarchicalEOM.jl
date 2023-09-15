@@ -140,8 +140,8 @@ function addFermionDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMLS
     end
 end
 
-function   addBosonDissipator(M::AbstractHEOMLSMatrix, jumpOP::AbstractMatrix) return   addBosonDissipator(M, [jumpOP]) end
-function addFermionDissipator(M::AbstractHEOMLSMatrix, jumpOP::AbstractMatrix) return addFermionDissipator(M, [jumpOP]) end
+function   addBosonDissipator(M::AbstractHEOMLSMatrix, jumpOP) return   addBosonDissipator(M, [jumpOP]) end
+function addFermionDissipator(M::AbstractHEOMLSMatrix, jumpOP) return addFermionDissipator(M, [jumpOP]) end
 
 @doc raw"""
     addTerminator(M, Bath)

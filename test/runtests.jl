@@ -1,3 +1,4 @@
+using QuantumOptics
 using HierarchicalEOM
 using Test
 using SparseArrays
@@ -20,3 +21,7 @@ end
 include("heom_api.jl")
 
 include("phys_analysis.jl")
+
+@testset "QuantumOptics Extension" begin
+    include("QOExt.jl")
+end

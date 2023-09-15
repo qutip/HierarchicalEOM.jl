@@ -4,6 +4,9 @@ module HierarchicalEOM
     export 
         Bath, HeomAPI, Spectrum
 
+    # export for extension
+    export QOoperator
+
     # sub-module HeomBase for HierarchicalEOM
     module HeomBase
         import Pkg

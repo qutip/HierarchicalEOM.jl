@@ -142,18 +142,18 @@ end
 isclose(a::Number, b::Number, rtol=1e-05, atol=1e-08) = abs(a - b) <= (atol + rtol * abs(b))
 
 function _check_bosonic_coupling_operator(op)
-    _op = HandleMatrixType(op)
+    _op = HandleMatrixType(op, 0, "op (coupling operator)")
     N,  = size(_op)
     if !ishermitian(_op)
         @warn "The system-bosonic-bath coupling operator \"op\" should be Hermitian operator."
     end
-    return N
+    return N, _op
 end
 
 function _check_fermionic_coupling_operator(op)
-    _op = HandleMatrixType(op)
+    _op = HandleMatrixType(op, 0, "op (coupling operator)")
     N,  = size(_op)
-    return N
+    return N, _op
 end
 
 function _combine_same_gamma(η::Vector{Ti}, γ::Vector{Tj}) where {Ti, Tj <: Number}
@@ -243,7 +243,8 @@ function BosonBath(
     else
         bRI = bosonRealImag(op, real.(η), imag.(η), γ)
     end
-    return BosonBath(AbstractBosonBath[bRI], copy(op), bRI.dim, bRI.Nterm, δ)
+    _op = HandleMatrixType(op, 0, "op (coupling operator)")
+    return BosonBath(AbstractBosonBath[bRI], _op, bRI.dim, bRI.Nterm, δ)
 end
 
 @doc raw"""
@@ -326,12 +327,14 @@ function BosonBath(
         if Nterm != (Nterm_new + bRI.Nterm)
             error("Conflicts occur in combining real and imaginary parts of bath correlation function.")
         end
-        return BosonBath(AbstractBosonBath[bR, bI, bRI], copy(op), bR.dim, Nterm_new, δ)
+        _op = HandleMatrixType(op, 0, "op (coupling operator)")
+        return BosonBath(AbstractBosonBath[bR, bI, bRI], _op, bR.dim, Nterm_new, δ)
 
     else
-        bR = bosonReal(op, η_real, γ_real)
-        bI = bosonImag(op, η_imag, γ_imag)
-        return BosonBath(AbstractBosonBath[bR, bI], copy(op), bR.dim, bR.Nterm + bI.Nterm, δ)
+        bR  = bosonReal(op, η_real, γ_real)
+        bI  = bosonImag(op, η_imag, γ_imag)
+        _op = HandleMatrixType(op, 0, "op (coupling operator)")
+        return BosonBath(AbstractBosonBath[bR, bI], _op, bR.dim, bR.Nterm + bI.Nterm, δ)
     end
 end
 
@@ -369,7 +372,7 @@ function bosonReal(
         γ_real::Vector{Tj}
     ) where {Ti, Tj <: Number}
 
-    dim = _check_bosonic_coupling_operator(op)
+    dim, _op = _check_bosonic_coupling_operator(op)
 
     # check if the length of coefficients are valid
     N_exp_term = length(η_real)
@@ -377,7 +380,7 @@ function bosonReal(
         error("The length of \'η_real\' and \'γ_real\' should be the same.")
     end
 
-    return bosonReal(spre(op) - spost(op), dim, η_real, γ_real, N_exp_term)
+    return bosonReal(spre(_op) - spost(_op), dim, η_real, γ_real, N_exp_term)
 end
 
 @doc raw"""
@@ -416,15 +419,15 @@ Generate bosonic bath for the imaginary part of correlation function ``C^{u=\tex
         γ_imag::Vector{Tj}
     ) where {Ti, Tj <: Number}
 
-    dim = _check_bosonic_coupling_operator(op)
+    dim, _op = _check_bosonic_coupling_operator(op)
 
     # check if the length of coefficients are valid
     N_exp_term = length(η_imag)
     if N_exp_term != length(γ_imag)
         error("The length of \'η_imag\' and \'γ_imag\' should be the same.")
     end
-    spreQ  = spre(op)
-    spostQ = spost(op)
+    spreQ  = spre(_op)
+    spostQ = spost(_op)
     return bosonImag(spreQ - spostQ, spreQ + spostQ, dim, η_imag, γ_imag, N_exp_term)
 end
 
@@ -468,15 +471,15 @@ function bosonRealImag(
         γ::Vector{Tk}
     ) where {Ti, Tj, Tk <: Number}
 
-    dim = _check_bosonic_coupling_operator(op)
+    dim, _op = _check_bosonic_coupling_operator(op)
 
     # check if the length of coefficients are valid
     N_exp_term = length(η_real)
     if (N_exp_term != length(η_imag)) || (N_exp_term != length(γ))
         error("The length of \'η_real\', \'η_imag\' and \'γ\' should be the same.")
     end
-    spreQ  = spre(op)
-    spostQ = spost(op)
+    spreQ  = spre(_op)
+    spostQ = spost(_op)
     return bosonRealImag(spreQ - spostQ, spreQ + spostQ, dim, η_real, η_imag, γ, N_exp_term)
 end
 
@@ -544,9 +547,10 @@ function FermionBath(
         δ::Tm=0.0
     ) where {Ti, Tj, Tk, Tl, Tm <: Number}
 
-    fA = fermionAbsorb(adjoint(op), η_absorb, γ_absorb, η_emit)
-    fE = fermionEmit(op, η_emit, γ_emit, η_absorb)
-    return FermionBath(AbstractFermionBath[fA, fE], copy(op), fA.dim, fA.Nterm + fE.Nterm, δ)
+    fA  = fermionAbsorb(adjoint(op), η_absorb, γ_absorb, η_emit)
+    fE  = fermionEmit(op, η_emit, γ_emit, η_absorb)
+    _op = HandleMatrixType(op, 0, "op (coupling operator)")
+    return FermionBath(AbstractFermionBath[fA, fE], _op, fA.dim, fA.Nterm + fE.Nterm, δ)
 end
 
 @doc raw"""
@@ -593,14 +597,14 @@ function fermionAbsorb(
         η_emit::Vector{Tk}
     ) where {Ti, Tj, Tk <: Number}
 
-    dim = _check_fermionic_coupling_operator(op)
+    dim, _op = _check_fermionic_coupling_operator(op)
 
     # check if the length of coefficients are valid
     N_exp_term = length(η_absorb)
     if (N_exp_term != length(γ_absorb)) || (N_exp_term != length(η_emit))
         error("The length of \'η_absorb\', \'γ_absorb\' and \'η_emit\' should all be the same.")
     end
-    return fermionAbsorb(spre(op), spost(op), spre(adjoint(op)), spost(adjoint(op)), dim, η_absorb, γ_absorb, η_emit, N_exp_term)
+    return fermionAbsorb(spre(_op), spost(_op), spre(adjoint(_op)), spost(adjoint(_op)), dim, η_absorb, γ_absorb, η_emit, N_exp_term)
 end
 
 @doc raw"""
@@ -647,14 +651,14 @@ function fermionEmit(
         η_absorb::Vector{Tk}
     ) where {Ti, Tj, Tk <: Number}
 
-    dim = _check_fermionic_coupling_operator(op)
+    dim, _op = _check_fermionic_coupling_operator(op)
 
     # check if the length of coefficients are valid
     N_exp_term = length(η_emit)
     if (N_exp_term != length(γ_emit)) || (N_exp_term != length(η_absorb))
         error("The length of \'η_emit\', \'γ_emit\' and \'η_absorb\' should all be the same.")
     end
-    return fermionEmit(spre(op), spost(op), spre(adjoint(op)), spost(adjoint(op)), dim, η_emit, γ_emit, η_absorb, N_exp_term)
+    return fermionEmit(spre(_op), spost(_op), spre(adjoint(_op)), spost(adjoint(_op)), dim, η_emit, γ_emit, η_absorb, N_exp_term)
 end
 
 @doc raw"""
