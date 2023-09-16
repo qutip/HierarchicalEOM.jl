@@ -5,14 +5,14 @@ using HierarchicalEOM
 import HierarchicalEOM.HeomBase: HandleMatrixType
 
 @doc raw"""
-    QOoperator(data::AbstractMatrix, refOP::AbstractOperator)
+    Operator(data::AbstractMatrix, refOP::AbstractOperator)
 Return the operator under the type of `QuantumOptics.AbstractOperator` from a given matrix and the basis in reference operator.
 
 # Parameters
 - `data` : The matrix-type operator.
 - `refOP<:QuantumOptics.AbstractOperator` : the reference operator which contains the basis defined in `QuantumOptics`.
 """
-QOoperator(data::AbstractMatrix, refOP::AbstractOperator) = Operator(refOP.basis_l, refOP.basis_r, data)
+Operator(data::AbstractMatrix, refOP::AbstractOperator) = Operator(refOP.basis_l, refOP.basis_r, data)
 
 function HandleMatrixType(M::AbstractOperator, dim::Int=0, MatrixName::String="")
     if dim > 0

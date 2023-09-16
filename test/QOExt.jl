@@ -27,7 +27,7 @@ steps = 1
 tlist = 0:Δt:(Δt * steps)
 ados_list = evolution(L, ρ0, Δt, steps; verbose=false)
 ados_list = evolution(L, ρ0, tlist; verbose=false)
-@test Expect(O, ados_list[end]) ≈ real.(tr.(O * QOoperator(ados_list[end][1], Hsys)))
+@test Expect(O, ados_list[end]) ≈ real(tr(O * Operator(ados_list[end][1], Hsys)))
 
 # Power spectral density
 a = sigmam(basis)
