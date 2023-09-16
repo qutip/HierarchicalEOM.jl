@@ -13,6 +13,7 @@ W  = 0.5
 kT = 0.5
 N  = 2
 Q = σz  # System-bath coupling operator
+tier = 2
 bath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
 L = M_Boson(Hsys, tier, bath; verbose=false)
 
