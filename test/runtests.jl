@@ -7,8 +7,9 @@ using LinearAlgebra
 const GROUP = get(ENV, "GROUP", "All")
 const HAS_EXTENSIONS = isdefined(Base, :get_extension)
 
+include("utils.jl")
+
 if GROUP == "All" || GROUP == "Core"
-    include("utils.jl")
 
     @testset "Print version information" begin
         @test HierarchicalEOM.versioninfo() == nothing
