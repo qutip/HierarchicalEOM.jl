@@ -50,6 +50,7 @@ julia_solver = LUFactorization();
 # !!! note "Note"
 #     Using this solver requires adding the package [Pardiso.jl](https://github.com/JuliaSparse/Pardiso.jl), i.e. `using Pardiso`
 using Pardiso
+using LinearSolve
 mkl_solver     = MKLPardisoFactorize()
 mkl_ite_solver = MKLPardisoIterate();
 

@@ -1,29 +1,23 @@
 const PROGBAR_OPTIONS = Dict(:barlen=>20, :color=>:green, :showspeed=>true)
 
-function isValidMatrixType(M, dim::Int=0)
-    if typeof(M) <: AbstractMatrix 
-        if dim > 0
-            if size(M) == (dim, dim)
-                return true
-            else
-                @warn "The size of input matrix should be: ($(dim), $(dim))."
-                return false
-            end
-        elseif dim == 0
-            N1, N2 = size(M)
-            if N1 == N2
-                return true
-            else
-                @warn "The size of input matrix should be squared matrix."
-                return false
-            end
-        else
-            error("The \"dim\" is not correct.")
-        end
+function HandleMatrixType(M, dim::Int=0, MatrixName::String="")
+    error("HierarchicalEOM doesn't support matrix $(MatrixName) with type : $(typeof(M))")
+end
 
-    else
-        @warn "HEOM doesn't support matrix type : $(typeof(M))"
-        return false
+function HandleMatrixType(M::AbstractMatrix, dim::Int=0, MatrixName::String="")
+    if dim > 0
+        if size(M) == (dim, dim)
+            return copy(M)
+        else
+            error("The size of matrix $(MatrixName) should be: ($(dim), $(dim)).")
+        end
+    elseif dim == 0
+        N1, N2 = size(M)
+        if N1 == N2
+            return copy(M)
+        else
+            error("The size of matrix $(MatrixName) should be squared matrix.")
+        end
     end
 end
 

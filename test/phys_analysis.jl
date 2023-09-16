@@ -29,7 +29,7 @@ ados = SteadyState(L, ρ0; verbose=false)
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
     @test_throws ErrorException SteadyState(M_Fermion(mat, 2, bathf, :odd; verbose=false))
     @test_throws ErrorException SteadyState(M_Fermion(mat, 2, bathf, :odd; verbose=false), mat)
-    @test_throws ErrorException @test_warn "The size of input matrix should be: (2, 2)." SteadyState(L, mat2)
+    @test_throws ErrorException SteadyState(L, mat2)
     @test_throws ErrorException SteadyState(L, ADOs(zeros(8), 2))
     @test_throws ErrorException SteadyState(L, ADOs(ados.data, ados.N, :odd))
 end
@@ -52,7 +52,7 @@ end
     ados_wrong2 = ADOs((ados_list[1]).data, (ados_list[1]).N, :odd)
     ρ_list_p = getRho.(ados_list)
     @test_throws ErrorException evolution(L, ρ0, Δt, steps; verbose=false, filename="evolution_p")
-    @test_throws ErrorException @test_warn "The size of input matrix should be: (2, 2)." evolution(L, ρ_wrong, Δt, steps; verbose=false)
+    @test_throws ErrorException evolution(L, ρ_wrong, Δt, steps; verbose=false)
     @test_throws ErrorException evolution(L, ados_wrong1, Δt, steps)
     @test_throws ErrorException evolution(L, ados_wrong2, Δt, steps)
 
@@ -62,7 +62,7 @@ end
     # using the method based on ODE solver
     ρ_list_e = getRho.(evolution(L, ρ0, tlist; verbose=false, filename="evolution_o"))
     @test_throws ErrorException evolution(L, ρ0, tlist; verbose=false, filename="evolution_o")
-    @test_throws ErrorException @test_warn "The size of input matrix should be: (2, 2)." evolution(L, ρ_wrong, tlist; verbose=false)
+    @test_throws ErrorException evolution(L, ρ_wrong, tlist; verbose=false)
     @test_throws ErrorException evolution(L, ados_wrong1, tlist)
     @test_throws ErrorException evolution(L, ados_wrong2, tlist)
 
@@ -101,7 +101,7 @@ end
     end
     fastDD_ados = evolution(L, ρ0, tlist, Ht, (0.50, 20, π/2); reltol=1e-12, abstol=1e-12, verbose=false, filename="evolution_t");
     @test_throws ErrorException evolution(L, ρ0, tlist, Ht, (0.50, 20, π/2); verbose=false, filename="evolution_t")
-    @test_throws ErrorException @test_warn "The size of input matrix should be: (2, 2)." evolution(L, ρ_wrong, tlist, Ht; verbose=false)
+    @test_throws ErrorException evolution(L, ρ_wrong, tlist, Ht; verbose=false)
     fastBoFiN = [
         0.4999999999999999,
         0.4972948770876402,
@@ -209,8 +209,8 @@ end
             zeros(3, 3)
         end
     end
-    @test_throws ErrorException("The dimension of `H` at t=0 is not consistent with `M.dim`.")  @test_warn "The size of input matrix should be: (2, 2)."  evolution(L, ρ0, tlist, H_wrong1; verbose=false);
-    @test_throws ErrorException @test_warn "The size of input matrix should be: (2, 2)."  evolution(L, ρ0, tlist, H_wrong2; verbose=false);
+    @test_throws ErrorException evolution(L, ρ0, tlist, H_wrong1; verbose=false);
+    @test_throws ErrorException evolution(L, ρ0, tlist, H_wrong2; verbose=false);
     @test_throws ErrorException evolution(L, ados_wrong1, tlist, Ht)
     @test_throws ErrorException evolution(L, ados_wrong2, tlist, Ht)
 end
@@ -269,7 +269,7 @@ end
     mat2 = spzeros(ComplexF64, 3, 3)
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
     @test_throws ErrorException spectrum(L, ados_s, a, ωlist; verbose=false, filename="PSD")
-    @test_throws ErrorException @test_warn "The size of input matrix should be: (2, 2)." spectrum(L, ados_s, mat2, ωlist; verbose=false)
+    @test_throws ErrorException spectrum(L, ados_s, mat2, ωlist; verbose=false)
     @test_throws ErrorException spectrum(L, ADOs(zeros(8), 2), a, ωlist; verbose=false)
     @test_throws ErrorException spectrum(L, ADOs(ados_s.data, ados_s.N, :odd), a, ωlist; verbose=false)
     @test_throws ErrorException spectrum(M_Fermion(mat, 2, bathf, :odd; verbose=false), mat, mat, [0])
@@ -339,7 +339,7 @@ end
     mat2 = spzeros(ComplexF64, 3, 3)
     bathb = Boson_DrudeLorentz_Pade(mat, 1, 1, 1, 2)
     @test_throws ErrorException spectrum(Lo, ados_s, d_up, ωlist; verbose=false, filename="DOS")
-    @test_throws ErrorException @test_warn "The size of input matrix should be: (2, 2)." spectrum(Lo, ados_s, mat2, ωlist; verbose=false)
+    @test_throws ErrorException spectrum(Lo, ados_s, mat2, ωlist; verbose=false)
     @test_throws ErrorException spectrum(Lo, ADOs(zeros(8), 2), d_up, ωlist; verbose=false)
     @test_throws ErrorException spectrum(Lo, ADOs(ados_s.data, ados_s.N, :odd), d_up, ωlist; verbose=false)
     @test_throws ErrorException spectrum(M_Boson(mat, 2, bathb; verbose=false), mat, mat, [0])

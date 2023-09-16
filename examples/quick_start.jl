@@ -40,7 +40,7 @@ HierarchicalEOM.versioninfo()
 
 # We demonstrate this tutorial by `QuantumOptics`:
 
-import QuantumOptics: SpinBasis, sigmaz, sigmax, ⊗, Ket, Bra
+import QuantumOptics: SpinBasis, sigmaz, sigmax, ⊗, Ket, Bra, dm
 
 basis = SpinBasis(1//2)
 
@@ -51,13 +51,13 @@ basis = SpinBasis(1//2)
 Hsys = 0.5 * ϵ * sigmaz(basis) + 0.5 * Δ * sigmax(basis)
 
 ## System initial state
-ρ0 = Ket(basis, [1, 0]) ⊗ Bra(basis, [1, 0]);
+ρ0 = dm(Ket(basis, [1, 0]));
 
 # #### Bath Properties
 # Now, we demonstrate how to describe the bath using the built-in implementation of ``J_D(\omega)`` under Pade expansion by calling [`Boson_DrudeLorentz_Pade`](@ref)
 
 λ  = 0.1  # coupling strength
-W  = 0.5  # cut-off frequency
+W  = 0.5  # band-width (cut-off frequency)
 kT = 0.5  # the product of the Boltzmann constant k and the absolute temperature T
 
 Q = sigmaz(basis) # system-bath coupling operator
