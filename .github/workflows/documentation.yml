@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: julia-actions/setup-julia@latest
+      - uses: julia-actions/setup-julia@v1
         with:
-          version: '1.9'
+          version: '1'
       - uses: julia-actions/cache@v1
       - name: Install X Server dependencies
         run: sudo apt-get update && sudo apt-get install -y xorg-dev mesa-utils xvfb libgl1 freeglut3-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
@@ -29,4 +29,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # If authenticating with GitHub Actions token
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # If authenticating with SSH deploy key
-        run: DISPLAY=:0 xvfb-run -s '-screen 0 1024x768x24' julia --project=docs/ docs/make.jl
+        run: DISPLAY=:0 xvfb-run -s '-screen 0 1024x768x24' julia --project=docs/ --code-coverage=user docs/make.jl
+      - uses: julia-actions/julia-processcoverage@v1
+        with:
+          directories: src
+      - uses: codecov/codecov-action@v3
+        with:
+          files: lcov.info

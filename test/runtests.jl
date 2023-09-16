@@ -4,24 +4,31 @@ using Test
 using SparseArrays
 using LinearAlgebra
 
-include("utils.jl")
+const GROUP = get(ENV, "GROUP", "All")
+const HAS_EXTENSIONS = isdefined(Base, :get_extension)
 
-@testset "Print version information" begin
-    @test HierarchicalEOM.versioninfo() == nothing
+if GROUP == "All" || GROUP == "Core"
+    include("utils.jl")
+
+    @testset "Print version information" begin
+        @test HierarchicalEOM.versioninfo() == nothing
+    end
+
+    @testset "Bath and Exponent" begin
+        include("bath.jl")
+    end
+
+    @testset "Correlation functions" begin
+        include("corr_func.jl")
+    end
+
+    include("heom_api.jl")
+
+    include("phys_analysis.jl")
 end
 
-@testset "Bath and Exponent" begin
-    include("bath.jl")
-end
-
-@testset "Correlation functions" begin
-    include("corr_func.jl")
-end
-
-include("heom_api.jl")
-
-include("phys_analysis.jl")
-
-@testset "QuantumOptics Extension" begin
-    include("QOExt.jl")
+if (GROUP == "All" || GROUP == "HierarchicalEOM_QOExt") && HAS_EXTENSIONS
+    @testset "QuantumOptics Extension" begin
+        include("QOExt.jl")
+    end
 end
