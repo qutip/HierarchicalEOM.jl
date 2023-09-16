@@ -35,4 +35,5 @@ jobs:
           directories: src
       - uses: codecov/codecov-action@v3
         with:
-          files: lcov.info
+          file: lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
