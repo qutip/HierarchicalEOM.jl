@@ -2,11 +2,33 @@
 ![Fancy logo](./docs/src/assets/logo.png#gh-light-mode-only)
 
 # HierarchicalEOM.jl
-[![](https://img.shields.io/github/release/NCKU-QFort/HierarchicalEOM.jl.svg)](https://github.com/NCKU-QFort/HierarchicalEOM.jl/releases)
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://ncku-qfort.github.io/HierarchicalEOM.jl/stable/)
-[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://ncku-qfort.github.io/HierarchicalEOM.jl/dev/)  
-[![Runtests](https://github.com/NCKU-QFort/HierarchicalEOM.jl/actions/workflows/Runtests.yml/badge.svg)](https://github.com/NCKU-QFort/HierarchicalEOM.jl/actions/workflows/Runtests.yml)
-[![codecov](https://codecov.io/gh/NCKU-QFort/HierarchicalEOM.jl/branch/main/graph/badge.svg?token=237Z7F7OOV)](https://codecov.io/gh/NCKU-QFort/HierarchicalEOM.jl)
+| **Release** | **Downloads** |
+|:-----------:|:-------------:|
+| [![][release-img]][release-url] [![][license-img]][license-url] | [![][downloads-img]][downloads-url] |
+
+| **Runtests** | **Coverage** | **Documentation** |
+|:------------:|:------------:|:-----------------:|
+| [![][runtests-img]][runtests-url] | [![][codecov-img]][codecov-url] | [![][docs-stable-img]][docs-stable-url] [![][docs-develop-img]][docs-develop-url] |
+
+[release-img]: https://img.shields.io/github/release/NCKU-QFort/HierarchicalEOM.jl.svg
+[release-url]: https://github.com/NCKU-QFort/HierarchicalEOM.jl/releases
+
+[docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
+[docs-stable-url]: https://ncku-qfort.github.io/HierarchicalEOM.jl/stable/
+[docs-develop-img]: https://img.shields.io/badge/docs-dev-blue.svg
+[docs-develop-url]: https://ncku-qfort.github.io/HierarchicalEOM.jl/dev/
+
+[runtests-img]: https://github.com/NCKU-QFort/HierarchicalEOM.jl/actions/workflows/Runtests.yml/badge.svg
+[runtests-url]: https://github.com/NCKU-QFort/HierarchicalEOM.jl/actions/workflows/Runtests.yml
+
+[codecov-img]: https://codecov.io/gh/NCKU-QFort/HierarchicalEOM.jl/branch/main/graph/badge.svg?token=237Z7F7OOV
+[codecov-url]: https://codecov.io/gh/NCKU-QFort/HierarchicalEOM.jl
+
+[license-img]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
+[license-url]: https://opensource.org/licenses/Apache-2.0
+
+[downloads-img]: https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/HierarchicalEOM
+[downloads-url]: https://pkgs.genieframework.com?packages=HierarchicalEOM
 
 `HierarchicalEOM.jl` is a numerical framework written in [`Julia`](https://julialang.org/). It provides a user-friendly and efficient tool based on hierarchical equations of motion (HEOM) approach to simulate complex open quantum systems, including non-Markovian effects due to non-perturbative interaction with one (or multiple) environment(s). It is inspired by the [Quantum Toolbox in Python (QuTiP)](https://qutip.org).
 
