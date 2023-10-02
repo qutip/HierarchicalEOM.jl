@@ -57,7 +57,7 @@ See the docstring of this method:
 M::AbstractHEOMLSMatrix  
 
 # the initial state of the ADOs
-ados::AbstractMatrix
+ados::ADOs
 
 ados_steady = SteadyState(M, ados)
 ```
