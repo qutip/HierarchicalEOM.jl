@@ -23,8 +23,8 @@ module HierarchicalEOM
         import ..HeomBase: HandleMatrixType
 
         export 
-            AbstractBath, BosonBath, FermionBath, Exponent, C,
-            AbstractBosonBath, bosonReal, bosonImag, bosonRealImag,
+            AbstractBath, BosonBath, BosonBathRWA, FermionBath, Exponent, C,
+            AbstractBosonBath, bosonReal, bosonImag, bosonRealImag, bosonAbsorb, bosonEmit,
             AbstractFermionBath, fermionAbsorb, fermionEmit,
             spre, spost
 
