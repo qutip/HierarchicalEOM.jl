@@ -109,6 +109,27 @@ J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
     @test_throws ErrorException M_Boson([0, 0], tier, Bbath; verbose=false)
 end
 
+@testset "M_Boson (RWA)" begin
+    ωq = 0
+    Λ  = 0.001
+    Γ  = 0.3 * Λ 
+    Hsys_rwa = 0.5 * ωq * [1 0; 0 -1]
+    op_rwa   = [0 0; 1 0]
+    ρ0       = 0.5 * [1 1; 1 1]
+    
+    t = 20
+    d = √(Λ * (Λ - 2 * Γ))
+    G = exp(-1 * (Λ / 2 + 1im * ωq) * t) * (cosh(t * d / 2) + Λ * sinh(t * d / 2) / d)
+
+    B_rwa = BosonBathRWA(op_rwa, [0], [Λ - 1im * ωq], [0.5 * Γ * W], [Λ + 1im * ωq])
+    L = M_Boson(Hsys_rwa, 3, B_rwa; verbose=false)
+    ados_list = evolution(L, ρ0, 0:1:t, verbose=false)
+    ρ_rwa = getRho(ados_list[end])
+
+    @test ρ_rwa[1, 1] ≈ abs(G) ^ 2 * ρ0[1, 1]
+    @test ρ_rwa[1, 2] ≈ G * ρ0[1, 2]
+end
+
 # Test Fermion-type HEOM Liouvillian superoperator matrix
 @testset "M_Fermion" begin
     L = M_Fermion(Hsys, tier, Fbath; verbose=false)
