@@ -110,24 +110,29 @@ J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
 end
 
 @testset "M_Boson (RWA)" begin
-    ωq = 0
-    Λ  = 0.001
-    Γ  = 0.3 * Λ 
+    ωq = 1.1
+    Λ  = 0.01
+    Γ  = 0.02
     Hsys_rwa = 0.5 * ωq * [1 0; 0 -1]
     op_rwa   = [0 0; 1 0]
     ρ0       = 0.5 * [1 1; 1 1]
     
-    t = 20
-    d = √(Λ * (Λ - 2 * Γ))
-    G = exp(-1 * (Λ / 2 + 1im * ωq) * t) * (cosh(t * d / 2) + Λ * sinh(t * d / 2) / d)
+    tlist = 0:1:20
+    d     = 1im * √(Λ * (2 * Γ - Λ)) # non-Markov regime
 
-    B_rwa = BosonBathRWA(op_rwa, [0], [Λ - 1im * ωq], [0.5 * Γ * W], [Λ + 1im * ωq])
-    L = M_Boson(Hsys_rwa, 3, B_rwa; verbose=false)
-    ados_list = evolution(L, ρ0, 0:1:t, verbose=false)
-    ρ_rwa = getRho(ados_list[end])
+    B_rwa = BosonBathRWA(op_rwa, [0], [Λ - 1im * ωq], [0.5 * Γ * Λ], [Λ + 1im * ωq])
+    L = M_Boson(Hsys_rwa, tier, B_rwa; verbose=false)
+    ados_list = evolution(L, ρ0, tlist; reltol=1e-10, abstol=1e-12, verbose=false)
 
-    @test ρ_rwa[1, 1] ≈ abs(G) ^ 2 * ρ0[1, 1]
-    @test ρ_rwa[1, 2] ≈ G * ρ0[1, 2]
+    for (i, t) in enumerate(tlist)
+        ρ_rwa = getRho(ados_list[i])
+
+        # analytical result
+        Gt = exp(-1 * (Λ / 2 + 1im * ωq) * t) * (cosh(t * d / 2) + Λ * sinh(t * d / 2) / d)
+        
+        @test ρ_rwa[1, 1] ≈ abs(Gt) ^ 2 * ρ0[1, 1]
+        @test ρ_rwa[1, 2] ≈ Gt * ρ0[1, 2]
+    end
 end
 
 # Test Fermion-type HEOM Liouvillian superoperator matrix
