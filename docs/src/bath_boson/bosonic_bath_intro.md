@@ -11,7 +11,7 @@ The effects of a bosonic environment (initially in thermal equilibrium and linea
 C(t_1, t_2)
 =\frac{1}{2\pi}\int_{0}^{\infty} d\omega J(\omega)\left[n(\omega)e^{i\omega (t_1-t_2)}+(n(\omega)+1)e^{-i\omega (t_1-t_2)}\right],
 ```
-where ``J(\omega)`` is the spectral density of the bath and ``n(\omega)=\{\exp(\omega/k_B T)-1\}^{-1}`` represents the Bose-Einstein distribution.
+where ``J(\omega)=2\pi\Sigma_k |g_k|^2 \delta(\omega-\omega_k)`` is the spectral density of the bath and ``n(\omega)=\{\exp(\omega/k_B T)-1\}^{-1}`` represents the Bose-Einstein distribution.
 
 A more practical representation can be found by expressing the correlation function as a sum of exponential terms ([`Exponent`](@ref)), namely
 ```math
@@ -44,7 +44,7 @@ bath = BosonBath(Vs, η_real, γ_real, η_imag, γ_imag)
 Here, `η_real::AbstractVector`, `γ_real::AbstractVector`, `η_imag::AbstractVector` and `γ_imag::AbstractVector` correspond to the exponential terms ``\{\eta_i^{\textrm{R}}\}_i``, ``\{\gamma_i^{\textrm{R}}\}_i``, ``\{\eta_i^{\textrm{I}}\}_i`` and ``\{\gamma_i^{\textrm{I}}\}_i``, respectively.
 
 !!! note "Note"
-    Instead of analytically solving the correlation function ``C(t_1, t_2)`` to obtain a sum of exponential terms, one can also use the built-in functions (for different spectral densities ``J(\omega)`` and spectral decomposition methods, which have been analytically solved by the developers already) listed in the end of this page. 
+    Instead of analytically solving the correlation function ``C(t_1, t_2)`` to obtain a sum of exponential terms, one can also use the built-in functions (for different spectral densities ``J(\omega)`` and spectral decomposition methods, which have been analytically solved by the developers already). See the other categories of the Bosonic Bath in the sidebar for more details.
 
 ## Print Bosonic Bath
 One can check the information of the [`BosonBath`](@ref) by the `print` function, for example:

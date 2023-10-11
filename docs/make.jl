@@ -54,6 +54,9 @@ const PAGES = Any[
             "Introduction" => "bath_boson/bosonic_bath_intro.md",
             "Drude-Lorentz Spectral Density" => "bath_boson/Boson_Drude_Lorentz.md"
         ],
+        "Bosonic Bath (RWA)" => Any[
+            "Introduction" => "bath_boson_RWA/bosonic_bath_RWA_intro.md"
+        ],
         "Fermionic Bath" => Any[
             "Introduction" => "bath_fermion/fermionic_bath_intro.md",
             "Lorentz Spectral Density" => "bath_fermion/Fermion_Lorentz.md"

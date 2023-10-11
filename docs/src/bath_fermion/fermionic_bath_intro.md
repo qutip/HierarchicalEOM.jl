@@ -14,7 +14,7 @@ C^{\nu}(t_{1},t_{2})
 J(\omega)\left[\frac{1-\nu}{2}+\nu n(\omega)
 \right]e^{\nu i\omega (t_{1}-t_{2})}.
 ```
-where ``J(\omega)`` is the spectral density of the bath and ``n(\omega)=\{\exp[(\omega-\mu)/k_B T]+1\}^{-1}`` represents the Fermi-Dirac distribution (with chemical potential ``\mu``). Here, ``\nu=+`` and ``\nu=-`` denotes the absorption and emission process of the fermionic system, respectively.
+where ``J(\omega)=2\pi\Sigma_k |g_k|^2 \delta(\omega-\omega_k)`` is the spectral density of the bath and ``n(\omega)=\{\exp[(\omega-\mu)/k_B T]+1\}^{-1}`` represents the Fermi-Dirac distribution (with chemical potential ``\mu``). Here, ``\nu=+`` and ``\nu=-`` denotes the absorption and emission process of the fermionic system, respectively.
 
 A more practical representation can be found by expressing the correlation function as a sum of exponential terms ([`Exponent`](@ref)), namely
 ```math
@@ -23,15 +23,15 @@ C^{\nu}(t_1, t_2)=\sum_i \eta_i^{\nu} e^{-\gamma_i^{\nu} (t_1-t_2)}.
 This allows us to define an iterative procedure which leads to the hierarchical equations of motion (HEOM).
 
 ## Construct FermionBath
-One can construct the [`FermionBath`](@ref) object with the coupling operator `ds::AbstractMatrix` and the four lists `η_absorb::AbstractVector`, `γ_absorb::AbstractVector`, `η_emit::AbstractVector` and `γ_emit::AbstractVector` which correspond to the exponential terms ``\{\eta_i^{+}\}_i``, ``\{\gamma_i^{+}\}_i``, ``\{\eta_i^{-}\}_i`` and ``\{\gamma_i^{-}\}_i``, respectively. 
+One can construct the [`FermionBath`](@ref) object with the system annihilation operator `ds::AbstractMatrix` and the four lists `η_absorb::AbstractVector`, `γ_absorb::AbstractVector`, `η_emit::AbstractVector` and `γ_emit::AbstractVector` which correspond to the exponential terms ``\{\eta_i^{+}\}_i``, ``\{\gamma_i^{+}\}_i``, ``\{\eta_i^{-}\}_i`` and ``\{\gamma_i^{-}\}_i``, respectively. 
 ```julia
 bath = FermionBath(ds, η_absorb, γ_absorb, η_emit, γ_emit)
 ```
 !!! warning "Warning"
-    Here, the length of the four lists (`η_absorb`, `γ_absorb`, `η_emit` and `γ_emit`) should all be the same.
+    Here, the length of the four lists (`η_absorb`, `γ_absorb`, `η_emit` and `γ_emit`) should all be the same. Also, all the elements in `γ_absorb` should be complex conjugate of the corresponding elements in `γ_emit`.
 
 !!! note "Note"
-    Instead of analytically solving the correlation function ``C^{\nu=\pm}(t_1, t_2)`` to obtain a sum of exponential terms, one can also use the built-in functions (for different spectral densities ``J(\omega)`` and spectral decomposition methods, which have been analytically solved by the developers already) listed in the end of this page. 
+    Instead of analytically solving the correlation function ``C^{\nu=\pm}(t_1, t_2)`` to obtain a sum of exponential terms, one can also use the built-in functions (for different spectral densities ``J(\omega)`` and spectral decomposition methods, which have been analytically solved by the developers already). See the other categories of the Fermionic Bath in the sidebar for more details.
 
 ## Print Fermionic Bath
 One can check the information of the [`FermionBath`](@ref) by the `print` function, for example:
