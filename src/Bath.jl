@@ -843,36 +843,77 @@ end
     C(bath, tlist)
 Calculate the correlation function ``C(t)`` for a given bosonic bath and time list.
 
-Note that
+## if the input bosonic bath did not apply rotating wave approximation (RWA)
 ```math
 C(t)=\sum_{u=\textrm{R},\textrm{I}}(\delta_{u, \textrm{R}} + i\delta_{u, \textrm{I}})C^{u}(t)
+```
+where
+```math
+C^{u}(t)=\sum_i \eta_i^u e^{-\gamma_i^u t}
+```
+
+## if the input bosonic bath applies rotating wave approximation (RWA)
+```math
+C^{\nu=\pm}(t)=\sum_i \eta_i^\nu e^{-\gamma_i^\nu t}
 ```
 
 # Parameters
 - `bath::BosonBath` : The bath object which describes a certain bosonic bath.
 - `tlist::AbstractVector`: The specific time.
 
-# Returns
+# Returns (without RWA)
 - `clist::Vector{ComplexF64}` : a list of the value of correlation function according to the given time list.
+
+# Returns (with RWA)
+- `cplist::Vector{ComplexF64}` : a list of the value of the absorption (``\nu=+``) correlation function according to the given time list.
+- `cmlist::Vector{ComplexF64}` : a list of the value of the emission (``\nu=-``) correlation function according to the given time list.
 """
 function C(bath::BosonBath, tlist::AbstractVector)
-    clist = zeros(ComplexF64, length(tlist))
-    for (i, t) in enumerate(tlist)
-        for e in bath
-            if e.types == "bI"
-                clist[i] += 1.0im * e.η * exp(- e.γ * t)
-            else
-                clist[i] += e.η * exp(- e.γ * t)
+    T = (bath[1]).types
+
+    # without RWA
+    if (T == "bR") || (T == "bI") || (T == "bRI")
+        clist = zeros(ComplexF64, length(tlist))
+        for (i, t) in enumerate(tlist)
+            for e in bath
+                if (e.types == "bR") || (e.types == "bRI")
+                    clist[i] += e.η * exp(- e.γ * t)
+                elseif e.types == "bI"
+                    clist[i] += 1.0im * e.η * exp(- e.γ * t)
+                else
+                    error("Invalid bath")
+                end
             end
         end
+        return clist
+
+    # with RWA
+    else
+        cplist = zeros(ComplexF64, length(tlist))
+        cmlist = zeros(ComplexF64, length(tlist))
+        for (i, t) in enumerate(tlist)
+            for e in bath
+                if e.types == "bA"
+                    cplist[i] += e.η * exp(- e.γ * t)
+                elseif e.types == "bE"
+                    cmlist[i] += e.η * exp(- e.γ * t)
+                else
+                    error("Invalid bath")
+                end
+            end
+        end
+        return cplist, cmlist
     end
-    return clist
 end
 
 @doc raw"""
     C(bath, tlist)
 Calculate the correlation function ``C^{\nu=+}(t)`` and ``C^{\nu=-}(t)`` for a given fermionic bath and time list.
 Here, ``\nu=+`` represents the absorption process and ``\nu=-`` represents the emmision process.
+
+```math
+C^{\nu=\pm}(t)=\sum_i \eta_i^\nu e^{-\gamma_i^\nu t}
+```
 
 # Parameters
 - `bath::FermionBath` : The bath object which describes a certain fermionic bath.

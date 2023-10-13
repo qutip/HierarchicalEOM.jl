@@ -66,6 +66,9 @@ end
 # Boson bath (RWA)
 b = BosonBathRWA(op, η1, γ3, η2, γ4)
 @test length(bs) == 10
+cp, cm = C(b, [0.183183])
+@test cp[1] ≈ 22.384506765987076 + 0.7399082821797519im
+@test cm[1] ≈ 26.994911851482776 - 0.799138487523946im
 
 ## check for η and γ list, and coupling operator
 η = []
