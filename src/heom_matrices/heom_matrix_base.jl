@@ -276,6 +276,20 @@ function _D_op(bath::bosonImag, k, n_k)
     return n_k * bath.η[k] * bath.anComm
 end
 
+# connect to bosonic (n-1)th-level for "Absorption operator"
+function _D_op(bath::bosonAbsorb, k, n_k)
+    return -1im * n_k * (
+        bath.η[k] * bath.spre - conj(bath.η_emit[k]) * bath.spost
+    )
+end
+
+# connect to bosonic (n-1)th-level for "Emission operator"
+function _D_op(bath::bosonEmit, k, n_k)
+    return -1im * n_k * (
+        bath.η[k] * bath.spre - conj(bath.η_absorb[k]) * bath.spost
+    )
+end
+
 # connect to fermionic (n-1)th-level for "absorption operator"
 function _C_op(bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
     return -1im * ((-1) ^ n_exc_before) * (
@@ -292,9 +306,14 @@ function _C_op(bath::fermionEmit, k, n_exc, n_exc_before, parity)
     )
 end
 
-# connect to bosonic (n+1)th-level
-function _B_op(bath::T) where T <: AbstractBosonBath
+# connect to bosonic (n+1)th-level for real-and-imaginary-type bosonic bath
+function _B_op(bath::T) where T <: Union{bosonReal, bosonImag, bosonRealImag}
     return -1im * bath.Comm
+end
+
+# connect to bosonic (n+1)th-level for absorption-and-emission-type bosonic bath
+function _B_op(bath::T) where T <: Union{bosonAbsorb, bosonEmit}
+    return -1im * bath.CommD
 end
 
 # connect to fermionic (n+1)th-level
