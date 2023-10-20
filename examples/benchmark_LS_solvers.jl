@@ -36,14 +36,14 @@ ados_s = SteadyState(M_even);
 # (click [here](https://docs.sciml.ai/LinearSolve/stable/solvers/solvers/) to see the full solver list provided by `LinearSolve.jl`)
 # ### UMFPACKFactorization (Default solver)
 # This solver performs better when there is more structure to the sparsity pattern (depends on the complexity of your system and baths).
-umf_solver = UMFPACKFactorization();
+UMFPACKFactorization();
 
 # ### KLUFactorization
 # This solver performs better when there is less structure to the sparsity pattern (depends on the complexity of your system and baths).
-klu_solver = KLUFactorization();
+KLUFactorization();
 
 # ### Julia's built-in LU factorization
-julia_solver = LUFactorization();
+LUFactorization();
 
 # ### Pardiso
 # This solver is based on Intel openAPI Math Kernel Library (MKL) Pardiso
@@ -51,8 +51,8 @@ julia_solver = LUFactorization();
 #     Using this solver requires adding the package [Pardiso.jl](https://github.com/JuliaSparse/Pardiso.jl), i.e. `using Pardiso`
 using Pardiso
 using LinearSolve
-mkl_solver     = MKLPardisoFactorize()
-mkl_ite_solver = MKLPardisoIterate();
+MKLPardisoFactorize()
+MKLPardisoIterate();
 
 # ## Solving Stationary State
 # Since we are using [`BenchmarkTools`](https://juliaci.github.io/BenchmarkTools.jl/stable/) (`@benchmark`) in the following, we set `verbose = false` to disable the output message.
@@ -60,29 +60,29 @@ mkl_ite_solver = MKLPardisoIterate();
 @benchmark SteadyState(M_even; verbose = false)
 
 # ### KLUFactorization
-@benchmark SteadyState(M_even; solver = klu_solver, verbose = false)
+@benchmark SteadyState(M_even; solver = KLUFactorization(), verbose = false)
 
 # ### Julia's built-in generic LU factorization
-@benchmark SteadyState(M_even; solver = julia_solver, verbose = false)
+@benchmark SteadyState(M_even; solver = LUFactorization(), verbose = false)
 
 # ### MKLPardisoFactorize
-@benchmark SteadyState(M_even; solver = mkl_solver, verbose = false)
+@benchmark SteadyState(M_even; solver = MKLPardisoFactorize(), verbose = false)
 
 # ### MKLPardisoIterate
-@benchmark SteadyState(M_even; solver = mkl_ite_solver, verbose = false)
+@benchmark SteadyState(M_even; solver = MKLPardisoIterate(), verbose = false)
 
 # ## Calculate Spectrum
 # ### UMFPACKFactorization (Default solver)
 @benchmark spectrum(M_odd, ados_s, d_up, ωlist; verbose = false)
 
 # ### KLUFactorization
-@benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = klu_solver, verbose = false)
+@benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = KLUFactorization(), verbose = false)
 
 # ### Julia's built-in LU factorization
-@benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = julia_solver, verbose = false)
+@benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = LUFactorization(), verbose = false)
 
 # ### MKLPardisoFactorize
-@benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = mkl_solver, verbose = false)
+@benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = MKLPardisoFactorize(), verbose = false)
 
 # ### MKLPardisoIterate
-@benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = mkl_ite_solver, verbose = false)
+@benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = MKLPardisoIterate(), verbose = false)
