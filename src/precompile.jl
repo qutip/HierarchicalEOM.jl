@@ -28,7 +28,7 @@ PrecompileTools.@setup_workload begin
         # precompile Steadystate
         @info "Precompiling steady state solver..."
         ados1 = SteadyState(Mb; verbose=false)
-        ados1 = SteadyState(Mb, [1. 0.; 0. 0.]; verbose=false)
+        ados1 = SteadyState(Mb, [1. 0.; 0. 0.]; verbose=false, reltol=1e-1, abstol=1e-3)
         E1 = Expect(op, ados1)
 
         # precompile evolution
