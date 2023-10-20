@@ -60,6 +60,8 @@ M_Fermion(Hsys, tier::Int, Bath::Vector{FermionBath}, parity::Symbol=:even; thre
 M_Boson_Fermion
 M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::Vector{FermionBath}, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)
 size(M::AbstractHEOMLSMatrix)
+size(M::AbstractHEOMLSMatrix, dim::Int)
+eltype(M::AbstractHEOMLSMatrix)
 Propagator
 addBosonDissipator
 addFermionDissipator
@@ -71,6 +73,7 @@ addTerminator
 ADOs
 ADOs(V::AbstractVector, N::Int)
 length(A::ADOs)
+eltype(A::ADOs)
 getRho
 getADO
 Expect

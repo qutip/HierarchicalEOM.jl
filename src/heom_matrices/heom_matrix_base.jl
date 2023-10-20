@@ -16,15 +16,21 @@ Returns the specified dimension of the HEOM Liouvillian superoperator matrix
 """
 size(M::AbstractHEOMLSMatrix, dim::Int) = size(M.data, dim)
 
+@doc raw"""
+    eltype(M::AbstractHEOMLSMatrix)
+Returns the elements' type of the HEOM Liouvillian superoperator matrix
+"""
+eltype(M::AbstractHEOMLSMatrix) = eltype(M.data)
+
 getindex(M::AbstractHEOMLSMatrix, i::Ti, j::Tj) where {Ti, Tj <: Any} = M.data[i, j]
 
 function show(io::IO, M::AbstractHEOMLSMatrix)
     T = typeof(M)
-    if T == M_S
+    if T <: M_S
         type = "Schrodinger Eq."
-    elseif T == M_Boson
+    elseif T <: M_Boson
         type = "Boson"
-    elseif T == M_Fermion
+    elseif T <: M_Fermion
         type = "Fermion"
     else
         type = "Boson-Fermion"
@@ -91,11 +97,11 @@ function addBosonDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMLSMa
             L += spre(_J) * spost(_J') - 0.5 * (spre(_J' * _J) + spost(_J' * _J))
         end
 
-        if T == M_S
+        if T <: M_S
             return M_S(M.data + L, M.tier, M.dim, M.N, M.sup_dim, M.parity)
-        elseif T == M_Boson
+        elseif T <: M_Boson
             return M_Boson(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
-        elseif T == M_Fermion
+        elseif T <: M_Fermion
             return M_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
         else
             return M_Boson_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
@@ -134,11 +140,11 @@ function addFermionDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMLS
             _J = HandleMatrixType(J, M.dim, "in jumpOP")
             L += ((-1) ^ parity) * spre(_J) * spost(_J') - 0.5 * (spre(_J' * _J) + spost(_J' * _J))
         end
-        if T == M_S
+        if T <: M_S
             return M_S(M.data + L, M.tier, M.dim, M.N, M.sup_dim, M.parity)
-        elseif T == M_Boson
+        elseif T <: M_Boson
             return M_Boson(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
-        elseif T == M_Fermion
+        elseif T <: M_Fermion
             return M_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
         else
             return M_Boson_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
@@ -169,11 +175,11 @@ Here, `δ` is the approximation discrepancy and `dirac(t)` denotes the Dirac-del
 """
 function addTerminator(M::Mtype, Bath::Union{BosonBath, FermionBath}) where Mtype <: AbstractHEOMLSMatrix
     Btype = typeof(Bath)
-    if (Btype == BosonBath) && (Mtype == M_Fermion)
+    if (Btype == BosonBath) && (Mtype <: M_Fermion)
         error("For $(Btype), the type of HEOMLS matrix should be either M_Boson or M_Boson_Fermion.")
-    elseif (Btype == FermionBath) && (Mtype == M_Boson)
+    elseif (Btype == FermionBath) && (Mtype <: M_Boson)
         error("For $(Btype), the type of HEOMLS matrix should be either M_Fermion or M_Boson_Fermion.")
-    elseif Mtype == M_S
+    elseif Mtype <: M_S
         error("The type of input HEOMLS matrix does not support this functionality.")
     end
 
@@ -191,9 +197,9 @@ function addTerminator(M::Mtype, Bath::Union{BosonBath, FermionBath}) where Mtyp
             spre(J) * spost(J') - 0.5 * (spre(J' * J) + spost(J' * J))
         )
 
-        if Mtype == M_Boson
+        if Mtype <: M_Boson
             return M_Boson(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
-        elseif Mtype == M_Fermion
+        elseif Mtype <: M_Fermion
             return M_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
         else
             return M_Boson_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)

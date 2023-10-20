@@ -11,6 +11,7 @@
     ados = ados_list[end]
     @test ados.dim == L.dim
     @test length(ados) == L.N
+    @test eltype(L) == eltype(ados)
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
     ρ1 = [
@@ -76,6 +77,7 @@ J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
     ados = SteadyState(L; verbose=false)
     @test ados.dim == L.dim
     @test length(ados) == L.N
+    @test eltype(L) == eltype(ados)
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
     ρ1 = [
@@ -147,6 +149,7 @@ end
     ados = SteadyState(L; verbose=false)
     @test ados.dim == L.dim
     @test length(ados) == L.N
+    @test eltype(L) == eltype(ados)
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
     ρ1 = [
@@ -213,6 +216,7 @@ end
     ados = SteadyState(L; verbose=false)
     @test ados.dim == L.dim
     @test length(ados) == L.N
+    @test eltype(L) == eltype(ados)
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
     ρ1 = [

@@ -1,9 +1,9 @@
 @doc raw"""
-    struct M_Boson_Fermion <: AbstractHEOMLSMatrix
+    struct M_Boson_Fermion{T} <: AbstractHEOMLSMatrix
 HEOM Liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath 
 
 # Fields
-- `data` : the sparse matrix of HEOM Liouvillian superoperator
+- `data::T` : the sparse matrix of HEOM Liouvillian superoperator
 - `Btier` : the tier (cutoff level) for bosonic hierarchy
 - `Ftier` : the tier (cutoff level) for fermionic hierarchy
 - `dim` : the dimension of system
@@ -14,8 +14,8 @@ HEOM Liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath
 - `Fbath::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
 - `hierarchy::MixHierarchyDict`: the object which contains all dictionaries for mixed-bath-ADOs hierarchy.
 """
-struct M_Boson_Fermion <: AbstractHEOMLSMatrix
-    data::SparseMatrixCSC{ComplexF64, Int64}
+struct M_Boson_Fermion{T} <: AbstractHEOMLSMatrix
+    data::T
     Btier::Int
     Ftier::Int
     dim::Int
@@ -196,5 +196,5 @@ Note that the parity only need to be set as `:odd` when the system contains ferm
         println("[DONE]") 
         flush(stdout)
     end
-    return M_Boson_Fermion(L_he, Btier, Ftier, Nsys, Nado, sup_dim, parity, Bbath, Fbath, hierarchy)
+    return M_Boson_Fermion{SparseMatrixCSC{ComplexF64, Int64}}(L_he, Btier, Ftier, Nsys, Nado, sup_dim, parity, Bbath, Fbath, hierarchy)
 end

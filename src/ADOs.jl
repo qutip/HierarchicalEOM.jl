@@ -64,6 +64,12 @@ Returns the total number of the Auxiliary Density Operators (ADOs)
 """
 length(A::ADOs) = A.N
 
+@doc raw"""
+    eltype(A::ADOs)
+Returns the elements' type of the Auxiliary Density Operators (ADOs)
+"""
+eltype(A::ADOs) = eltype(A.data)
+
 lastindex(A::ADOs) = length(A)
 
 function getindex(A::ADOs, i::Int)
