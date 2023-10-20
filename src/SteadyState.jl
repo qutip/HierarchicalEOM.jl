@@ -20,7 +20,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
     end    
 
     A = copy(M.data)
-    S, = size(A)
+    S = size(A, 1)
     A[1,1:S] .= 0
     
     # sparse(row_idx, col_idx, values, row_dims, col_dims)

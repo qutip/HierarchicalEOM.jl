@@ -39,7 +39,7 @@ Gernerate the object of auxiliary density operators for HEOM model.
 """
 function ADOs(V::AbstractVector, N::Int, parity::Symbol=:even)
     # check the dimension of V
-    d,  = size(V)
+    d  = size(V, 1)
     dim = √(d / N)
     if isinteger(dim)
         if (parity == :even) || (parity == :odd)
@@ -63,6 +63,12 @@ end
 Returns the total number of the Auxiliary Density Operators (ADOs)
 """
 length(A::ADOs) = A.N
+
+@doc raw"""
+    eltype(A::ADOs)
+Returns the elements' type of the Auxiliary Density Operators (ADOs)
+"""
+eltype(A::ADOs) = eltype(A.data)
 
 lastindex(A::ADOs) = length(A)
 

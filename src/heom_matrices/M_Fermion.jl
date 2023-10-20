@@ -1,9 +1,9 @@
 @doc raw"""
-    struct M_Fermion <: AbstractHEOMLSMatrix
+    struct M_Fermion{T} <: AbstractHEOMLSMatrix
 HEOM Liouvillian superoperator matrix for fermionic bath
 
 # Fields
-- `data` : the sparse matrix of HEOM Liouvillian superoperator
+- `data::T` : the sparse matrix of HEOM Liouvillian superoperator
 - `tier` : the tier (cutoff level) for the fermionic hierarchy
 - `dim` : the dimension of system
 - `N` : the number of total ADOs
@@ -12,8 +12,8 @@ HEOM Liouvillian superoperator matrix for fermionic bath
 - `bath::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
 - `hierarchy::HierarchyDict`: the object which contains all dictionaries for fermion-bath-ADOs hierarchy.
 """
-struct M_Fermion <: AbstractHEOMLSMatrix
-    data::SparseMatrixCSC{ComplexF64, Int64}
+struct M_Fermion{T} <: AbstractHEOMLSMatrix
+    data::T
     tier::Int
     dim::Int
     N::Int
@@ -57,7 +57,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
 
     # check for system dimension
     _Hsys = HandleMatrixType(Hsys, 0, "Hsys (system Hamiltonian)")
-    Nsys,   = size(_Hsys)
+    Nsys    = size(_Hsys, 1)
     sup_dim = Nsys ^ 2
     I_sup   = sparse(I, sup_dim, sup_dim)
 
@@ -144,5 +144,5 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         println("[DONE]")
         flush(stdout)
     end
-    return M_Fermion(L_he, tier, Nsys, Nado, sup_dim, parity, Bath, hierarchy)
+    return M_Fermion{SparseMatrixCSC{ComplexF64, Int64}}(L_he, tier, Nsys, Nado, sup_dim, parity, Bath, hierarchy)
 end

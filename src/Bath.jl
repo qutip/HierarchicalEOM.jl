@@ -155,7 +155,7 @@ isclose(a::Number, b::Number, rtol=1e-05, atol=1e-08) = abs(a - b) <= (atol + rt
 
 function _check_bosonic_coupling_operator(op)
     _op = HandleMatrixType(op, 0, "op (coupling operator)")
-    N,  = size(_op)
+    N   = size(_op, 1)
     if !ishermitian(_op)
         @warn "The system-bosonic-bath coupling operator \"op\" should be Hermitian operator."
     end
@@ -164,7 +164,7 @@ end
 
 function _check_bosonic_RWA_coupling_operator(op)
     _op = HandleMatrixType(op, 0, "op (coupling operator)")
-    N,  = size(_op)
+    N  = size(_op, 1)
     return N, _op
 end
 
@@ -183,7 +183,7 @@ end
 
 function _check_fermionic_coupling_operator(op)
     _op = HandleMatrixType(op, 0, "op (coupling operator)")
-    N,  = size(_op)
+    N  = size(_op, 1)
     return N, _op
 end
 

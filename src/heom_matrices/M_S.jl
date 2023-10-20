@@ -1,5 +1,5 @@
 @doc raw"""
-    struct M_S <: AbstractHEOMLSMatrix
+    struct M_S{T} <: AbstractHEOMLSMatrix
 HEOM Liouvillian superoperator matrix with cutoff level of the hierarchy equals to `0`.  
 This corresponds to the standard Schrodinger (Liouville-von Neumann) equation, namely
 ```math
@@ -8,15 +8,15 @@ M[\cdot]=-i \left[H_{sys}, \cdot \right]_-,
 where ``[\cdot, \cdot]_-`` stands for commutator.
 
 # Fields
-- `data` : the sparse matrix of HEOM Liouvillian superoperator
+- `data::T` : the sparse matrix of HEOM Liouvillian superoperator
 - `tier` : the tier (cutoff level) for the hierarchy, which equals to `0` in this case
 - `dim` : the dimension of system
 - `N` : the number of total ADOs, which equals to `1` (only the reduced density operator) in this case
 - `sup_dim` : the dimension of system superoperator
 - `parity` : the parity label of the fermionic system (usually `:even`, only set as `:odd` for calculating spectrum of fermionic system)
 """
-struct M_S <: AbstractHEOMLSMatrix
-    data::SparseMatrixCSC{ComplexF64, Int64}
+struct M_S{T} <: AbstractHEOMLSMatrix
+    data::T
     tier::Int
     dim::Int
     N::Int
@@ -53,7 +53,7 @@ Note that the parity only need to be set as `:odd` when the system contains ferm
 
     # check for system dimension
     _Hsys = HandleMatrixType(Hsys, 0, "Hsys (system Hamiltonian)")
-    Nsys,   = size(_Hsys)
+    Nsys    = size(_Hsys, 1)
     sup_dim = Nsys ^ 2
 
     # the Liouvillian operator for free Hamiltonian
@@ -66,5 +66,5 @@ Note that the parity only need to be set as `:odd` when the system contains ferm
         println("[DONE]")
         flush(stdout)
     end
-    return M_S(Lsys, 0, Nsys, 1, sup_dim, parity)
+    return M_S{SparseMatrixCSC{ComplexF64, Int64}}(Lsys, 0, Nsys, 1, sup_dim, parity)
 end
