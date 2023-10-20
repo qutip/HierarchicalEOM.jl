@@ -10,6 +10,12 @@ Returns the size of the HEOM Liouvillian superoperator matrix
 """
 size(M::AbstractHEOMLSMatrix) = size(M.data)
 
+@doc raw"""
+    size(M::AbstractHEOMLSMatrix, dim::Int)
+Returns the specified dimension of the HEOM Liouvillian superoperator matrix
+"""
+size(M::AbstractHEOMLSMatrix, dim::Int) = size(M.data, dim)
+
 getindex(M::AbstractHEOMLSMatrix, i::Ti, j::Tj) where {Ti, Tj <: Any} = M.data[i, j]
 
 function show(io::IO, M::AbstractHEOMLSMatrix)

@@ -39,7 +39,7 @@ Gernerate the object of auxiliary density operators for HEOM model.
 """
 function ADOs(V::AbstractVector, N::Int, parity::Symbol=:even)
     # check the dimension of V
-    d,  = size(V)
+    d  = size(V, 1)
     dim = √(d / N)
     if isinteger(dim)
         if (parity == :even) || (parity == :odd)

@@ -44,7 +44,7 @@ function spectrum(
         SOLVEROptions...
     )
 
-    Size, = size(M)
+    Size = size(M, 1)
 
     # check ρ
     if typeof(ρ) == ADOs  # ρ::ADOs
@@ -106,7 +106,7 @@ end
         end
     end
 
-    Size, = size(M)
+    Size = size(M, 1)
     I_total = sparse(I, Size, Size)
     I_heom  = sparse(I, M.N, M.N)
 
@@ -175,7 +175,7 @@ end
         end
     end
 
-    Size, = size(M)
+    Size = size(M, 1)
     I_total = sparse(I, Size, Size)
     I_heom  = sparse(I, M.N, M.N)
 

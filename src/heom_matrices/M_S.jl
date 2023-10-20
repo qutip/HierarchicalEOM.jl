@@ -53,7 +53,7 @@ Note that the parity only need to be set as `:odd` when the system contains ferm
 
     # check for system dimension
     _Hsys = HandleMatrixType(Hsys, 0, "Hsys (system Hamiltonian)")
-    Nsys,   = size(_Hsys)
+    Nsys    = size(_Hsys, 1)
     sup_dim = Nsys ^ 2
 
     # the Liouvillian operator for free Hamiltonian

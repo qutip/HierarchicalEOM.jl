@@ -57,7 +57,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
 
     # check for system dimension
     _Hsys = HandleMatrixType(Hsys, 0, "Hsys (system Hamiltonian)")
-    Nsys,   = size(_Hsys)
+    Nsys    = size(_Hsys, 1)
     sup_dim = Nsys ^ 2
     I_sup   = sparse(I, sup_dim, sup_dim)
 
