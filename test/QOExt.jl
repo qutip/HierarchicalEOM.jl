@@ -18,7 +18,7 @@ bath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
 L = M_Boson(Hsys, tier, bath; verbose=false)
 
 # SteadyState
-ados = SteadyState(L, ρ0; verbose=false)
+ados = SteadyState(L, ρ0; verbose=false, reltol=1e-2, abstol=1e-4)
 
 # Evolution
 tier = 5

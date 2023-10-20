@@ -14,7 +14,7 @@ bath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
 tier = 5
 L = M_Boson(Hsys, tier, bath; verbose=false)
 
-ados = SteadyState(L, ρ0; verbose=false)
+ados = SteadyState(L, ρ0; verbose=false, reltol=1e-2, abstol=1e-4)
 ρs   = getRho(ados)
 @testset "Steady state" begin
     O = [1 0.5; 0.5 1]
