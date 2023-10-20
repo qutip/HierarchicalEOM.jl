@@ -1,7 +1,7 @@
 name = "HierarchicalEOM"
 uuid = "a62dbcb7-80f5-4d31-9a88-8b19fd92b128"
 authors = ["Yi-Te Huang <y.t.d.huang@phys.ncku.edu.tw>"]
-version = "0.2.1"
+version = "0.4.0"
 
 [deps]
 Crayons = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
@@ -17,6 +17,12 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 SciMLOperators = "c0aeaf25-5076-4817-a8d5-81caf7dfa961"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 SteadyStateDiffEq = "9672c7b4-1e72-59bd-8a11-6ac3964bc41f"
+
+[weakdeps]
+QuantumOptics = "6e0679c1-51ea-5a7c-ac74-d61b76210b0c"
+
+[extensions]
+HierarchicalEOM_QOExt = "QuantumOptics"
 
 [compat]
 Crayons = "4.1"

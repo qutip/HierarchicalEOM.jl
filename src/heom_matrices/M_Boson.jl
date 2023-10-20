@@ -1,9 +1,9 @@
 @doc raw"""
-    struct M_Boson <: AbstractHEOMLSMatrix
+    struct M_Boson{T} <: AbstractHEOMLSMatrix
 HEOM Liouvillian superoperator matrix for bosonic bath
 
 # Fields
-- `data` : the sparse matrix of HEOM Liouvillian superoperator
+- `data::T` : the sparse matrix of HEOM Liouvillian superoperator
 - `tier` : the tier (cutoff level) for the bosonic hierarchy
 - `dim` : the dimension of system
 - `N` : the number of total ADOs
@@ -12,8 +12,8 @@ HEOM Liouvillian superoperator matrix for bosonic bath
 - `bath::Vector{BosonBath}` : the vector which stores all `BosonBath` objects
 - `hierarchy::HierarchyDict`: the object which contains all dictionaries for boson-bath-ADOs hierarchy.
 """
-struct M_Boson <: AbstractHEOMLSMatrix
-    data::SparseMatrixCSC{ComplexF64, Int64}
+struct M_Boson{T} <: AbstractHEOMLSMatrix
+    data::T
     tier::Int
     dim::Int
     N::Int
@@ -53,15 +53,13 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
     )
 
     # check for system dimension
-    if !isValidMatrixType(Hsys)
-        error("Invalid matrix \"Hsys\" (system Hamiltonian).")
-    end
-    Nsys,   = size(Hsys)
+    _Hsys = HandleMatrixType(Hsys, 0, "Hsys (system Hamiltonian)")
+    Nsys    = size(_Hsys, 1)
     sup_dim = Nsys ^ 2
     I_sup   = sparse(I, sup_dim, sup_dim)
 
     # the Liouvillian operator for free Hamiltonian term
-    Lsys = -1im * (spre(Hsys) - spost(Hsys))
+    Lsys = -1im * (spre(_Hsys) - spost(_Hsys))
 
     # bosonic bath
     if verbose && (threshold > 0.0)
@@ -144,5 +142,5 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         println("[DONE]")
         flush(stdout)
     end
-    return M_Boson(L_he, tier, Nsys, Nado, sup_dim, parity, Bath, hierarchy)
+    return M_Boson{SparseMatrixCSC{ComplexF64, Int64}}(L_he, tier, Nsys, Nado, sup_dim, parity, Bath, hierarchy)
 end

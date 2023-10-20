@@ -44,7 +44,7 @@ function spectrum(
         SOLVEROptions...
     )
 
-    Size, = size(M)
+    Size = size(M, 1)
 
     # check ρ
     if typeof(ρ) == ADOs  # ρ::ADOs
@@ -60,28 +60,25 @@ function spectrum(
 
         ados_vec = ρ.data
         
-    elseif isValidMatrixType(ρ, M.dim)
-        v = sparsevec(ρ)
-        ados_vec = sparsevec(v.nzind, v.nzval, Size)
     else
-        error("Invalid matrix \"ρ\".")
+        _ρ = HandleMatrixType(ρ, M.dim, "ρ (state)")
+        v  = sparsevec(_ρ)
+        ados_vec = sparsevec(v.nzind, v.nzval, Size)
     end
 
     # check dimension of op
-    if !isValidMatrixType(op, M.dim)
-        error("Invalid matrix \"op\".")
-    end
+    _op = HandleMatrixType(op, M.dim, "op (operator)")
 
     # check parity and calculate spectrum
     if (typeof(M.parity) == OddParity)
-        return _density_of_states(M, ados_vec, op, ω_list; 
+        return _density_of_states(M, ados_vec, _op, ω_list; 
             solver = solver, 
             verbose = verbose,
             filename = filename,
             SOLVEROptions...
         )
     else
-        return _power_spectrum(M, ados_vec, op, ω_list; 
+        return _power_spectrum(M, ados_vec, _op, ω_list; 
             solver = solver, 
             verbose = verbose,
             filename = filename,
@@ -109,7 +106,7 @@ end
         end
     end
 
-    Size, = size(M)
+    Size = size(M, 1)
     I_total = sparse(I, Size, Size)
     I_heom  = sparse(I, M.N, M.N)
 
@@ -178,7 +175,7 @@ end
         end
     end
 
-    Size, = size(M)
+    Size = size(M, 1)
     I_total = sparse(I, Size, Size)
     I_heom  = sparse(I, M.N, M.N)
 

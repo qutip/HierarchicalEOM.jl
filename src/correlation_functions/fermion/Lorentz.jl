@@ -1,5 +1,5 @@
-function _fermion_lorentz_matsubara_param(σ::Real, λ::Real, μ::Real, W::Real, T::Real, N::Int)
-    β = 1. / T
+function _fermion_lorentz_matsubara_param(σ::Real, λ::Real, μ::Real, W::Real, kT::Real, N::Int)
+    β = 1. / kT
     ϵ = matsubara(N, fermion=true)
 
     η = ComplexF64[0.5 * λ * W * _fermi(1.0im * β * W)]
@@ -8,16 +8,16 @@ function _fermion_lorentz_matsubara_param(σ::Real, λ::Real, μ::Real, W::Real,
     if N > 0
         for l in 2:(N + 1)
             append!(η, 
-                -1.0im * λ * T * W ^ 2 / (-(ϵ[l] * T) ^ 2 + W ^ 2)
+                -1.0im * λ * kT * W ^ 2 / (-(ϵ[l] * kT) ^ 2 + W ^ 2)
             )
-            append!(γ, ϵ[l] * T - σ * 1.0im * μ)
+            append!(γ, ϵ[l] * kT - σ * 1.0im * μ)
         end
     end
     return η, γ
 end
 
 @doc raw"""
-    Fermion_Lorentz_Matsubara(op, λ, μ, W, T, N)
+    Fermion_Lorentz_Matsubara(op, λ, μ, W, kT, N)
 Constructing Lorentzian fermionic bath with Matsubara expansion
 
 # Parameters
@@ -25,7 +25,7 @@ Constructing Lorentzian fermionic bath with Matsubara expansion
 - `λ::Real`: The coupling strength between the system and the bath.
 - `μ::Real`: The chemical potential of the bath.
 - `W::Real`: The reorganization energy (band-width) of the bath.
-- `T::Real`: The temperature of the bath.
+- `kT::Real`: The product of the Boltzmann constant ``k`` and the absolute temperature ``T`` of the bath.
 - `N::Int`: (N+1)-terms of exponential terms are used to approximate each correlation functions (``C^{\nu=\pm}``).
 
 # Returns
@@ -36,17 +36,17 @@ function Fermion_Lorentz_Matsubara(
         λ::Real,
         μ::Real,
         W::Real,
-        T::Real,
+        kT::Real,
         N::Int
     )
-    η_ab, γ_ab = _fermion_lorentz_matsubara_param( 1.0, λ, μ, W, T, N)
-    η_em, γ_em = _fermion_lorentz_matsubara_param(-1.0, λ, μ, W, T, N)
+    η_ab, γ_ab = _fermion_lorentz_matsubara_param( 1.0, λ, μ, W, kT, N)
+    η_em, γ_em = _fermion_lorentz_matsubara_param(-1.0, λ, μ, W, kT, N)
 
     return FermionBath(op, η_ab, γ_ab, η_em, γ_em)
 end
 
-function _fermion_lorentz_pade_param(ν::Real, λ::Real, μ::Real, W::Real, T::Real, N::Int)
-    β = 1. / T
+function _fermion_lorentz_pade_param(ν::Real, λ::Real, μ::Real, W::Real, kT::Real, N::Int)
+    β = 1. / kT
     κ, ζ = pade_NmN(N, fermion=true)   
      
     η = ComplexF64[0.5 * λ * W * _fermi_pade(1.0im * β * W, κ, ζ, N)]
@@ -55,16 +55,16 @@ function _fermion_lorentz_pade_param(ν::Real, λ::Real, μ::Real, W::Real, T::R
     if N > 0
         for l in 2:(N + 1)
             append!(η, 
-                -1.0im * κ[l] * λ * T * W ^ 2 / (-(ζ[l] * T) ^ 2 + W ^ 2)
+                -1.0im * κ[l] * λ * kT * W ^ 2 / (-(ζ[l] * kT) ^ 2 + W ^ 2)
             )
-            append!(γ, ζ[l] * T - ν * 1.0im * μ)
+            append!(γ, ζ[l] * kT - ν * 1.0im * μ)
         end
     end
     return η, γ
 end
 
 @doc raw"""
-    Fermion_Lorentz_Pade(op, λ, μ, W, T, N)
+    Fermion_Lorentz_Pade(op, λ, μ, W, kT, N)
 Constructing Lorentzian fermionic bath with Padé expansion
 
 A Padé approximant is a sum-over-poles expansion (see [here](https://en.wikipedia.org/wiki/Pad%C3%A9_approximant) for more details).
@@ -78,7 +78,7 @@ The application of the Padé method to spectrum decompoisitions is described in 
 - `λ::Real`: The coupling strength between the system and the bath.
 - `μ::Real`: The chemical potential of the bath.
 - `W::Real`: The reorganization energy (band-width) of the bath.
-- `T::Real`: The temperature of the bath.
+- `kT::Real`: The product of the Boltzmann constant ``k`` and the absolute temperature ``T`` of the bath.
 - `N::Int`: (N+1)-terms of exponential terms are used to approximate each correlation functions (``C^{\nu=\pm}``).
 
 # Returns
@@ -89,11 +89,11 @@ function Fermion_Lorentz_Pade(
         λ::Real,
         μ::Real,
         W::Real,
-        T::Real,
+        kT::Real,
         N::Int
     )
-    η_ab, γ_ab = _fermion_lorentz_pade_param( 1.0, λ, μ, W, T, N)
-    η_em, γ_em = _fermion_lorentz_pade_param(-1.0, λ, μ, W, T, N)
+    η_ab, γ_ab = _fermion_lorentz_pade_param( 1.0, λ, μ, W, kT, N)
+    η_em, γ_em = _fermion_lorentz_pade_param(-1.0, λ, μ, W, kT, N)
 
     return FermionBath(op, η_ab, γ_ab, η_em, γ_em)
 end

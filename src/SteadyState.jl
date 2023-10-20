@@ -20,7 +20,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
     end    
 
     A = copy(M.data)
-    S, = size(A)
+    S = size(A, 1)
     A[1,1:S] .= 0
     
     # sparse(row_idx, col_idx, values, row_dims, col_dims)
@@ -76,12 +76,10 @@ function SteadyState(
         SOLVEROptions...
     )
 
-    if !isValidMatrixType(ρ0, M.dim)
-        error("Invalid matrix \"ρ0\".")
-    end
+    _ρ0 = HandleMatrixType(ρ0, M.dim, "ρ0 (initial state)")
 
     # vectorize initial state
-    ρ1   = sparse(sparsevec(ρ0))
+    ρ1   = sparse(sparsevec(_ρ0))
     ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N, M.parity)
     
     return SteadyState(M, ados;

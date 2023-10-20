@@ -11,6 +11,7 @@
     ados = ados_list[end]
     @test ados.dim == L.dim
     @test length(ados) == L.N
+    @test eltype(L) == eltype(ados)
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
     ρ1 = [
@@ -39,11 +40,11 @@
     @test_throws ErrorException @test_warn "HEOM doesn't support matrix type : Vector{Int64}" M_S([0, 0]; verbose=false)
 end
 
-λ = 0.1450
-W = 0.6464
-T = 0.7414
-μ = 0.8787
-N = 5
+λ  = 0.1450
+W  = 0.6464
+kT = 0.7414
+μ  = 0.8787
+N  = 5
 tier = 3
 
 # System Hamiltonian
@@ -57,8 +58,8 @@ Q = [
                0.1234 0.1357 + 0.2468im; 
     0.1357 - 0.2468im            0.5678
 ]
-Bbath = Boson_DrudeLorentz_Pade(Q, λ, W, T, N)
-Fbath = Fermion_Lorentz_Pade(Q, λ, μ, W, T, N)
+Bbath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
+Fbath = Fermion_Lorentz_Pade(Q, λ, μ, W, kT, N)
 
 # jump operator
 J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
@@ -75,6 +76,7 @@ J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
     ados = SteadyState(L; verbose=false)
     @test ados.dim == L.dim
     @test length(ados) == L.N
+    @test eltype(L) == eltype(ados)
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
     ρ1 = [
@@ -104,7 +106,33 @@ J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
     @test_throws BoundsError L[1, 1821]
     @test_throws BoundsError L[1:1821, 336]
     @test_throws ErrorException ados[L.N + 1]
-    @test_throws ErrorException @test_warn "HEOM doesn't support matrix type : Vector{Int64}" M_Boson([0, 0], tier, Bbath; verbose=false)
+    @test_throws ErrorException M_Boson([0, 0], tier, Bbath; verbose=false)
+end
+
+@testset "M_Boson (RWA)" begin
+    ωq = 1.1
+    Λ  = 0.01
+    Γ  = 0.02
+    Hsys_rwa = 0.5 * ωq * [1 0; 0 -1]
+    op_rwa   = [0 0; 1 0]
+    ρ0       = 0.5 * [1 1; 1 1]
+    
+    tlist = 0:1:20
+    d     = 1im * √(Λ * (2 * Γ - Λ)) # non-Markov regime
+
+    B_rwa = BosonBathRWA(op_rwa, [0], [Λ - 1im * ωq], [0.5 * Γ * Λ], [Λ + 1im * ωq])
+    L = M_Boson(Hsys_rwa, tier, B_rwa; verbose=false)
+    ados_list = evolution(L, ρ0, tlist; reltol=1e-10, abstol=1e-12, verbose=false)
+
+    for (i, t) in enumerate(tlist)
+        ρ_rwa = getRho(ados_list[i])
+
+        # analytical result
+        Gt = exp(-1 * (Λ / 2 + 1im * ωq) * t) * (cosh(t * d / 2) + Λ * sinh(t * d / 2) / d)
+        
+        @test ρ_rwa[1, 1] ≈ abs(Gt) ^ 2 * ρ0[1, 1]
+        @test ρ_rwa[1, 2] ≈ Gt * ρ0[1, 2]
+    end
 end
 
 # Test Fermion-type HEOM Liouvillian superoperator matrix
@@ -119,6 +147,7 @@ end
     ados = SteadyState(L; verbose=false)
     @test ados.dim == L.dim
     @test length(ados) == L.N
+    @test eltype(L) == eltype(ados)
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
     ρ1 = [
@@ -157,7 +186,7 @@ end
     @test_throws BoundsError L[1, 9301]
     @test_throws BoundsError L[1:9301, 9300]
     @test_throws ErrorException ados[L.N + 1]
-    @test_throws ErrorException @test_warn "HEOM doesn't support matrix type : Vector{Int64}" M_Fermion([0, 0], tier, Fbath; verbose=false)
+    @test_throws ErrorException M_Fermion([0, 0], tier, Fbath; verbose=false)
 end
 
 # Test Boson-Fermion-type HEOM Liouvillian superoperator matrix
@@ -165,14 +194,14 @@ end
     # re-define the bath (make the matrix smaller)
     λ = 0.1450
     W = 0.6464
-    T = 0.7414
+    kT = 0.7414
     μ = 0.8787
     N = 3
     tierb = 2
     tierf = 2
 
-    Bbath = Boson_DrudeLorentz_Pade(Q, λ, W, T, N)
-    Fbath = Fermion_Lorentz_Pade(Q, λ, μ, W, T, N)
+    Bbath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
+    Fbath = Fermion_Lorentz_Pade(Q, λ, μ, W, kT, N)
 
     L = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose=false)
     @test show(devnull, MIME("text/plain"), L) == nothing
@@ -184,6 +213,7 @@ end
     ados = SteadyState(L; verbose=false)
     @test ados.dim == L.dim
     @test length(ados) == L.N
+    @test eltype(L) == eltype(ados)
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
     ρ1 = [
@@ -228,7 +258,7 @@ end
 
     ## check exceptions
     @test_throws ErrorException ados[L.N + 1]
-    @test_throws ErrorException @test_warn "HEOM doesn't support matrix type : Vector{Int64}" M_Boson_Fermion([0, 0], tierb, tierf, Bbath, Fbath; verbose=false)
+    @test_throws ErrorException M_Boson_Fermion([0, 0], tierb, tierf, Bbath, Fbath; verbose=false)
 end
 
 @testset "Hierarchy Dictionary" begin
@@ -238,13 +268,13 @@ end
     Nf = 3
     threshold = 1e-5
 
-    Γ = 0.0025
+    Γ   = 0.0025
     Dα  = 30
     Λ   = 0.0025
     ωcα = 0.2
-    μL =  0.5
-    μR = -0.5
-    T = 0.025
+    μL  =  0.5
+    μR  = -0.5
+    kT  = 0.025
     
     Hsys = [
         0   0     0     0;
@@ -274,10 +304,10 @@ end
         0 0 0 0
     ]
 
-    bbath = Boson_DrudeLorentz_Matsubara(cop, Λ, ωcα, T, Nb)
+    bbath = Boson_DrudeLorentz_Matsubara(cop, Λ, ωcα, kT, Nb)
     fbath = [
-        Fermion_Lorentz_Pade(dop, Γ, μL, Dα, T, Nf),
-        Fermion_Lorentz_Pade(dop, Γ, μR, Dα, T, Nf)
+        Fermion_Lorentz_Pade(dop, Γ, μL, Dα, kT, Nf),
+        Fermion_Lorentz_Pade(dop, Γ, μR, Dα, kT, Nf)
     ]
 
     L = M_Boson_Fermion(Hsys, Btier, Ftier, bbath, fbath; threshold = threshold, verbose=false)
@@ -311,7 +341,7 @@ end
 
     # expections for expect
     ados_wrong  = ADOs(spzeros(Int64, 18), 2)
-    @test_throws ErrorException("The dimension of `op` is not consistent with `ados`.") @test_warn "The size of input matrix should be: (2, 2)." Expect([0 0 0; 0 0 0; 0 0 0], ados_f)
-    @test_throws ErrorException("The dimension of the elements in `ados_list` should be consistent.") Expect([0 0; 0 0], [ados_b, ados_wrong])
-    @test_throws ErrorException("The dimension of `op` is not consistent with the elements in `ados_list`.") @test_warn "The size of input matrix should be: (2, 2)." Expect([0 0 0; 0 0 0; 0 0 0], [ados_b, ados_f])
+    @test_throws ErrorException Expect([0 0 0; 0 0 0; 0 0 0], ados_f)
+    @test_throws ErrorException Expect([0 0; 0 0], [ados_b, ados_wrong])
+    @test_throws ErrorException Expect([0 0 0; 0 0 0; 0 0 0], [ados_b, ados_f])
 end

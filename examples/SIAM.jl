@@ -33,16 +33,16 @@ Hsys = ϵ * (d_up' * d_up + d_dn' * d_dn) + U * (d_up' * d_up * d_dn' * d_dn)
 # We assume the fermionic reservoir to have a [Lorentzian-shaped spectral density](@ref doc-Fermion-Lorentz), and we utilize the Padé decomposition. Furthermore, the spectral densities depend on the following physical parameters: 
 # - the coupling strength $\Gamma$ between system and reservoirs
 # - the band-width $W$
-# - the temperature $T$
+# - the product of the Boltzmann constant $k$ and the absolute temperature $T$ : $kT$
 # - the chemical potential $\mu$
 # - the total number of exponentials for the reservoir $2(N + 1)$
-Γ = 2
-μ = 0
-W = 10
-T = 0.5
-N = 5
-bath_up = Fermion_Lorentz_Pade(d_up, Γ, μ, W, T, N)
-bath_dn = Fermion_Lorentz_Pade(d_dn, Γ, μ, W, T, N)
+Γ  = 2
+μ  = 0
+W  = 10
+kT = 0.5
+N  = 5
+bath_up = Fermion_Lorentz_Pade(d_up, Γ, μ, W, kT, N)
+bath_dn = Fermion_Lorentz_Pade(d_dn, Γ, μ, W, kT, N)
 bath_list = [bath_up, bath_dn]
 
 # ## Construct HEOMLS matrix

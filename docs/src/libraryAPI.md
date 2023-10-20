@@ -27,6 +27,11 @@ bosonImag
 bosonImag(op::AbstractMatrix, η_real::Vector{Ti}, γ_real::Vector{Tj}) where {Ti, Tj <: Number}
 bosonRealImag
 bosonRealImag(op::AbstractMatrix, η_real::Vector{Ti}, η_imag::Vector{Tj}, γ::Vector{Tk}) where {Ti, Tj, Tk <: Number}
+BosonBathRWA
+bosonAbsorb
+bosonAbsorb(op, η_absorb::Vector{Ti}, γ_absorb::Vector{Tj}, η_emit::Vector{Tk}) where {Ti, Tj, Tk <: Number}
+bosonEmit
+bosonEmit(op, η_emit::Vector{Ti}, γ_emit::Vector{Tj}, η_absorb::Vector{Tk}) where {Ti, Tj, Tk <: Number}
 FermionBath
 FermionBath(op::AbstractMatrix, η_absorb::Vector{Ti}, γ_absorb::Vector{Tj}, η_emit::Vector{Tk}, γ_emit::Vector{Tl}, δ::Tm=0.0) where {Ti, Tj, Tk, Tl, Tm <: Number}
 fermionAbsorb
@@ -63,6 +68,8 @@ M_Fermion(Hsys, tier::Int, Bath::Vector{FermionBath}, parity::AbstractParity=EVE
 M_Boson_Fermion
 M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::Vector{FermionBath}, parity::AbstractParity=EVEN; threshold::Real=0.0, verbose::Bool=true)
 size(M::AbstractHEOMLSMatrix)
+size(M::AbstractHEOMLSMatrix, dim::Int)
+eltype(M::AbstractHEOMLSMatrix)
 Propagator
 addBosonDissipator
 addFermionDissipator
@@ -74,6 +81,7 @@ addTerminator
 ADOs
 ADOs(V::AbstractVector, N::Int)
 length(A::ADOs)
+eltype(A::ADOs)
 getRho
 getADO
 Expect

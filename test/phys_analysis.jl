@@ -3,12 +3,12 @@ Hsys = 0.25 * [1 0; 0 -1] + 0.5 * [0 1; 1 0]
 ρ0   = [1 0; 0 0]
 
 # Bath properties:
-λ = 0.1
-W = 0.5
-T = 0.5
-N = 2
+λ  = 0.1
+W  = 0.5
+kT = 0.5
+N  = 2
 Q = [1 0; 0 -1]  # System-bath coupling operator
-bath = Boson_DrudeLorentz_Pade(Q, λ, W, T, N)
+bath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
 
 # HEOM Liouvillian superoperator matrix
 tier = 5
@@ -29,13 +29,13 @@ ados = SteadyState(L, ρ0; verbose=false)
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
     @test_throws ErrorException SteadyState(M_Fermion(mat, 2, bathf, ODD; verbose=false))
     @test_throws ErrorException SteadyState(M_Fermion(mat, 2, bathf, ODD; verbose=false), mat)
-    @test_throws ErrorException @test_warn "The size of input matrix should be: (2, 2)." SteadyState(L, mat2)
+    @test_throws ErrorException SteadyState(L, mat2)
     @test_throws ErrorException SteadyState(L, ADOs(zeros(8), 2))
     @test_throws ErrorException SteadyState(L, ADOs(ados.data, ados.N, ODD))
 end
 
 @testset "Time evolution" begin
-    bath = Boson_DrudeLorentz_Pade(Q, λ, W, T, N)
+    bath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
     L = M_Boson(Hsys, tier, bath; verbose=false)
     ρ0   = [1 0; 0 0]
     ρ_wrong = zeros(3, 3)
@@ -52,7 +52,7 @@ end
     ados_wrong2 = ADOs((ados_list[1]).data, (ados_list[1]).N, ODD)
     ρ_list_p = getRho.(ados_list)
     @test_throws ErrorException evolution(L, ρ0, Δt, steps; verbose=false, filename="evolution_p")
-    @test_throws ErrorException @test_warn "The size of input matrix should be: (2, 2)." evolution(L, ρ_wrong, Δt, steps; verbose=false)
+    @test_throws ErrorException evolution(L, ρ_wrong, Δt, steps; verbose=false)
     @test_throws ErrorException evolution(L, ados_wrong1, Δt, steps)
     @test_throws ErrorException evolution(L, ados_wrong2, Δt, steps)
 
@@ -62,7 +62,7 @@ end
     # using the method based on ODE solver
     ρ_list_e = getRho.(evolution(L, ρ0, tlist; verbose=false, filename="evolution_o"))
     @test_throws ErrorException evolution(L, ρ0, tlist; verbose=false, filename="evolution_o")
-    @test_throws ErrorException @test_warn "The size of input matrix should be: (2, 2)." evolution(L, ρ_wrong, tlist; verbose=false)
+    @test_throws ErrorException evolution(L, ρ_wrong, tlist; verbose=false)
     @test_throws ErrorException evolution(L, ados_wrong1, tlist)
     @test_throws ErrorException evolution(L, ados_wrong2, tlist)
 
@@ -101,7 +101,7 @@ end
     end
     fastDD_ados = evolution(L, ρ0, tlist, Ht, (0.50, 20, π/2); reltol=1e-12, abstol=1e-12, verbose=false, filename="evolution_t");
     @test_throws ErrorException evolution(L, ρ0, tlist, Ht, (0.50, 20, π/2); verbose=false, filename="evolution_t")
-    @test_throws ErrorException @test_warn "The size of input matrix should be: (2, 2)." evolution(L, ρ_wrong, tlist, Ht; verbose=false)
+    @test_throws ErrorException evolution(L, ρ_wrong, tlist, Ht; verbose=false)
     fastBoFiN = [
         0.4999999999999999,
         0.4972948770876402,
@@ -209,8 +209,8 @@ end
             zeros(3, 3)
         end
     end
-    @test_throws ErrorException("The dimension of `H` at t=0 is not consistent with `M.dim`.")  @test_warn "The size of input matrix should be: (2, 2)."  evolution(L, ρ0, tlist, H_wrong1; verbose=false);
-    @test_throws ErrorException @test_warn "The size of input matrix should be: (2, 2)."  evolution(L, ρ0, tlist, H_wrong2; verbose=false);
+    @test_throws ErrorException evolution(L, ρ0, tlist, H_wrong1; verbose=false);
+    @test_throws ErrorException evolution(L, ρ0, tlist, H_wrong2; verbose=false);
     @test_throws ErrorException evolution(L, ados_wrong1, tlist, Ht)
     @test_throws ErrorException evolution(L, ados_wrong2, tlist, Ht)
 end
@@ -220,11 +220,11 @@ end
 
     Hsys = a' * a
 
-    λ = 1e-4
-    W = 2e-1
-    T = 0.5
-    N = 5
-    bath = Boson_DrudeLorentz_Matsubara((a' + a), λ, W, T, N)
+    λ  = 1e-4
+    W  = 2e-1
+    kT = 0.5
+    N  = 5
+    bath = Boson_DrudeLorentz_Matsubara((a' + a), λ, W, kT, N)
 
     tier = 3
     L = M_Boson(Hsys, tier, bath; verbose=false)
@@ -269,7 +269,7 @@ end
     mat2 = spzeros(ComplexF64, 3, 3)
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
     @test_throws ErrorException spectrum(L, ados_s, a, ωlist; verbose=false, filename="PSD")
-    @test_throws ErrorException @test_warn "The size of input matrix should be: (2, 2)." spectrum(L, ados_s, mat2, ωlist; verbose=false)
+    @test_throws ErrorException spectrum(L, ados_s, mat2, ωlist; verbose=false)
     @test_throws ErrorException spectrum(L, ADOs(zeros(8), 2), a, ωlist; verbose=false)
     @test_throws ErrorException spectrum(L, ADOs(ados_s.data, ados_s.N, ODD), a, ωlist; verbose=false)
     @test_throws ErrorException spectrum(M_Fermion(mat, 2, bathf, ODD; verbose=false), mat, mat, [0])
@@ -286,16 +286,16 @@ end
     H1 = U * (d_up' * d_up * d_dn' * d_dn)
     Hsys = H0 + H1
 
-    λ = 1
+    λ   =  1
     μ_l =  1
     μ_r = -1
-    W = 10
-    T = 0.5
+    W   = 10
+    kT  =  0.5
     N = 5
-    fuL = Fermion_Lorentz_Pade(d_up, λ, μ_l, W, T, N)
-    fdL = Fermion_Lorentz_Pade(d_dn, λ, μ_l, W, T, N)
-    fuR = Fermion_Lorentz_Pade(d_up, λ, μ_r, W, T, N)
-    fdR = Fermion_Lorentz_Pade(d_dn, λ, μ_r, W, T, N)
+    fuL = Fermion_Lorentz_Pade(d_up, λ, μ_l, W, kT, N)
+    fdL = Fermion_Lorentz_Pade(d_dn, λ, μ_l, W, kT, N)
+    fuR = Fermion_Lorentz_Pade(d_up, λ, μ_r, W, kT, N)
+    fdR = Fermion_Lorentz_Pade(d_dn, λ, μ_r, W, kT, N)
 
     tier = 2
     Le = M_Fermion(Hsys, tier, [fuL, fdL, fuR, fdR]; verbose=false)
@@ -339,7 +339,7 @@ end
     mat2 = spzeros(ComplexF64, 3, 3)
     bathb = Boson_DrudeLorentz_Pade(mat, 1, 1, 1, 2)
     @test_throws ErrorException spectrum(Lo, ados_s, d_up, ωlist; verbose=false, filename="DOS")
-    @test_throws ErrorException @test_warn "The size of input matrix should be: (2, 2)." spectrum(Lo, ados_s, mat2, ωlist; verbose=false)
+    @test_throws ErrorException spectrum(Lo, ados_s, mat2, ωlist; verbose=false)
     @test_throws ErrorException spectrum(Lo, ADOs(zeros(8), 2), d_up, ωlist; verbose=false)
     @test_throws ErrorException spectrum(Lo, ADOs(ados_s.data, ados_s.N, ODD), d_up, ωlist; verbose=false)
     @test_throws ErrorException spectrum(M_Boson(mat, 2, bathb; verbose=false), mat, mat, [0])

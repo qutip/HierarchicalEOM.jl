@@ -20,11 +20,11 @@ module HierarchicalEOM
         import Base: show, length, getindex, lastindex, iterate, checkbounds
         import LinearAlgebra: I, kron, ishermitian
         import SparseArrays: sparse, SparseMatrixCSC
-        import ..HeomBase: isValidMatrixType
+        import ..HeomBase: HandleMatrixType
 
         export 
-            AbstractBath, BosonBath, FermionBath, Exponent, C,
-            AbstractBosonBath, bosonReal, bosonImag, bosonRealImag,
+            AbstractBath, BosonBath, BosonBathRWA, FermionBath, Exponent, C,
+            AbstractBosonBath, bosonReal, bosonImag, bosonRealImag, bosonAbsorb, bosonEmit,
             AbstractFermionBath, fermionAbsorb, fermionEmit,
             spre, spost
 
@@ -48,13 +48,13 @@ module HierarchicalEOM
     # sub-module HeomAPI for HierarchicalEOM
     module HeomAPI
         using ..Bath
-        import Base: ==, show, length, size, getindex, keys, setindex!, lastindex, iterate, checkbounds, hash, copy
+        import Base: ==, show, length, size, getindex, keys, setindex!, lastindex, iterate, checkbounds, hash, copy, eltype
         import Base.Threads: @threads, threadid, nthreads, lock, unlock, SpinLock
         import LinearAlgebra: I, kron, tr
         import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
         import ProgressMeter: Progress, next!
         import FastExpm: fastExpm
-        import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType
+        import ..HeomBase: PROGBAR_OPTIONS, HandleMatrixType
 
         # for solving time evolution
         import SciMLOperators: MatrixOperator
@@ -85,7 +85,7 @@ module HierarchicalEOM
         import SparseArrays: sparse, sparsevec
         import LinearSolve: LinearProblem, init, solve!, UMFPACKFactorization
         import ProgressMeter: Progress, next!        
-        import ..HeomBase: PROGBAR_OPTIONS, isValidMatrixType
+        import ..HeomBase: PROGBAR_OPTIONS, HandleMatrixType
 
         export spectrum
 

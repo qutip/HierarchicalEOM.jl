@@ -31,12 +31,10 @@ function evolution(
         filename::String = ""
     )
     
-    if !isValidMatrixType(ρ0, M.dim)
-        error("Invalid matrix \"ρ0\".")
-    end
+    _ρ0 = HandleMatrixType(ρ0, M.dim, "ρ0 (initial state)")
 
     # vectorize initial state
-    ρ1   = sparse(sparsevec(ρ0))
+    ρ1   = sparse(sparsevec(_ρ0))
     ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N, M.parity)
 
     return evolution(M, ados, Δt, steps;
@@ -186,12 +184,10 @@ function evolution(
         SOLVEROptions...
     )
 
-    if !isValidMatrixType(ρ0, M.dim)
-        error("Invalid matrix \"ρ0\".")
-    end
+    _ρ0 = HandleMatrixType(ρ0, M.dim, "ρ0 (initial state)")
 
     # vectorize initial state
-    ρ1   = sparse(sparsevec(ρ0))
+    ρ1   = sparse(sparsevec(_ρ0))
     ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N, M.parity)
 
     return evolution(M, ados, tlist;
@@ -358,12 +354,10 @@ function evolution(
         SOLVEROptions...
     )
 
-    if !isValidMatrixType(ρ0, M.dim)
-        error("Invalid matrix \"ρ0\".")
-    end
+    _ρ0 = HandleMatrixType(ρ0, M.dim, "ρ0 (initial state)")
 
     # vectorize initial state
-    ρ1   = sparse(sparsevec(ρ0))
+    ρ1   = sparse(sparsevec(_ρ0))
     ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N, M.parity)
 
     return evolution(M, ados, tlist, H, param;
@@ -445,12 +439,10 @@ For more details about solvers and extra options, please refer to [`Differential
         end
     end
     
-    Ht = H(param, tlist[1])
-    if !isValidMatrixType(Ht, M.dim)
-        error("The dimension of `H` at t=$(tlist[1]) is not consistent with `M.dim`.")
-    end
-    Lt = kron(sparse(I, M.N, M.N), - 1im * (spre(Ht) - spost(Ht)))
-    L = MatrixOperator(M.data + Lt, update_func! = _update_L!)
+    Ht  = H(param, tlist[1])
+    _Ht = HandleMatrixType(Ht, M.dim, "H (Hamiltonian) at t=$(tlist[1])")
+    Lt  = kron(sparse(I, M.N, M.N), - 1im * (spre(_Ht) - spost(_Ht)))
+    L   = MatrixOperator(M.data + Lt, update_func! = _update_L!)
     
     # problem: dρ/dt = L(t) * ρ(0)
     ## M.dim will check whether the returned time-dependent Hamiltonian has the correct dimension
@@ -505,12 +497,10 @@ function _update_L!(L, u, p, t)
     M, H, param = p
 
     # check system dimension of Hamiltonian
-    Ht = H(param, t)
-    if isValidMatrixType(Ht, M.dim)
-        # update the block diagonal terms of L
-        L .= M.data - kron(sparse(I, M.N, M.N), 1im * (spre(Ht) - spost(Ht)))
-    else
-        error("The dimension of `H` at t=$(t) is not consistent with `M.dim`.")
-    end 
+    Ht  = H(param, t)
+    _Ht = HandleMatrixType(Ht, M.dim, "H (Hamiltonian) at t=$(t)")
+
+    # update the block diagonal terms of L
+    L .= M.data - kron(sparse(I, M.N, M.N), 1im * (spre(_Ht) - spost(_Ht)))
     nothing
 end

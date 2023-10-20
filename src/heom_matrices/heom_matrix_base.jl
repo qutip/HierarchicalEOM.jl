@@ -41,22 +41,34 @@ Returns the size of the HEOM Liouvillian superoperator matrix
 """
 size(M::AbstractHEOMLSMatrix) = size(M.data)
 
+@doc raw"""
+    size(M::AbstractHEOMLSMatrix, dim::Int)
+Returns the specified dimension of the HEOM Liouvillian superoperator matrix
+"""
+size(M::AbstractHEOMLSMatrix, dim::Int) = size(M.data, dim)
+
+@doc raw"""
+    eltype(M::AbstractHEOMLSMatrix)
+Returns the elements' type of the HEOM Liouvillian superoperator matrix
+"""
+eltype(M::AbstractHEOMLSMatrix) = eltype(M.data)
+
 getindex(M::AbstractHEOMLSMatrix, i::Ti, j::Tj) where {Ti, Tj <: Any} = M.data[i, j]
 
 function show(io::IO, M::AbstractHEOMLSMatrix)
     T = typeof(M)
-    if T == M_S
+    if T <: M_S
         type = "Schrodinger Eq."
-    elseif T == M_Boson
+    elseif T <: M_Boson
         type = "Boson"
-    elseif T == M_Fermion
+    elseif T <: M_Fermion
         type = "Fermion"
     else
         type = "Boson-Fermion"
     end
 
     print(io, 
-        type, " type HEOM matrix with $(M.parity) and (system) dim = $(M.dim) \n",
+        type, " type HEOMLS matrix with system dim = $(M.dim) and parity = $(M.parity)\n",
         "number of ADOs N = $(M.N)\n",
         "data =\n"
     )
@@ -92,7 +104,7 @@ end
 
 @doc raw"""
     addBosonDissipator(M, jumpOP)
-Adding bosonic dissipator to a given HEOM matrix which describes how the system dissipatively interacts with an extra bosonic environment.  
+Adding bosonic dissipator to a given HEOMLS matrix which describes how the system dissipatively interacts with an extra bosonic environment.  
 The dissipator is defined as follows
 ```math
 D[J](\cdot) = J(\cdot) J^\dagger - \frac{1}{2}\left(J^\dagger J (\cdot) + (\cdot) J^\dagger J \right),
@@ -112,18 +124,15 @@ function addBosonDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMLSMa
     if length(jumpOP) > 0
         L = spzeros(ComplexF64, M.sup_dim, M.sup_dim)
         for J in jumpOP
-            if isValidMatrixType(J, M.dim)
-                L += spre(J) * spost(J') - 0.5 * (spre(J' * J) + spost(J' * J))
-            else
-                error("Invalid matrix in \"jumpOP\".")
-            end
+            _J = HandleMatrixType(J, M.dim, "in jumpOP")
+            L += spre(_J) * spost(_J') - 0.5 * (spre(_J' * _J) + spost(_J' * _J))
         end
 
-        if T == M_S
+        if T <: M_S
             return M_S(M.data + L, M.tier, M.dim, M.N, M.sup_dim, M.parity)
-        elseif T == M_Boson
+        elseif T <: M_Boson
             return M_Boson(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
-        elseif T == M_Fermion
+        elseif T <: M_Fermion
             return M_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
         else
             return M_Boson_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
@@ -133,7 +142,8 @@ end
 
 @doc raw"""
     addFermionDissipator(M, jumpOP)
-Adding fermionic dissipator to a given HEOM matrix which describes how the system dissipatively interacts with an extra fermionic environment.  
+
+Adding fermionic dissipator to a given HEOMLS matrix which describes how the system dissipatively interacts with an extra fermionic environment.  
 The dissipator with `EVEN` parity is defined as follows
 ```math
 D_{\textrm{even}}[J](\cdot) = J(\cdot) J^\dagger - \frac{1}{2}\left(J^\dagger J (\cdot) + (\cdot) J^\dagger J \right),
@@ -145,7 +155,7 @@ Similary, the dissipator with `ODD` parity is defined as follows
 D_{\textrm{odd}}[J](\cdot) = - J(\cdot) J^\dagger - \frac{1}{2}\left(J^\dagger J (\cdot) + (\cdot) J^\dagger J \right),
 ```
 
-Note that the parity of the dissipator will be determined by the parity of the given HEOM matrix `M`.
+Note that the parity of the dissipator will be determined by the parity of the given HEOMLS matrix `M`.
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
@@ -159,17 +169,14 @@ function addFermionDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMLS
         parity = value(M.parity)
         L = spzeros(ComplexF64, M.sup_dim, M.sup_dim)
         for J in jumpOP
-            if isValidMatrixType(J, M.dim)
-                L += ((-1) ^ parity) * spre(J) * spost(J') - 0.5 * (spre(J' * J) + spost(J' * J))
-            else
-                error("Invalid matrix in \"jumpOP\".")
-            end
+            _J = HandleMatrixType(J, M.dim, "in jumpOP")
+            L += ((-1) ^ parity) * spre(_J) * spost(_J') - 0.5 * (spre(_J' * _J) + spost(_J' * _J))
         end
-        if T == M_S
+        if T <: M_S
             return M_S(M.data + L, M.tier, M.dim, M.N, M.sup_dim, M.parity)
-        elseif T == M_Boson
+        elseif T <: M_Boson
             return M_Boson(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
-        elseif T == M_Fermion
+        elseif T <: M_Fermion
             return M_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
         else
             return M_Boson_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
@@ -177,12 +184,12 @@ function addFermionDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMLS
     end
 end
 
-function   addBosonDissipator(M::AbstractHEOMLSMatrix, jumpOP::AbstractMatrix) return   addBosonDissipator(M, [jumpOP]) end
-function addFermionDissipator(M::AbstractHEOMLSMatrix, jumpOP::AbstractMatrix) return addFermionDissipator(M, [jumpOP]) end
+function   addBosonDissipator(M::AbstractHEOMLSMatrix, jumpOP) return   addBosonDissipator(M, [jumpOP]) end
+function addFermionDissipator(M::AbstractHEOMLSMatrix, jumpOP) return addFermionDissipator(M, [jumpOP]) end
 
 @doc raw"""
     addTerminator(M, Bath)
-Adding terminator to a given HEOM matrix.
+Adding terminator to a given HEOMLS matrix.
 
 The terminator is a Liouvillian term representing the contribution to 
 the system-bath dynamics of all exponential-expansion terms beyond `Bath.Nterm`
@@ -200,16 +207,16 @@ Here, `δ` is the approximation discrepancy and `dirac(t)` denotes the Dirac-del
 """
 function addTerminator(M::Mtype, Bath::Union{BosonBath, FermionBath}) where Mtype <: AbstractHEOMLSMatrix
     Btype = typeof(Bath)
-    if (Btype == BosonBath) && (Mtype == M_Fermion)
-        error("For $(Btype), the type of HEOM matrix should be either M_Boson or M_Boson_Fermion.")
-    elseif (Btype == FermionBath) && (Mtype == M_Boson)
-        error("For $(Btype), the type of HEOM matrix should be either M_Fermion or M_Boson_Fermion.")
-    elseif Mtype == M_S
-        error("The type of input HEOM matrix does not support this functionality.")
+    if (Btype == BosonBath) && (Mtype <: M_Fermion)
+        error("For $(Btype), the type of HEOMLS matrix should be either M_Boson or M_Boson_Fermion.")
+    elseif (Btype == FermionBath) && (Mtype <: M_Boson)
+        error("For $(Btype), the type of HEOMLS matrix should be either M_Fermion or M_Boson_Fermion.")
+    elseif Mtype <: M_S
+        error("The type of input HEOMLS matrix does not support this functionality.")
     end
 
     if M.dim != Bath.dim
-        error("The system dimension between the HEOM matrix and Bath are not consistent.")
+        error("The system dimension between the HEOMLS matrix and Bath are not consistent.")
     end
 
     if Bath.δ == 0
@@ -222,9 +229,9 @@ function addTerminator(M::Mtype, Bath::Union{BosonBath, FermionBath}) where Mtyp
             spre(J) * spost(J') - 0.5 * (spre(J' * J) + spost(J' * J))
         )
 
-        if Mtype == M_Boson
+        if Mtype <: M_Boson
             return M_Boson(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
-        elseif Mtype == M_Fermion
+        elseif Mtype <: M_Fermion
             return M_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
         else
             return M_Boson_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
@@ -313,6 +320,20 @@ function _D_op(bath::bosonImag, k, n_k)
     return n_k * bath.η[k] * bath.anComm
 end
 
+# connect to bosonic (n-1)th-level for "Absorption operator"
+function _D_op(bath::bosonAbsorb, k, n_k)
+    return -1im * n_k * (
+        bath.η[k] * bath.spre - conj(bath.η_emit[k]) * bath.spost
+    )
+end
+
+# connect to bosonic (n-1)th-level for "Emission operator"
+function _D_op(bath::bosonEmit, k, n_k)
+    return -1im * n_k * (
+        bath.η[k] * bath.spre - conj(bath.η_absorb[k]) * bath.spost
+    )
+end
+
 # connect to fermionic (n-1)th-level for "absorption operator"
 function _C_op(bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
     return -1im * ((-1) ^ n_exc_before) * (
@@ -329,9 +350,14 @@ function _C_op(bath::fermionEmit, k, n_exc, n_exc_before, parity)
     )
 end
 
-# connect to bosonic (n+1)th-level
-function _B_op(bath::T) where T <: AbstractBosonBath
+# connect to bosonic (n+1)th-level for real-and-imaginary-type bosonic bath
+function _B_op(bath::T) where T <: Union{bosonReal, bosonImag, bosonRealImag}
     return -1im * bath.Comm
+end
+
+# connect to bosonic (n+1)th-level for absorption-and-emission-type bosonic bath
+function _B_op(bath::T) where T <: Union{bosonAbsorb, bosonEmit}
+    return -1im * bath.CommD
 end
 
 # connect to fermionic (n+1)th-level

@@ -9,10 +9,10 @@ HierarchicalEOM.versioninfo()
 
 # Here, we use the example of [driven systems and dynamical decoupling](@ref exp-dynamical-decoupling):
 
-Γ = 0.0005
-W = 0.005
-T = 0.05
-N = 3
+Γ  = 0.0005
+W  = 0.005
+kT = 0.05
+N  = 3
 tier  = 6
 amp   = 0.50
 delay = 20
@@ -40,7 +40,7 @@ function H_D(p::Tuple, t)
     return pulse(V, Δ, t) * σx
 end
 
-bath = Boson_DrudeLorentz_Pade(σz, Γ, W, T, N)
+bath = Boson_DrudeLorentz_Pade(σz, Γ, W, kT, N)
 M = M_Boson(H0, tier, bath);
 
 # ## ODE Solver List
