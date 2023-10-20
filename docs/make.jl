@@ -47,7 +47,7 @@ const PAGES = Any[
         "Introduction" => "index.md",
         "Installation" => "install.md",
         "Quick Start"  => "examples/quick_start.md",
-        "Cite HierarchicalEOM" => "cite.md"
+        "Cite HierarchicalEOM.jl" => "cite.md"
     ],
     "Manual" => Any[
         "Bosonic Bath" => Any[
