@@ -10,4 +10,4 @@ By wrapping some functions from other [`Julia`](https://julialang.org/) packages
 
 We believe that `HierarchicalEOM.jl` will be a valuable tool for researchers working in different fields such as quantum biology, quantum optics, quantum thermodynamics, quantum information, quantum transport, and condensed matter physics.
 
-If you like `HierarchicalEOM.jl` and find the framework useful in your research, we would be grateful if you could cite our publication ( [`arXiv:2306.07522`](https://doi.org/10.48550/arXiv.2306.07522)  ) using the bibtex entry [here](@ref doc-Cite).
+If you like `HierarchicalEOM.jl` and find the framework useful in your research, we would be grateful if you could cite our publication [ [Commun. Phys. 6, 313 (2023)](https://doi.org/10.1038/s42005-023-01427-2)  ] using the bibtex entry [here](@ref doc-Cite).

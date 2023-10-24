@@ -33,6 +33,9 @@ import QuantumOptics, Plots
 # !!! note "Note"
 #     Note that `HierarchicalEOM.jl` only accept standard julia bulit-in types. If you use `QuantumOptics` to construct the operators, remember that the matrix (or vector) in standard type are stored in `.data` field of the objects, i.e., `op.data` where `op` is a `QuantumOptics`-type object. Thus, you should take it as the inputs of `HierarchicalEOM.jl` for objects in `QuantumOptics` package.
 
+# !!! compat "Extension for QuantumOptics.jl"
+#     `HierarchicalEOM.jl` provides an extension to support `QuantumOptics`-type object, but this feature requires `Julia 1.9+` and `HierarchicalEOM 0.3+`. See [here](@ref doc-ext-QuantumOptics) for more details.
+
 N_photon = 2 ## We truncate the photon number of the system cavity to 2
 ωA = 2
 ωc = 2

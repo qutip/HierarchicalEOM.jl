@@ -38,7 +38,10 @@ HierarchicalEOM.versioninfo()
 # Note that `HierarchicalEOM.jl` only accept standard julia bulit-in types. If you use `QuantumOptics` to construct the operators, remember that the matrix (or vector) in standard type are stored in `.data` field of the objects, i.e., `op.data` where `op` is a `QuantumOptics`-type object.  
 # Thus, you should take it as the inputs of `HierarchicalEOM.jl` for objects in `QuantumOptics` package.
 
-# We demonstrate this tutorial by `QuantumOptics`:
+# !!! compat "Extension for QuantumOptics.jl"
+#     `HierarchicalEOM.jl` provides an extension to support `QuantumOptics`-type object, but this feature requires `Julia 1.9+` and `HierarchicalEOM 0.3+`. See [here](@ref doc-ext-QuantumOptics) for more details.
+
+# We demonstrate this tutorial by `QuantumOptics` (under `Julia 1.8`):
 
 import QuantumOptics: SpinBasis, sigmaz, sigmax, ⊗, Ket, Bra, dm
 
