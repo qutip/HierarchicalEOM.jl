@@ -67,7 +67,7 @@ fuR = Fermion_Lorentz_Pade(d_up, λ, μ_r, W, kT, N)
 fdR = Fermion_Lorentz_Pade(d_dn, λ, μ_r, W, kT, N)
 tier = 2
 Le = M_Fermion(Hsys, tier, [fuL, fdL, fuR, fdR]; verbose=false)
-Lo = M_Fermion(Hsys, tier, [fuL, fdL, fuR, fdR], :odd; verbose=false)
+Lo = M_Fermion(Hsys, tier, [fuL, fdL, fuR, fdR], ODD; verbose=false)
 ados_s = SteadyState(Le; verbose=false)
 ωlist = [0]
 @test spectrum(Lo, ados_s, d_up, ωlist; verbose=false)[1] ≈ 0.17217519700362002

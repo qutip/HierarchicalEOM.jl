@@ -37,8 +37,7 @@
     @test_throws BoundsError L[1, 5]
     @test_throws BoundsError L[1:5, 2]
     @test_throws ErrorException ados[L.N + 1]
-    @test_throws ErrorException M_S(Hsys, :wrong; verbose=false)
-    @test_throws ErrorException M_S([0, 0]; verbose=false)
+    @test_throws ErrorException @test_warn "HEOM doesn't support matrix type : Vector{Int64}" M_S([0, 0]; verbose=false)
 end
 
 λ  = 0.1450
@@ -107,7 +106,6 @@ J = [0 0.1450 - 0.7414im; 0.1450 + 0.7414im 0]
     @test_throws BoundsError L[1, 1821]
     @test_throws BoundsError L[1:1821, 336]
     @test_throws ErrorException ados[L.N + 1]
-    @test_throws ErrorException M_Boson(Hsys, tier, Bbath, :wrong; verbose=false)
     @test_throws ErrorException M_Boson([0, 0], tier, Bbath; verbose=false)
 end
 
@@ -188,7 +186,6 @@ end
     @test_throws BoundsError L[1, 9301]
     @test_throws BoundsError L[1:9301, 9300]
     @test_throws ErrorException ados[L.N + 1]
-    @test_throws ErrorException M_Fermion(Hsys, tier, Fbath, :wrong; verbose=false)
     @test_throws ErrorException M_Fermion([0, 0], tier, Fbath; verbose=false)
 end
 
@@ -261,7 +258,6 @@ end
 
     ## check exceptions
     @test_throws ErrorException ados[L.N + 1]
-    @test_throws ErrorException M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath, :wrong; verbose=false)
     @test_throws ErrorException M_Boson_Fermion([0, 0], tierb, tierf, Bbath, Fbath; verbose=false)
 end
 
@@ -336,7 +332,6 @@ end
     @test show(devnull, MIME("text/plain"), ados_f)  == nothing
     @test show(devnull, MIME("text/plain"), ados_bf) == nothing
     @test_throws ErrorException ADOs(zeros(8), 4)
-    @test_throws ErrorException ADOs(zeros(8), 2, :wrong)
 
     ρ_b = ados_b[:]
     # check iteration

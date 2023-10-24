@@ -68,7 +68,7 @@ module HierarchicalEOM
 
         export
             AbstractHEOMLSMatrix, M_S, M_Boson, M_Fermion, M_Boson_Fermion,
-            odd, even,
+            AbstractParity, OddParity, EvenParity, value, ODD, EVEN,
             ADOs, getRho, getADO, Expect,
             Nvec, AbstractHierarchyDict, HierarchyDict, MixHierarchyDict, getIndexEnsemble,
             Propagator, addBosonDissipator, addFermionDissipator, addTerminator,
@@ -80,7 +80,7 @@ module HierarchicalEOM
 
     # sub-module Spectrum for HierarchicalEOM
     module Spectrum
-        import ..HeomAPI: AbstractHEOMLSMatrix, ADOs, spre
+        import ..HeomAPI: AbstractHEOMLSMatrix, OddParity, ADOs, spre
         import LinearAlgebra: I, kron
         import SparseArrays: sparse, sparsevec
         import LinearSolve: LinearProblem, init, solve!, UMFPACKFactorization

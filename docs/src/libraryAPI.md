@@ -49,16 +49,24 @@ Fermion_Lorentz_Matsubara
 Fermion_Lorentz_Pade
 ```
 
+## Parity
+```@docs
+EvenParity
+OddParity
+EVEN
+ODD
+```
+
 ## HEOM Liouvillian superoperator matrices
 ```@docs
 M_S
-M_S(Hsys, parity::Symbol=:even; verbose::Bool=true)
+M_S(Hsys, parity::AbstractParity=EVEN; verbose::Bool=true)
 M_Boson
-M_Boson(Hsys, tier::Int, Bath::Vector{BosonBath}, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)
+M_Boson(Hsys, tier::Int, Bath::Vector{BosonBath}, parity::AbstractParity=EVEN; threshold::Real=0.0, verbose::Bool=true)
 M_Fermion
-M_Fermion(Hsys, tier::Int, Bath::Vector{FermionBath}, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)
+M_Fermion(Hsys, tier::Int, Bath::Vector{FermionBath}, parity::AbstractParity=EVEN; threshold::Real=0.0, verbose::Bool=true)
 M_Boson_Fermion
-M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::Vector{FermionBath}, parity::Symbol=:even; threshold::Real=0.0, verbose::Bool=true)
+M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::Vector{FermionBath}, parity::AbstractParity=EVEN; threshold::Real=0.0, verbose::Bool=true)
 size(M::AbstractHEOMLSMatrix)
 size(M::AbstractHEOMLSMatrix, dim::Int)
 eltype(M::AbstractHEOMLSMatrix)

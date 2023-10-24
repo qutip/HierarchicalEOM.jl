@@ -27,11 +27,11 @@ ados = SteadyState(L, ρ0; verbose=false, reltol=1e-2, abstol=1e-4)
     mat  = spzeros(ComplexF64, 2, 2)
     mat2 = spzeros(ComplexF64, 3, 3)
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
-    @test_throws ErrorException SteadyState(M_Fermion(mat, 2, bathf, :odd; verbose=false))
-    @test_throws ErrorException SteadyState(M_Fermion(mat, 2, bathf, :odd; verbose=false), mat)
+    @test_throws ErrorException SteadyState(M_Fermion(mat, 2, bathf, ODD; verbose=false))
+    @test_throws ErrorException SteadyState(M_Fermion(mat, 2, bathf, ODD; verbose=false), mat)
     @test_throws ErrorException SteadyState(L, mat2)
     @test_throws ErrorException SteadyState(L, ADOs(zeros(8), 2))
-    @test_throws ErrorException SteadyState(L, ADOs(ados.data, ados.N, :odd))
+    @test_throws ErrorException SteadyState(L, ADOs(ados.data, ados.N, ODD))
 end
 
 @testset "Time evolution" begin
@@ -49,7 +49,7 @@ end
     # using the method based on propagator
     ados_list = evolution(L, ρ0, Δt, steps; verbose=false, filename="evolution_p")
     ados_wrong1 = ADOs(zeros(8), 2)
-    ados_wrong2 = ADOs((ados_list[1]).data, (ados_list[1]).N, :odd)
+    ados_wrong2 = ADOs((ados_list[1]).data, (ados_list[1]).N, ODD)
     ρ_list_p = getRho.(ados_list)
     @test_throws ErrorException evolution(L, ρ0, Δt, steps; verbose=false, filename="evolution_p")
     @test_throws ErrorException evolution(L, ρ_wrong, Δt, steps; verbose=false)
@@ -271,8 +271,8 @@ end
     @test_throws ErrorException spectrum(L, ados_s, a, ωlist; verbose=false, filename="PSD")
     @test_throws ErrorException spectrum(L, ados_s, mat2, ωlist; verbose=false)
     @test_throws ErrorException spectrum(L, ADOs(zeros(8), 2), a, ωlist; verbose=false)
-    @test_throws ErrorException spectrum(L, ADOs(ados_s.data, ados_s.N, :odd), a, ωlist; verbose=false)
-    @test_throws ErrorException spectrum(M_Fermion(mat, 2, bathf, :odd; verbose=false), mat, mat, [0])
+    @test_throws ErrorException spectrum(L, ADOs(ados_s.data, ados_s.N, ODD), a, ωlist; verbose=false)
+    @test_throws ErrorException spectrum(M_Fermion(mat, 2, bathf, ODD; verbose=false), mat, mat, [0])
 end
 
 @testset "Density of states" begin
@@ -299,7 +299,7 @@ end
 
     tier = 2
     Le = M_Fermion(Hsys, tier, [fuL, fdL, fuR, fdR]; verbose=false)
-    Lo = M_Fermion(Hsys, tier, [fuL, fdL, fuR, fdR], :odd; verbose=false)
+    Lo = M_Fermion(Hsys, tier, [fuL, fdL, fuR, fdR], ODD; verbose=false)
 
     ados_s = SteadyState(Le; verbose=false)
     ωlist = -20:2:20
@@ -341,7 +341,7 @@ end
     @test_throws ErrorException spectrum(Lo, ados_s, d_up, ωlist; verbose=false, filename="DOS")
     @test_throws ErrorException spectrum(Lo, ados_s, mat2, ωlist; verbose=false)
     @test_throws ErrorException spectrum(Lo, ADOs(zeros(8), 2), d_up, ωlist; verbose=false)
-    @test_throws ErrorException spectrum(Lo, ADOs(ados_s.data, ados_s.N, :odd), d_up, ωlist; verbose=false)
+    @test_throws ErrorException spectrum(Lo, ADOs(ados_s.data, ados_s.N, ODD), d_up, ωlist; verbose=false)
     @test_throws ErrorException spectrum(M_Boson(mat, 2, bathb; verbose=false), mat, mat, [0])
     @test_throws ErrorException spectrum(M_Fermion(mat, 2, fuL; verbose=false), mat, mat, [0])
 end

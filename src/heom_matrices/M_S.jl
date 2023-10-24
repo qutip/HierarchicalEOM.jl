@@ -13,7 +13,7 @@ where ``[\cdot, \cdot]_-`` stands for commutator.
 - `dim` : the dimension of system
 - `N` : the number of total ADOs, which equals to `1` (only the reduced density operator) in this case
 - `sup_dim` : the dimension of system superoperator
-- `parity` : the parity label of the fermionic system (usually `:even`, only set as `:odd` for calculating spectrum of fermionic system)
+- `parity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
 """
 struct M_S{T} <: AbstractHEOMLSMatrix
     data::T
@@ -21,11 +21,11 @@ struct M_S{T} <: AbstractHEOMLSMatrix
     dim::Int
     N::Int
     sup_dim::Int
-    parity::Symbol
+    parity::AbstractParity
 end
 
 @doc raw"""
-    M_S(Hsys, parity=:even; verbose=true)
+    M_S(Hsys, parity=EVEN; verbose=true)
 Generate HEOM Liouvillian superoperator matrix with cutoff level of the hierarchy equals to `0`.  
 This corresponds to the standard Schrodinger (Liouville-von Neumann) equation, namely
 ```math
@@ -35,21 +35,16 @@ where ``[\cdot, \cdot]_-`` stands for commutator.
 
 # Parameters
 - `Hsys` : The time-independent system Hamiltonian
-- `parity::Symbol` : the parity label of the fermionic system (only set as `:odd` for calculating spectrum of fermionic system). Defaults to `:even`.
+- `parity::AbstractParity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
 - `verbose::Bool` : To display verbose output during the process or not. Defaults to `true`.
 
-Note that the parity only need to be set as `:odd` when the system contains fermionic systems and you need to calculate the spectrum (density of states) of it.
+Note that the parity only need to be set as `ODD` when the system contains fermionic systems and you need to calculate the spectrum (density of states) of it.
 """
 @noinline function M_S(        
         Hsys,
-        parity::Symbol=:even;
+        parity::AbstractParity=EVEN;
         verbose::Bool=true
     )
-
-    # check parity
-    if (parity != :even) && (parity != :odd)
-        error("The parity symbol of density matrix should be either \":even\" or \":odd\".")
-    end
 
     # check for system dimension
     _Hsys = HandleMatrixType(Hsys, 0, "Hsys (system Hamiltonian)")

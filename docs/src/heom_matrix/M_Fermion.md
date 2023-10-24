@@ -10,7 +10,7 @@ To construct the HEOM matrix in this case, one can call
  - `Hsys` : The time-independent system Hamiltonian
  - `tier::Int` : the tier (cutoff level) for the fermionic bath
  - `Bath::Vector{FermionBath}` : objects for different [fermionic baths](@ref doc-Fermionic-Bath)
- - `parity::Symbol` : the [parity](@ref doc-Parity) label. This depends on the parity of the ADOs which the HEOMLS is acting on. Defaults to `:even`.
+ - `parity::AbstractParity` : the [parity](@ref doc-Parity) label of the operator which HEOMLS is acting on. Defaults to `EVEN`.
 
 *kwargs* (Keyword Arguments)
  - `threshold::Real` : The threshold of the [importance value](@ref doc-Importance-Value-and-Threshold). Defaults to `0.0`.
@@ -34,7 +34,7 @@ The fields of the structure [`M_Fermion`](@ref) are as follows:
  - `dim` : the dimension of system
  - `N` : the number of total [ADOs](@ref doc-ADOs)
  - `sup_dim` : the dimension of system superoperator
- - `parity` : the [parity](@ref doc-Parity) label. This depends on the parity of the ADOs which the HEOMLS is acting on.
+ - `parity` : the [parity](@ref doc-Parity) label of the operator which HEOMLS is acting on.
  - `bath::Vector{FermionBath}` : the vector which stores all [`FermionBath`](@ref doc-Fermionic-Bath) objects
  - `hierarchy::HierarchyDict`: the object which contains all [dictionaries](@ref doc-Hierarchy-Dictionary) for fermion-bath-ADOs hierarchy.
 

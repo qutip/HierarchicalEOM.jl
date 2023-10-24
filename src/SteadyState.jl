@@ -3,7 +3,7 @@
 Solve the steady state of the auxiliary density operators based on `LinearSolve.jl` (i.e., solving ``x`` where ``A \times x = b``).
 
 # Parameters
-- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `:even`.
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver 
@@ -15,8 +15,8 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 """
 @noinline function SteadyState(M::AbstractHEOMLSMatrix; solver=UMFPACKFactorization(), verbose::Bool=true, SOLVEROptions...)
     # check parity
-    if M.parity != :even
-        error("The parity of M should be \":even\".")
+    if typeof(M.parity) != EvenParity
+        error("The parity of M should be \"EVEN\".")
     end    
 
     A = copy(M.data)
@@ -49,7 +49,7 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 with initial state is given in the type of density-matrix (`ρ0`).
 
 # Parameters
-- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `:even`.
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
 - `ρ0` : system initial state (density matrix)
 - `solver` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
@@ -99,7 +99,7 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 with initial state is given in the type of `ADOs`.
 
 # Parameters
-- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `:even`.
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
 - `ados::ADOs` : initial auxiliary density operators
 - `solver` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-3`.
@@ -127,8 +127,8 @@ For more details about solvers and extra options, please refer to [`Differential
     )
     
     # check parity
-    if M.parity == :odd
-        error("The parity of M should be \":even\".")
+    if typeof(M.parity) == OddParity
+        error("The parity of M should be \"EVEN\".")
     end
 
     if (M.dim != ados.dim)
@@ -139,7 +139,7 @@ For more details about solvers and extra options, please refer to [`Differential
         error("The ADOs number \"N\" between M and ados are not consistent.")
     end
 
-    if (M.parity != ados.parity)
+    if (typeof(M.parity) != typeof(ados.parity))
         error("The parity between M and ados are not consistent.")
     end
 

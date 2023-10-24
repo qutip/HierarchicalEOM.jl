@@ -12,7 +12,7 @@ To construct the HEOM matrix in this case, one can call
  - `Ftier::Int` : the tier (cutoff level) for the fermionic bath
  - `Bbath::Vector{BosonBath}` : objects for different [bosonic baths](@ref doc-Bosonic-Bath)
  - `Fbath::Vector{FermionBath}` : objects for different [fermionic baths](@ref doc-Fermionic-Bath)
- - `parity::Symbol` : the [parity](@ref doc-Parity) label. This depends on the parity of the ADOs which the HEOMLS is acting on. Defaults to `:even`.
+ - `parity::AbstractParity` : the [parity](@ref doc-Parity) label of the operator which HEOMLS is acting on. Defaults to `EVEN`.
 
 *kwargs* (Keyword Arguments)
  - `threshold::Real` : The threshold of the [importance value](@ref doc-Importance-Value-and-Threshold). Defaults to `0.0`.
@@ -26,9 +26,9 @@ Ftier = 4
 Bbath::BosonBath
 Fbath::FermionBath
 
-# create HEOMLS matrix in both :even and :odd parity
+# create HEOMLS matrix in both EVEN and ODD parity
 M_even = M_Fermion(Hs, Btier, Ftier, Bbath, Fbath) 
-M_odd  = M_Fermion(Hs, Btier, Ftier, Bbath, Fbath, :odd) 
+M_odd  = M_Fermion(Hs, Btier, Ftier, Bbath, Fbath, ODD) 
 ```
 
 ## Fields
@@ -39,7 +39,7 @@ The fields of the structure [`M_Boson_Fermion`](@ref) are as follows:
  - `dim` : the dimension of system
  - `N` : the number of total [ADOs](@ref doc-ADOs)
  - `sup_dim` : the dimension of system superoperator
- - `parity` : the [parity](@ref doc-Parity) label. This depends on the parity of the ADOs which the HEOMLS is acting on.
+ - `parity` : the [parity](@ref doc-Parity) label of the operator which HEOMLS is acting on. 
  - `Bbath::Vector{BosonBath}` : the vector which stores all [`BosonBath`](@ref doc-Bosonic-Bath) objects
  - `Fbath::Vector{FermionBath}` : the vector which stores all [`FermionBath`](@ref doc-Fermionic-Bath) objects
  - `hierarchy::MixHierarchyDict`: the object which contains all [dictionaries](@ref doc-Hierarchy-Dictionary) for mixed-bath-ADOs hierarchy.

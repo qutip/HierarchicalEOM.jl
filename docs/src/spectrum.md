@@ -6,8 +6,8 @@ We briefly summarize how to numerically compute the spectrum associated with the
 `HierarchicalEOM.jl` provides a function [`spectrum`](@ref) which performs the calculation in frequency domain. There are two different methods (as shown below) which depends on the [parity](@ref doc-Parity) of the HEOMLS matrices ``\hat{\mathcal{M}}`` corresponds to different system degree of freedom. 
 
 If you want to calculate the spectrum associated with
- - [bosonic systems (Power Spectral Density)](@ref doc-PSD) : you have to provide ``\hat{\mathcal{M}}`` constructed in `:even` parity.
- - [fermionic systems (Density of States)](@ref doc-DOS) : you have to provide ``\hat{\mathcal{M}}`` constructed in `:odd` parity.
+ - [bosonic systems (Power Spectral Density)](@ref doc-PSD) : you have to provide ``\hat{\mathcal{M}}`` constructed in `EVEN` parity.
+ - [fermionic systems (Density of States)](@ref doc-DOS) : you have to provide ``\hat{\mathcal{M}}`` constructed in `ODD` parity.
 
 The function [`spectrum`](@ref) will automatically detect the [parity](@ref doc-Parity) of ``\hat{\mathcal{M}}`` by itself. Furthermore, the output of the function [`spectrum`](@ref) for both cases will always be in the type of `Vector{Float64}`, which contains the list of the spectrum values corresponding to the given `ω_list`.
 
@@ -39,7 +39,7 @@ Finially, one can obtain the value of the power spectral density for specific ``
 See also the docstring : [`spectrum`](@ref)
 
 ```julia
-M::AbstractHEOMLSMatrix # need to be in ":even" parity
+M::AbstractHEOMLSMatrix # need to be in "EVEN" parity
 
 # the input state can be in either type (but usually ADOs):
 ρ::AbstractMatrix # the reduced density operator
@@ -54,7 +54,7 @@ a::AbstractMatrix
 πSω = spectrum(M, ρ, a, ω_list)
 ```
 !!! note "Note"
-    To calculate power spectral density, remember to construct ``\hat{\mathcal{M}}`` with `:even` parity.
+    To calculate power spectral density, remember to construct ``\hat{\mathcal{M}}`` with `EVEN` [parity](@ref doc-Parity).
 
 ## [Density of States](@id doc-DOS)
 Start from the spectrum for fermionic systems (density of states) in the time-domain. We write the system two-time correlation function in terms of the propagator ``\hat{\mathcal{G}}(t)=\exp(\hat{\mathcal{M}} t)`` for ``t>0``. The density of states ``A(\omega)`` can be obtained as
@@ -82,8 +82,8 @@ Finially, one can obtain the density of states for specific ``\omega``, namely
 ```
 
 !!! note "Odd-Parity for Density of States"
-    As shown above, the HEOMLS matrix ``\hat{\mathcal{M}}`` acts on the `:odd`-parity space, compatibly with the parity of both the operators ``d\rho^{(m,n,+)}_{\textbf{j} \vert \textbf{q}}`` and ``d^\dagger\rho^{(m,n,+)}_{\textbf{j} \vert \textbf{q}}``.  
-    Therefore, remember to construct ``\hat{\mathcal{M}}`` with `:odd` [parity](@ref doc-Parity) for solving spectrum of fermionic systems.
+    As shown above, the HEOMLS matrix ``\hat{\mathcal{M}}`` acts on the `ODD`-parity space, compatibly with the parity of both the operators ``d\rho^{(m,n,+)}_{\textbf{j} \vert \textbf{q}}`` and ``d^\dagger\rho^{(m,n,+)}_{\textbf{j} \vert \textbf{q}}``.  
+    Therefore, remember to construct ``\hat{\mathcal{M}}`` with `ODD` [parity](@ref doc-Parity) for solving spectrum of fermionic systems.
 
 See also the docstring : [`spectrum`](@ref)
 
@@ -92,9 +92,9 @@ Hs::AbstractMatrix # system Hamiltonian
 bath::FermionBath  # fermionic bath object
 tier::Int          # fermionic truncation level 
 
-# create HEOMLS matrix in both :even and :odd parity
+# create HEOMLS matrix in both :even and ODD parity
 M_even = M_Fermion(Hs, tier, bath) 
-M_odd  = M_Fermion(Hs, tier, bath, :odd) 
+M_odd  = M_Fermion(Hs, tier, bath, ODD) 
 
 # the input state can be in either type of density operator matrix or ADOs (but usually ADOs):
 ados = SteadyState(M_even)
