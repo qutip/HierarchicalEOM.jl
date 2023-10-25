@@ -268,7 +268,7 @@ For more details about solvers and extra options, please refer to [`Differential
 
     # problem: dρ/dt = L * ρ(0)
     L = MatrixOperator(M.data)
-    prob = ODEProblem(L, Vector(ados.data), (tlist[1], tlist[end]))
+    prob = ODEProblem(L, HandleVectorType(typeof(M.data), ados.data), (tlist[1], tlist[end]))
 
     # setup integrator
     integrator = init(
@@ -446,7 +446,7 @@ For more details about solvers and extra options, please refer to [`Differential
     
     # problem: dρ/dt = L(t) * ρ(0)
     ## M.dim will check whether the returned time-dependent Hamiltonian has the correct dimension
-    prob = ODEProblem(L, Vector(ados.data), (tlist[1], tlist[end]), (M, H, param))
+    prob = ODEProblem(L, HandleVectorType(typeof(M.data), ados.data), (tlist[1], tlist[end]), (M, H, param))
 
     # setup integrator
     integrator = init(

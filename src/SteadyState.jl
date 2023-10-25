@@ -33,7 +33,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
         print("Solving steady state for auxiliary density operators...")
         flush(stdout)
     end
-    cache = init(LinearProblem(A, Vector(b)), solver, SOLVEROptions...)
+    cache = init(LinearProblem(A, HandleVectorType(typeof(M.data), b)), solver, SOLVEROptions...)
     sol = solve!(cache)
     if verbose
         println("[DONE]")
@@ -145,7 +145,7 @@ For more details about solvers and extra options, please refer to [`Differential
 
     # problem: dρ(t)/dt = L * ρ(t)
     L = MatrixOperator(M.data)
-    prob = ODEProblem(L, Vector(ados.data), (0, Inf))
+    prob = ODEProblem(L, HandleVectorType(typeof(M.data), ados.data), (0, Inf))
 
     # solving steady state of the ODE problem
     if verbose

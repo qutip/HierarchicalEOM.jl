@@ -207,3 +207,8 @@ function Expect(op, ados_list::Vector{ADOs}; take_real=true)
         return exp_val
     end
 end
+
+function HandleVectorType(MatrixType::Type{TM}, V::SparseVector) where TM <: SparseMatrixCSC
+    TE = eltype(MatrixType)
+    return Vector{TE}(V)
+end

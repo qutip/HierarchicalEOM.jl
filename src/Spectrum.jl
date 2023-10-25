@@ -116,7 +116,7 @@ end
     # operator for calculating two-time correlation functions in frequency domain
     a_normal = kron(I_heom, spre(op))
     a_dagger = kron(I_heom, spre(op'))
-    local X::Vector{ComplexF64} = a_normal * ados_vec
+    X = HandleVectorType(typeof(M.data), a_normal * ados_vec)
 
     Length = length(ω_list)
     Sω = Vector{Float64}(undef, Length)
@@ -185,8 +185,8 @@ end
     # operators for calculating two-time correlation functions in frequency domain
     d_normal = kron(I_heom, spre(op))
     d_dagger = kron(I_heom, spre(op'))
-    local X_m::Vector{ComplexF64} = d_normal * ados_vec
-    local X_p::Vector{ComplexF64} = d_dagger * ados_vec
+    X_m = HandleVectorType(typeof(M.data), d_normal * ados_vec)
+    X_p = HandleVectorType(typeof(M.data), d_dagger * ados_vec)
 
     Length = length(ω_list)
     Aω = Vector{Float64}(undef, Length)
