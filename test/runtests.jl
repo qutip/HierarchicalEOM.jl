@@ -1,6 +1,6 @@
+using Test, Pkg
 using QuantumOptics
 using HierarchicalEOM
-using Test
 using SparseArrays
 using LinearAlgebra
 
@@ -26,6 +26,16 @@ if GROUP == "All" || GROUP == "Core"
     include("heom_api.jl")
 
     include("phys_analysis.jl")
+end
+
+#if GROUP == "HierarchicalEOM_CUDAExt"
+if GROUP == "All"
+    Pkg.activate("CUDA")
+    Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
+    Pkg.instantiate()
+    @testset "CUDA Extension" begin
+        include("CUDA/CUDAExt.jl")
+    end
 end
 
 if (GROUP == "All" || GROUP == "HierarchicalEOM_QOExt") && HAS_EXTENSIONS

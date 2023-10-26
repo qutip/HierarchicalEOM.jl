@@ -268,7 +268,7 @@ For more details about solvers and extra options, please refer to [`Differential
 
     # problem: dρ/dt = L * ρ(0)
     L = MatrixOperator(M.data)
-    prob = ODEProblem(L, HandleVectorType(typeof(M.data), ados.data), (tlist[1], tlist[end]))
+    prob  = ODEProblem(L, HandleVectorType(typeof(M.data), ados.data), (tlist[1], tlist[end]))
 
     # setup integrator
     integrator = init(
@@ -294,7 +294,7 @@ For more details about solvers and extra options, please refer to [`Differential
         step!(integrator, dt, true)
         
         # save the ADOs
-        ados = ADOs(copy(integrator.u), M.dim, M.N, M.parity)
+        ados = ADOs(HandleVectorType(integrator.u), M.dim, M.N, M.parity)
         push!(ADOs_list, ados)
         
         if SAVE
@@ -472,7 +472,7 @@ For more details about solvers and extra options, please refer to [`Differential
         step!(integrator, dt, true)
         
         # save the ADOs
-        ados = ADOs(copy(integrator.u), M.dim, M.N, M.parity)
+        ados = ADOs(HandleVectorType(integrator.u), M.dim, M.N, M.parity)
         push!(ADOs_list, ados)
         
         if SAVE
