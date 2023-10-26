@@ -106,7 +106,7 @@ iterate(A::ADOs, ::Nothing) = nothing
 
 function show(io::IO, A::ADOs)
     print(io, 
-        "Auxiliary Density Operators with $(A.parity), (system) dim = $(A.dim), number N = $(A.N)\n"
+        "$(A.N) Auxiliary Density Operators with $(A.parity) and (system) dim = $(A.dim)\n"
     )
 end
 function show(io::IO, m::MIME"text/plain", A::ADOs) show(io, A) end

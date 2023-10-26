@@ -68,7 +68,8 @@ function show(io::IO, M::AbstractHEOMLSMatrix)
     end
 
     print(io, 
-        type, " type HEOMLS matrix with system dim = $(M.dim) and parity = $(M.parity)\n",
+        type, " type HEOMLS matrix acting on $(M.parity) ADOs\n",
+        "system dim = $(M.dim)\n",
         "number of ADOs N = $(M.N)\n",
         "data =\n"
     )
