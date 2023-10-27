@@ -1,6 +1,7 @@
 using HierarchicalEOM
 using CUDA
 using CUDA.CUSPARSE
+using LinearSolve
 
 # re-define the bath (make the matrix smaller)
 λ  = 0.01
@@ -66,3 +67,7 @@ ados_gpu = evolution(L_gpu, ρ0, tlist; verbose=false)
 for i in 1:length(tlist)
     @test _is_Matrix_approx(getRho(ados_cpu[i]), getRho(ados_cpu[i]))
 end
+
+# Steady State
+CUDA.@time ados_cpu = SteadyState(L_cpu; verbose=false)
+CUDA.@time ados_gpu = SteadyState(L_gpu; solver=Krylov_GMRES(), verbose=false)

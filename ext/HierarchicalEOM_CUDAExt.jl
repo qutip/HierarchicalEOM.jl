@@ -1,7 +1,8 @@
 module HierarchicalEOM_CUDAExt
 
 using HierarchicalEOM
-import HierarchicalEOM.HeomAPI: _HandleVectorType
+import HierarchicalEOM.HeomAPI:  _HandleVectorType, _HandleSteadyStateMatrix
+import HierarchicalEOM.Spectrum: _HandleIdentityType
 import CUDA: cu, CuArray
 import CUDA.CUSPARSE: CuSparseMatrixCSC
 import SparseArrays: SparseVector
@@ -46,6 +47,25 @@ end
 function _HandleVectorType(MatrixType::Type{TM}, V::SparseVector) where TM <: CuSparseMatrixCSC
     TE = eltype(MatrixType)
     return CuArray{TE}(V)
+end
+
+function _HandleSteadyStateMatrix(MatrixType::Type{TM}, M::AbstractHEOMLSMatrix, S::Int) where TM <: CuSparseMatrixCSC
+    colptr = Vector{Int32}(M.data.colptr)
+    rowval = Vector{Int32}(M.data.rowval)
+    nzval  = Vector{ComplexF32}(M.data.rowval)
+    A = SparseMatrixCSC{ComplexF32, Int32}(S, S, colptr, rowval, nzval)
+    A[1,1:S] .= 0
+    
+    # sparse(row_idx, col_idx, values, row_dims, col_dims)
+    A += sparse(ones(Int32, M.dim), [Int32((n - 1) * (M.dim + 1) + 1) for n in 1:(M.dim)], ones(ComplexF32, M.dim), S, S)
+    return CuSparseMatrixCSC(A)
+end
+
+function _HandleIdentityType(MatrixType::Type{TM}, S::Int) where TM <: CuSparseMatrixCSC
+    colptr = CuArray{Int32}(Int32(1):Int32(S+1))
+    rowval = CuArray{Int32}(Int32(1):Int32(S))
+    nzval  = CuArray{ComplexF32}(ones(ComplexF32, S))
+    return CuSparseMatrixCSC{ComplexF32, Int32}(colptr, rowval, nzval, (S, S))
 end
 
 end
