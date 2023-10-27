@@ -209,7 +209,7 @@ function Expect(op, ados_list::Vector{ADOs}; take_real=true)
 end
 
 # for changing a `Vector` back to `ADOs`
-function HandleVectorType(V::T, cp::Bool=true) where T <: Vector
+function _HandleVectorType(V::T, cp::Bool=true) where T <: Vector
     if cp
         return Vector{ComplexF64}(V)
     else
@@ -218,7 +218,7 @@ function HandleVectorType(V::T, cp::Bool=true) where T <: Vector
 end
 
 # for changing the type of `ADOs` to match the type of HEOMLS matrix 
-function HandleVectorType(MatrixType::Type{TM}, V::SparseVector) where TM <: SparseMatrixCSC
+function _HandleVectorType(MatrixType::Type{TM}, V::SparseVector) where TM <: SparseMatrixCSC
     TE = eltype(MatrixType)
     return Vector{TE}(V)
 end

@@ -19,13 +19,8 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
         error("The parity of M should be \"EVEN\".")
     end    
 
-    A = copy(M.data)
-    S = size(A, 1)
-    A[1,1:S] .= 0
-    
-    # sparse(row_idx, col_idx, values, row_dims, col_dims)
-    A += sparse(fill(1, M.dim), [(n - 1) * (M.dim + 1) + 1 for n in 1:(M.dim)], fill(1, M.dim), S, S)
-    
+    S = size(M, 1)
+    A = _HandleSteadyStateMatrix(typeof(M.data), M, S)
     b = sparsevec([1], [1. + 0.0im], S)
     
     # solving x where A * x = b
@@ -33,14 +28,14 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
         print("Solving steady state for auxiliary density operators...")
         flush(stdout)
     end
-    cache = init(LinearProblem(A, HandleVectorType(typeof(M.data), b)), solver, SOLVEROptions...)
+    cache = init(LinearProblem(A, _HandleVectorType(typeof(M.data), b)), solver, SOLVEROptions...)
     sol = solve!(cache)
     if verbose
         println("[DONE]")
         flush(stdout)
     end
     
-    return ADOs(sol.u, M.dim, M.N, M.parity)
+    return ADOs(_HandleVectorType(sol.u, false), M.dim, M.N, M.parity)
 end
 
 @doc raw"""
@@ -145,7 +140,9 @@ For more details about solvers and extra options, please refer to [`Differential
 
     # problem: dρ(t)/dt = L * ρ(t)
     L = MatrixOperator(M.data)
-    prob = ODEProblem(L, HandleVectorType(typeof(M.data), ados.data), (0, Inf))
+    ElType = eltype(M)
+    tspan  = Tuple{ElType, ElType}((0, Inf))
+    prob   = ODEProblem(L, _HandleVectorType(typeof(M.data), ados.data), tspan)
 
     # solving steady state of the ODE problem
     if verbose
@@ -165,5 +162,15 @@ For more details about solvers and extra options, please refer to [`Differential
         flush(stdout)
     end
 
-    return ADOs(sol.u, M.dim, M.N, M.parity)
+    return ADOs(_HandleVectorType(sol.u, false), M.dim, M.N, M.parity)
+end
+
+function _HandleSteadyStateMatrix(MatrixType::Type{TM}, M::AbstractHEOMLSMatrix, S::Int) where TM <: SparseMatrixCSC
+    ElType = eltype(M)
+    A = copy(M.data)
+    A[1,1:S] .= 0
+    
+    # sparse(row_idx, col_idx, values, row_dims, col_dims)
+    A += sparse(ones(ElType, M.dim), [(n - 1) * (M.dim + 1) + 1 for n in 1:(M.dim)], ones(ElType, M.dim), S, S)
+    return A
 end

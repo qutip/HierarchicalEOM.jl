@@ -1,7 +1,7 @@
 module HierarchicalEOM_CUDAExt
 
 using HierarchicalEOM
-import HierarchicalEOM: HandleVectorType
+import HierarchicalEOM.HeomAPI: _HandleVectorType
 import CUDA: cu, CuArray
 import CUDA.CUSPARSE: CuSparseMatrixCSC
 import SparseArrays: SparseVector
@@ -38,12 +38,12 @@ function CuSparseMatrixCSC(M::T) where T <: AbstractHEOMLSMatrix
 end
 
 # for changing a `CuArray` back to `ADOs`
-function HandleVectorType(V::T, cp::Bool=false) where T <: CuArray
+function _HandleVectorType(V::T, cp::Bool=false) where T <: CuArray
     return Vector{ComplexF64}(V)
 end
 
 # for changing the type of `ADOs` to match the type of HEOMLS matrix 
-function HandleVectorType(MatrixType::Type{TM}, V::SparseVector) where TM <: CuSparseMatrixCSC
+function _HandleVectorType(MatrixType::Type{TM}, V::SparseVector) where TM <: CuSparseMatrixCSC
     TE = eltype(MatrixType)
     return CuArray{TE}(V)
 end

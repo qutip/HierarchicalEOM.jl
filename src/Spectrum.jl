@@ -107,16 +107,16 @@ end
     end
 
     Size = size(M, 1)
-    I_total = sparse(I, Size, Size)
-    I_heom  = sparse(I, M.N, M.N)
+    I_heom  = sparse(one(ComplexF64) * I, M.N, M.N)
+    I_total = _HandleIdentityType(typeof(M.data), Size)
 
     # equal to : transpose(sparse(vec(system_identity_matrix)))
-    I_dual_vec = transpose(sparsevec([1 + n * (M.dim + 1) for n in 0:(M.dim - 1)], ones(M.dim), M.sup_dim))
+    I_dual_vec = transpose(sparsevec([1 + n * (M.dim + 1) for n in 0:(M.dim - 1)], ones(ComplexF64, M.dim), M.sup_dim))
 
     # operator for calculating two-time correlation functions in frequency domain
     a_normal = kron(I_heom, spre(op))
     a_dagger = kron(I_heom, spre(op'))
-    X = HandleVectorType(typeof(M.data), a_normal * ados_vec)
+    X = _HandleVectorType(typeof(M.data), a_normal * ados_vec)
 
     Length = length(ω_list)
     Sω = Vector{Float64}(undef, Length)
@@ -137,7 +137,7 @@ end
         end
 
         # trace over the Hilbert space of system (expectation value)
-        Sω[i] = -1 * real(I_dual_vec * (a_dagger * sol.u)[1:(M.sup_dim)])
+        Sω[i] = -1 * real(I_dual_vec * (a_dagger * _HandleVectorType(sol.u, false))[1:(M.sup_dim)])
 
         if SAVE
             open(FILENAME, "a") do file
@@ -176,17 +176,17 @@ end
     end
 
     Size = size(M, 1)
-    I_total = sparse(I, Size, Size)
-    I_heom  = sparse(I, M.N, M.N)
+    I_heom  = sparse(one(ComplexF64) * I, M.N, M.N)
+    I_total = _HandleIdentityType(typeof(M.data), Size)
 
     # equal to : transpose(sparse(vec(system_identity_matrix)))
-    I_dual_vec = transpose(sparsevec([1 + n * (M.dim + 1) for n in 0:(M.dim - 1)], ones(M.dim), M.sup_dim))
+    I_dual_vec = transpose(sparsevec([1 + n * (M.dim + 1) for n in 0:(M.dim - 1)], ones(ComplexF64, M.dim), M.sup_dim))
 
     # operators for calculating two-time correlation functions in frequency domain
     d_normal = kron(I_heom, spre(op))
     d_dagger = kron(I_heom, spre(op'))
-    X_m = HandleVectorType(typeof(M.data), d_normal * ados_vec)
-    X_p = HandleVectorType(typeof(M.data), d_dagger * ados_vec)
+    X_m = _HandleVectorType(typeof(M.data), d_normal * ados_vec)
+    X_p = _HandleVectorType(typeof(M.data), d_dagger * ados_vec)
 
     Length = length(ω_list)
     Aω = Vector{Float64}(undef, Length)
@@ -211,8 +211,8 @@ end
             cache_p.A = M.data + Iω
             sol_p = solve!(cache_p)
         end
-        Cω_m = d_dagger * sol_m.u
-        Cω_p = d_normal * sol_p.u
+        Cω_m = d_dagger * _HandleVectorType(sol_m.u, false)
+        Cω_p = d_normal * _HandleVectorType(sol_p.u, false)
         
         # trace over the Hilbert space of system (expectation value)
         Aω[i] = -1 * (
@@ -235,4 +235,9 @@ end
     end
 
     return Aω
+end
+
+function _HandleIdentityType(MatrixType::Type{TM}, S::Int) where TM <: SparseMatrixCSC
+    ElType = eltype(MatrixType)
+    return sparse(one(ElType) * I, S, S)
 end
