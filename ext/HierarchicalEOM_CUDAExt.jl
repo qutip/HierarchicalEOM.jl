@@ -3,6 +3,7 @@ module HierarchicalEOM_CUDAExt
 using HierarchicalEOM
 import HierarchicalEOM.HeomAPI:  _HandleVectorType, _HandleSteadyStateMatrix
 import HierarchicalEOM.Spectrum: _HandleIdentityType
+import CUDA
 import CUDA: cu, CuArray
 import CUDA.CUSPARSE: CuSparseMatrixCSC
 import SparseArrays: sparse, SparseVector, SparseMatrixCSC
@@ -65,7 +66,7 @@ end
 function _HandleIdentityType(MatrixType::Type{TM}, S::Int) where TM <: CuSparseMatrixCSC
     colptr = CuArray{Int32}(Int32(1):Int32(S+1))
     rowval = CuArray{Int32}(Int32(1):Int32(S))
-    nzval  = CuArray{ComplexF32}(ones(ComplexF32, S))
+    nzval  = CUDA.ones(ComplexF32, S)
     return CuSparseMatrixCSC{ComplexF32, Int32}(colptr, rowval, nzval, (S, S))
 end
 
