@@ -1,6 +1,5 @@
 using HierarchicalEOM
 using CUDA
-using CUDA.CUSPARSE
 using LinearSolve
 
 # re-define the bath (make the matrix smaller)
@@ -68,6 +67,33 @@ for i in 1:length(tlist)
     @test _is_Matrix_approx(getRho(ados_cpu[i]), getRho(ados_cpu[i]))
 end
 
-# Steady State
-CUDA.@time ados_cpu = SteadyState(L_cpu; verbose=false)
-CUDA.@time ados_gpu = SteadyState(L_gpu; solver=Krylov_GMRES(), verbose=false)
+# SIAM
+ϵ = -5
+U = 10
+σm = [0 1; 0  0] ## σ-
+σz = [1 0; 0 -1] ## σz
+II = [1 0; 0  1] ## identity matrix
+d_up = kron(     σm, II)
+d_dn = kron(-1 * σz, σm)
+Hsys = ϵ * (d_up' * d_up + d_dn' * d_dn) + U * (d_up' * d_up * d_dn' * d_dn)
+Γ  = 2
+μ  = 0
+W  = 10
+kT = 0.5
+N  = 5
+tier = 3
+bath_up = Fermion_Lorentz_Pade(d_up, Γ, μ, W, kT, N)
+bath_dn = Fermion_Lorentz_Pade(d_dn, Γ, μ, W, kT, N)
+bath_list = [bath_up, bath_dn]
+
+## solve density of states
+ωlist = -10:1:10
+L_cpu     = M_Fermion(Hsys, tier, bath_list; verbose=false)
+L_odd_cpu = M_Fermion(Hsys, tier, bath_list, ODD; verbose=false)
+L_odd_gpu = cu(L_odd_cpu)
+ados_cpu  = SteadyState(L_cpu; verbose=false)
+dos_cpu   = spectrum(L_odd_cpu, ados_cpu, d_up, ωlist; verbose=false)
+dos_gpu   = spectrum(L_odd_gpu, ados_cpu, d_up, ωlist; solver=KrylovJL_BICGSTAB(rtol=1f-10, atol=1f-12), verbose=false)
+for (i, ω) in enumerate(ωlist)
+    @test dos_cpu[i] ≈ dos_gpu[i]  atol = 1e-6
+end
