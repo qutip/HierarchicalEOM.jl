@@ -20,30 +20,16 @@ Therefore, we wrapped several functions in `CUDA` and `CUDA.CUSPARSE` in order t
 The extension will be automatically loaded if user imports the package `CUDA.jl` :
 
 ````@example CUDA_Ext_example
-using BenchmarkTools
 using CUDA
 using HierarchicalEOM
 using LinearSolve # to change the solver for better GPU performance
-using Plots
-````
-
-### Check version info. of `HierarchicalEOM.jl`
-
-````@example CUDA_Ext_example
-HierarchicalEOM.versioninfo()
-````
-
-### Check version info. of `CUDA.jl`
-
-````@example CUDA_Ext_example
-CUDA.versioninfo()
 ````
 
 ### Setup
 
 Here, we demonstrate this extension by using the example of [the single-impurity Anderson model](@ref exp-SIAM). 
 
-````@example CUDA_Ext_example
+```julia
 ϵ  = -5
 U  = 10
 Γ  = 2
@@ -78,31 +64,31 @@ M_odd_gpu  = cu(M_odd_cpu)
 
 # solve steady state with CPU
 ados_ss = SteadyState(M_even_cpu);
-````
+```
 
 !!! note "Note"
     This extension does not support for solving [`SteadyState`](@ref doc-Stationary-State) on GPU since it is not efficient and might get wrong solutions. If you really want to obtain the stationary state with GPU, you can repeatedly solve the [`evolution`](@ref doc-Time-Evolution) until you find it.
 
 ### Solving time evolution with CPU
 
-````@example CUDA_Ext_example
-@benchmark ados_list_cpu = evolution(M_even_cpu, ρ0, tlist; verbose=false)
-````
+```julia
+ados_list_cpu = evolution(M_even_cpu, ρ0, tlist; verbose=false)
+```
 
 ### Solving time evolution with GPU
 
-````@example CUDA_Ext_example
-@benchmark ados_list_gpu = evolution(M_even_gpu, ρ0, tlist; verbose=false)
-````
+```julia
+ados_list_gpu = evolution(M_even_gpu, ρ0, tlist; verbose=false)
+```
 
 ### Solving Spectrum with CPU
 
-````@example CUDA_Ext_example
-@benchmark dos_cpu = spectrum(M_odd_cpu, ados_ss, d_up, ωlist; verbose=false)
-````
+```julia
+dos_cpu = spectrum(M_odd_cpu, ados_ss, d_up, ωlist; verbose=false)
+```
 
 ### Solving Spectrum with GPU
 
-````@example CUDA_Ext_example
-@benchmark dos_gpu = spectrum(M_odd_gpu, ados_ss, d_up, ωlist; solver=KrylovJL_BICGSTAB(rtol=1f-10, atol=1f-12), verbose=false)
-````
+```julia
+dos_gpu = spectrum(M_odd_gpu, ados_ss, d_up, ωlist; solver=KrylovJL_BICGSTAB(rtol=1f-10, atol=1f-12), verbose=false)
+```

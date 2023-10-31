@@ -21,8 +21,6 @@ jobs:
         include:
           - julia-version: '1'
             group: 'HierarchicalEOM_QOExt'
-          - julia-version: '1'
-            group: 'HierarchicalEOM_CUDAExt'
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v1
