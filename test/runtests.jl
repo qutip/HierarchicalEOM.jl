@@ -28,8 +28,7 @@ if GROUP == "All" || GROUP == "Core"
     include("phys_analysis.jl")
 end
 
-#if GROUP == "HierarchicalEOM_CUDAExt"
-if GROUP == "All"
+if GROUP == "HierarchicalEOM_CUDAExt"
     Pkg.activate("CUDA")
     Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
     Pkg.instantiate()
