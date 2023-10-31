@@ -1,0 +1,18 @@
+steps:
+  - label: "HierarchicalEOM_CUDAExt"
+    plugins:
+      - JuliaCI/julia#v1:
+          version: "1"
+      - JuliaCI/julia-test#v1:
+          test_args: "--quickfail"
+          coverage: false # 1000x slowdown
+    agents:
+      queue: "juliagpu"
+      cuda: "*"
+    env:
+      GROUP: "HierarchicalEOM_CUDAExt"
+      JULIA_PKG_SERVER: "" # it often struggles with our large artifacts
+      # SECRET_CODECOV_TOKEN: "..."
+    timeout_in_minutes: 30
+    # Don't run Buildkite if the commit message includes the text [skip tests]
+    if: build.message !~ /\[skip tests\]/
