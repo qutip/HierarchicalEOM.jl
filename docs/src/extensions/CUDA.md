@@ -6,6 +6,7 @@ This is an extension to support GPU ([`CUDA.jl`](https://github.com/JuliaGPU/CUD
     The described feature requires `Julia 1.9+`.
 
 The functions [`evolution`](@ref doc-Time-Evolution) (only supports ODE method with time-independent system Hamiltonian) and [`spectrum`](@ref doc-Spectrum) will automatically choose to solve on CPU or GPU depend on the type of the sparse matrix in `M::AbstractHEOMLSMatrix` objects (i.e., the type of the field `M.data`). 
+
 ```julia
 typeof(M.data) <:   SparseMatrixCSC # solve on CPU
 typeof(M.data) <: CuSparseMatrixCSC # solve on GPU
@@ -19,11 +20,11 @@ Therefore, we wrapped several functions in `CUDA` and `CUDA.CUSPARSE` in order t
 
 The extension will be automatically loaded if user imports the package `CUDA.jl` :
 
-````@example CUDA_Ext_example
+```julia
 using CUDA
 using HierarchicalEOM
 using LinearSolve # to change the solver for better GPU performance
-````
+```
 
 ### Setup
 
