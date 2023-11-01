@@ -68,7 +68,8 @@ function show(io::IO, M::AbstractHEOMLSMatrix)
     end
 
     print(io, 
-        type, " type HEOMLS matrix with system dim = $(M.dim) and parity = $(M.parity)\n",
+        type, " type HEOMLS matrix acting on $(M.parity) ADOs\n",
+        "system dim = $(M.dim)\n",
         "number of ADOs N = $(M.N)\n",
         "data =\n"
     )
@@ -131,11 +132,11 @@ function addBosonDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMLSMa
         if T <: M_S
             return M_S(M.data + L, M.tier, M.dim, M.N, M.sup_dim, M.parity)
         elseif T <: M_Boson
-            return M_Boson(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+            return M_Boson(M.data + kron(sparse(one(ComplexF64) * I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
         elseif T <: M_Fermion
-            return M_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+            return M_Fermion(M.data + kron(sparse(one(ComplexF64) * I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
         else
-            return M_Boson_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
+            return M_Boson_Fermion(M.data + kron(sparse(one(ComplexF64) * I, M.N, M.N), L), M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
         end
     end
 end
@@ -175,11 +176,11 @@ function addFermionDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMLS
         if T <: M_S
             return M_S(M.data + L, M.tier, M.dim, M.N, M.sup_dim, M.parity)
         elseif T <: M_Boson
-            return M_Boson(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+            return M_Boson(M.data + kron(sparse(one(ComplexF64) * I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
         elseif T <: M_Fermion
-            return M_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+            return M_Fermion(M.data + kron(sparse(one(ComplexF64) * I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
         else
-            return M_Boson_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
+            return M_Boson_Fermion(M.data + kron(sparse(one(ComplexF64) * I, M.N, M.N), L), M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
         end
     end
 end
@@ -230,11 +231,11 @@ function addTerminator(M::Mtype, Bath::Union{BosonBath, FermionBath}) where Mtyp
         )
 
         if Mtype <: M_Boson
-            return M_Boson(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+            return M_Boson(M.data + kron(sparse(one(ComplexF64) * I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
         elseif Mtype <: M_Fermion
-            return M_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+            return M_Fermion(M.data + kron(sparse(one(ComplexF64) * I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
         else
-            return M_Boson_Fermion(M.data + kron(sparse(I, M.N, M.N), L), M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
+            return M_Boson_Fermion(M.data + kron(sparse(one(ComplexF64) * I, M.N, M.N), L), M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
         end
     end
 end

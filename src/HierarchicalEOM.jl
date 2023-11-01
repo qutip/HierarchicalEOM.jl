@@ -80,9 +80,9 @@ module HierarchicalEOM
 
     # sub-module Spectrum for HierarchicalEOM
     module Spectrum
-        import ..HeomAPI: AbstractHEOMLSMatrix, OddParity, ADOs, spre
+        import ..HeomAPI: AbstractHEOMLSMatrix, OddParity, ADOs, spre, _HandleVectorType
         import LinearAlgebra: I, kron
-        import SparseArrays: sparse, sparsevec
+        import SparseArrays: sparse, sparsevec, SparseMatrixCSC
         import LinearSolve: LinearProblem, init, solve!, UMFPACKFactorization
         import ProgressMeter: Progress, next!        
         import ..HeomBase: PROGBAR_OPTIONS, HandleMatrixType

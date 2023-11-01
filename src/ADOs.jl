@@ -106,7 +106,7 @@ iterate(A::ADOs, ::Nothing) = nothing
 
 function show(io::IO, A::ADOs)
     print(io, 
-        "Auxiliary Density Operators with $(A.parity), (system) dim = $(A.dim), number N = $(A.N)\n"
+        "$(A.N) Auxiliary Density Operators with $(A.parity) and (system) dim = $(A.dim)\n"
     )
 end
 function show(io::IO, m::MIME"text/plain", A::ADOs) show(io, A) end
@@ -206,4 +206,19 @@ function Expect(op, ados_list::Vector{ADOs}; take_real=true)
     else
         return exp_val
     end
+end
+
+# for changing a `Vector` back to `ADOs`
+function _HandleVectorType(V::T, cp::Bool=true) where T <: Vector
+    if cp
+        return Vector{ComplexF64}(V)
+    else
+        return V
+    end
+end
+
+# for changing the type of `ADOs` to match the type of HEOMLS matrix 
+function _HandleVectorType(MatrixType::Type{TM}, V::SparseVector) where TM <: SparseMatrixCSC
+    TE = eltype(MatrixType)
+    return Vector{TE}(V)
 end

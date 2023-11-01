@@ -13,6 +13,9 @@ The function [`spectrum`](@ref) will automatically detect the [parity](@ref doc-
 
 `HierarchicalEOM.jl` wraps some of the functions in [LinearSolve.jl](http://linearsolve.sciml.ai/stable/), which is a very rich numerical library for solving the linear problems and provides many solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to [benchmark for LinearSolve solvers](@ref benchmark-LS-solvers) and also the documentation of [LinearSolve.jl](http://linearsolve.sciml.ai/stable/).
 
+!!! compat "Extension for CUDA.jl"
+    `HierarchicalEOM.jl` provides an extension to support GPU ([`CUDA.jl`](https://github.com/JuliaGPU/CUDA.jl)) acceleration for solving the spectrum, but this feature requires `Julia 1.9+` and `HierarchicalEOM 1.1+`. See [here](@ref doc-ext-CUDA) for more details.
+
 ## [Power Spectral Density](@id doc-PSD)
 Start from the spectrum for bosonic systems (power spectral density) in the time-domain. We write the system two-time correlation function in terms of the propagator ``\hat{\mathcal{G}}(t)=\exp(\hat{\mathcal{M}} t)`` for ``t>0``. The power spectral density ``S(\omega)`` can be obtained as
 ```math
