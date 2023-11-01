@@ -39,28 +39,28 @@ Fbath = Fermion_Lorentz_Pade(Qf, λ, μ, W, kT, N)
 ## Schrodinger HEOMLS
 L_cpu = M_S(Hsys; verbose=false)
 L_gpu = cu(L_cpu)
-ados_cpu = evolution(L_cpu, ρ0, [0f0, 10f0]; verbose=false)
-ados_gpu = evolution(L_gpu, ρ0, [0f0, 10f0]; verbose=false)
+ados_cpu = evolution(L_cpu, ρ0, [0, 10]; verbose=false)
+ados_gpu = evolution(L_gpu, ρ0, [0, 10]; verbose=false)
 @test _is_Matrix_approx(getRho(ados_cpu[end]), getRho(ados_cpu[end]))
 
 ## Boson HEOMLS
 L_cpu = M_Boson(Hsys, tier, Bbath; verbose=false)
 L_gpu = cu(L_cpu)
-ados_cpu = evolution(L_cpu, ρ0, [0f0, 10f0]; verbose=false)
-ados_gpu = evolution(L_gpu, ρ0, [0f0, 10f0]; verbose=false)
+ados_cpu = evolution(L_cpu, ρ0, [0, 10]; verbose=false)
+ados_gpu = evolution(L_gpu, ρ0, [0, 10]; verbose=false)
 @test _is_Matrix_approx(getRho(ados_cpu[end]), getRho(ados_cpu[end]))
 
 ## Boson Fermion HEOMLS
 L_cpu = M_Fermion(Hsys, tier, Fbath; verbose=false)
 L_gpu = cu(L_cpu)
-ados_cpu = evolution(L_cpu, ρ0, [0f0, 10f0]; verbose=false)
-ados_gpu = evolution(L_gpu, ρ0, [0f0, 10f0]; verbose=false)
+ados_cpu = evolution(L_cpu, ρ0, [0, 10]; verbose=false)
+ados_gpu = evolution(L_gpu, ρ0, [0, 10]; verbose=false)
 @test _is_Matrix_approx(getRho(ados_cpu[end]), getRho(ados_cpu[end]))
 
 ## Boson Fermion HEOMLS
 L_cpu = M_Boson_Fermion(Hsys, tier, tier, Bbath, Fbath; verbose=false)
 L_gpu = cu(L_cpu)
-tlist = 0f0:1f0:10f0
+tlist = 0:1:10
 ados_cpu = evolution(L_cpu, ρ0, tlist; verbose=false)
 ados_gpu = evolution(L_gpu, ρ0, tlist; verbose=false)
 for i in 1:length(tlist)
@@ -87,7 +87,7 @@ bath_dn = Fermion_Lorentz_Pade(d_dn, Γ, μ, W, kT, N)
 bath_list = [bath_up, bath_dn]
 
 ## solve density of states
-ωlist = -10:1:10
+ωlist = -5:0.5:5
 L_cpu     = M_Fermion(Hsys, tier, bath_list; verbose=false)
 L_odd_cpu = M_Fermion(Hsys, tier, bath_list, ODD; verbose=false)
 L_odd_gpu = cu(L_odd_cpu)

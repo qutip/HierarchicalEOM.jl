@@ -21,6 +21,23 @@ function HandleMatrixType(M::AbstractMatrix, dim::Int=0, MatrixName::String="")
     end
 end
 
+function _HandleFloatType(ElType::Type{T}, V::StepRangeLen) where T <: Number
+    if real(ElType) == Float32
+        return StepRangeLen(Float32(V.ref), Float32(V.step), Int32(V.len), Int64(V.offset))
+    else
+        return StepRangeLen(Float64(V.ref), Float64(V.step), Int64(V.len), Int64(V.offset))
+    end
+end
+
+function _HandleFloatType(ElType::Type{T}, V::Any) where T <: Number
+    FType = real(ElType)
+    if eltype(V) == FType
+        return V
+    else
+        convert.(FType, V)
+    end
+end
+
 function _get_pkg_version(pkg_name::String)
     D = Pkg.dependencies()
     for uuid in keys(D)
