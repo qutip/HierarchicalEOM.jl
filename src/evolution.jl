@@ -259,23 +259,24 @@ For more details about solvers and extra options, please refer to [`Differential
         end
     end
 
+    Tlist = _HandleFloatType(eltype(M), tlist)
     ADOs_list::Vector{ADOs} = [ados]
     if SAVE
         jldopen(FILENAME, "a") do file
-            file[string(tlist[1])] = ados
+            file[string(Tlist[1])] = ados
         end
     end
 
     # problem: dρ/dt = L * ρ(0)
     L = MatrixOperator(M.data)
-    prob  = ODEProblem(L, _HandleVectorType(typeof(M.data), ados.data), (tlist[1], tlist[end]))
+    prob  = ODEProblem(L, _HandleVectorType(typeof(M.data), ados.data), (Tlist[1], Tlist[end]))
 
     # setup integrator
     integrator = init(
         prob,
         solver;
-        reltol = reltol,
-        abstol = abstol,
+        reltol = _HandleFloatType(eltype(M), reltol),
+        abstol = _HandleFloatType(eltype(M), abstol),
         maxiters = maxiters,
         save_everystep = save_everystep,
         SOLVEROptions...
@@ -285,10 +286,10 @@ For more details about solvers and extra options, please refer to [`Differential
     if verbose
         print("Solving time evolution for auxiliary density operators...\n")
         flush(stdout)
-        prog = Progress(length(tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
+        prog = Progress(length(Tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
     end
     idx = 1
-    dt_list = diff(tlist)
+    dt_list = diff(Tlist)
     for dt in dt_list
         idx += 1
         step!(integrator, dt, true)
@@ -299,7 +300,7 @@ For more details about solvers and extra options, please refer to [`Differential
         
         if SAVE
             jldopen(FILENAME, "a") do file
-                file[string(tlist[idx])] = ados
+                file[string(Tlist[idx])] = ados
             end
         end
         if verbose
@@ -432,28 +433,29 @@ For more details about solvers and extra options, please refer to [`Differential
         end
     end
 
+    Tlist = _HandleFloatType(eltype(M), tlist)
     ADOs_list::Vector{ADOs} = [ados]
     if SAVE
         jldopen(FILENAME, "a") do file
-            file[string(tlist[1])] = ados
+            file[string(Tlist[1])] = ados
         end
     end
     
-    Ht  = H(param, tlist[1])
-    _Ht = HandleMatrixType(Ht, M.dim, "H (Hamiltonian) at t=$(tlist[1])")
+    Ht  = H(param, Tlist[1])
+    _Ht = HandleMatrixType(Ht, M.dim, "H (Hamiltonian) at t=$(Tlist[1])")
     Lt  = kron(sparse(I, M.N, M.N), - 1im * (spre(_Ht) - spost(_Ht)))
     L   = MatrixOperator(M.data + Lt, update_func! = _update_L!)
     
     # problem: dρ/dt = L(t) * ρ(0)
     ## M.dim will check whether the returned time-dependent Hamiltonian has the correct dimension
-    prob = ODEProblem(L, _HandleVectorType(typeof(M.data), ados.data), (tlist[1], tlist[end]), (M, H, param))
+    prob = ODEProblem(L, _HandleVectorType(typeof(M.data), ados.data), (Tlist[1], Tlist[end]), (M, H, param))
 
     # setup integrator
     integrator = init(
         prob,
         solver;
-        reltol = reltol,
-        abstol = abstol,
+        reltol = _HandleFloatType(eltype(M), reltol),
+        abstol = _HandleFloatType(eltype(M), abstol),
         maxiters = maxiters,
         save_everystep = save_everystep,
         SOLVEROptions...
@@ -463,10 +465,10 @@ For more details about solvers and extra options, please refer to [`Differential
     if verbose
         print("Solving time evolution for auxiliary density operators with time-dependent Hamiltonian...\n")
         flush(stdout)
-        prog = Progress(length(tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
+        prog = Progress(length(Tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
     end
     idx = 1
-    dt_list = diff(tlist)
+    dt_list = diff(Tlist)
     for dt in dt_list
         idx += 1
         step!(integrator, dt, true)
@@ -477,7 +479,7 @@ For more details about solvers and extra options, please refer to [`Differential
         
         if SAVE
             jldopen(FILENAME, "a") do file
-                file[string(tlist[idx])] = ados
+                file[string(Tlist[idx])] = ados
             end
         end
         if verbose

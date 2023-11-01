@@ -40,8 +40,8 @@ kT = 0.5
 N  = 5
 tier  = 3
 
-tlist = 0f0:1f-1:10f0  # same as 0:0.1:10 but in the type of `Float32`
-ωlist = -10f0:1f0:10f0 # same as -10:1:10 but in the type of `Float32`
+tlist = 0:0.1:10
+ωlist = -10:1:10
 
 σm = [0 1; 0  0]
 σz = [1 0; 0 -1]

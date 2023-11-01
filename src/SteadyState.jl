@@ -151,7 +151,7 @@ For more details about solvers and extra options, please refer to [`Differential
     end
     sol = solve(
         SteadyStateProblem(prob), 
-        DynamicSS(solver; abstol = abstol, reltol = reltol);
+        DynamicSS(solver; abstol = _HandleFloatType(eltype(M), abstol), reltol = _HandleFloatType(eltype(M), reltol));
         maxiters = maxiters,
         save_everystep = save_everystep,
         SOLVEROptions...

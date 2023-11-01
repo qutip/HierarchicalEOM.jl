@@ -1,5 +1,5 @@
 @doc raw"""
-    spectrum(M, ρ, op, ω_list; solver, verbose, filename, SOLVEROptions...)
+    spectrum(M, ρ, op, ωlist; solver, verbose, filename, SOLVEROptions...)
 Calculate spectrum for the system.
 
 # To calculate spectrum for bosonic systems (usually known as power spectrum):
@@ -22,7 +22,7 @@ remember to set the parameters:
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model.
 - `ρ` :  the system density matrix or the auxiliary density operators.
 - `op` : The annihilation operator acting on the system.
-- `ω_list::AbstractVector` : the specific frequency points to solve.
+- `ωlist::AbstractVector` : the specific frequency points to solve.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `filename::String` : If filename was specified, the value of spectrum for each ω will be saved into the file "filename.txt" during the solving process.
@@ -31,13 +31,13 @@ remember to set the parameters:
 For more details about solvers and extra options, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
 
 # Returns
-- `spec::AbstractVector` : the spectrum list corresponds to the specified `ω_list`
+- `spec::AbstractVector` : the spectrum list corresponds to the specified `ωlist`
 """
 function spectrum(
         M::AbstractHEOMLSMatrix, 
         ρ, 
         op, 
-        ω_list::AbstractVector; 
+        ωlist::AbstractVector; 
         solver=UMFPACKFactorization(), 
         verbose::Bool = true,
         filename::String = "",
@@ -71,14 +71,14 @@ function spectrum(
 
     # check parity and calculate spectrum
     if (typeof(M.parity) == OddParity)
-        return _density_of_states(M, ados_vec, _op, ω_list; 
+        return _density_of_states(M, ados_vec, _op, ωlist; 
             solver = solver, 
             verbose = verbose,
             filename = filename,
             SOLVEROptions...
         )
     else
-        return _power_spectrum(M, ados_vec, _op, ω_list; 
+        return _power_spectrum(M, ados_vec, _op, ωlist; 
             solver = solver, 
             verbose = verbose,
             filename = filename,
@@ -91,7 +91,7 @@ end
         M::AbstractHEOMLSMatrix, 
         ados_vec::AbstractVector, 
         op,
-        ω_list::AbstractVector; 
+        ωlist::AbstractVector; 
         solver=UMFPACKFactorization(), 
         verbose::Bool = true,
         filename::String = "",
@@ -118,7 +118,9 @@ end
     a_dagger = kron(I_heom, spre(op'))
     X = _HandleVectorType(typeof(M.data), a_normal * ados_vec)
 
-    Length = length(ω_list)
+    i = convert(eltype(M), 1im)
+    ωList  = _HandleFloatType(eltype(M), ωlist)
+    Length = length(ωList)
     Sω = Vector{Float64}(undef, Length)
 
     if verbose
@@ -126,22 +128,22 @@ end
         flush(stdout)
         prog = Progress(Length; desc="Progress : ", PROGBAR_OPTIONS...)
     end
-    Iω    = 1im * ω_list[1] * I_total
+    Iω    = i * ωList[1] * I_total
     cache = init(LinearProblem(M.data - Iω, X), solver, SOLVEROptions...)
     sol   = solve!(cache)
-    @inbounds for (i, ω) in enumerate(ω_list)
-        if i > 1            
-            Iω  = 1im * ω * I_total
+    @inbounds for (j, ω) in enumerate(ωList)
+        if j > 1            
+            Iω  = i * ω * I_total
             cache.A = M.data - Iω
             sol = solve!(cache)
         end
 
         # trace over the Hilbert space of system (expectation value)
-        Sω[i] = -1 * real(I_dual_vec * (a_dagger * _HandleVectorType(sol.u, false))[1:(M.sup_dim)])
+        Sω[j] = -1 * real(I_dual_vec * (a_dagger * _HandleVectorType(sol.u, false))[1:(M.sup_dim)])
 
         if SAVE
             open(FILENAME, "a") do file
-                write(file, "$(Sω[i]),\n")
+                write(file, "$(Sω[j]),\n")
             end
         end
 
@@ -160,7 +162,7 @@ end
         M::AbstractHEOMLSMatrix, 
         ados_vec::AbstractVector, 
         op,
-        ω_list::AbstractVector; 
+        ωlist::AbstractVector; 
         solver=UMFPACKFactorization(), 
         verbose::Bool = true,
         filename::String = "",
@@ -188,7 +190,9 @@ end
     X_m = _HandleVectorType(typeof(M.data), d_normal * ados_vec)
     X_p = _HandleVectorType(typeof(M.data), d_dagger * ados_vec)
 
-    Length = length(ω_list)
+    i = convert(eltype(M), 1im)
+    ωList  = _HandleFloatType(eltype(M), ωlist)
+    Length = length(ωList)
     Aω = Vector{Float64}(undef, Length)
 
     if verbose
@@ -196,14 +200,14 @@ end
         flush(stdout)
         prog = Progress(Length; desc="Progress : ", PROGBAR_OPTIONS...)
     end
-    Iω = 1im * ω_list[1] * I_total
+    Iω = i * ωList[1] * I_total
     cache_m = init(LinearProblem(M.data - Iω, X_m),  solver, SOLVEROptions...)
     cache_p = init(LinearProblem(M.data + Iω, X_p), solver, SOLVEROptions...)
     sol_m  = solve!(cache_m)
     sol_p  = solve!(cache_p)
-    @inbounds for (i, ω) in enumerate(ω_list)
-        if i > 1
-            Iω = 1im * ω * I_total
+    @inbounds for (j, ω) in enumerate(ωList)
+        if j > 1
+            Iω = i * ω * I_total
 
             cache_m.A = M.data - Iω
             sol_m = solve!(cache_m)
@@ -215,14 +219,14 @@ end
         Cω_p = d_normal * _HandleVectorType(sol_p.u, false)
         
         # trace over the Hilbert space of system (expectation value)
-        Aω[i] = -1 * (
+        Aω[j] = -1 * (
             real(I_dual_vec * Cω_p[1:(M.sup_dim)]) + 
             real(I_dual_vec * Cω_m[1:(M.sup_dim)])
         )
 
         if SAVE
             open(FILENAME, "a") do file
-                write(file, "$(Aω[i]),\n")
+                write(file, "$(Aω[j]),\n")
             end
         end
 
