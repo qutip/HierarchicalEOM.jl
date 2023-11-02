@@ -87,7 +87,7 @@ MKLPardisoIterate();
 # ### Julia's built-in LU factorization
 @benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = LUFactorization(), verbose = false)
 
-# ### MKLLUFactorization
+# ### KrylovJL_BICGSTAB
 @benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = KrylovJL_BICGSTAB(rtol=1e-10, atol=1e-12), verbose = false)
 
 # ### MKLPardisoFactorize
