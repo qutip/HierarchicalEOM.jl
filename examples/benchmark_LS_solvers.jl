@@ -45,6 +45,9 @@ KLUFactorization();
 # ### Julia's built-in LU factorization
 LUFactorization();
 
+# ### A generic BICGSTAB implementation from Krylov
+KrylovJL_BICGSTAB();
+
 # ### Pardiso
 # This solver is based on Intel openAPI Math Kernel Library (MKL) Pardiso
 # !!! note "Note"
@@ -65,6 +68,9 @@ MKLPardisoIterate();
 # ### Julia's built-in generic LU factorization
 @benchmark SteadyState(M_even; solver = LUFactorization(), verbose = false)
 
+# ### KrylovJL_BICGSTAB
+@benchmark SteadyState(M_even; solver = KrylovJL_BICGSTAB(rtol=1e-10, atol=1e-12), verbose = false)
+
 # ### MKLPardisoFactorize
 @benchmark SteadyState(M_even; solver = MKLPardisoFactorize(), verbose = false)
 
@@ -80,6 +86,9 @@ MKLPardisoIterate();
 
 # ### Julia's built-in LU factorization
 @benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = LUFactorization(), verbose = false)
+
+# ### MKLLUFactorization
+@benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = KrylovJL_BICGSTAB(rtol=1e-10, atol=1e-12), verbose = false)
 
 # ### MKLPardisoFactorize
 @benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = MKLPardisoFactorize(), verbose = false)
