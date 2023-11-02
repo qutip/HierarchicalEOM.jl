@@ -56,11 +56,11 @@ bath_dn = Fermion_Lorentz_Pade(d_dn, Γ, μ, W, kT, N)
 bath_list = [bath_up, bath_dn]
 
 # even HEOMLS matrix
-M_even_cpu = M_Fermion(Hsys, tier, bath_list; verbose=false)
+M_even_cpu = M_Fermion(Hsys, tier, bath_list)
 M_even_gpu = cu(M_even_cpu)
 
 # odd HEOMLS matrix
-M_odd_cpu  = M_Fermion(Hsys, tier, bath_list, ODD; verbose=false)
+M_odd_cpu  = M_Fermion(Hsys, tier, bath_list, ODD)
 M_odd_gpu  = cu(M_odd_cpu)
 
 # solve steady state with CPU
@@ -73,23 +73,23 @@ ados_ss = SteadyState(M_even_cpu);
 ### Solving time evolution with CPU
 
 ```julia
-ados_list_cpu = evolution(M_even_cpu, ρ0, tlist; verbose=false)
+ados_list_cpu = evolution(M_even_cpu, ρ0, tlist)
 ```
 
 ### Solving time evolution with GPU
 
 ```julia
-ados_list_gpu = evolution(M_even_gpu, ρ0, tlist; verbose=false)
+ados_list_gpu = evolution(M_even_gpu, ρ0, tlist)
 ```
 
 ### Solving Spectrum with CPU
 
 ```julia
-dos_cpu = spectrum(M_odd_cpu, ados_ss, d_up, ωlist; verbose=false)
+dos_cpu = spectrum(M_odd_cpu, ados_ss, d_up, ωlist)
 ```
 
 ### Solving Spectrum with GPU
 
 ```julia
-dos_gpu = spectrum(M_odd_gpu, ados_ss, d_up, ωlist; solver=KrylovJL_BICGSTAB(rtol=1f-10, atol=1f-12), verbose=false)
+dos_gpu = spectrum(M_odd_gpu, ados_ss, d_up, ωlist; solver=KrylovJL_BICGSTAB(rtol=1f-10, atol=1f-12))
 ```
