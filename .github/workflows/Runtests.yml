@@ -15,6 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # for Core functionalities
         julia-version:
           - '1'
           - '1.8'
@@ -26,8 +27,12 @@ jobs:
           - x64
         group:
           - Core
+
+        # for extensions
         include:
           - julia-version: '1'
+            os: 'ubuntu-latest'
+            arch: 'x64'
             group: 'HierarchicalEOM_QOExt'
     steps:
       - uses: actions/checkout@v4
