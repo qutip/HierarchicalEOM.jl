@@ -50,17 +50,13 @@ Calculate power spectrum for the system.
 \pi S(\omega)=\textrm{Re}\left\{\int_0^\infty dt \langle P(t) Q(0)\rangle e^{-i\omega t}\right\},
 ```
 
-# To calculate spectrum when both input operators (`P_op` and `Q_op`) have `EVEN`-parity:
+# To calculate spectrum when input operator `Q_op` has `EVEN`-parity:
 remember to set the parameters: 
 - `M::AbstractHEOMLSMatrix`: should be `EVEN` parity
-- `P_op`: the operator ``P`` (should be `EVEN` parity) as shown above 
-- `Q_op`: the operator ``Q`` (should be `EVEN` parity) as shown above 
 
-# To calculate spectrum when both input operators (`P_op` and `Q_op`) have `ODD`-parity:
+# To calculate spectrum when input operator `Q_op` has `ODD`-parity:
 remember to set the parameters: 
 - `M::AbstractHEOMLSMatrix`: should be `ODD` parity
-- `P_op`: the operator ``P`` (should be `ODD` parity) as shown above 
-- `Q_op`: the operator ``Q`` (should be `ODD` parity) as shown above 
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the HEOMLS matrix.
@@ -68,7 +64,7 @@ remember to set the parameters:
 - `P_op`: the operator ``P`` acting on the system.
 - `Q_op`: the operator ``Q`` acting on the system.
 - `ωlist::AbstractVector` : the specific frequency points to solve.
-- `reverse::Bool` : If `true`, calculate ``\langle P(0) Q(t) \rangle`` instead of ``\langle P(t) Q(0) \rangle``. Default to `false`.
+- `reverse::Bool` : If `true`, calculate ``\langle P(-t)Q(0) \rangle = \langle P(0)Q(t) \rangle = \langle P(t)Q(0) \rangle^*`` instead of ``\langle P(t) Q(0) \rangle``. Default to `false`.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `filename::String` : If filename was specified, the value of spectrum for each ω will be saved into the file "filename.txt" during the solving process.
@@ -205,7 +201,6 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 # Returns
 - `dos::AbstractVector` : the list of density of states corresponds to the specified `ωlist`
 """
-
 @noinline function DensityOfStates(
         M::AbstractHEOMLSMatrix, 
         ρ,
