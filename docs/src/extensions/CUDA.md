@@ -1,11 +1,11 @@
 # [Extension for CUDA.jl](@id doc-ext-CUDA)
 
-This is an extension to support GPU ([`CUDA.jl`](https://github.com/JuliaGPU/CUDA.jl)) acceleration for solving the [time evolution](@ref doc-Time-Evolution) and [spectrum](@ref doc-Spectrum). This improves the execution time and memory usage especially when the HEOMLS matrix is super large.
+This is an extension to support GPU ([`CUDA.jl`](https://github.com/JuliaGPU/CUDA.jl)) acceleration for solving the [time evolution](@ref doc-Time-Evolution) and [spectra](@ref doc-Spectrum). This improves the execution time and memory usage especially when the HEOMLS matrix is super large.
 
 !!! compat "Compat"
     The described feature requires `Julia 1.9+`.
 
-The functions [`evolution`](@ref doc-Time-Evolution) (only supports ODE method with time-independent system Hamiltonian) and [`spectrum`](@ref doc-Spectrum) will automatically choose to solve on CPU or GPU depend on the type of the sparse matrix in `M::AbstractHEOMLSMatrix` objects (i.e., the type of the field `M.data`). 
+The functions of calculating [time evolution](@ref doc-Time-Evolution) (only supports ODE method with time-independent system Hamiltonian) and [spectra](@ref doc-Spectrum) will automatically choose to solve on CPU or GPU depend on the type of the sparse matrix in `M::AbstractHEOMLSMatrix` objects (i.e., the type of the field `M.data`). 
 
 ```julia
 typeof(M.data) <:   SparseMatrixCSC # solve on CPU
@@ -85,11 +85,11 @@ ados_list_gpu = evolution(M_even_gpu, ρ0, tlist)
 ### Solving Spectrum with CPU
 
 ```julia
-dos_cpu = spectrum(M_odd_cpu, ados_ss, d_up, ωlist)
+dos_cpu = DensityOfStates(M_odd_cpu, ados_ss, d_up, ωlist)
 ```
 
 ### Solving Spectrum with GPU
 
 ```julia
-dos_gpu = spectrum(M_odd_gpu, ados_ss, d_up, ωlist; solver=KrylovJL_BICGSTAB(rtol=1f-10, atol=1f-12))
+dos_gpu = DensityOfStates(M_odd_gpu, ados_ss, d_up, ωlist; solver=KrylovJL_BICGSTAB(rtol=1f-10, atol=1f-12))
 ```

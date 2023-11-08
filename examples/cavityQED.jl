@@ -149,10 +149,10 @@ p2 = Plots.plot(
 Plots.plot(p1, p2, layout=[1,1])
 Plots.xaxis!("t")
 
-# ## Power spectral density
+# ## Power spectrum
 # (see also [Spectrum](@ref doc-Spectrum))
 ω_list = 1:0.01:3
-psd_H = spectrum(M_Heom, steady_H, a.data, ω_list)
+psd_H = PowerSpectrum(M_Heom, steady_H, a.data, ω_list)
 
 Plots.plot(ω_list, psd_H, linewidth=3)
 Plots.xaxis!(L"\omega")
@@ -160,7 +160,7 @@ Plots.xaxis!(L"\omega")
 # ## Compare with Master Eq. approach
 # (see also [HEOMLS for Master Equations](@ref doc-Master-Equation))
 #   
-# The Lindblad master equations which describs the cavity couples to an extra bosonic reservoir with [Drude-Lorentzian spectrum density](@ref Boson-Drude-Lorentz) is given by
+# The Lindblad master equations which describs the cavity couples to an extra bosonic reservoir with [Drude-Lorentzian spectral density](@ref Boson-Drude-Lorentz) is given by
 
 ## Drude_Lorentzian spectral density
 Drude_Lorentz(ω, Γ, W) = 4 * Γ * W * ω / ( (ω)^2 + (W)^2 )
@@ -216,10 +216,10 @@ p2 = Plots.plot(
 Plots.plot(p1, p2, layout=[1,1])
 Plots.xaxis!("t")
 
-# We can also calculate the power spectral density
+# We can also calculate the power spectrum
 
 ω_list = 1:0.01:3
-psd_M = spectrum(M_master, steady_M, a.data, ω_list)
+psd_M = PowerSpectrum(M_master, steady_M, a.data, ω_list)
 
 Plots.plot(ω_list, psd_M, linewidth=3)
 Plots.xaxis!(L"\omega")

@@ -79,19 +79,19 @@ MKLPardisoIterate();
 
 # ## Calculate Spectrum
 # ### UMFPACKFactorization (Default solver)
-@benchmark spectrum(M_odd, ados_s, d_up, ωlist; verbose = false)
+@benchmark DensityOfStates(M_odd, ados_s, d_up, ωlist; verbose = false)
 
 # ### KLUFactorization
-@benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = KLUFactorization(), verbose = false)
+@benchmark DensityOfStates(M_odd, ados_s, d_up, ωlist; solver = KLUFactorization(), verbose = false)
 
 # ### Julia's built-in LU factorization
-@benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = LUFactorization(), verbose = false)
+@benchmark DensityOfStates(M_odd, ados_s, d_up, ωlist; solver = LUFactorization(), verbose = false)
 
 # ### KrylovJL_BICGSTAB
-@benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = KrylovJL_BICGSTAB(rtol=1e-10, atol=1e-12), verbose = false)
+@benchmark DensityOfStates(M_odd, ados_s, d_up, ωlist; solver = KrylovJL_BICGSTAB(rtol=1e-10, atol=1e-12), verbose = false)
 
 # ### MKLPardisoFactorize
-@benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = MKLPardisoFactorize(), verbose = false)
+@benchmark DensityOfStates(M_odd, ados_s, d_up, ωlist; solver = MKLPardisoFactorize(), verbose = false)
 
 # ### MKLPardisoIterate
-@benchmark spectrum(M_odd, ados_s, d_up, ωlist; solver = MKLPardisoIterate(), verbose = false)
+@benchmark DensityOfStates(M_odd, ados_s, d_up, ωlist; solver = MKLPardisoIterate(), verbose = false)

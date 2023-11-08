@@ -27,7 +27,7 @@ Elist = Expect(A, ados_list)
 ```
 Here, `Elist` contains the expectation values corresponding to the `ados_list` (i.e., the reduced density operator in each time step).
 
-### Common and optional parameters for `evolution`
+## Common and optional parameters
 Furthermore, there are two common optional parameters for all the methods provided below:
  - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
  - `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file during the solving process. Default to Empty `String`: `""`.
@@ -61,7 +61,9 @@ The first method is implemented by solving the ordinary differential equation (O
 
 See the docstring of this method:  
 
-[`evolution(M::AbstractHEOMLSMatrix, ρ0, tlist::AbstractVector)`](@ref)
+```@docs
+evolution(M::AbstractHEOMLSMatrix, ρ0, tlist::AbstractVector; solver = DP5(), reltol::Real = 1.0e-6, abstol::Real = 1.0e-8, maxiters::Real = 1e5, save_everystep::Bool=false, verbose::Bool = true, filename::String = "", SOLVEROptions...)
+```
 
 ```julia
 # the time-independent HEOMLS matrix
@@ -79,9 +81,12 @@ ados_list = evolution(M, ρ0, tlist)
 ### Given the initial state as Auxiliary Density Operators
 !!! note "Note" 
     This method is usually used when you want to solve the time evolution again with the initial state are given from the last time point of the previous result.
+
 See the docstring of this method:   
 
-[`evolution(M::AbstractHEOMLSMatrix, ados::ADOs, tlist::AbstractVector)`](@ref)
+```@docs
+evolution(M::AbstractHEOMLSMatrix, ados::ADOs, tlist::AbstractVector; solver = DP5(), reltol::Real = 1.0e-6, abstol::Real = 1.0e-8, maxiters::Real = 1e5, save_everystep::Bool=false, verbose::Bool = true, filename::String = "", SOLVEROptions...)
+```
 
 ```julia
 # the time-independent HEOMLS matrix
@@ -108,7 +113,9 @@ To construct the propagator, we wrap the function in the package [`fastExpm.jl`]
 ### Given the initial state as Density Operator (`AbstractMatrix` type)
 See the docstring of this method:  
 
-[`evolution(M::AbstractHEOMLSMatrix, ρ0, Δt::Real, steps::Int)`](@ref)
+```@docs
+evolution(M::AbstractHEOMLSMatrix, ρ0, Δt::Real, steps::Int; threshold   = 1.0e-6, nonzero_tol = 1.0e-14, verbose::Bool = true, filename::String = "")
+```
 
 ```julia
 # the time-independent HEOMLS matrix
@@ -132,7 +139,9 @@ ados_list = evolution(M, ρ0, Δt, steps)
     This method is usually used when you want to solve the time evolution again with the initial state are given from the last time point of the previous result.
 See the docstring of this method:  
 
-[`evolution(M::AbstractHEOMLSMatrix, ados::ADOs, Δt::Real, steps::Int)`](@ref)
+```@docs
+evolution(M::AbstractHEOMLSMatrix, ados::ADOs, Δt::Real, steps::Int; threshold   = 1.0e-6, nonzero_tol = 1.0e-14, verbose::Bool = true, filename::String = "")
+```
 
 ```julia
 # the time-independent HEOMLS matrix
@@ -210,7 +219,9 @@ ados_list = evolution(M, ρ0, tlist, H_pump)
 ### Given the initial state as Density Operator (`AbstractMatrix` type)
 See the docstring of this method:  
 
-[`evolution(M::AbstractHEOMLSMatrix, ρ0, tlist::AbstractVector, H::Function, param::Tuple = ())`](@ref)
+```@docs
+evolution(M::AbstractHEOMLSMatrix, ρ0, tlist::AbstractVector, H::Function, param::Tuple = (); solver = DP5(), reltol::Real = 1.0e-6, abstol::Real = 1.0e-8, maxiters::Real = 1e5, save_everystep::Bool=false, verbose::Bool = true, filename::String = "", SOLVEROptions...)
+```
 
 
 ### Given the initial state as Auxiliary Density Operators
@@ -218,4 +229,7 @@ See the docstring of this method:
     This method is usually used when you want to solve the time evolution again with the initial state are given from the last time point of the previous result.
 
 See the docstring of this method:  
-[`evolution(M::AbstractHEOMLSMatrix, ados::ADOs, tlist::AbstractVector, H::Function, param::Tuple = ())`](@ref)
+
+```@docs
+evolution(M::AbstractHEOMLSMatrix, ados::ADOs, tlist::AbstractVector, H::Function, param::Tuple = (); solver = DP5(), reltol::Real = 1.0e-6, abstol::Real = 1.0e-8, maxiters::Real = 1e5, save_everystep::Bool=false, verbose::Bool = true, filename::String = "", SOLVEROptions...)
+```
