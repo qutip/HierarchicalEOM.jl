@@ -18,7 +18,7 @@ module HierarchicalEOM
     # sub-module Bath for HierarchicalEOM
     module Bath
         import Base: show, length, getindex, lastindex, iterate, checkbounds
-        import LinearAlgebra: I, kron, ishermitian
+        import LinearAlgebra: I, kron, ishermitian, eigvals
         import SparseArrays: sparse, SparseMatrixCSC
         import ..HeomBase: HandleMatrixType
 
@@ -26,24 +26,14 @@ module HierarchicalEOM
             AbstractBath, BosonBath, BosonBathRWA, FermionBath, Exponent, C,
             AbstractBosonBath, bosonReal, bosonImag, bosonRealImag, bosonAbsorb, bosonEmit,
             AbstractFermionBath, fermionAbsorb, fermionEmit,
-            spre, spost
-
-        include("Bath.jl")
-    end
-    @reexport using .Bath
-
-    # sub-module CorrelationFunc for HierarchicalEOM
-    module CorrelationFunc
-        import ..Bath: BosonBath, FermionBath
-        import LinearAlgebra: eigvals
-
-        export 
+            spre, spost,
             Boson_DrudeLorentz_Matsubara, Boson_DrudeLorentz_Pade, 
             Fermion_Lorentz_Matsubara, Fermion_Lorentz_Pade
 
-        include("correlation_functions/CorrelationFunc.jl")
+        include("Bath.jl")
+        include("bath_correlation_functions/bath_correlation_func.jl")
     end
-    @reexport using .CorrelationFunc
+    @reexport using .Bath
     
     # sub-module HeomAPI for HierarchicalEOM
     module HeomAPI
