@@ -1,5 +1,4 @@
 using Test, Pkg
-using QuantumOptics
 using HierarchicalEOM
 using SparseArrays
 using LinearAlgebra
@@ -38,7 +37,10 @@ if GROUP == "HierarchicalEOM_CUDAExt"
 end
 
 if (GROUP == "All" || GROUP == "HierarchicalEOM_QOExt") && HAS_EXTENSIONS
+    Pkg.activate("QuantumOptics")
+    Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
+    Pkg.instantiate()
     @testset "QuantumOptics Extension" begin
-        include("QOExt.jl")
+        include("QuantumOptics/QOExt.jl")
     end
 end

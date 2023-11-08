@@ -13,7 +13,9 @@ The first method is implemented by solving the linear problem
 
 See the docstring of this method:  
 
-[`SteadyState(M::AbstractHEOMLSMatrix)`](@ref)
+```@docs
+SteadyState(M::AbstractHEOMLSMatrix; solver=UMFPACKFactorization(), verbose::Bool=true, SOLVEROptions...)
+```
 
 ```julia
 # the HEOMLS matrix
@@ -36,7 +38,9 @@ until finding a stationary solution.
 ### Given the initial state as Density Operator (`AbstractMatrix` type)
 See the docstring of this method:  
 
-[`SteadyState(M::AbstractHEOMLSMatrix, ρ0)`](@ref)
+```@docs
+SteadyState(M::AbstractHEOMLSMatrix, ρ0; solver = DP5(), reltol::Real = 1.0e-6, abstol::Real = 1.0e-8, maxiters::Real = 1e5, save_everystep::Bool=false, verbose::Bool = true, SOLVEROptions...)
+```
 
 ```julia
 # the HEOMLS matrix
@@ -50,7 +54,9 @@ ados_steady = SteadyState(M, ρ0)
 
 ### Given the initial state as Auxiliary Density Operators
 See the docstring of this method:  
-[`SteadyState(M::AbstractHEOMLSMatrix, ados::ADOs)`](@ref)
+```@docs
+SteadyState(M::AbstractHEOMLSMatrix, ados::ADOs; solver = DP5(), reltol::Real = 1.0e-6, abstol::Real = 1.0e-8, maxiters::Real = 1e5, save_everystep::Bool=false, verbose::Bool = true, SOLVEROptions...)
+```
 
 ```julia
 # the HEOMLS matrix

@@ -49,12 +49,14 @@ end
     # using the method based on propagator
     ados_list = evolution(L, ρ0, Δt, steps; verbose=false, filename="evolution_p")
     ados_wrong1 = ADOs(zeros(8), 2)
-    ados_wrong2 = ADOs((ados_list[1]).data, (ados_list[1]).N, ODD)
+    ados_wrong2 = ADOs(zeros(32), 2)
+    ados_wrong3 = ADOs((ados_list[1]).data, (ados_list[1]).N, ODD)
     ρ_list_p = getRho.(ados_list)
     @test_throws ErrorException evolution(L, ρ0, Δt, steps; verbose=false, filename="evolution_p")
     @test_throws ErrorException evolution(L, ρ_wrong, Δt, steps; verbose=false)
-    @test_throws ErrorException evolution(L, ados_wrong1, Δt, steps)
-    @test_throws ErrorException evolution(L, ados_wrong2, Δt, steps)
+    @test_throws ErrorException evolution(L, ados_wrong1, Δt, steps; verbose=false)
+    @test_throws ErrorException evolution(L, ados_wrong2, Δt, steps; verbose=false)
+    @test_throws ErrorException evolution(L, ados_wrong3, Δt, steps; verbose=false)
 
     if isfile("evolution_o.jld2")
         rm("evolution_o.jld2")
@@ -63,8 +65,9 @@ end
     ρ_list_e = getRho.(evolution(L, ρ0, tlist; verbose=false, filename="evolution_o"))
     @test_throws ErrorException evolution(L, ρ0, tlist; verbose=false, filename="evolution_o")
     @test_throws ErrorException evolution(L, ρ_wrong, tlist; verbose=false)
-    @test_throws ErrorException evolution(L, ados_wrong1, tlist)
-    @test_throws ErrorException evolution(L, ados_wrong2, tlist)
+    @test_throws ErrorException evolution(L, ados_wrong1, tlist; verbose=false)
+    @test_throws ErrorException evolution(L, ados_wrong2, tlist; verbose=false)
+    @test_throws ErrorException evolution(L, ados_wrong3, tlist; verbose=false)
 
     for i in 1:(steps + 1)
         @test _is_Matrix_approx(ρ_list_p[i], ρ_list_e[i])
@@ -209,13 +212,17 @@ end
             zeros(3, 3)
         end
     end
-    @test_throws ErrorException evolution(L, ρ0, tlist, H_wrong1; verbose=false);
-    @test_throws ErrorException evolution(L, ρ0, tlist, H_wrong2; verbose=false);
-    @test_throws ErrorException evolution(L, ados_wrong1, tlist, Ht)
-    @test_throws ErrorException evolution(L, ados_wrong2, tlist, Ht)
+    ados_wrong1 = ADOs(zeros(8), 2)
+    ados_wrong2 = ADOs(zeros(32), 2)
+    ados_wrong3 = ADOs((slowDD_ados[1]).data, (slowDD_ados[1]).N, ODD)
+    @test_throws ErrorException evolution(L, ρ0, tlist, H_wrong1; verbose=false)
+    @test_throws ErrorException evolution(L, ρ0, tlist, H_wrong2; verbose=false)
+    @test_throws ErrorException evolution(L, ados_wrong1, tlist, Ht; verbose=false)
+    @test_throws ErrorException evolution(L, ados_wrong2, tlist, Ht; verbose=false)
+    @test_throws ErrorException evolution(L, ados_wrong3, tlist, Ht; verbose=false)
 end
 
-@testset "Power spectral density" begin
+@testset "Power spectrum" begin
     a = [0 1; 0 0]
 
     Hsys = a' * a
@@ -237,7 +244,7 @@ end
     if isfile("PSD.txt")
         rm("PSD.txt")
     end
-    psd1 = spectrum(L, ados_s, a, ωlist; verbose=false, filename="PSD")
+    psd1 = PowerSpectrum(L, ados_s, a, ωlist; verbose=false, filename="PSD")
     psd2 = [
         8.88036729e-04,
         1.06145358e-03,
@@ -268,11 +275,12 @@ end
     mat  = spzeros(ComplexF64, 2, 2)
     mat2 = spzeros(ComplexF64, 3, 3)
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
-    @test_throws ErrorException spectrum(L, ados_s, a, ωlist; verbose=false, filename="PSD")
-    @test_throws ErrorException spectrum(L, ados_s, mat2, ωlist; verbose=false)
-    @test_throws ErrorException spectrum(L, ADOs(zeros(8), 2), a, ωlist; verbose=false)
-    @test_throws ErrorException spectrum(L, ADOs(ados_s.data, ados_s.N, ODD), a, ωlist; verbose=false)
-    @test_throws ErrorException spectrum(M_Fermion(mat, 2, bathf, ODD; verbose=false), mat, mat, [0])
+    @test_throws ErrorException spectrum(L, ados_s, a, ωlist; verbose=false)
+    @test_throws ErrorException PowerSpectrum(L, ados_s, a, ωlist; verbose=false, filename="PSD")
+    @test_throws ErrorException PowerSpectrum(L, ados_s, mat2, ωlist; verbose=false)
+    @test_throws ErrorException PowerSpectrum(L, ADOs(zeros(8), 2), a, ωlist; verbose=false)
+    @test_throws ErrorException PowerSpectrum(L, ADOs(zeros(32), 2), a, ωlist; verbose=false)
+    @test_throws ErrorException PowerSpectrum(L, ADOs(ados_s.data, ados_s.N, ODD), a, ωlist; verbose=false)
 end
 
 @testset "Density of states" begin
@@ -307,8 +315,9 @@ end
     if isfile("DOS.txt")
         rm("DOS.txt")
     end
-    dos1 = spectrum(Lo, ados_s, d_up, ωlist; verbose=false, filename="DOS")
-    dos2 = [
+    dos1 = DensityOfStates(Lo, ados_s, d_up, ωlist; verbose=false, filename="DOS")
+    dos2 = PowerSpectrum(Lo, ados_s, d_up', ωlist, true; verbose=false) .+ PowerSpectrum(Lo, ados_s, d_up, ωlist, false; verbose=false)
+    dos3 = [
         0.0007920428534358747,
         0.0012795202828027256,
         0.0022148985361417936,
@@ -332,18 +341,20 @@ end
         0.0007920428534358735
     ]
     for i in 1:length(ωlist)
-        @test dos1[i] ≈ dos2[i] atol=1.0e-10
+        @test dos1[i] ≈ dos3[i] atol=1.0e-10
+        @test dos2[i] ≈ dos3[i] atol=1.0e-10
     end
 
     mat  = spzeros(ComplexF64, 2, 2)
     mat2 = spzeros(ComplexF64, 3, 3)
     bathb = Boson_DrudeLorentz_Pade(mat, 1, 1, 1, 2)
-    @test_throws ErrorException spectrum(Lo, ados_s, d_up, ωlist; verbose=false, filename="DOS")
-    @test_throws ErrorException spectrum(Lo, ados_s, mat2, ωlist; verbose=false)
-    @test_throws ErrorException spectrum(Lo, ADOs(zeros(8), 2), d_up, ωlist; verbose=false)
-    @test_throws ErrorException spectrum(Lo, ADOs(ados_s.data, ados_s.N, ODD), d_up, ωlist; verbose=false)
-    @test_throws ErrorException spectrum(M_Boson(mat, 2, bathb; verbose=false), mat, mat, [0])
-    @test_throws ErrorException spectrum(M_Fermion(mat, 2, fuL; verbose=false), mat, mat, [0])
+    @test_throws ErrorException spectrum(Lo, ados_s, d_up, ωlist; verbose=false)
+    @test_throws ErrorException DensityOfStates(Lo, ados_s, mat2, ωlist; verbose=false)
+    @test_throws ErrorException DensityOfStates(Lo, ADOs(zeros(8), 2), d_up, ωlist; verbose=false)
+    @test_throws ErrorException DensityOfStates(Lo, ADOs(zeros(32), 2), d_up, ωlist; verbose=false)
+    @test_throws ErrorException DensityOfStates(Lo, ADOs(ados_s.data, ados_s.N, ODD), d_up, ωlist; verbose=false)
+    @test_throws ErrorException DensityOfStates(M_Boson(mat, 2, bathb; verbose=false), mat, mat, [0])
+    @test_throws ErrorException DensityOfStates(M_Fermion(mat, 2, fuL; verbose=false), mat, mat, [0])
 end
 
 # remove all the temporary files

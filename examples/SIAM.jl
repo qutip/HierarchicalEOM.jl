@@ -58,6 +58,6 @@ ados_s = SteadyState(M_even)
 # ## Calculate density of states (DOS)
 # (see also [Spectrum](@ref doc-Spectrum))
 ωlist = -10:1:10
-dos = spectrum(M_odd, ados_s, d_up, ωlist)
+dos = DensityOfStates(M_odd, ados_s, d_up, ωlist)
 
 Plots.plot(ωlist, dos)

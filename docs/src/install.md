@@ -32,10 +32,10 @@ In order to get a better experience and take full advantage of `HierarchicalEOM`
     `HierarchicalEOM.jl` provides an extension to support `QuantumOptics`-type object, but this feature requires `Julia 1.9+` and `HierarchicalEOM 0.3+`. See [here](@ref doc-ext-QuantumOptics) for more details.
 
 ### [DifferentialEquations.jl](https://diffeq.sciml.ai/stable/)
-`DifferentialEquations` is needed to provide the low-level ODE solvers especially for solving time [`evolution`](@ref). For [low dependency usage](https://diffeq.sciml.ai/stable/features/low_dep/), users can use [`OrdinaryDiffEq.jl`](https://github.com/JuliaDiffEq/OrdinaryDiffEq.jl) instead.
+`DifferentialEquations` is needed to provide the low-level ODE solvers especially for solving [time evolution](@ref doc-Time-Evolution). For [low dependency usage](https://diffeq.sciml.ai/stable/features/low_dep/), users can use [`OrdinaryDiffEq.jl`](https://github.com/JuliaDiffEq/OrdinaryDiffEq.jl) instead.
 
 ### [LinearSolve.jl](http://linearsolve.sciml.ai/stable/)
-`LinearSolve` is a unified interface for the linear solving packages of Julia. It interfaces with other packages of the Julia ecosystem to make it easier to test alternative solver packages and pass small types to control algorithm swapping. It is needed to provide the solvers especially for solving [`SteadyState`](@ref) and [`spectrum`](@ref) for both bosonic and fermionic systems.
+`LinearSolve` is a unified interface for the linear solving packages of Julia. It interfaces with other packages of the Julia ecosystem to make it easier to test alternative solver packages and pass small types to control algorithm swapping. It is needed to provide the solvers especially for solving [stationary state](@ref doc-Stationary-State) and [spectra](@ref doc-Spectrum) for both bosonic and fermionic systems.
 
 ### [JLD2.jl](https://juliaio.github.io/JLD2.jl/stable/)
 `JLD2` saves and loads Julia data structures in a format comprising a subset of HDF5. Because the size of matrix in `HierarchicalEOM` is usually super large and leads to long time calculation, we support the functionality for saving and loading the `HierarchicalEOM`-type objects into files by `JLD2 >= 0.4.23`.

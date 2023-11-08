@@ -40,7 +40,7 @@ fermionEmit
 fermionEmit(op::AbstractMatrix, η_emit::Vector{Ti}, γ_emit::Vector{Tj}, η_absorb::Vector{Tk}) where {Ti, Tj, Tk <: Number}
 ```
 
-## Correlation Functions
+## Bath Correlation Functions
 
 ```@docs
 Boson_DrudeLorentz_Matsubara
@@ -110,6 +110,8 @@ SteadyState
 ## Spectrum
 ```@docs
 spectrum
+PowerSpectrum
+DensityOfStates
 ```
 
 ## Misc.
