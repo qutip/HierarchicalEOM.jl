@@ -92,8 +92,8 @@ L_cpu     = M_Fermion(Hsys, tier, bath_list; verbose=false)
 L_odd_cpu = M_Fermion(Hsys, tier, bath_list, ODD; verbose=false)
 L_odd_gpu = cu(L_odd_cpu)
 ados_cpu  = SteadyState(L_cpu; verbose=false)
-dos_cpu   = spectrum(L_odd_cpu, ados_cpu, d_up, ωlist; verbose=false)
-dos_gpu   = spectrum(L_odd_gpu, ados_cpu, d_up, ωlist; solver=KrylovJL_BICGSTAB(rtol=1f-10, atol=1f-12), verbose=false)
+dos_cpu   = DensityOfStates(L_odd_cpu, ados_cpu, d_up, ωlist; verbose=false)
+dos_gpu   = DensityOfStates(L_odd_gpu, ados_cpu, d_up, ωlist; solver=KrylovJL_BICGSTAB(rtol=1f-10, atol=1f-12), verbose=false)
 for (i, ω) in enumerate(ωlist)
     @test dos_cpu[i] ≈ dos_gpu[i]  atol = 1e-6
 end

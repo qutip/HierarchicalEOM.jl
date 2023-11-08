@@ -77,7 +77,7 @@ module HierarchicalEOM
         import ProgressMeter: Progress, next!        
         import ..HeomBase: PROGBAR_OPTIONS, HandleMatrixType, _HandleFloatType
 
-        export spectrum
+        export spectrum, PowerSpectrum, DensityOfStates
 
         include("Spectrum.jl")
     end

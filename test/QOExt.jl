@@ -44,7 +44,7 @@ L = addBosonDissipator(L, 1e-3 * a')
 L = addTerminator(L, bath)
 ados_s = SteadyState(L; verbose=false)
 ωlist = [0.9]
-@test spectrum(L, ados_s, a, ωlist; verbose=false)[1] ≈ 0.0008880367286438112
+@test PowerSpectrum(L, ados_s, a, ωlist; verbose=false)[1] ≈ 0.0008880367286438112
 
 # Density of states
 e = -5
@@ -70,4 +70,4 @@ Le = M_Fermion(Hsys, tier, [fuL, fdL, fuR, fdR]; verbose=false)
 Lo = M_Fermion(Hsys, tier, [fuL, fdL, fuR, fdR], ODD; verbose=false)
 ados_s = SteadyState(Le; verbose=false)
 ωlist = [0]
-@test spectrum(Lo, ados_s, d_up, ωlist; verbose=false)[1] ≈ 0.17217519700362002
+@test DensityOfStates(Lo, ados_s, d_up, ωlist; verbose=false)[1] ≈ 0.17217519700362002
