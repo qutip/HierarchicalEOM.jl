@@ -1,3 +1,5 @@
+using QuantumOptics
+
 # System Hamiltonian and initial state
 basis = SpinBasis(1//2)
 σx = sigmax(basis)
