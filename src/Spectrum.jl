@@ -18,7 +18,7 @@ end
 
 @doc raw"""
     PowerSpectrum(M, ρ, Q_op, ωlist, reverse; solver, verbose, filename, SOLVEROptions...)
-Calculate spectrum for the system where `P_op` will be automatically set as the adjoint of `Q_op`.
+Calculate power spectrum for the system where `P_op` will be automatically set as the adjoint of `Q_op`.
 
 This function is equivalent to:
 `PowerSpectrum(M, ρ, Q_op', Q_op, ωlist, reverse; solver, verbose, filename, SOLVEROptions...)`
@@ -139,7 +139,7 @@ function PowerSpectrum(
     Sω = Vector{Float64}(undef, Length)
 
     if verbose
-        print("Calculating spectrum (with EVEN-parity operators)...\n")
+        print("Calculating power spectrum...\n")
         flush(stdout)
         prog = Progress(Length; desc="Progress : ", PROGBAR_OPTIONS...)
     end
