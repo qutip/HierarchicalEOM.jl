@@ -1,39 +1,60 @@
 abstract type AbstractHEOMLSMatrix end
-abstract type AbstractParity end
 
 @doc raw"""
-    struct OddParity <: AbstractParity
+    struct HEOMSuperOp
+General HEOM superoperator matrix.  
+
+# Fields
+- `data` : the HEOM superoperator matrix
+- `dim` : the dimension of the system
+- `N` : the number of auxiliary density operators
+- `parity`: the parity label (`EVEN` or `ODD`).
 """
-struct OddParity  <: AbstractParity end
-
-@doc raw"""
-    struct EvenParity <: AbstractParity
-"""
-struct EvenParity <: AbstractParity end
-
-value(p::OddParity)  = 1
-value(p::EvenParity) = 0
-
-function show(io::IO, p::OddParity)
-    print(io, "odd-parity")
+struct HEOMSuperOp
+    data::SparseMatrixCSC{ComplexF64, Int64}
+    dim::Int
+    N::Int
+    parity::AbstractParity
 end
 
-function show(io::IO, p::EvenParity)
-    print(io, "even-parity")
+@doc raw"""
+    HEOMSuperOp(op, refHEOMLS, opParity, mul_basis="L")
+Construct the HEOMLS matrix corresponding to the given system operator which multiplies on the "L"eft-hand ("R"ight-hand) side basis of all `ADOs`.  
+
+During the multiplication on all the `ADOs`, the parity of the output `ADOs` might change depend on the parity of this HEOM superoperator.
+
+# Parameters
+- `op` : The system operator which will act on all `ADOs`.
+- `refHEOMLS::AbstractHEOMLSMatrix` : The
+- `opParity::AbstractParity` : the parity label of the given operator (`op`), should be `EVEN` or `ODD`.
+- `mul_basis::AbstractString` : this specifies the left-hand ("L") or right-hand ("R") side for the `op` to multiply on all `ADOs`. Defaults to `"L"`.
+"""
+function HEOMSuperOp(op, refHEOMLS::AbstractHEOMLSMatrix, opParity::AbstractParity, mul_basis::AbstractString="L")
+    _op = HandleMatrixType(op, refHEOMLS.dim, "op (operator)")
+
+    I_heom = sparse(one(eltype(refHEOMLS)) * I, refHEOMLS.N, refHEOMLS.N)
+    if mul_basis == "L"
+        HEOMLS = kron(I_heom, spre(_op))
+    elseif mul_basis == "R"
+        HEOMLS = kron(I_heom, spost(_op))
+    else
+        error("The multiplication basis (mul_basis) can only be given as a string with either \"L\" (left) or \"R\" (right).")
+    end
+    
+    return HEOMSuperOp(HEOMLS, refHEOMLS.dim, refHEOMLS.N, opParity)
 end
 
-# Parity label
 @doc raw"""
-    const ODD  = OddParity()
-Label of odd-parity
+    size(M::HEOMSuperOp)
+Returns the size of the HEOM superoperator matrix
 """
-const ODD  = OddParity()
+size(M::HEOMSuperOp) = size(M.data)
 
 @doc raw"""
-    const EVEN = EvenParity()
-Label of even-parity
+    size(M::HEOMSuperOp, dim::Int)
+Returns the specified dimension of the HEOM superoperator matrix
 """
-const EVEN = EvenParity()
+size(M::HEOMSuperOp, dim::Int) = size(M.data, dim)
 
 @doc raw"""
     size(M::AbstractHEOMLSMatrix)
@@ -48,12 +69,29 @@ Returns the specified dimension of the HEOM Liouvillian superoperator matrix
 size(M::AbstractHEOMLSMatrix, dim::Int) = size(M.data, dim)
 
 @doc raw"""
+    eltype(M::HEOMSuperOp)
+Returns the elements' type of the HEOM superoperator matrix
+"""
+eltype(M::HEOMSuperOp) = eltype(M.data)
+
+@doc raw"""
     eltype(M::AbstractHEOMLSMatrix)
 Returns the elements' type of the HEOM Liouvillian superoperator matrix
 """
 eltype(M::AbstractHEOMLSMatrix) = eltype(M.data)
 
+getindex(M::HEOMSuperOp, i::Ti, j::Tj) where {Ti, Tj <: Any} = M.data[i, j]
 getindex(M::AbstractHEOMLSMatrix, i::Ti, j::Tj) where {Ti, Tj <: Any} = M.data[i, j]
+
+function show(io::IO, M::HEOMSuperOp)
+    print(io,
+        "$(M.parity) HEOM superoperator matrix acting on arbitrary-parity-ADOs\n",
+        "system dim = $(M.dim)\n",
+        "number of ADOs N = $(M.N)\n",
+        "data =\n"
+    )
+    show(io, MIME("text/plain"), M.data)
+end
 
 function show(io::IO, M::AbstractHEOMLSMatrix)
     T = typeof(M)
@@ -76,7 +114,20 @@ function show(io::IO, M::AbstractHEOMLSMatrix)
     show(io, MIME("text/plain"), M.data)
 end
 
+function show(io::IO, m::MIME"text/plain", M::HEOMSuperOp) show(io, M) end
 function show(io::IO, m::MIME"text/plain", M::AbstractHEOMLSMatrix) show(io, M) end
+
+function *(Sup::HEOMSuperOp, ados::ADOs)
+    _check_sys_dim_and_ADOs_num(Sup, ados)
+
+    return ADOs(Sup.data * ados.data, ados.dim, ados.N, Sup.parity * ados.parity)
+end
+
+function *(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
+    _check_sys_dim_and_ADOs_num(Sup, ados)
+
+    return HEOMSuperOp(Sup1.data * Sup2.data, Sup1.dim, Sup1.N, Sup1.parity * Sup2.parity)
+end
 
 @doc raw"""
     Propagator(M, Δt; threshold, nonzero_tol)

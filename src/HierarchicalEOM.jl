@@ -38,7 +38,7 @@ module HierarchicalEOM
     # sub-module HeomAPI for HierarchicalEOM
     module HeomAPI
         using ..Bath
-        import Base: ==, show, length, size, getindex, keys, setindex!, lastindex, iterate, checkbounds, hash, copy, eltype
+        import Base: ==, *, show, length, size, getindex, keys, setindex!, lastindex, iterate, checkbounds, hash, copy, eltype
         import Base.Threads: @threads, threadid, nthreads, lock, unlock, SpinLock
         import LinearAlgebra: I, kron, tr
         import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
@@ -57,14 +57,26 @@ module HierarchicalEOM
         import SteadyStateDiffEq: DynamicSS
 
         export
-            AbstractHEOMLSMatrix, M_S, M_Boson, M_Fermion, M_Boson_Fermion,
             AbstractParity, OddParity, EvenParity, value, ODD, EVEN,
             ADOs, getRho, getADO, Expect,
             Nvec, AbstractHierarchyDict, HierarchyDict, MixHierarchyDict, getIndexEnsemble,
+            HEOMSuperOp, AbstractHEOMLSMatrix, M_S, M_Boson, M_Fermion, M_Boson_Fermion,
             Propagator, addBosonDissipator, addFermionDissipator, addTerminator,
             evolution, SteadyState
 
-        include("heom_api.jl")
+            include("Parity.jl")
+            include("ADOs.jl")
+            
+            include("heom_matrices/heom_matrix_base.jl")
+            include("heom_matrices/Nvec.jl")
+            include("heom_matrices/HierarchyDict.jl")
+            include("heom_matrices/M_S.jl")
+            include("heom_matrices/M_Boson.jl")
+            include("heom_matrices/M_Fermion.jl")
+            include("heom_matrices/M_Boson_Fermion.jl")
+            
+            include("evolution.jl")
+            include("SteadyState.jl")
     end
     @reexport using .HeomAPI
 
@@ -79,7 +91,8 @@ module HierarchicalEOM
 
         export spectrum, PowerSpectrum, DensityOfStates
 
-        include("Spectrum.jl")
+        include("power_spectrum.jl")
+        include("density_of_states.jl")
     end
     @reexport using .Spectrum
 
