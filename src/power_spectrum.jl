@@ -23,7 +23,7 @@ end
 
 @doc raw"""
     PowerSpectrum(M, ρ, Q_op, ωlist, reverse; solver, verbose, filename, SOLVEROptions...)
-Calculate power spectrum for the system where `P_op` will be automatically set as the adjoint of `Q_op`.
+Calculate power spectrum for the system in frequency domain where `P_op` will be automatically set as the adjoint of `Q_op`.
 
 This function is equivalent to:
 `PowerSpectrum(M, ρ, Q_op', Q_op, ωlist, reverse; solver, verbose, filename, SOLVEROptions...)`
@@ -49,7 +49,7 @@ end
 
 @doc raw"""
     PowerSpectrum(M, ρ, P_op, Q_op, ωlist, reverse; solver, verbose, filename, SOLVEROptions...)
-Calculate power spectrum for the system.
+Calculate power spectrum for the system in frequency domain.
 
 ```math
 \pi S(\omega)=\textrm{Re}\left\{\int_0^\infty dt \langle P(t) Q(0)\rangle e^{-i\omega t}\right\},
@@ -141,7 +141,7 @@ function PowerSpectrum(
     Sω = Vector{Float64}(undef, Length)
 
     if verbose
-        print("Calculating power spectrum...\n")
+        print("Calculating power spectrum in frequency domain...\n")
         flush(stdout)
         prog = Progress(Length; desc="Progress : ", PROGBAR_OPTIONS...)
     end

@@ -1,6 +1,6 @@
 @doc raw"""
     DensityOfStates(M, ρ, d_op, ωlist; solver, verbose, filename, SOLVEROptions...)
-Calculate density of states for the fermionic system.
+Calculate density of states for the fermionic system in frequency domain.
 
 ```math
     \pi A(\omega)=\textrm{Re}\left\{\int_0^\infty dt \left[\langle d(t) d^\dagger(0)\rangle^* + \langle d^\dagger(t) d(0)\rangle \right] e^{-i\omega t}\right\},
@@ -85,7 +85,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
     Aω = Vector{Float64}(undef, Length)
 
     if verbose
-        print("Calculating density of states...\n")
+        print("Calculating density of states in frequency domain...\n")
         flush(stdout)
         prog = Progress(Length; desc="Progress : ", PROGBAR_OPTIONS...)
     end
