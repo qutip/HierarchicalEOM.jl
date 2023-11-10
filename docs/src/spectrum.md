@@ -123,7 +123,7 @@ Finially, one can obtain the density of states for specific ``\omega``, namely
 
 See also the docstring : 
 ```@docs
-DensityOfStates(M::AbstractHEOMLSMatrix, ρ, op, ωlist::AbstractVector; solver=UMFPACKFactorization(), verbose::Bool = true, filename::String = "", SOLVEROptions...)
+DensityOfStates(M::AbstractHEOMLSMatrix, ρ, d_op, ωlist::AbstractVector; solver=UMFPACKFactorization(), verbose::Bool = true, filename::String = "", SOLVEROptions...)
 ```
 
 ```julia

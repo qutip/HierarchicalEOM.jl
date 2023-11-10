@@ -188,17 +188,18 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in one 
 function Expect(op, ados_list::Vector{ADOs}; take_real=true)
 
     dim = ados_list[1].dim
+    N   = ados_list[1].N
     for i in 2:length(ados_list)
-        if ados_list[i].dim != dim
-            error("The dimension of the elements in `ados_list` should be consistent.")
-        end
+        _check_sys_dim_and_ADOs_num(ados_list[1], ados_list[i])
     end
 
-    _op = HandleMatrixType(op, dim, "op (observable)")
+    I_heom = spzeros(ComplexF64, N, N)
+    I_heom[1, 1] = 1.0
+    _op   = kron(I_heom, spre(HandleMatrixType(op, dim, "op (observable)")))
+    tr_op = transpose(sparsevec([1 + n * (dim + 1) for n in 0:(dim - 1)], ones(ComplexF64, dim), N * dim ^ 2)) * _op
 
-    ρlist = getRho.(ados_list)
     exp_val = [
-        tr(_op * ρlist[i]) for i in 1:length(ρlist)
+        (tr_op * ados.data) for ados in ados_list
     ]
 
     if take_real

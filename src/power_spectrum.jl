@@ -128,12 +128,12 @@ function PowerSpectrum(
     I_total = _HandleIdentityType(typeof(M.data), Size)
 
     # equal to : transpose(sparse(vec(system_identity_matrix)))
-    I_dual_vec = transpose(sparsevec([1 + n * (M.dim + 1) for n in 0:(M.dim - 1)], ones(ComplexF64, M.dim), M.sup_dim))
+    _tr = transpose(sparsevec([1 + n * (M.dim + 1) for n in 0:(M.dim - 1)], ones(ComplexF64, M.dim), Size))
 
     # operator for calculating two-time correlation functions in frequency domain
-    P_sup = kron(I_heom, spre(_P))
+    _tr_P = _tr * kron(I_heom, spre(_P))
     Q_sup = kron(I_heom, spre(_Q))
-    X = _HandleVectorType(typeof(M.data), Q_sup * ados_vec)
+    b = _HandleVectorType(typeof(M.data), Q_sup * ados_vec)
 
     ElType = eltype(M)
     ωList  = _HandleFloatType(ElType, ωlist)
@@ -151,7 +151,7 @@ function PowerSpectrum(
         i = convert(ElType, -1im)
     end
     Iω    = i * ωList[1] * I_total
-    cache = init(LinearProblem(M.data + Iω, X), solver, SOLVEROptions...)
+    cache = init(LinearProblem(M.data + Iω, b), solver, SOLVEROptions...)
     sol   = solve!(cache)
     @inbounds for (j, ω) in enumerate(ωList)
         if j > 1            
@@ -161,7 +161,7 @@ function PowerSpectrum(
         end
 
         # trace over the Hilbert space of system (expectation value)
-        Sω[j] = -1 * real(I_dual_vec * (P_sup * _HandleVectorType(sol.u, false))[1:(M.sup_dim)])
+        Sω[j] = -1 * real(_tr_P * _HandleVectorType(sol.u, false))
 
         if SAVE
             open(FILENAME, "a") do file

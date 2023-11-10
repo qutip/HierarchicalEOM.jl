@@ -1,5 +1,5 @@
 @doc raw"""
-    DensityOfStates(M, ρ, P_op, Q_op, ωlist; solver, verbose, filename, SOLVEROptions...)
+    DensityOfStates(M, ρ, d_op, ωlist; solver, verbose, filename, SOLVEROptions...)
 Calculate density of states for the fermionic system.
 
 ```math
@@ -9,7 +9,7 @@ Calculate density of states for the fermionic system.
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the HEOMLS matrix which acts on `ODD`-parity operators.
 - `ρ` :  the system density matrix or the auxiliary density operators.
-- `op` : The annihilation operator (``d`` as shown above) acting on the fermionic system.
+- `d_op` : The annihilation operator (``d`` as shown above) acting on the fermionic system.
 - `ωlist::AbstractVector` : the specific frequency points to solve.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
@@ -24,7 +24,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 @noinline function DensityOfStates(
         M::AbstractHEOMLSMatrix, 
         ρ,
-        op,
+        d_op,
         ωlist::AbstractVector; 
         solver=UMFPACKFactorization(), 
         verbose::Bool = true,
@@ -56,8 +56,8 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
         ados_vec = sparsevec(v.nzind, v.nzval, Size)
     end
 
-    # check dimension of op
-    _op = HandleMatrixType(op, M.dim, "op (operator)")
+    # check dimension of d_op
+    _d = HandleMatrixType(d_op, M.dim, "op (operator)")
 
     SAVE::Bool = (filename != "")
     if SAVE
@@ -71,13 +71,13 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
     I_total = _HandleIdentityType(typeof(M.data), Size)
 
     # equal to : transpose(sparse(vec(system_identity_matrix)))
-    I_dual_vec = transpose(sparsevec([1 + n * (M.dim + 1) for n in 0:(M.dim - 1)], ones(ComplexF64, M.dim), M.sup_dim))
+    _tr = transpose(sparsevec([1 + n * (M.dim + 1) for n in 0:(M.dim - 1)], ones(ComplexF64, M.dim), Size))
 
     # operators for calculating two-time correlation functions in frequency domain
-    d_normal = kron(I_heom, spre(_op))
-    d_dagger = kron(I_heom, spre(_op'))
-    X_m = _HandleVectorType(typeof(M.data), d_normal * ados_vec)
-    X_p = _HandleVectorType(typeof(M.data), d_dagger * ados_vec)
+    d_normal = kron(I_heom, spre(_d))
+    d_dagger = kron(I_heom, spre(_d'))
+    b_m = _HandleVectorType(typeof(M.data), d_normal * ados_vec)
+    b_p = _HandleVectorType(typeof(M.data), d_dagger * ados_vec)
 
     ElType = eltype(M)
     ωList  = _HandleFloatType(ElType, ωlist)
@@ -91,8 +91,8 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
     end
     i  = convert(ElType, 1im)
     Iω = i * ωList[1] * I_total
-    cache_m = init(LinearProblem(M.data - Iω, X_m),  solver, SOLVEROptions...)
-    cache_p = init(LinearProblem(M.data + Iω, X_p), solver, SOLVEROptions...)
+    cache_m = init(LinearProblem(M.data - Iω, b_m),  solver, SOLVEROptions...)
+    cache_p = init(LinearProblem(M.data + Iω, b_p), solver, SOLVEROptions...)
     sol_m  = solve!(cache_m)
     sol_p  = solve!(cache_p)
     @inbounds for (j, ω) in enumerate(ωList)
@@ -110,8 +110,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
         
         # trace over the Hilbert space of system (expectation value)
         Aω[j] = -1 * (
-            real(I_dual_vec * Cω_p[1:(M.sup_dim)]) + 
-            real(I_dual_vec * Cω_m[1:(M.sup_dim)])
+            real(_tr * Cω_p) + real(_tr * Cω_m)
         )
 
         if SAVE
