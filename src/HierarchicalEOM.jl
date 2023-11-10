@@ -44,7 +44,7 @@ module HierarchicalEOM
         import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
         import ProgressMeter: Progress, next!
         import FastExpm: fastExpm
-        import ..HeomBase: PROGBAR_OPTIONS, HandleMatrixType, _HandleFloatType
+        import ..HeomBase: PROGBAR_OPTIONS, HandleMatrixType, _HandleFloatType, _check_sys_dim_and_ADOs_num
 
         # for solving time evolution
         import SciMLOperators: MatrixOperator
@@ -75,7 +75,7 @@ module HierarchicalEOM
         import SparseArrays: sparse, sparsevec, SparseMatrixCSC
         import LinearSolve: LinearProblem, init, solve!, UMFPACKFactorization
         import ProgressMeter: Progress, next!        
-        import ..HeomBase: PROGBAR_OPTIONS, HandleMatrixType, _HandleFloatType
+        import ..HeomBase: PROGBAR_OPTIONS, HandleMatrixType, _HandleFloatType, _check_sys_dim_and_ADOs_num
 
         export spectrum, PowerSpectrum, DensityOfStates
 

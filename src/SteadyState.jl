@@ -121,19 +121,13 @@ For more details about solvers and extra options, please refer to [`Differential
         SOLVEROptions...
     )
     
+    _check_sys_dim_and_ADOs_num(M, ados)
+
+
     # check parity
     if typeof(M.parity) == OddParity
         error("The parity of M should be \"EVEN\".")
     end
-
-    if (M.dim != ados.dim)
-        error("The system dimension between M and ados are not consistent.")
-    end
-
-    if (M.N != ados.N)
-        error("The ADOs number \"N\" between M and ados are not consistent.")
-    end
-
     if (typeof(M.parity) != typeof(ados.parity))
         error("The parity between M and ados are not consistent.")
     end

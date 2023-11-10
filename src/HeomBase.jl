@@ -29,6 +29,16 @@ function _HandleFloatType(ElType::Type{T}, V::StepRangeLen) where T <: Number
     end
 end
 
+function _check_sys_dim_and_ADOs_num(A, B)
+    if (A.dim != B.dim)
+        error("Inconsistent system dimension (\"dim\").")
+    end
+
+    if (A.N != B.N)
+        error("Inconsistent number of ADOs (\"N\").")
+    end
+end
+
 function _HandleFloatType(ElType::Type{T}, V::Any) where T <: Number
     FType = real(ElType)
     if eltype(V) == FType

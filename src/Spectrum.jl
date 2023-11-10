@@ -92,12 +92,9 @@ function PowerSpectrum(
 
     # check ρ
     if typeof(ρ) == ADOs  # ρ::ADOs
-        if (M.dim != ρ.dim)
-            error("The system dimension between M and ρ are not consistent.")
-        end
-        if (M.N != ρ.N)
-            error("The ADOs number \"N\" between M and ados are not consistent.")
-        end
+        
+        _check_sys_dim_and_ADOs_num(M, ρ)
+
         if (typeof(ρ.parity) == OddParity)
             error("The parity of ρ or the ADOs must be `EVEN`.")
         end
@@ -221,12 +218,9 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 
     # check ρ
     if typeof(ρ) == ADOs  # ρ::ADOs
-        if (M.dim != ρ.dim)
-            error("The system dimension between M and ρ are not consistent.")
-        end
-        if (M.N != ρ.N)
-            error("The ADOs number \"N\" between M and ados are not consistent.")
-        end
+        
+        _check_sys_dim_and_ADOs_num(M, ρ)
+
         if (typeof(ρ.parity) == OddParity)
             error("The parity of ρ or the ADOs must be `EVEN`.")
         end
