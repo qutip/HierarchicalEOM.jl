@@ -70,14 +70,9 @@ function SteadyState(
         verbose::Bool = true,
         SOLVEROptions...
     )
-
-    _ρ0 = HandleMatrixType(ρ0, M.dim, "ρ0 (initial state)")
-
-    # vectorize initial state
-    ρ1   = sparse(sparsevec(_ρ0))
-    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N, M.parity)
-    
-    return SteadyState(M, ados;
+    return SteadyState(
+        M, 
+        ADOs(ρ0, M.N, M.parity);
         solver = solver,
         reltol = reltol,
         abstol = abstol,
@@ -122,14 +117,11 @@ For more details about solvers and extra options, please refer to [`Differential
     )
     
     _check_sys_dim_and_ADOs_num(M, ados)
-
-
+    
     # check parity
+    _check_parity(M, ados)    
     if typeof(M.parity) == OddParity
         error("The parity of M should be \"EVEN\".")
-    end
-    if (typeof(M.parity) != typeof(ados.parity))
-        error("The parity between M and ados are not consistent.")
     end
 
     # problem: dρ(t)/dt = L * ρ(t)
