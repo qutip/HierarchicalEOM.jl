@@ -79,10 +79,7 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
     )
 
     _check_sys_dim_and_ADOs_num(M, ados)
-
-    if (typeof(M.parity) != typeof(ados.parity))
-        error("The parity between M and ados are not consistent.")
-    end
+    _check_parity(M, ados)
 
     SAVE::Bool = (filename != "")
     if SAVE 
@@ -234,10 +231,7 @@ For more details about solvers and extra options, please refer to [`Differential
     )
 
     _check_sys_dim_and_ADOs_num(M, ados)
-
-    if (typeof(M.parity) != typeof(ados.parity))
-        error("The parity between M and ados are not consistent.")
-    end
+    _check_parity(M, ados)
 
     SAVE::Bool = (filename != "")
     if SAVE 
@@ -402,10 +396,7 @@ For more details about solvers and extra options, please refer to [`Differential
     )
 
     _check_sys_dim_and_ADOs_num(M, ados)
-
-    if (typeof(M.parity) != typeof(ados.parity))
-        error("The parity between M and ados are not consistent.")
-    end
+    _check_parity(M, ados)
 
     SAVE::Bool = (filename != "")
     if SAVE 

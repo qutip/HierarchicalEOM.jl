@@ -44,7 +44,7 @@ module HierarchicalEOM
         import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
         import ProgressMeter: Progress, next!
         import FastExpm: fastExpm
-        import ..HeomBase: PROGBAR_OPTIONS, HandleMatrixType, _HandleFloatType, _check_sys_dim_and_ADOs_num
+        import ..HeomBase: PROGBAR_OPTIONS, HandleMatrixType, _HandleFloatType, _check_sys_dim_and_ADOs_num, _check_parity
 
         # for solving time evolution
         import SciMLOperators: MatrixOperator

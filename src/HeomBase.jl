@@ -39,6 +39,12 @@ function _check_sys_dim_and_ADOs_num(A, B)
     end
 end
 
+function _check_parity(A, B)
+    if typeof(A.parity) != typeof(B.parity)
+        error("Inconsistent parity.")
+    end
+end
+
 function _HandleFloatType(ElType::Type{T}, V::Any) where T <: Number
     FType = real(ElType)
     if eltype(V) == FType
