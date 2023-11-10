@@ -1,5 +1,6 @@
 steps:
   - label: "HierarchicalEOM_CUDAExt"
+    branches: "main"
     plugins:
       - JuliaCI/julia#v1:
           version: "1"
