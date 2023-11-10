@@ -30,18 +30,15 @@ function evolution(
         verbose::Bool = true,
         filename::String = ""
     )
-    
-    _ρ0 = HandleMatrixType(ρ0, M.dim, "ρ0 (initial state)")
-
-    # vectorize initial state
-    ρ1   = sparse(sparsevec(_ρ0))
-    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N, M.parity)
-
-    return evolution(M, ados, Δt, steps;
+    return evolution(
+        M, 
+        ADOs(ρ0, M.N, M.parity), 
+        Δt, 
+        steps;
         threshold   = threshold,
         nonzero_tol = nonzero_tol,
-        verbose = verbose,
-        filename = filename
+        verbose     = verbose,
+        filename    = filename
     )
 end
 
@@ -174,20 +171,16 @@ function evolution(
         filename::String = "",
         SOLVEROptions...
     )
-
-    _ρ0 = HandleMatrixType(ρ0, M.dim, "ρ0 (initial state)")
-
-    # vectorize initial state
-    ρ1   = sparse(sparsevec(_ρ0))
-    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N, M.parity)
-
-    return evolution(M, ados, tlist;
+    return evolution(
+        M, 
+        ADOs(ρ0, M.N, M.parity), 
+        tlist;
         solver = solver,
         reltol = reltol,
         abstol = abstol,
         maxiters = maxiters,
         save_everystep = save_everystep,
-        verbose = verbose,
+        verbose  = verbose,
         filename = filename,
         SOLVEROptions...
     )
@@ -336,20 +329,18 @@ function evolution(
         filename::String = "",
         SOLVEROptions...
     )
-
-    _ρ0 = HandleMatrixType(ρ0, M.dim, "ρ0 (initial state)")
-
-    # vectorize initial state
-    ρ1   = sparse(sparsevec(_ρ0))
-    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N, M.parity)
-
-    return evolution(M, ados, tlist, H, param;
+    return evolution(
+        M,
+        ADOs(ρ0, M.N, M.parity),
+        tlist,
+        H, 
+        param;
         solver = solver,
         reltol = reltol,
         abstol = abstol,
         maxiters = maxiters,
         save_everystep = save_everystep,
-        verbose = verbose,
+        verbose  = verbose,
         filename = filename,
         SOLVEROptions...
     )

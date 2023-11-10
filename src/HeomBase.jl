@@ -16,7 +16,7 @@ function HandleMatrixType(M::AbstractMatrix, dim::Int=0, MatrixName::String="")
         if N1 == N2
             return copy(M)
         else
-            error("The size of matrix $(MatrixName) should be squared matrix.")
+            error("The matrix $(MatrixName) should be squared matrix.")
         end
     end
 end

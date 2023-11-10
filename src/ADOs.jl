@@ -48,6 +48,20 @@ function ADOs(V::AbstractVector, N::Int, parity::AbstractParity=EVEN)
     end    
 end
 
+@doc raw"""
+    ADOs(ρ, N, parity)
+Gernerate the object of auxiliary density operators for HEOM model.
+
+# Parameters
+- `ρ` : the reduced density operator
+- `N::Int` : the number of auxiliary density operators.
+- `parity::AbstractParity` : the parity label (`EVEN` or `ODD`). Default to `EVEN`.
+"""
+function ADOs(ρ, N::Int=1, parity::AbstractParity=EVEN)
+    _ρ = sparsevec(HandleMatrixType(ρ, 0, "ρ"))
+    return ADOs(sparsevec(_ρ.nzind, _ρ.nzval, N * length(_ρ)), N, parity)
+end
+
 function checkbounds(A::ADOs, i::Int)
     if (i > A.N) || (i < 1)
         error("Attempt to access $(A.N)-element ADOs at index [$(i)]")
