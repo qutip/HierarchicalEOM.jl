@@ -1,6 +1,5 @@
 steps:
   - label: "HierarchicalEOM_CUDAExt"
-    branches: "main"
     plugins:
       - JuliaCI/julia#v1:
           version: "1"
@@ -17,5 +16,9 @@ steps:
       GROUP: "HierarchicalEOM_CUDAExt"
       SECRET_CODECOV_TOKEN: "xPPS+qHx6R93hyaYefGl5Hj0ojomvcMvB0azWyK0LkOrhuHNT0OegnOvcDfckKkPAw3c3zDPZyO7ogBUSUw/R9JRXF8oQd3yOxySp1vcdjsNsMvazW8Nc9QS+Cbb7/yQmtRHtkPNc4pzI0HsGPqr6pKyX8GOZRdspQ6R6KCmP95AF2KPgvhW+t/I98Z0qz8ksKgE6OQvo0XMSLKlAQRthWIBmeYf1IgjSxpibhLZhb5OKYjOUElGvRWL79SFBmbVqIHAdAVOMaL8VVoRMfgqE89SvshYEiDLNBCenxNrLAYcOHEA4ElrhmUhlVDwsqYfq7ooxHRIEkaIZ5/sL348LA==;U2FsdGVkX1+pTkirGXYb1wl7BDHCxbkVqFTOLY0ciN8+3TKlwnrtGpP+PrBs+fqJTIch2eJndJfpvbAL2DAzyg=="
     timeout_in_minutes: 60
-    # Don't run Buildkite if the commit message includes the text [skip tests]
-    # if: build.message !~ /\[skip tests\]/
+    if: | 
+        # Don't run Buildkite if the commit message includes the text [skip tests]
+        build.message !~ /\[skip tests\]/
+      &&
+        # Only run Buildkite when new commits and PR are made to main branch
+        (build.branch =~ /main/ || build.pull_request.base_branch =~ /main/))
