@@ -18,7 +18,6 @@ steps:
     timeout_in_minutes: 60
     if: | 
         # Don't run Buildkite if the commit message includes the text [skip tests]
-        build.message !~ /\[skip tests\]/
-      &&
         # Only run Buildkite when new commits and PR are made to main branch
-        (build.branch =~ /main/ || build.pull_request.base_branch =~ /main/))
+        build.message !~ /\[skip tests\]/ &&
+        (build.branch =~ /main/ || build.pull_request.base_branch =~ /main/)
