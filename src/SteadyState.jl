@@ -150,13 +150,3 @@ For more details about solvers and extra options, please refer to [`Differential
 
     return ADOs(_HandleVectorType(sol.u, false), M.dim, M.N, M.parity)
 end
-
-function _HandleSteadyStateMatrix(MatrixType::Type{TM}, M::AbstractHEOMLSMatrix, S::Int) where TM <: SparseMatrixCSC
-    ElType = eltype(M)
-    A = copy(M.data)
-    A[1,1:S] .= 0
-    
-    # sparse(row_idx, col_idx, values, row_dims, col_dims)
-    A += sparse(ones(ElType, M.dim), [(n - 1) * (M.dim + 1) + 1 for n in 1:(M.dim)], ones(ElType, M.dim), S, S)
-    return A
-end

@@ -13,6 +13,8 @@ struct EvenParity <: AbstractParity end
 value(p::OddParity)  = 1
 value(p::EvenParity) = 0
 
+!(p::OddParity)  = EVEN
+!(p::EvenParity) = ODD
 *(p1::TP1, p2::TP2) where {TP1, TP2 <: AbstractParity} = TP1 == TP2 ? EVEN : ODD
 
 function show(io::IO, p::OddParity)

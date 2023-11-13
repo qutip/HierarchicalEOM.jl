@@ -52,10 +52,10 @@ mat2 = spzeros(ComplexF64, 3, 3)
 bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
 @test_throws ErrorException spectrum(L, ados_s, a, ωlist; verbose=false)
 @test_throws ErrorException PowerSpectrum(L, ados_s, a, ωlist; verbose=false, filename="PSD")
+@test_throws ErrorException PowerSpectrum(L, ados_s, HEOMSuperOp(a, L, EVEN), ωlist; verbose=false)
 @test_throws ErrorException PowerSpectrum(L, ados_s, mat2, ωlist; verbose=false)
 @test_throws ErrorException PowerSpectrum(L, ADOs(zeros(8), 2), a, ωlist; verbose=false)
 @test_throws ErrorException PowerSpectrum(L, ADOs(zeros(32), 2), a, ωlist; verbose=false)
-@test_throws ErrorException PowerSpectrum(L, ADOs(ados_s.data, ados_s.N, ODD), a, ωlist; verbose=false)
 
 # remove all the temporary files
 rm("PSD.txt")

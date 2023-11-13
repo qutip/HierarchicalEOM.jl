@@ -467,6 +467,6 @@ function _update_L!(L, u, p, t)
     _Ht = HandleMatrixType(Ht, M.dim, "H (Hamiltonian) at t=$(t)")
 
     # update the block diagonal terms of L
-    L .= M.data - kron(sparse(I, M.N, M.N), 1im * (spre(_Ht) - spost(_Ht)))
+    L .= (M - HEOMSuperOp(minus_i_L_op(_Ht), M, M.parity), "LR").data
     nothing
 end

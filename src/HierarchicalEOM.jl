@@ -7,26 +7,34 @@ module HierarchicalEOM
     # sub-module HeomBase for HierarchicalEOM
     module HeomBase
         import Pkg
-        import LinearAlgebra: BLAS
+        import LinearAlgebra: BLAS, kron
+        import SparseArrays: I, sparse, SparseVector, SparseMatrixCSC
         import Crayons: Crayon
 
+        export
+            spre, spost, Tr,
+            PROGBAR_OPTIONS, 
+            AbstractHEOMLSMatrix,
+            _check_sys_dim_and_ADOs_num, _check_parity,
+            HandleMatrixType, _HandleFloatType, _HandleVectorType, _HandleSteadyStateMatrix, _HandleIdentityType
+            
         include("HeomBase.jl")
     end
     import .HeomBase.versioninfo as versioninfo
     import .HeomBase.print_logo  as print_logo
+    @reexport using .HeomBase: AbstractHEOMLSMatrix, spre, spost
     
     # sub-module Bath for HierarchicalEOM
     module Bath
+        using  ..HeomBase
         import Base: show, length, getindex, lastindex, iterate, checkbounds
-        import LinearAlgebra: I, kron, ishermitian, eigvals
-        import SparseArrays: sparse, SparseMatrixCSC
-        import ..HeomBase: HandleMatrixType
-
+        import LinearAlgebra: ishermitian, eigvals
+        import SparseArrays: SparseMatrixCSC
+        
         export 
             AbstractBath, BosonBath, BosonBathRWA, FermionBath, Exponent, C,
             AbstractBosonBath, bosonReal, bosonImag, bosonRealImag, bosonAbsorb, bosonEmit,
             AbstractFermionBath, fermionAbsorb, fermionEmit,
-            spre, spost,
             Boson_DrudeLorentz_Matsubara, Boson_DrudeLorentz_Pade, 
             Fermion_Lorentz_Matsubara, Fermion_Lorentz_Pade
 
@@ -37,14 +45,14 @@ module HierarchicalEOM
     
     # sub-module HeomAPI for HierarchicalEOM
     module HeomAPI
-        using ..Bath
-        import Base: ==, *, show, length, size, getindex, keys, setindex!, lastindex, iterate, checkbounds, hash, copy, eltype
+        using  ..HeomBase
+        using  ..Bath
+        import Base: ==, !, +, -, *, show, length, size, getindex, keys, setindex!, lastindex, iterate, checkbounds, hash, copy, eltype
         import Base.Threads: @threads, threadid, nthreads, lock, unlock, SpinLock
         import LinearAlgebra: I, kron, tr
-        import SparseArrays: sparse, spzeros, sparsevec, reshape, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
+        import SparseArrays: sparse, sparsevec, spzeros, SparseVector, SparseMatrixCSC
         import ProgressMeter: Progress, next!
         import FastExpm: fastExpm
-        import ..HeomBase: PROGBAR_OPTIONS, HandleMatrixType, _HandleFloatType, _check_sys_dim_and_ADOs_num, _check_parity
 
         # for solving time evolution
         import SciMLOperators: MatrixOperator
@@ -60,7 +68,7 @@ module HierarchicalEOM
             AbstractParity, OddParity, EvenParity, value, ODD, EVEN,
             ADOs, getRho, getADO, Expect,
             Nvec, AbstractHierarchyDict, HierarchyDict, MixHierarchyDict, getIndexEnsemble,
-            HEOMSuperOp, AbstractHEOMLSMatrix, M_S, M_Boson, M_Fermion, M_Boson_Fermion,
+            HEOMSuperOp, M_S, M_Boson, M_Fermion, M_Boson_Fermion,
             Propagator, addBosonDissipator, addFermionDissipator, addTerminator,
             evolution, SteadyState
 
@@ -82,12 +90,10 @@ module HierarchicalEOM
 
     # sub-module Spectrum for HierarchicalEOM
     module Spectrum
-        import ..HeomAPI: AbstractHEOMLSMatrix, OddParity, ADOs, spre, _HandleVectorType
-        import LinearAlgebra: I, kron
-        import SparseArrays: sparse, sparsevec, SparseMatrixCSC
+        using  ..HeomBase
+        import ..HeomAPI: HEOMSuperOp, ADOs, EVEN, ODD
         import LinearSolve: LinearProblem, init, solve!, UMFPACKFactorization
         import ProgressMeter: Progress, next!        
-        import ..HeomBase: PROGBAR_OPTIONS, HandleMatrixType, _HandleFloatType, _check_sys_dim_and_ADOs_num
 
         export spectrum, PowerSpectrum, DensityOfStates
 

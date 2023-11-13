@@ -16,11 +16,6 @@ function spectrum(
     error("This function has been deprecated start from \`HierarchicalEOM v1.1\`, use \`PowerSpectrum\` or \`DensityOfStates\` instead.")
 end
 
-function _HandleIdentityType(MatrixType::Type{TM}, S::Int) where TM <: SparseMatrixCSC
-    ElType = eltype(MatrixType)
-    return sparse(one(ElType) * I, S, S)
-end
-
 @doc raw"""
     PowerSpectrum(M, ρ, Q_op, ωlist, reverse; solver, verbose, filename, SOLVEROptions...)
 Calculate power spectrum for the system in frequency domain where `P_op` will be automatically set as the adjoint of `Q_op`.
@@ -39,6 +34,7 @@ function PowerSpectrum(
         filename::String = "",
         SOLVEROptions...
     )
+    HandleMatrixType(Q_op, M.dim)
     return PowerSpectrum(M, ρ, Q_op', Q_op, ωlist, reverse;
         solver = solver, 
         verbose = verbose,
@@ -66,8 +62,8 @@ remember to set the parameters:
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the HEOMLS matrix.
 - `ρ` :  the system density matrix or the auxiliary density operators.
-- `P_op`: the operator ``P`` acting on the system.
-- `Q_op`: the operator ``Q`` acting on the system.
+- `P_op`: the operator (or `HEOMSuperOp`) ``P`` acting on the system.
+- `Q_op`: the operator (or `HEOMSuperOp`) ``Q`` acting on the system.
 - `ωlist::AbstractVector` : the specific frequency points to solve.
 - `reverse::Bool` : If `true`, calculate ``\langle P(-t)Q(0) \rangle = \langle P(0)Q(t) \rangle = \langle P(t)Q(0) \rangle^*`` instead of ``\langle P(t) Q(0) \rangle``. Default to `false`.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
@@ -80,7 +76,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 # Returns
 - `spec::AbstractVector` : the spectrum list corresponds to the specified `ωlist`
 """
-function PowerSpectrum(
+@noinline function PowerSpectrum(
         M::AbstractHEOMLSMatrix, 
         ρ, 
         P_op,
@@ -95,26 +91,37 @@ function PowerSpectrum(
 
     Size = size(M, 1)
 
-    # check ρ
+    # Handle ρ
     if typeof(ρ) == ADOs  # ρ::ADOs
-        
-        _check_sys_dim_and_ADOs_num(M, ρ)
-
-        if (typeof(ρ.parity) == OddParity)
-            error("The parity of ρ or the ADOs must be `EVEN`.")
-        end
-
-        ados_vec = ρ.data
-        
+        ados = ρ
     else
-        _ρ = HandleMatrixType(ρ, M.dim, "ρ (state)")
-        v  = sparsevec(_ρ)
-        ados_vec = sparsevec(v.nzind, v.nzval, Size)
+        ados = ADOs(ρ, M.N)
     end
+    _check_sys_dim_and_ADOs_num(M, ados)
 
-    # check dimension of P_op and Q_op
-    _P = HandleMatrixType(P_op, M.dim, "P_op (operator)")
-    _Q = HandleMatrixType(Q_op, M.dim, "Q_op (operator)")
+    # Handle P_op
+    if typeof(P_op) == HEOMSuperOp
+        _check_sys_dim_and_ADOs_num(M, P_op)
+        _P = P_op
+    else
+        _P = HEOMSuperOp(P_op, M, EVEN)
+    end
+    _tr_P = Tr(M.dim, M.N) * _P.data
+    
+    # Handle Q_op
+    if typeof(Q_op) == HEOMSuperOp
+        _check_sys_dim_and_ADOs_num(M, Q_op)
+        _Q_ados = Q_op * ados
+        _check_parity(M, _Q_ados)
+    else
+        if M.parity == EVEN
+            _Q = HEOMSuperOp(Q_op, M,  ados.parity)
+        else
+            _Q = HEOMSuperOp(Q_op, M, !ados.parity)
+        end
+        _Q_ados = _Q * ados
+    end
+    b = _HandleVectorType(typeof(M.data), _Q_ados.data)
 
     SAVE::Bool = (filename != "")
     if SAVE
@@ -123,17 +130,6 @@ function PowerSpectrum(
             error("FILE: $(FILENAME) already exist.")
         end
     end
-
-    I_heom  = sparse(one(ComplexF64) * I, M.N, M.N)
-    I_total = _HandleIdentityType(typeof(M.data), Size)
-
-    # equal to : transpose(sparse(vec(system_identity_matrix)))
-    _tr = transpose(sparsevec([1 + n * (M.dim + 1) for n in 0:(M.dim - 1)], ones(ComplexF64, M.dim), Size))
-
-    # operator for calculating two-time correlation functions in frequency domain
-    _tr_P = _tr * kron(I_heom, spre(_P))
-    Q_sup = kron(I_heom, spre(_Q))
-    b = _HandleVectorType(typeof(M.data), Q_sup * ados_vec)
 
     ElType = eltype(M)
     ωList  = _HandleFloatType(ElType, ωlist)
@@ -145,14 +141,16 @@ function PowerSpectrum(
         flush(stdout)
         prog = Progress(Length; desc="Progress : ", PROGBAR_OPTIONS...)
     end
+
     if reverse
         i = convert(ElType,  1im)
     else
         i = convert(ElType, -1im)
     end
-    Iω    = i * ωList[1] * I_total
-    cache = init(LinearProblem(M.data + Iω, b), solver, SOLVEROptions...)
-    sol   = solve!(cache)
+    I_total = _HandleIdentityType(typeof(M.data), Size)
+    Iω      = i * ωList[1] * I_total
+    cache   = init(LinearProblem(M.data + Iω, b), solver, SOLVEROptions...)
+    sol     = solve!(cache)
     @inbounds for (j, ω) in enumerate(ωList)
         if j > 1            
             Iω  = i * ω * I_total

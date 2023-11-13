@@ -172,9 +172,13 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in the 
 """
 function Expect(op, ados::ADOs; take_real=true)
     
-    _op = HandleMatrixType(op, ados.dim, "op (observable)")
-
-    exp_val = tr(_op * getRho(ados))
+    if typeof(op) == HEOMSuperOp
+        _check_sys_dim_and_ADOs_num(op, ados)
+        exp_val = Tr(ados.dim, ados.N) * (op * ados).data
+    else
+        _op = HandleMatrixType(op, ados.dim, "op (observable)")
+        exp_val = tr(_op * getRho(ados))
+    end
 
     if take_real
         return real(exp_val)
@@ -207,10 +211,13 @@ function Expect(op, ados_list::Vector{ADOs}; take_real=true)
         _check_sys_dim_and_ADOs_num(ados_list[1], ados_list[i])
     end
 
-    I_heom = spzeros(ComplexF64, N, N)
-    I_heom[1, 1] = 1.0
-    _op   = kron(I_heom, spre(HandleMatrixType(op, dim, "op (observable)")))
-    tr_op = transpose(sparsevec([1 + n * (dim + 1) for n in 0:(dim - 1)], ones(ComplexF64, dim), N * dim ^ 2)) * _op
+    if typeof(op) == HEOMSuperOp
+        _check_sys_dim_and_ADOs_num(op, ados_list[1])
+        _op = op
+    else
+        _op = HEOMSuperOp(op, ados_list[1], EVEN)
+    end
+    tr_op = Tr(dim, N) * _op.data
 
     exp_val = [
         (tr_op * ados.data) for ados in ados_list
@@ -221,19 +228,4 @@ function Expect(op, ados_list::Vector{ADOs}; take_real=true)
     else
         return exp_val
     end
-end
-
-# for changing a `Vector` back to `ADOs`
-function _HandleVectorType(V::T, cp::Bool=true) where T <: Vector
-    if cp
-        return Vector{ComplexF64}(V)
-    else
-        return V
-    end
-end
-
-# for changing the type of `ADOs` to match the type of HEOMLS matrix 
-function _HandleVectorType(MatrixType::Type{TM}, V::SparseVector) where TM <: SparseMatrixCSC
-    TE = eltype(MatrixType)
-    return Vector{TE}(V)
 end

@@ -35,29 +35,29 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
     Size = size(M, 1)
 
     # check M
-    if (typeof(M.parity) != OddParity)
+    if M.parity == EVEN
         error("The HEOMLS matrix M must be acting on `ODD`-parity operators.")
     end
 
-    # check ρ
+    # Handle ρ
     if typeof(ρ) == ADOs  # ρ::ADOs
-        
-        _check_sys_dim_and_ADOs_num(M, ρ)
-
-        if (typeof(ρ.parity) == OddParity)
-            error("The parity of ρ or the ADOs must be `EVEN`.")
+        ados = ρ
+        if ados.parity != EVEN
+            error("The parity of ρ must be `EVEN`.")
         end
-
-        ados_vec = ρ.data
-        
     else
-        _ρ = HandleMatrixType(ρ, M.dim, "ρ (state)")
-        v  = sparsevec(_ρ)
-        ados_vec = sparsevec(v.nzind, v.nzval, Size)
+        ados = ADOs(ρ, M.N)
     end
+    _check_sys_dim_and_ADOs_num(M, ados)
 
-    # check dimension of d_op
-    _d = HandleMatrixType(d_op, M.dim, "op (operator)")
+    # Handle d_op
+    _tr = Tr(M.dim, M.N)
+    d_normal = HEOMSuperOp(d_op,  M, ODD)
+    d_dagger = HEOMSuperOp(d_op', M, ODD)
+    b_m = _HandleVectorType(typeof(M.data), (d_normal * ados).data)
+    b_p = _HandleVectorType(typeof(M.data), (d_dagger * ados).data)
+    _tr_d_normal = _tr * d_normal.data
+    _tr_d_dagger = _tr * d_dagger.data
 
     SAVE::Bool = (filename != "")
     if SAVE
@@ -66,19 +66,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
             error("FILE: $(FILENAME) already exist.")
         end
     end
-
-    I_heom  = sparse(one(ComplexF64) * I, M.N, M.N)
-    I_total = _HandleIdentityType(typeof(M.data), Size)
-
-    # equal to : transpose(sparse(vec(system_identity_matrix)))
-    _tr = transpose(sparsevec([1 + n * (M.dim + 1) for n in 0:(M.dim - 1)], ones(ComplexF64, M.dim), Size))
-
-    # operators for calculating two-time correlation functions in frequency domain
-    d_normal = kron(I_heom, spre(_d))
-    d_dagger = kron(I_heom, spre(_d'))
-    b_m = _HandleVectorType(typeof(M.data), d_normal * ados_vec)
-    b_p = _HandleVectorType(typeof(M.data), d_dagger * ados_vec)
-
+    
     ElType = eltype(M)
     ωList  = _HandleFloatType(ElType, ωlist)
     Length = length(ωList)
@@ -90,11 +78,12 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
         prog = Progress(Length; desc="Progress : ", PROGBAR_OPTIONS...)
     end
     i  = convert(ElType, 1im)
-    Iω = i * ωList[1] * I_total
+    I_total = _HandleIdentityType(typeof(M.data), Size)
+    Iω      = i * ωList[1] * I_total
     cache_m = init(LinearProblem(M.data - Iω, b_m),  solver, SOLVEROptions...)
     cache_p = init(LinearProblem(M.data + Iω, b_p), solver, SOLVEROptions...)
-    sol_m  = solve!(cache_m)
-    sol_p  = solve!(cache_p)
+    sol_m   = solve!(cache_m)
+    sol_p   = solve!(cache_p)
     @inbounds for (j, ω) in enumerate(ωList)
         if j > 1
             Iω = i * ω * I_total
@@ -105,12 +94,11 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
             cache_p.A = M.data + Iω
             sol_p = solve!(cache_p)
         end
-        Cω_m = d_dagger * _HandleVectorType(sol_m.u, false)
-        Cω_p = d_normal * _HandleVectorType(sol_p.u, false)
         
         # trace over the Hilbert space of system (expectation value)
         Aω[j] = -1 * (
-            real(_tr * Cω_p) + real(_tr * Cω_m)
+            real(_tr_d_normal * _HandleVectorType(sol_p.u, false)) + 
+            real(_tr_d_dagger * _HandleVectorType(sol_m.u, false))
         )
 
         if SAVE
