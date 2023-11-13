@@ -407,8 +407,8 @@ For more details about solvers and extra options, please refer to [`Differential
     
     Ht  = H(param, Tlist[1])
     _Ht = HandleMatrixType(Ht, M.dim, "H (Hamiltonian) at t=$(Tlist[1])")
-    Lt  = kron(sparse(I, M.N, M.N), - 1im * (spre(_Ht) - spost(_Ht)))
-    L   = MatrixOperator(M.data + Lt, update_func! = _update_L!)
+    Lt  = HEOMSuperOp(minus_i_L_op(_Ht), M, M.parity, "LR")
+    L   = MatrixOperator((M + Lt).data, update_func! = _update_L!)
     
     # problem: dρ/dt = L(t) * ρ(0)
     ## M.dim will check whether the returned time-dependent Hamiltonian has the correct dimension
@@ -467,6 +467,6 @@ function _update_L!(L, u, p, t)
     _Ht = HandleMatrixType(Ht, M.dim, "H (Hamiltonian) at t=$(t)")
 
     # update the block diagonal terms of L
-    L .= (M - HEOMSuperOp(minus_i_L_op(_Ht), M, M.parity), "LR").data
+    L .= (M + HEOMSuperOp(minus_i_L_op(_Ht), M, M.parity, "LR")).data
     nothing
 end
