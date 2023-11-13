@@ -9,6 +9,8 @@ on:
   pull_request:
     branches:
       - 'main'
+    types:
+      - 'ready_for_review'
 
 jobs:
   build:
