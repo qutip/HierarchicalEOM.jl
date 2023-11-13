@@ -18,8 +18,8 @@ if GROUP == "All" || GROUP == "Core"
         include("bath.jl")
     end
 
-    @testset "Correlation functions" begin
-        include("corr_func.jl")
+    @testset "Bath correlation functions" begin
+        include("bath_corr_func.jl")
     end
 
     include("heom_api.jl")
