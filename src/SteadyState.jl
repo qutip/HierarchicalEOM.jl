@@ -117,12 +117,7 @@ For more details about solvers and extra options, please refer to [`Differential
     )
     
     _check_sys_dim_and_ADOs_num(M, ados)
-    
-    # check parity
-    _check_parity(M, ados)    
-    if typeof(M.parity) == OddParity
-        error("The parity of M should be \"EVEN\".")
-    end
+    _check_parity(M, ados)
 
     # problem: dρ(t)/dt = L * ρ(t)
     L = MatrixOperator(M.data)

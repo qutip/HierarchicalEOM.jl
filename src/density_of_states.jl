@@ -52,8 +52,8 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 
     # Handle d_op
     _tr = Tr(M.dim, M.N)
-    d_normal = HEOMSuperOp(d_op,  M, ODD)
-    d_dagger = HEOMSuperOp(d_op', M, ODD)
+    d_normal = HEOMSuperOp(d_op,  ODD, M)
+    d_dagger = HEOMSuperOp(d_op', ODD, M)
     b_m = _HandleVectorType(typeof(M.data), (d_normal * ados).data)
     b_p = _HandleVectorType(typeof(M.data), (d_dagger * ados).data)
     _tr_d_normal = _tr * d_normal.data

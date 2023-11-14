@@ -215,7 +215,7 @@ function Expect(op, ados_list::Vector{ADOs}; take_real=true)
         _check_sys_dim_and_ADOs_num(op, ados_list[1])
         _op = op
     else
-        _op = HEOMSuperOp(op, ados_list[1], EVEN)
+        _op = HEOMSuperOp(op, EVEN, dim, N, "L")
     end
     tr_op = Tr(dim, N) * _op.data
 

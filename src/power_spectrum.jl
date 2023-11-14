@@ -62,8 +62,8 @@ remember to set the parameters:
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the HEOMLS matrix.
 - `ρ` :  the system density matrix or the auxiliary density operators.
-- `P_op`: the operator (or `HEOMSuperOp`) ``P`` acting on the system.
-- `Q_op`: the operator (or `HEOMSuperOp`) ``Q`` acting on the system.
+- `P_op`: the system operator (or `HEOMSuperOp`) ``P`` acting on the system.
+- `Q_op`: the system operator (or `HEOMSuperOp`) ``Q`` acting on the system.
 - `ωlist::AbstractVector` : the specific frequency points to solve.
 - `reverse::Bool` : If `true`, calculate ``\langle P(-t)Q(0) \rangle = \langle P(0)Q(t) \rangle = \langle P(t)Q(0) \rangle^*`` instead of ``\langle P(t) Q(0) \rangle``. Default to `false`.
 - `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
@@ -104,7 +104,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
         _check_sys_dim_and_ADOs_num(M, P_op)
         _P = P_op
     else
-        _P = HEOMSuperOp(P_op, M, EVEN)
+        _P = HEOMSuperOp(P_op, EVEN, M)
     end
     _tr_P = Tr(M.dim, M.N) * _P.data
     
@@ -115,9 +115,9 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
         _check_parity(M, _Q_ados)
     else
         if M.parity == EVEN
-            _Q = HEOMSuperOp(Q_op, M,  ados.parity)
+            _Q = HEOMSuperOp(Q_op,  ados.parity, M)
         else
-            _Q = HEOMSuperOp(Q_op, M, !ados.parity)
+            _Q = HEOMSuperOp(Q_op, !ados.parity, M)
         end
         _Q_ados = _Q * ados
     end

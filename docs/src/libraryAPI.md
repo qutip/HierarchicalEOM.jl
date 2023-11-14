@@ -60,8 +60,9 @@ ODD
 ## HEOM Liouvillian superoperator matrices
 ```@docs
 HEOMSuperOp
-HEOMSuperOp(op, refHEOMLS::AbstractHEOMLSMatrix, opParity::AbstractParity, mul_basis::AbstractString="L")
-HEOMSuperOp(op, refADOs::ADOs, opParity::AbstractParity, mul_basis::AbstractString="L")
+HEOMSuperOp(op, opParity::AbstractParity, refHEOMLS::AbstractHEOMLSMatrix, mul_basis::AbstractString="L")
+HEOMSuperOp(op, opParity::AbstractParity, refADOs::ADOs, mul_basis::AbstractString="L")
+HEOMSuperOp(op, opParity::AbstractParity, dim::Int, N::Int, mul_basis::AbstractString)
 M_S
 M_S(Hsys, parity::AbstractParity=EVEN; verbose::Bool=true)
 M_Boson
