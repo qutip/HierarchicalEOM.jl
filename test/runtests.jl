@@ -24,6 +24,10 @@ if GROUP == "All" || GROUP == "Core"
         include("ADOs.jl")
     end
 
+    @testset "HEOM superoperator" begin
+        include("HEOMSuperOp.jl")
+    end
+
     @testset "M_S" begin
         include("M_S.jl")
     end

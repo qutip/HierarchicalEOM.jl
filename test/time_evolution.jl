@@ -27,12 +27,14 @@ ados_list = evolution(L, ρ0, Δt, steps; verbose=false, filename="evolution_p")
 ados_wrong1 = ADOs(zeros(8), 2)
 ados_wrong2 = ADOs(zeros(32), 2)
 ados_wrong3 = ADOs((ados_list[1]).data, (ados_list[1]).N, ODD)
+ados_wrong4 = HEOMSuperOp(Q, ODD, ados_list[end]) * ados_list[end]
 ρ_list_p = getRho.(ados_list)
 @test_throws ErrorException evolution(L, ρ0, Δt, steps; verbose=false, filename="evolution_p")
 @test_throws ErrorException evolution(L, ρ_wrong, Δt, steps; verbose=false)
 @test_throws ErrorException evolution(L, ados_wrong1, Δt, steps; verbose=false)
 @test_throws ErrorException evolution(L, ados_wrong2, Δt, steps; verbose=false)
 @test_throws ErrorException evolution(L, ados_wrong3, Δt, steps; verbose=false)
+@test_throws ErrorException evolution(L, ados_wrong4, Δt, steps; verbose=false)
 
 if isfile("evolution_o.jld2")
     rm("evolution_o.jld2")
@@ -44,6 +46,7 @@ end
 @test_throws ErrorException evolution(L, ados_wrong1, tlist; verbose=false)
 @test_throws ErrorException evolution(L, ados_wrong2, tlist; verbose=false)
 @test_throws ErrorException evolution(L, ados_wrong3, tlist; verbose=false)
+@test_throws ErrorException evolution(L, ados_wrong4, tlist; verbose=false)
 
 for i in 1:(steps + 1)
     @test _is_Matrix_approx(ρ_list_p[i], ρ_list_e[i])
