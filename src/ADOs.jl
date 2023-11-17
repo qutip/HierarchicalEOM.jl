@@ -48,6 +48,20 @@ function ADOs(V::AbstractVector, N::Int, parity::AbstractParity=EVEN)
     end    
 end
 
+@doc raw"""
+    ADOs(ρ, N, parity)
+Gernerate the object of auxiliary density operators for HEOM model.
+
+# Parameters
+- `ρ` : the reduced density operator
+- `N::Int` : the number of auxiliary density operators.
+- `parity::AbstractParity` : the parity label (`EVEN` or `ODD`). Default to `EVEN`.
+"""
+function ADOs(ρ, N::Int=1, parity::AbstractParity=EVEN)
+    _ρ = sparsevec(HandleMatrixType(ρ, 0, "ρ"))
+    return ADOs(sparsevec(_ρ.nzind, _ρ.nzval, N * length(_ρ)), N, parity)
+end
+
 function checkbounds(A::ADOs, i::Int)
     if (i > A.N) || (i < 1)
         error("Attempt to access $(A.N)-element ADOs at index [$(i)]")
@@ -158,9 +172,13 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in the 
 """
 function Expect(op, ados::ADOs; take_real=true)
     
-    _op = HandleMatrixType(op, ados.dim, "op (observable)")
-
-    exp_val = tr(_op * getRho(ados))
+    if typeof(op) == HEOMSuperOp
+        _check_sys_dim_and_ADOs_num(op, ados)
+        exp_val = Tr(ados.dim, ados.N) * (op * ados).data
+    else
+        _op = HandleMatrixType(op, ados.dim, "op (observable)")
+        exp_val = tr(_op * getRho(ados))
+    end
 
     if take_real
         return real(exp_val)
@@ -188,17 +206,21 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in one 
 function Expect(op, ados_list::Vector{ADOs}; take_real=true)
 
     dim = ados_list[1].dim
+    N   = ados_list[1].N
     for i in 2:length(ados_list)
-        if ados_list[i].dim != dim
-            error("The dimension of the elements in `ados_list` should be consistent.")
-        end
+        _check_sys_dim_and_ADOs_num(ados_list[1], ados_list[i])
     end
 
-    _op = HandleMatrixType(op, dim, "op (observable)")
+    if typeof(op) == HEOMSuperOp
+        _check_sys_dim_and_ADOs_num(op, ados_list[1])
+        _op = op
+    else
+        _op = HEOMSuperOp(op, EVEN, dim, N, "L")
+    end
+    tr_op = Tr(dim, N) * _op.data
 
-    ρlist = getRho.(ados_list)
     exp_val = [
-        tr(_op * ρlist[i]) for i in 1:length(ρlist)
+        (tr_op * ados.data) for ados in ados_list
     ]
 
     if take_real
@@ -206,19 +228,4 @@ function Expect(op, ados_list::Vector{ADOs}; take_real=true)
     else
         return exp_val
     end
-end
-
-# for changing a `Vector` back to `ADOs`
-function _HandleVectorType(V::T, cp::Bool=true) where T <: Vector
-    if cp
-        return Vector{ComplexF64}(V)
-    else
-        return V
-    end
-end
-
-# for changing the type of `ADOs` to match the type of HEOMLS matrix 
-function _HandleVectorType(MatrixType::Type{TM}, V::SparseVector) where TM <: SparseMatrixCSC
-    TE = eltype(MatrixType)
-    return Vector{TE}(V)
 end

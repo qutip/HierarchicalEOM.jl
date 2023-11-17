@@ -76,7 +76,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
     I_sup   = sparse(one(ComplexF64) * I, sup_dim, sup_dim)
 
     # the Liouvillian operator for free Hamiltonian term
-    Lsys = -1im * (spre(_Hsys) - spost(_Hsys))
+    Lsys = minus_i_L_op(_Hsys)
 
     # check for bosonic and fermionic bath
     if verbose && (threshold > 0.0)
@@ -129,7 +129,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                     Nvec_minus!(nvec_neigh, mode)
                     if (threshold == 0.0) || haskey(nvec2idx, (nvec_neigh, nvec_f))
                         idx_neigh = nvec2idx[(nvec_neigh, nvec_f)]
-                        op = _D_op(bB, k, n_k)
+                        op = minus_i_D_op(bB, k, n_k)
                         add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
                     end
                     Nvec_plus!(nvec_neigh, mode)
@@ -140,7 +140,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                     Nvec_plus!(nvec_neigh, mode)
                     if (threshold == 0.0) || haskey(nvec2idx, (nvec_neigh, nvec_f))
                         idx_neigh = nvec2idx[(nvec_neigh, nvec_f)]
-                        op = _B_op(bB)
+                        op = minus_i_B_op(bB)
                         add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
                     end
                     Nvec_minus!(nvec_neigh, mode)
@@ -161,7 +161,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                     Nvec_minus!(nvec_neigh, mode)
                     if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
                         idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
-                        op = _C_op(fB, k, nvec_f.level, sum(nvec_neigh[1:(mode - 1)]), parity)
+                        op = minus_i_C_op(fB, k, nvec_f.level, sum(nvec_neigh[1:(mode - 1)]), parity)
                         add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
                     end
                     Nvec_plus!(nvec_neigh, mode)
@@ -171,7 +171,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                     Nvec_plus!(nvec_neigh, mode)
                     if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
                         idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
-                        op = _A_op(fB, nvec_f.level, sum(nvec_neigh[1:(mode - 1)]), parity)
+                        op = minus_i_A_op(fB, nvec_f.level, sum(nvec_neigh[1:(mode - 1)]), parity)
                         add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
                     end
                     Nvec_minus!(nvec_neigh, mode)

@@ -56,7 +56,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         println("Constructing Liouville-von Neumann superoperator...")
         flush(stdout)
     end
-    Lsys = -1im * (spre(_Hsys) - spost(_Hsys))
+    Lsys = minus_i_L_op(_Hsys)
     if verbose
         println("[DONE]")
         flush(stdout)

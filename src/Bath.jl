@@ -30,9 +30,6 @@ struct Exponent
     types::String
 end
 
-spre(q::AbstractMatrix)  = sparse(kron(Matrix(I, size(q)[1], size(q)[1]), q))
-spost(q::AbstractMatrix) = sparse(kron(transpose(q), Matrix(I, size(q)[1], size(q)[1])))
-
 function show(io::IO, E::Exponent)
     print(io, 
         "Bath Exponent with types = \"$(E.types)\", operator size = $(size(E.op)), η = $(E.η), γ = $(E.γ).\n"

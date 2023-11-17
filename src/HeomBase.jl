@@ -1,4 +1,12 @@
+abstract type AbstractHEOMLSMatrix end
+
 const PROGBAR_OPTIONS = Dict(:barlen=>20, :color=>:green, :showspeed=>true)
+
+spre(q::AbstractMatrix)  = sparse(kron(Matrix(I, size(q)[1], size(q)[1]), q))
+spost(q::AbstractMatrix) = sparse(kron(transpose(q), Matrix(I, size(q)[1], size(q)[1])))
+
+# equal to : transpose(sparse(vec(system_identity_matrix)))
+Tr(dim::Int, N::Int)  = transpose(SparseVector(N * dim ^ 2, [1 + n * (dim + 1) for n in 0:(dim - 1)], ones(ComplexF64, dim)))
 
 function HandleMatrixType(M, dim::Int=0, MatrixName::String="")
     error("HierarchicalEOM doesn't support matrix $(MatrixName) with type : $(typeof(M))")
@@ -16,7 +24,7 @@ function HandleMatrixType(M::AbstractMatrix, dim::Int=0, MatrixName::String="")
         if N1 == N2
             return copy(M)
         else
-            error("The size of matrix $(MatrixName) should be squared matrix.")
+            error("The matrix $(MatrixName) should be squared matrix.")
         end
     end
 end
@@ -35,6 +43,52 @@ function _HandleFloatType(ElType::Type{T}, V::Any) where T <: Number
         return V
     else
         convert.(FType, V)
+    end
+end
+
+# for changing a `Vector` back to `ADOs`
+function _HandleVectorType(V::T, cp::Bool=true) where T <: Vector
+    if cp
+        return Vector{ComplexF64}(V)
+    else
+        return V
+    end
+end
+
+# for changing the type of `ADOs` to match the type of HEOMLS matrix 
+function _HandleVectorType(MatrixType::Type{TM}, V::SparseVector) where TM <: SparseMatrixCSC
+    TE = eltype(MatrixType)
+    return Vector{TE}(V)
+end
+
+function _HandleSteadyStateMatrix(MatrixType::Type{TM}, M::AbstractHEOMLSMatrix, S::Int) where TM <: SparseMatrixCSC
+    ElType = eltype(M)
+    A = copy(M.data)
+    A[1,1:S] .= 0
+    
+    # sparse(row_idx, col_idx, values, row_dims, col_dims)
+    A += sparse(ones(ElType, M.dim), [(n - 1) * (M.dim + 1) + 1 for n in 1:(M.dim)], ones(ElType, M.dim), S, S)
+    return A
+end
+
+function _HandleIdentityType(MatrixType::Type{TM}, S::Int) where TM <: SparseMatrixCSC
+    ElType = eltype(MatrixType)
+    return sparse(one(ElType) * I, S, S)
+end
+
+function _check_sys_dim_and_ADOs_num(A, B)
+    if (A.dim != B.dim)
+        error("Inconsistent system dimension (\"dim\").")
+    end
+
+    if (A.N != B.N)
+        error("Inconsistent number of ADOs (\"N\").")
+    end
+end
+
+function _check_parity(A, B)
+    if typeof(A.parity) != typeof(B.parity)
+        error("Inconsistent parity.")
     end
 end
 

@@ -70,14 +70,9 @@ function SteadyState(
         verbose::Bool = true,
         SOLVEROptions...
     )
-
-    _ρ0 = HandleMatrixType(ρ0, M.dim, "ρ0 (initial state)")
-
-    # vectorize initial state
-    ρ1   = sparse(sparsevec(_ρ0))
-    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N, M.parity)
-    
-    return SteadyState(M, ados;
+    return SteadyState(
+        M, 
+        ADOs(ρ0, M.N, M.parity);
         solver = solver,
         reltol = reltol,
         abstol = abstol,
@@ -121,22 +116,8 @@ For more details about solvers and extra options, please refer to [`Differential
         SOLVEROptions...
     )
     
-    # check parity
-    if typeof(M.parity) == OddParity
-        error("The parity of M should be \"EVEN\".")
-    end
-
-    if (M.dim != ados.dim)
-        error("The system dimension between M and ados are not consistent.")
-    end
-
-    if (M.N != ados.N)
-        error("The ADOs number \"N\" between M and ados are not consistent.")
-    end
-
-    if (typeof(M.parity) != typeof(ados.parity))
-        error("The parity between M and ados are not consistent.")
-    end
+    _check_sys_dim_and_ADOs_num(M, ados)
+    _check_parity(M, ados)
 
     # problem: dρ(t)/dt = L * ρ(t)
     L = MatrixOperator(M.data)
@@ -163,14 +144,4 @@ For more details about solvers and extra options, please refer to [`Differential
     end
 
     return ADOs(_HandleVectorType(sol.u, false), M.dim, M.N, M.parity)
-end
-
-function _HandleSteadyStateMatrix(MatrixType::Type{TM}, M::AbstractHEOMLSMatrix, S::Int) where TM <: SparseMatrixCSC
-    ElType = eltype(M)
-    A = copy(M.data)
-    A[1,1:S] .= 0
-    
-    # sparse(row_idx, col_idx, values, row_dims, col_dims)
-    A += sparse(ones(ElType, M.dim), [(n - 1) * (M.dim + 1) + 1 for n in 1:(M.dim)], ones(ElType, M.dim), S, S)
-    return A
 end

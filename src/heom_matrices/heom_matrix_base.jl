@@ -1,39 +1,102 @@
-abstract type AbstractHEOMLSMatrix end
-abstract type AbstractParity end
-
 @doc raw"""
-    struct OddParity <: AbstractParity
+    struct HEOMSuperOp
+General HEOM superoperator matrix.  
+
+# Fields
+- `data` : the HEOM superoperator matrix
+- `dim` : the dimension of the system
+- `N` : the number of auxiliary density operators
+- `parity`: the parity label (`EVEN` or `ODD`).
 """
-struct OddParity  <: AbstractParity end
-
-@doc raw"""
-    struct EvenParity <: AbstractParity
-"""
-struct EvenParity <: AbstractParity end
-
-value(p::OddParity)  = 1
-value(p::EvenParity) = 0
-
-function show(io::IO, p::OddParity)
-    print(io, "odd-parity")
+struct HEOMSuperOp
+    data::SparseMatrixCSC{ComplexF64, Int64}
+    dim::Int
+    N::Int
+    parity::AbstractParity
 end
 
-function show(io::IO, p::EvenParity)
-    print(io, "even-parity")
+@doc raw"""
+    HEOMSuperOp(op, opParity, refHEOMLS, mul_basis="L")
+Construct the HEOM superoperator matrix corresponding to the given system operator which acts on all `ADOs`.  
+
+During the multiplication on all the `ADOs`, the parity of the output `ADOs` might change depend on the parity of this HEOM superoperator.
+
+# Parameters
+- `op` : The system operator which will act on all `ADOs`.
+- `opParity::AbstractParity` : the parity label of the given operator (`op`), should be `EVEN` or `ODD`.
+- `refHEOMLS::AbstractHEOMLSMatrix` : copy the system `dim` and number of `ADOs` (`N`) from this reference HEOMLS matrix
+- `mul_basis::AbstractString` : this specifies the basis for `op` to multiply on all `ADOs`. Defaults to `"L"`.
+
+if `mul_basis` is specified as
+- `"L"`  : the matrix `op` has same dimension with the system and acts on left-hand  side.
+- `"R"`  : the matrix `op` has same dimension with the system and acts on right-hand side.
+- `"LR"` : the matrix `op` is a superoperator of the system.
+"""
+HEOMSuperOp(op, opParity::AbstractParity, refHEOMLS::AbstractHEOMLSMatrix, mul_basis::AbstractString="L") = HEOMSuperOp(op, opParity, refHEOMLS.dim, refHEOMLS.N, mul_basis)
+
+@doc raw"""
+    HEOMSuperOp(op, opParity, refADOs, mul_basis="L")
+Construct the HEOMLS matrix corresponding to the given system operator which multiplies on the "L"eft-hand ("R"ight-hand) side basis of all `ADOs`.  
+
+During the multiplication on all the `ADOs`, the parity of the output `ADOs` might change depend on the parity of this HEOM superoperator.
+
+# Parameters
+- `op` : The system operator which will act on all `ADOs`.
+- `opParity::AbstractParity` : the parity label of the given operator (`op`), should be `EVEN` or `ODD`.
+- `refADOs::ADOs` : copy the system `dim` and number of `ADOs` (`N`) from this reference `ADOs`   
+- `mul_basis::AbstractString` : this specifies the basis for `op` to multiply on all `ADOs`. Defaults to `"L"`.
+
+if `mul_basis` is specified as
+- `"L"`  : the matrix `op` has same dimension with the system and acts on left-hand  side.
+- `"R"`  : the matrix `op` has same dimension with the system and acts on right-hand side.
+- `"LR"` : the matrix `op` is a superoperator of the system.
+"""
+HEOMSuperOp(op, opParity::AbstractParity, refADOs::ADOs, mul_basis::AbstractString="L") = HEOMSuperOp(op, opParity, refADOs.dim, refADOs.N, mul_basis)
+
+@doc raw"""
+    HEOMSuperOp(op, opParity, dim, N, mul_basis)
+Construct the HEOM superoperator matrix corresponding to the given system operator which acts on all `ADOs`.  
+
+During the multiplication on all the `ADOs`, the parity of the output `ADOs` might change depend on the parity of this HEOM superoperator.
+
+# Parameters
+- `op` : The system operator which will act on all `ADOs`.
+- `opParity::AbstractParity` : the parity label of the given operator (`op`), should be `EVEN` or `ODD`.
+- `dim::Int` : the system dimension.
+- `N::Int` : the number of `ADOs`.
+- `mul_basis::AbstractString` : this specifies the basis for `op` to multiply on all `ADOs`.
+
+if `mul_basis` is specified as
+- `"L"`  : the matrix `op` has same dimension with the system and acts on left-hand  side.
+- `"R"`  : the matrix `op` has same dimension with the system and acts on right-hand side.
+- `"LR"` : the matrix `op` is a superoperator of the system.
+"""
+function HEOMSuperOp(op, opParity::AbstractParity, dim::Int, N::Int, mul_basis::AbstractString)
+    if mul_basis == "L"
+        sup_op = spre(HandleMatrixType(op, dim, "op (operator)"))
+    elseif mul_basis == "R"
+        sup_op = spost(HandleMatrixType(op, dim, "op (operator)"))
+    elseif mul_basis == "LR"
+        sup_op = HandleMatrixType(op, dim ^ 2, "op (operator)")
+    else
+        error("The multiplication basis (mul_basis) can only be given as a string with either \"L\", \"R\", or \"LR\".")
+    end
+    
+    HEOMLS = kron(sparse(one(ComplexF64) * I, N, N), sup_op)
+    return HEOMSuperOp(HEOMLS, dim, N, opParity)
 end
 
-# Parity label
 @doc raw"""
-    const ODD  = OddParity()
-Label of odd-parity
+    size(M::HEOMSuperOp)
+Returns the size of the HEOM superoperator matrix
 """
-const ODD  = OddParity()
+size(M::HEOMSuperOp) = size(M.data)
 
 @doc raw"""
-    const EVEN = EvenParity()
-Label of even-parity
+    size(M::HEOMSuperOp, dim::Int)
+Returns the specified dimension of the HEOM superoperator matrix
 """
-const EVEN = EvenParity()
+size(M::HEOMSuperOp, dim::Int) = size(M.data, dim)
 
 @doc raw"""
     size(M::AbstractHEOMLSMatrix)
@@ -48,12 +111,29 @@ Returns the specified dimension of the HEOM Liouvillian superoperator matrix
 size(M::AbstractHEOMLSMatrix, dim::Int) = size(M.data, dim)
 
 @doc raw"""
+    eltype(M::HEOMSuperOp)
+Returns the elements' type of the HEOM superoperator matrix
+"""
+eltype(M::HEOMSuperOp) = eltype(M.data)
+
+@doc raw"""
     eltype(M::AbstractHEOMLSMatrix)
 Returns the elements' type of the HEOM Liouvillian superoperator matrix
 """
 eltype(M::AbstractHEOMLSMatrix) = eltype(M.data)
 
+getindex(M::HEOMSuperOp, i::Ti, j::Tj) where {Ti, Tj <: Any} = M.data[i, j]
 getindex(M::AbstractHEOMLSMatrix, i::Ti, j::Tj) where {Ti, Tj <: Any} = M.data[i, j]
+
+function show(io::IO, M::HEOMSuperOp)
+    print(io,
+        "$(M.parity) HEOM superoperator matrix acting on arbitrary-parity-ADOs\n",
+        "system dim = $(M.dim)\n",
+        "number of ADOs N = $(M.N)\n",
+        "data =\n"
+    )
+    show(io, MIME("text/plain"), M.data)
+end
 
 function show(io::IO, M::AbstractHEOMLSMatrix)
     T = typeof(M)
@@ -76,7 +156,51 @@ function show(io::IO, M::AbstractHEOMLSMatrix)
     show(io, MIME("text/plain"), M.data)
 end
 
+function show(io::IO, m::MIME"text/plain", M::HEOMSuperOp) show(io, M) end
 function show(io::IO, m::MIME"text/plain", M::AbstractHEOMLSMatrix) show(io, M) end
+
+function *(Sup::HEOMSuperOp, ados::ADOs)
+    _check_sys_dim_and_ADOs_num(Sup, ados)
+
+    return ADOs(Sup.data * ados.data, ados.dim, ados.N, Sup.parity * ados.parity)
+end
+
+function *(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
+    _check_sys_dim_and_ADOs_num(Sup1, Sup2)
+
+    return HEOMSuperOp(Sup1.data * Sup2.data, Sup1.dim, Sup1.N, Sup1.parity * Sup2.parity)
+end
+
+*(n::Number, Sup::HEOMSuperOp) = HEOMSuperOp(n * Sup.data, Sup.dim, Sup.N, Sup.parity)
+*(Sup::HEOMSuperOp, n::Number) = n * Sup
+
+function +(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
+    _check_sys_dim_and_ADOs_num(Sup1, Sup2)
+    _check_parity(Sup1, Sup2)
+
+    return HEOMSuperOp(Sup1.data + Sup2.data, Sup1.dim, Sup1.N, Sup1.parity)
+end
+
+function +(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
+    _check_sys_dim_and_ADOs_num(M, Sup)
+    _check_parity(M, Sup)
+
+    return _reset_HEOMLS_data(M, M.data + Sup.data)
+end
+
+function -(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
+    _check_sys_dim_and_ADOs_num(Sup1, Sup2)
+    _check_parity(Sup1, Sup2)
+
+    return HEOMSuperOp(Sup1.data - Sup2.data, Sup1.dim, Sup1.N, Sup1.parity)
+end
+
+function -(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
+    _check_sys_dim_and_ADOs_num(M, Sup)
+    _check_parity(M, Sup)
+
+    return _reset_HEOMLS_data(M, M.data - Sup.data)
+end
 
 @doc raw"""
     Propagator(M, Δt; threshold, nonzero_tol)
@@ -103,6 +227,18 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
     return fastExpm(M.data * Δt; threshold=threshold, nonzero_tol=nonzero_tol)
 end
 
+function _reset_HEOMLS_data(M::T, new_data::SparseMatrixCSC{ComplexF64, Int64}) where T <: AbstractHEOMLSMatrix
+    if T <: M_S
+        return M_S(new_data, M.tier, M.dim, M.N, M.sup_dim, M.parity)
+    elseif T <: M_Boson
+        return M_Boson(new_data, M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+    elseif T <: M_Fermion
+        return M_Fermion(new_data, M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+    else
+        return M_Boson_Fermion(new_data, M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
+    end
+end
+
 @doc raw"""
     addBosonDissipator(M, jumpOP)
 Adding bosonic dissipator to a given HEOMLS matrix which describes how the system dissipatively interacts with an extra bosonic environment.  
@@ -121,7 +257,7 @@ Note that if ``V`` is acting on fermionic systems, it should be even-parity to b
 # Return 
 - `M_new::AbstractHEOMLSMatrix` : the new HEOM Liouvillian superoperator matrix
 """
-function addBosonDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMLSMatrix
+function addBosonDissipator(M::AbstractHEOMLSMatrix, jumpOP::Vector=[])
     if length(jumpOP) > 0
         L = spzeros(ComplexF64, M.sup_dim, M.sup_dim)
         for J in jumpOP
@@ -129,15 +265,7 @@ function addBosonDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMLSMa
             L += spre(_J) * spost(_J') - 0.5 * (spre(_J' * _J) + spost(_J' * _J))
         end
 
-        if T <: M_S
-            return M_S(M.data + L, M.tier, M.dim, M.N, M.sup_dim, M.parity)
-        elseif T <: M_Boson
-            return M_Boson(M.data + kron(sparse(one(ComplexF64) * I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
-        elseif T <: M_Fermion
-            return M_Fermion(M.data + kron(sparse(one(ComplexF64) * I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
-        else
-            return M_Boson_Fermion(M.data + kron(sparse(one(ComplexF64) * I, M.N, M.N), L), M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
-        end
+        return M + HEOMSuperOp(L, M.parity, M, "LR")
     end
 end
 
@@ -173,15 +301,8 @@ function addFermionDissipator(M::T, jumpOP::Vector=[]) where T <: AbstractHEOMLS
             _J = HandleMatrixType(J, M.dim, "in jumpOP")
             L += ((-1) ^ parity) * spre(_J) * spost(_J') - 0.5 * (spre(_J' * _J) + spost(_J' * _J))
         end
-        if T <: M_S
-            return M_S(M.data + L, M.tier, M.dim, M.N, M.sup_dim, M.parity)
-        elseif T <: M_Boson
-            return M_Boson(M.data + kron(sparse(one(ComplexF64) * I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
-        elseif T <: M_Fermion
-            return M_Fermion(M.data + kron(sparse(one(ComplexF64) * I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
-        else
-            return M_Boson_Fermion(M.data + kron(sparse(one(ComplexF64) * I, M.N, M.N), L), M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
-        end
+        
+        return M + HEOMSuperOp(L, M.parity, M, "LR")
     end
 end
 
@@ -230,13 +351,7 @@ function addTerminator(M::Mtype, Bath::Union{BosonBath, FermionBath}) where Mtyp
             spre(J) * spost(J') - 0.5 * (spre(J' * J) + spost(J' * J))
         )
 
-        if Mtype <: M_Boson
-            return M_Boson(M.data + kron(sparse(one(ComplexF64) * I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
-        elseif Mtype <: M_Fermion
-            return M_Fermion(M.data + kron(sparse(one(ComplexF64) * I, M.N, M.N), L), M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
-        else
-            return M_Boson_Fermion(M.data + kron(sparse(one(ComplexF64) * I, M.N, M.N), L), M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
-        end
+        return M + HEOMSuperOp(L, M.parity, M, "LR")
     end
 end
 
@@ -303,67 +418,72 @@ function bath_sum_γ(nvec, baths::Vector{T}) where T <: Union{AbstractBosonBath,
     return sum_γ
 end
 
+# commutator of system Hamiltonian
+function minus_i_L_op(Hsys)
+    return -1.0im * (spre(Hsys) - spost(Hsys))
+end
+
 # connect to bosonic (n-1)th-level for "Real & Imag combined operator"
-function _D_op(bath::bosonRealImag, k, n_k)
+function minus_i_D_op(bath::bosonRealImag, k, n_k)
     return n_k * (
-        -1im * bath.η_real[k] * bath.Comm  +
-               bath.η_imag[k] * bath.anComm
+        -1.0im * bath.η_real[k] * bath.Comm  +
+                 bath.η_imag[k] * bath.anComm
     )
 end
 
 # connect to bosonic (n-1)th-level for (Real & Imag combined) operator "Real operator"
-function _D_op(bath::bosonReal, k, n_k)
-    return -1im * n_k * bath.η[k] * bath.Comm
+function minus_i_D_op(bath::bosonReal, k, n_k)
+    return -1.0im * n_k * bath.η[k] * bath.Comm
 end
 
 # connect to bosonic (n-1)th-level for "Imag operator"
-function _D_op(bath::bosonImag, k, n_k)
+function minus_i_D_op(bath::bosonImag, k, n_k)
     return n_k * bath.η[k] * bath.anComm
 end
 
 # connect to bosonic (n-1)th-level for "Absorption operator"
-function _D_op(bath::bosonAbsorb, k, n_k)
-    return -1im * n_k * (
+function minus_i_D_op(bath::bosonAbsorb, k, n_k)
+    return -1.0im * n_k * (
         bath.η[k] * bath.spre - conj(bath.η_emit[k]) * bath.spost
     )
 end
 
 # connect to bosonic (n-1)th-level for "Emission operator"
-function _D_op(bath::bosonEmit, k, n_k)
-    return -1im * n_k * (
+function minus_i_D_op(bath::bosonEmit, k, n_k)
+    return -1.0im * n_k * (
         bath.η[k] * bath.spre - conj(bath.η_absorb[k]) * bath.spost
     )
 end
 
 # connect to fermionic (n-1)th-level for "absorption operator"
-function _C_op(bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
-    return -1im * ((-1) ^ n_exc_before) * (
+function minus_i_C_op(bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
+    return -1.0im * ((-1) ^ n_exc_before) * (
         ((-1) ^ value(parity)) * bath.η[k] * bath.spre -
         (-1) ^ (n_exc - 1)    * conj(bath.η_emit[k]) * bath.spost
     )
 end
 
 # connect to fermionic (n-1)th-level for "emission operator"
-function _C_op(bath::fermionEmit, k, n_exc, n_exc_before, parity)
-    return -1im * ((-1) ^ n_exc_before) * (
+function minus_i_C_op(bath::fermionEmit, k, n_exc, n_exc_before, parity)
+    return -1.0im * ((-1) ^ n_exc_before) * (
         (-1) ^ (value(parity)) * bath.η[k] * bath.spre -
         (-1) ^ (n_exc - 1)    * conj(bath.η_absorb[k]) * bath.spost
     )
 end
 
 # connect to bosonic (n+1)th-level for real-and-imaginary-type bosonic bath
-function _B_op(bath::T) where T <: Union{bosonReal, bosonImag, bosonRealImag}
-    return -1im * bath.Comm
+function minus_i_B_op(bath::T) where T <: Union{bosonReal, bosonImag, bosonRealImag}
+    return -1.0im * bath.Comm
 end
 
 # connect to bosonic (n+1)th-level for absorption-and-emission-type bosonic bath
-function _B_op(bath::T) where T <: Union{bosonAbsorb, bosonEmit}
-    return -1im * bath.CommD
+function minus_i_B_op(bath::T) where T <: Union{bosonAbsorb, bosonEmit}
+    return -1.0im * bath.CommD
 end
 
 # connect to fermionic (n+1)th-level
-function _A_op(bath::T, n_exc, n_exc_before, parity) where T <: AbstractFermionBath
-    return -1im * ((-1) ^ n_exc_before) * (
+function minus_i_A_op(bath::T, n_exc, n_exc_before, parity) where T <: AbstractFermionBath
+    return -1.0im * ((-1) ^ n_exc_before) * (
         (-1) ^ (value(parity)) * bath.spreD  +
         (-1) ^ (n_exc + 1)    * bath.spostD
     )

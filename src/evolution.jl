@@ -30,18 +30,15 @@ function evolution(
         verbose::Bool = true,
         filename::String = ""
     )
-    
-    _ρ0 = HandleMatrixType(ρ0, M.dim, "ρ0 (initial state)")
-
-    # vectorize initial state
-    ρ1   = sparse(sparsevec(_ρ0))
-    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N, M.parity)
-
-    return evolution(M, ados, Δt, steps;
+    return evolution(
+        M, 
+        ADOs(ρ0, M.N, M.parity), 
+        Δt, 
+        steps;
         threshold   = threshold,
         nonzero_tol = nonzero_tol,
-        verbose = verbose,
-        filename = filename
+        verbose     = verbose,
+        filename    = filename
     )
 end
 
@@ -78,17 +75,8 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
         filename::String = ""
     )
 
-    if (M.dim != ados.dim)
-        error("The system dimension between M and ados are not consistent.")
-    end
-
-    if (M.N != ados.N)
-        error("The number N between M and ados are not consistent.")
-    end
-
-    if (typeof(M.parity) != typeof(ados.parity))
-        error("The parity between M and ados are not consistent.")
-    end
+    _check_sys_dim_and_ADOs_num(M, ados)
+    _check_parity(M, ados)
 
     SAVE::Bool = (filename != "")
     if SAVE 
@@ -183,20 +171,16 @@ function evolution(
         filename::String = "",
         SOLVEROptions...
     )
-
-    _ρ0 = HandleMatrixType(ρ0, M.dim, "ρ0 (initial state)")
-
-    # vectorize initial state
-    ρ1   = sparse(sparsevec(_ρ0))
-    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N, M.parity)
-
-    return evolution(M, ados, tlist;
+    return evolution(
+        M, 
+        ADOs(ρ0, M.N, M.parity), 
+        tlist;
         solver = solver,
         reltol = reltol,
         abstol = abstol,
         maxiters = maxiters,
         save_everystep = save_everystep,
-        verbose = verbose,
+        verbose  = verbose,
         filename = filename,
         SOLVEROptions...
     )
@@ -239,17 +223,8 @@ For more details about solvers and extra options, please refer to [`Differential
         SOLVEROptions...
     )
 
-    if (M.dim != ados.dim)
-        error("The system dimension between M and ados are not consistent.")
-    end
-
-    if (M.N != ados.N)
-        error("The ADOs number \"N\" between M and ados are not consistent.")
-    end
-
-    if (typeof(M.parity) != typeof(ados.parity))
-        error("The parity between M and ados are not consistent.")
-    end
+    _check_sys_dim_and_ADOs_num(M, ados)
+    _check_parity(M, ados)
 
     SAVE::Bool = (filename != "")
     if SAVE 
@@ -354,20 +329,18 @@ function evolution(
         filename::String = "",
         SOLVEROptions...
     )
-
-    _ρ0 = HandleMatrixType(ρ0, M.dim, "ρ0 (initial state)")
-
-    # vectorize initial state
-    ρ1   = sparse(sparsevec(_ρ0))
-    ados = ADOs(sparsevec(ρ1.nzind, ρ1.nzval, M.N * M.sup_dim), M.N, M.parity)
-
-    return evolution(M, ados, tlist, H, param;
+    return evolution(
+        M,
+        ADOs(ρ0, M.N, M.parity),
+        tlist,
+        H, 
+        param;
         solver = solver,
         reltol = reltol,
         abstol = abstol,
         maxiters = maxiters,
         save_everystep = save_everystep,
-        verbose = verbose,
+        verbose  = verbose,
         filename = filename,
         SOLVEROptions...
     )
@@ -413,17 +386,8 @@ For more details about solvers and extra options, please refer to [`Differential
         SOLVEROptions...
     )
 
-    if (M.dim != ados.dim)
-        error("The system dimension between M and ados are not consistent.")
-    end
-
-    if (M.N != ados.N)
-        error("The ADOs number \"N\" between M and ados are not consistent.")
-    end
-
-    if (typeof(M.parity) != typeof(ados.parity))
-        error("The parity between M and ados are not consistent.")
-    end
+    _check_sys_dim_and_ADOs_num(M, ados)
+    _check_parity(M, ados)
 
     SAVE::Bool = (filename != "")
     if SAVE 
@@ -443,8 +407,8 @@ For more details about solvers and extra options, please refer to [`Differential
     
     Ht  = H(param, Tlist[1])
     _Ht = HandleMatrixType(Ht, M.dim, "H (Hamiltonian) at t=$(Tlist[1])")
-    Lt  = kron(sparse(I, M.N, M.N), - 1im * (spre(_Ht) - spost(_Ht)))
-    L   = MatrixOperator(M.data + Lt, update_func! = _update_L!)
+    Lt  = HEOMSuperOp(minus_i_L_op(_Ht), M.parity, M, "LR")
+    L   = MatrixOperator((M + Lt).data, update_func! = _update_L!)
     
     # problem: dρ/dt = L(t) * ρ(0)
     ## M.dim will check whether the returned time-dependent Hamiltonian has the correct dimension
@@ -503,6 +467,6 @@ function _update_L!(L, u, p, t)
     _Ht = HandleMatrixType(Ht, M.dim, "H (Hamiltonian) at t=$(t)")
 
     # update the block diagonal terms of L
-    L .= M.data - kron(sparse(I, M.N, M.N), 1im * (spre(_Ht) - spost(_Ht)))
+    L .= (M + HEOMSuperOp(minus_i_L_op(_Ht), M.parity, M, "LR")).data
     nothing
 end

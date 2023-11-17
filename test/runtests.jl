@@ -1,7 +1,5 @@
-using Test, Pkg
 using HierarchicalEOM
-using SparseArrays
-using LinearAlgebra
+using Test, Pkg, SparseArrays, LinearAlgebra
 
 const GROUP = get(ENV, "GROUP", "All")
 const HAS_EXTENSIONS = isdefined(Base, :get_extension)
@@ -18,13 +16,57 @@ if GROUP == "All" || GROUP == "Core"
         include("bath.jl")
     end
 
-    @testset "Correlation functions" begin
-        include("corr_func.jl")
+    @testset "Bath correlation functions" begin
+        include("bath_corr_func.jl")
     end
 
-    include("heom_api.jl")
+    @testset "Auxiliary density operators" begin
+        include("ADOs.jl")
+    end
 
-    include("phys_analysis.jl")
+    @testset "HEOM superoperator" begin
+        include("HEOMSuperOp.jl")
+    end
+
+    @testset "M_S" begin
+        include("M_S.jl")
+    end
+
+    @testset "M_Boson" begin
+        include("M_Boson.jl")
+    end
+
+    @testset "M_Boson (RWA)" begin
+        include("M_Boson_RWA.jl")
+    end
+
+    @testset "M_Fermion" begin
+        include("M_Fermion.jl")
+    end
+
+    @testset "M_Boson_Fermion" begin
+        include("M_Boson_Fermion.jl")
+    end
+
+    @testset "Hierarchy Dictionary" begin
+        include("hierarchy_dictionary.jl")
+    end
+
+    @testset "Stationary state" begin
+        include("stationary_state.jl")
+    end
+
+    @testset "Time evolution" begin
+        include("time_evolution.jl")
+    end
+
+    @testset "Power spectrum" begin
+        include("power_spectrum.jl")
+    end
+
+    @testset "Density of states" begin
+        include("density_of_states.jl")
+    end
 end
 
 if GROUP == "HierarchicalEOM_CUDAExt"

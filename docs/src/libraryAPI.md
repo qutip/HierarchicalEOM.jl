@@ -59,6 +59,10 @@ ODD
 
 ## HEOM Liouvillian superoperator matrices
 ```@docs
+HEOMSuperOp
+HEOMSuperOp(op, opParity::AbstractParity, refHEOMLS::AbstractHEOMLSMatrix, mul_basis::AbstractString="L")
+HEOMSuperOp(op, opParity::AbstractParity, refADOs::ADOs, mul_basis::AbstractString="L")
+HEOMSuperOp(op, opParity::AbstractParity, dim::Int, N::Int, mul_basis::AbstractString)
 M_S
 M_S(Hsys, parity::AbstractParity=EVEN; verbose::Bool=true)
 M_Boson
@@ -67,8 +71,11 @@ M_Fermion
 M_Fermion(Hsys, tier::Int, Bath::Vector{FermionBath}, parity::AbstractParity=EVEN; threshold::Real=0.0, verbose::Bool=true)
 M_Boson_Fermion
 M_Boson_Fermion(Hsys, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::Vector{FermionBath}, parity::AbstractParity=EVEN; threshold::Real=0.0, verbose::Bool=true)
+size(M::HEOMSuperOp)
+size(M::HEOMSuperOp, dim::Int)
 size(M::AbstractHEOMLSMatrix)
 size(M::AbstractHEOMLSMatrix, dim::Int)
+eltype(M::HEOMSuperOp)
 eltype(M::AbstractHEOMLSMatrix)
 Propagator
 addBosonDissipator
