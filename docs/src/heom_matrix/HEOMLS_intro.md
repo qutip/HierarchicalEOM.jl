@@ -49,31 +49,6 @@ M = M_Boson_Fermion(Hs, Btier, Ftier, Bbath, Fbath; threshold=1e-7)
 !!! note "Default value of importance threshold"
     The full hierarchical equations can be recovered in the limiting case ``\mathcal{I}_\textrm{th}\rightarrow 0``, which is the default value of the parameter : `threshold=0.0`. This means that all of the ADOs will be taken into account by default.
 
-## [Parity Support for HEOMLS Matrices](@id doc-Parity)
-When the system Hamiltonian contains fermionic systems, the HEOMLS matrix ``\hat{\mathcal{M}}`` might be constructed into a different one depend on the parity of the input operator (HEOMLS) it is acting on. Usually, it is acting on the reduced density operator and [auxiliary density operators (ADOs)](@ref doc-ADOs), which are all in `EVEN`-parity. However, there are some situations (for example, [calculating density of states for fermionic systems](@ref doc-DOS)) where ``\hat{\mathcal{M}}`` is acting on ADOs with `ODD`-parity.
-
-One can specify the parameter `parity::AbstractParity` in the function of constructing ``\hat{\mathcal{M}}`` to be [`EVEN`](@ref) or [`ODD`](@ref). The default value of the parameter is `parity=EVEN`.
-```julia
-Hs::AbstractMatrix  # system Hamiltonian
-Bbath::BosonBath    # bosonic   bath object
-Fbath::FermionBath  # fermionic bath object
-Btier::Int          # bosonic   truncation level 
-Ftier::Int          # fermionic truncation level 
-
-# create HEOMLS matrix in EVEN or ODD parity
-M_even = M_S(Hs, EVEN)
-M_odd  = M_S(Hs, ODD)
-
-M_even = M_Boson(Hs, Btier, Bbath, EVEN) 
-M_odd  = M_Boson(Hs, Btier, Bbath, ODD) 
-
-M_even = M_Fermion(Hs, Ftier, Fbath, EVEN) 
-M_odd  = M_Fermion(Hs, Ftier, Fbath, ODD)
-
-M_even = M_Boson_Fermion(Hs, Btier, Ftier, Bbath, Fbath, EVEN) 
-M_odd  = M_Boson_Fermion(Hs, Btier, Ftier, Bbath, Fbath, ODD) 
-```
-
 ## Methods
 All of the HEOMLS matrices supports the following two `Base` Functions :
  - `size(M::AbstractHEOMLSMatrix)` : Returns the size of the HEOMLS matrix.
