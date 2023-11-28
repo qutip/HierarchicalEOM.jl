@@ -25,7 +25,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
     
     # solving x where A * x = b
     if verbose
-        print("Solving steady state for auxiliary density operators...")
+        print("Solving steady state for ADOs by linear-solve method...")
         flush(stdout)
     end
     cache = init(LinearProblem(A, _HandleVectorType(typeof(M.data), b)), solver, SOLVEROptions...)
@@ -39,79 +39,67 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 end
 
 @doc raw"""
-    SteadyState(M, ρ0; solver, reltol, abstol, maxiters, save_everystep, verbose, SOLVEROptions...)
-Solve the steady state of the auxiliary density operators based on time evolution (ordinary differential equations)
-with initial state is given in the type of density-matrix (`ρ0`).
+    SteadyState(M, ρ0, tspan; solver, termination_condition, verbose, SOLVEROptions...)
+Solve the steady state of the auxiliary density operators based on time evolution (ordinary differential equations; `SteadyStateDiffEq.jl`) with initial state is given in the type of density-matrix (`ρ0`).
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
 - `ρ0` : system initial state (density matrix)
+- `tspan::Number` : the time limit to find stationary state. Default to `Inf`
 - `solver` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
-- `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
-- `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
-- `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
-- `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
+- `termination_condition` : The stationary state terminate condition in `DiffEqBase.jl`. Default to `NormTerminationMode()`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver
 
-For more details about solvers and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
+For more details about solvers, termination condition, and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
 
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
 """
 function SteadyState(
         M::AbstractHEOMLSMatrix, 
-        ρ0;
+        ρ0,
+        tspan::Number = Inf;
         solver = DP5(),
-        reltol::Real = 1.0e-6,
-        abstol::Real = 1.0e-8,
-        maxiters::Real = 1e5,
-        save_everystep::Bool=false,
+        termination_condition = NormTerminationMode(),
         verbose::Bool = true,
         SOLVEROptions...
     )
     return SteadyState(
         M, 
-        ADOs(ρ0, M.N, M.parity);
+        ADOs(ρ0, M.N, M.parity),
+        tspan;
         solver = solver,
-        reltol = reltol,
-        abstol = abstol,
-        maxiters = maxiters,
-        save_everystep = save_everystep,
+        termination_condition = termination_condition,
         verbose = verbose,
         SOLVEROptions...
     )
 end
 
 @doc raw"""
-    SteadyState(M, ados; solver, reltol, abstol, maxiters, save_everystep, verbose, SOLVEROptions...)
-Solve the steady state of the auxiliary density operators based on time evolution (ordinary differential equations)
-with initial state is given in the type of `ADOs`.
+    SteadyState(M, ados, tspan; solver, termination_condition, verbose, SOLVEROptions...)
+Solve the steady state of the auxiliary density operators based on time evolution (ordinary differential equations; `SteadyStateDiffEq.jl`) with initial state is given in the type of `ADOs`.
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
 - `ados::ADOs` : initial auxiliary density operators
+- `tspan::Number` : the time limit to find stationary state. Default to `Inf`
 - `solver` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
-- `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-3`.
-- `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-6`.
-- `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
-- `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
+- `termination_condition` : The stationary state terminate condition in `DiffEqBase.jl`. Default to `NormTerminationMode()`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver
 
-For more details about solvers and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
+For more details about solvers, termination condition, and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
 
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
 """
 @noinline function SteadyState(
         M::AbstractHEOMLSMatrix, 
-        ados::ADOs;
+        ados::ADOs,
+        tspan::Number = Inf;
         solver = DP5(),
-        reltol = 1.0e-6,
-        abstol = 1.0e-8,
-        maxiters = 1e5,
-        save_everystep::Bool = false,
+        termination_condition = NormTerminationMode(),
         verbose::Bool = true,
         SOLVEROptions...
     )
@@ -121,20 +109,17 @@ For more details about solvers and extra options, please refer to [`Differential
 
     # problem: dρ(t)/dt = L * ρ(t)
     L = MatrixOperator(M.data)
-    ElType = eltype(M)
-    tspan  = Tuple{ElType, ElType}((0, Inf))
-    prob   = ODEProblem(L, _HandleVectorType(typeof(M.data), ados.data), tspan)
+    prob = SteadyStateProblem(L, _HandleVectorType(typeof(M.data), ados.data))
 
     # solving steady state of the ODE problem
     if verbose
-        print("Solving steady state for auxiliary density operators...")
+        print("Solving steady state for ADOs by Ordinary Differential Equations method...")
         flush(stdout)
     end
     sol = solve(
-        SteadyStateProblem(prob), 
-        DynamicSS(solver; abstol = _HandleFloatType(eltype(M), abstol), reltol = _HandleFloatType(eltype(M), reltol));
-        maxiters = maxiters,
-        save_everystep = save_everystep,
+        prob, 
+        DynamicSS(solver, _HandleFloatType(eltype(M), tspan));
+        termination_condition = termination_condition,
         SOLVEROptions...
     )
 

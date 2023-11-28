@@ -8,6 +8,7 @@ on:
     branches:
       - 'main'
     types:
+      - 'opened'
       - 'synchronize'
       - 'ready_for_review'
 
@@ -21,7 +22,6 @@ jobs:
         # for Core functionalities
         julia-version:
           - '1'
-          - '1.8'
         os:
           - ubuntu-latest
           - macOS-latest

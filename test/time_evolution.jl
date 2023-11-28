@@ -13,7 +13,8 @@ Q = [1 0; 0 -1]  # System-bath coupling operator
 bath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
 
 L = M_Boson(Hsys, tier, bath; verbose=false)
-ρ0   = [1 0; 0 0]
+ρ0 = [1 0; 0 0]
+ρs = getRho(SteadyState(L; verbose=false))
 ρ_wrong = zeros(3, 3)
 
 Δt    = 10

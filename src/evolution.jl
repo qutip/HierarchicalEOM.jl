@@ -107,7 +107,7 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
     # start solving
     ρvec = copy(ados.data)
     if verbose
-        print("Solving time evolution for auxiliary density operators...\n")
+        print("Solving time evolution for ADOs by propagator method...\n")
         flush(stdout)
         prog = Progress(steps + 1; start=1, desc="Progress : ", PROGBAR_OPTIONS...)
     end
@@ -259,7 +259,7 @@ For more details about solvers and extra options, please refer to [`Differential
 
     # start solving ode
     if verbose
-        print("Solving time evolution for auxiliary density operators...\n")
+        print("Solving time evolution for ADOs by Ordinary Differential Equations method...\n")
         flush(stdout)
         prog = Progress(length(Tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
     end
@@ -427,7 +427,7 @@ For more details about solvers and extra options, please refer to [`Differential
 
     # start solving ode
     if verbose
-        print("Solving time evolution for auxiliary density operators with time-dependent Hamiltonian...\n")
+        print("Solving time evolution for ADOs with time-dependent Hamiltonian by Ordinary Differential Equations method...\n")
         flush(stdout)
         prog = Progress(length(Tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
     end

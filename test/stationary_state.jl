@@ -1,20 +1,25 @@
 # System Hamiltonian and initial state
-Hsys = 0.25 * [1 0; 0 -1] + 0.5 * [0 1; 1 0]
+d    = [0 1; 0 0]
+Hsys = d' * d
 ρ0   = [1 0; 0 0]
 
 # Bath properties:
-λ  = 0.1
-W  = 0.5
-kT = 0.5
-N  = 2
-Q = [1 0; 0 -1]  # System-bath coupling operator
-bath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
+Γ  =  1.
+W  =  1
+kT =  0.025851991
+μL =  1.
+μR = -1.
+N  =  3
+baths = [
+    Fermion_Lorentz_Pade(d, Γ, μL, W, kT, N), 
+    Fermion_Lorentz_Pade(d, Γ, μR, W, kT, N)
+]
 
 # HEOM Liouvillian superoperator matrix
 tier = 5
-L = M_Boson(Hsys, tier, bath; verbose=false)
+L = M_Fermion(Hsys, tier, baths; verbose=false)
 
-ados = SteadyState(L, ρ0; verbose=false, reltol=1e-2, abstol=1e-4)
+ados = SteadyState(L, ρ0; verbose=false)
 ρs   = getRho(ados)
 O = [1 0.5; 0.5 1]
 @test Expect(O, ados) ≈ real(tr(O * ρs))
@@ -31,4 +36,4 @@ bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
 @test_throws ErrorException SteadyState(L, mat2)
 @test_throws ErrorException SteadyState(L, ADOs(zeros(8), 2))
 @test_throws ErrorException SteadyState(L, ADOs(ados.data, ados.N, ODD))
-@test_throws ErrorException SteadyState(L, HEOMSuperOp(Q, ODD, L) * ados)
+@test_throws ErrorException SteadyState(L, HEOMSuperOp(d, ODD, L) * ados)
