@@ -26,7 +26,7 @@ ados_steady = SteadyState(M)
     This method does not require an initial condition ``\rho^{(m,n,p)}_{\textbf{j} \vert \textbf{q}}(0)``. Although this method works for most of the cases, it does not guarantee that one can obtain a physical (or unique) solution. If there is any problem within the solution, please try the second method which solves with an initial condition, as shown below.
 
 ## Solve with [DifferentialEquations.jl](https://diffeq.sciml.ai/stable/)
-The second method is implemented by solving the ordinary differential equation (ODE)
+The second method is implemented by solving the ordinary differential equation (ODE) method : [`SteadyStateDiffEq.jl`](https://github.com/SciML/SteadyStateDiffEq.jl)
 ```math
 \partial_{t}\rho^{(m,n,p)}_{\textbf{j} \vert \textbf{q}}(t)=\hat{\mathcal{M}}\rho^{(m,n,p)}_{\textbf{j} \vert \textbf{q}}(t)
 ```
@@ -39,7 +39,7 @@ until finding a stationary solution.
 See the docstring of this method:  
 
 ```@docs
-SteadyState(M::AbstractHEOMLSMatrix, ρ0; solver = DP5(), reltol::Real = 1.0e-6, abstol::Real = 1.0e-8, maxiters::Real = 1e5, save_everystep::Bool=false, verbose::Bool = true, SOLVEROptions...)
+SteadyState(M::AbstractHEOMLSMatrix, ρ0, tspan::Number = Inf; solver = DP5(), termination_condition = NormTerminationMode(), verbose::Bool = true, SOLVEROptions...)
 ```
 
 ```julia
@@ -55,7 +55,7 @@ ados_steady = SteadyState(M, ρ0)
 ### Given the initial state as Auxiliary Density Operators
 See the docstring of this method:  
 ```@docs
-SteadyState(M::AbstractHEOMLSMatrix, ados::ADOs; solver = DP5(), reltol::Real = 1.0e-6, abstol::Real = 1.0e-8, maxiters::Real = 1e5, save_everystep::Bool=false, verbose::Bool = true, SOLVEROptions...)
+SteadyState(M::AbstractHEOMLSMatrix, ados::ADOs, tspan::Number = Inf; solver = DP5(), termination_condition = NormTerminationMode(), verbose::Bool = true, SOLVEROptions...)
 ```
 
 ```julia
