@@ -25,7 +25,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
     
     # solving x where A * x = b
     if verbose
-        print("Solving steady state for auxiliary density operators...")
+        print("Solving steady state for ADOs by linear-solve method...")
         flush(stdout)
     end
     cache = init(LinearProblem(A, _HandleVectorType(typeof(M.data), b)), solver, SOLVEROptions...)
@@ -113,7 +113,7 @@ For more details about solvers, termination condition, and extra options, please
 
     # solving steady state of the ODE problem
     if verbose
-        print("Solving steady state for auxiliary density operators...")
+        print("Solving steady state for ADOs by Ordinary Differential Equations method...")
         flush(stdout)
     end
     sol = solve(
