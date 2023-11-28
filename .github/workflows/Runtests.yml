@@ -21,7 +21,7 @@ jobs:
       matrix:
         # for Core functionalities
         julia-version:
-          - '1'
+          - '1.9'
         os:
           - ubuntu-latest
           - macOS-latest

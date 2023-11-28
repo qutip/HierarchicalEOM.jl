@@ -2,11 +2,10 @@ using HierarchicalEOM
 using Test, Pkg, SparseArrays, LinearAlgebra
 
 const GROUP = get(ENV, "GROUP", "All")
-const HAS_EXTENSIONS = isdefined(Base, :get_extension)
 
 include("utils.jl")
 
-if GROUP == "All" || GROUP == "Core"
+if (GROUP == "All") || GROUP == "Core"
 
     @testset "Print version information" begin
         @test HierarchicalEOM.versioninfo() == nothing
@@ -78,7 +77,7 @@ if GROUP == "HierarchicalEOM_CUDAExt"
     end
 end
 
-if (GROUP == "All" || GROUP == "HierarchicalEOM_QOExt") && HAS_EXTENSIONS
+if (GROUP == "All") || (GROUP == "HierarchicalEOM_QOExt")
     Pkg.activate("QuantumOptics")
     Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
     Pkg.instantiate()
