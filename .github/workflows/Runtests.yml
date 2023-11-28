@@ -22,7 +22,6 @@ jobs:
         # for Core functionalities
         julia-version:
           - '1'
-          - '1.8'
         os:
           - ubuntu-latest
           - macOS-latest
