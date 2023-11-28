@@ -22,9 +22,9 @@ For example:
 ```julia
 Hs::AbstractMatrix # system Hamiltonian
 
-# create HEOMLS matrix in both :even and :odd parity
+# create HEOMLS matrix in both EVEN and ODD parity
 M_even = M_S(Hs) 
-M_odd  = M_S(Hs, :odd) 
+M_odd  = M_S(Hs, ODD) 
 ```
 
 ## Fields

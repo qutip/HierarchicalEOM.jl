@@ -22,9 +22,9 @@ Hs::AbstractMatrix # system Hamiltonian
 tier = 3
 Bath::FermionBath
 
-# create HEOMLS matrix in both :even and :odd parity
+# create HEOMLS matrix in both EVEN and ODD parity
 M_even = M_Fermion(Hs, tier, Bath) 
-M_odd  = M_Fermion(Hs, tier, Bath, :odd) 
+M_odd  = M_Fermion(Hs, tier, Bath, ODD) 
 ```
 
 ## Fields
