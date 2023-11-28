@@ -3,9 +3,11 @@ import PrecompileTools
 PrecompileTools.@setup_workload begin
     # Putting some things in `setup` can reduce the size of the
     # precompile file and potentially make loading faster.
-    op = [0.1 0.2; 0.2 0.4]
-    bB = Boson_DrudeLorentz_Pade(op, 1, 1., 1., 3)
-    fB = Fermion_Lorentz_Pade(op, 1., 1., 1., 1., 2)
+    d  = [0 1; 0 0]
+    Hs = d' * d
+    ρ0 = [1 0; 0 0]
+    bB = Boson_DrudeLorentz_Pade(d' * d, 1, 1., 0.05, 3)
+    fB = Fermion_Lorentz_Pade(d, 1., 0, 1., 0.05, 3)
 
     PrecompileTools.@compile_workload begin
         # all calls in this block will be precompiled, regardless of whether
@@ -20,22 +22,23 @@ PrecompileTools.@setup_workload begin
 
         # precompile HEOM matrices
         @info "Precompiling HEOM Liouvillian superoperator matrices..."
-        Ms   = M_S(op; verbose=false)
-        Mb   = M_Boson(op, 2, bB; verbose=false, threshold=1e-1)
-        Mfo  = M_Fermion(op, 2, fB, ODD; verbose=false, threshold=1e-1)
-        Mbfe = M_Boson_Fermion(op, 2, 2, bB, fB; verbose=false, threshold=1e-1)
+        Ms   = M_S(Hs; verbose=false)
+        Mb   = M_Boson(Hs, 2, bB; verbose=false, threshold=1e-6)
+        Mfe  = M_Fermion(Hs, 5, fB, EVEN; verbose=false, threshold=1e-8)
+        Mfo  = M_Fermion(Hs, 5, fB, ODD;  verbose=false, threshold=1e-8)
+        Mbfe = M_Boson_Fermion(Hs, 2, 2, bB, fB; verbose=false, threshold=1e-6)
 
         # precompile Steadystate
         @info "Precompiling steady state solver..."
-        ados1 = SteadyState(Mb; verbose=false)
-        ados1 = SteadyState(Mb, [1. 0.; 0. 0.]; verbose=false, reltol=1e-1, abstol=1e-3)
-        E1 = Expect(op, ados1)
+        ados1 = SteadyState(Mfe; verbose=false)
+        ados1 = SteadyState(Mfe, ρ0; verbose=false)
+        E1 = Expect(Hs, ados1)
 
         # precompile evolution
         @info "Precompiling time evolution solver..."
-        ados2  = evolution(Mb, [1. 0.; 0. 0.], 0:1:1; verbose=false)
-        ados2  = evolution(Mb, [1. 0.; 0. 0.], 1, 1; verbose=false)
-        E2 = Expect(op, ados2)
+        ados2  = evolution(Mb, ρ0, 0:1:1; verbose=false)
+        ados2  = evolution(Mb, ρ0, 1, 1; verbose=false)
+        E2 = Expect(Hs, ados2)
 
         # precompile ADOs for the support of Base functions 
         @info "Precompiling Auxiliary Density Operators (ADOs)..."
@@ -49,8 +52,8 @@ PrecompileTools.@setup_workload begin
 
         # precompile Spectrum functions
         @info "Precompiling solvers for calculating spectrum..."
-        psd = PowerSpectrum(Mb,    [1. 0.; 0. 0.], op, [1]; verbose=false)
-        dos = DensityOfStates(Mfo, [1. 0.; 0. 0.], op, [1]; verbose=false)
+        psd = PowerSpectrum(  Mfo, ados1, d, [1]; verbose=false)
+        dos = DensityOfStates(Mfo, ados1, d, [1]; verbose=false)
     end
     @info "HierarchicalEOM precompilation complete"
 end
