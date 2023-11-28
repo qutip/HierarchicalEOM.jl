@@ -29,7 +29,7 @@ HierarchicalEOM_QOExt = "QuantumOptics"
 
 [compat]
 Crayons = "4.1"
-DiffEqBase = "6.140"
+DiffEqBase = "6.136"
 FastExpm = "1.1.0"
 JLD2 = "0.4.31"
 LinearAlgebra = "1.8"
