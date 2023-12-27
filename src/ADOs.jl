@@ -106,17 +106,7 @@ function getindex(A::ADOs, r::UnitRange{Int})
 end
 getindex(A::ADOs, ::Colon) = getindex(A, 1:lastindex(A))
 
-function iterate(A::ADOs) 
-    return A[1], 2
-end
-function iterate(A::ADOs, state::Int) 
-    if state < length(A)
-        return A[state], state + 1
-    else
-        return A[state], nothing
-    end
-end
-iterate(A::ADOs, ::Nothing) = nothing
+iterate(A::ADOs, state::Int = 1) = state > length(A) ? nothing : (A[state], state + 1) 
 
 function show(io::IO, A::ADOs)
     print(io, 

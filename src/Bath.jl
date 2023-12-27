@@ -138,15 +138,7 @@ function getindex(B::AbstractBath, ::Colon)
     return getindex(B, 1:B.Nterm)
 end
 
-iterate(B::AbstractBath) = B[1], 2
-iterate(B::AbstractBath, ::Nothing) = nothing
-function iterate(B::AbstractBath, state) 
-    if state < length(B)
-        return B[state], state + 1
-    else
-        return B[state], nothing
-    end
-end
+iterate(B::AbstractBath, state::Int = 1) = state > length(B) ? nothing : (B[state], state + 1)
 
 isclose(a::Number, b::Number, rtol=1e-05, atol=1e-08) = abs(a - b) <= (atol + rtol * abs(b))
 
