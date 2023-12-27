@@ -1,4 +1,6 @@
 # prepare coupling operator and coefficients of exponential-exponential-expansion terms
+η0 = [1]
+γ0 = [2]
 η1 = [1, 3, 5, 7, 9]
 η2 = [2, 4, 6, 8, 10]
 γ1 = [0.1, 0.3, 0.5, 0.3, 0.7]
@@ -9,7 +11,7 @@ op = [0 0; 0 0]
 
 ################################################
 # Boson bath
-b = BosonBath(op, η1, η2, combine=false)
+b = BosonBath(op, η1, γ1, combine=false)
 @test length(b) == 5
 
 ## check for combine
@@ -126,6 +128,8 @@ end
 
 ################################################
 # Exponent
+@test C(BosonBath(op, η0, γ0), [0.123])[1] ≈ η0[1] * exp(-γ0[1] * 0.123)
+
 ## check exceptions
 @test_throws ErrorException b[11]
 @test_throws ErrorException b[1:11]

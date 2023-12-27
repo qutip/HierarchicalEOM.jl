@@ -45,17 +45,7 @@ getindex(nvec::Nvec, i::T) where {T <: Any} = nvec.data[i]
 
 keys(nvec::Nvec) = keys(nvec.data)
 
-function iterate(nvec::Nvec) 
-    return nvec[1], 2
-end
-function iterate(nvec::Nvec, state::Int) 
-    if state < length(nvec)
-        return nvec[state], state + 1
-    else
-        return nvec[state], nothing
-    end
-end
-iterate(nvec::Nvec, ::Nothing) = nothing
+iterate(nvec::Nvec, state::Int = 1) = state > length(nvec) ? nothing : (nvec[state], state + 1)
 
 function show(io::IO, nvec::Nvec)
     print(io, "Nvec($(nvec[:]))")
