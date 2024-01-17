@@ -35,6 +35,11 @@ jobs:
             os: 'ubuntu-latest'
             arch: 'x64'
             group: 'HierarchicalEOM_QOExt'
+        include:
+          - julia-version: '1'
+            os: 'ubuntu-latest'
+            arch: 'x64'
+            group: 'HierarchicalEOM_QuPhysExt'
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v1
