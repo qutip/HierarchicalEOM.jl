@@ -1,14 +1,13 @@
-import QuantumOptics
+import QuPhys
 
 # System Hamiltonian and initial state
-basis = QuantumOptics.SpinBasis(1//2)
-σx = QuantumOptics.sigmax(basis)
-σz = QuantumOptics.sigmaz(basis)
-σm = QuantumOptics.sigmam(basis)
-I2 = QuantumOptics.identityoperator(basis)
+σx = QuPhys.sigmax()
+σz = QuPhys.sigmaz()
+σm = QuPhys.sigmam()
+I2 = QuPhys.eye(2)
 
 Hsys = 0.25 * σz + 0.5 * σx
-ρ0 = QuantumOptics.dm(QuantumOptics.Ket(basis, [1, 0]))
+ρ0 = QuPhys.ket2dm(QuPhys.basis(2, 0))
 
 λ  = 0.1
 W  = 0.5
@@ -30,10 +29,10 @@ steps = 1
 tlist = 0:Δt:(Δt * steps)
 ados_list = evolution(L, ρ0, Δt, steps; verbose=false)
 ados_list = evolution(L, ρ0, tlist; verbose=false)
-@test Expect(O, ados_list[end]) ≈ QuantumOptics.expect(O, QuantumOptics.Operator(ados_list[end][1], Hsys))
+@test Expect(O, ados_list[end]) ≈ QuPhys.expect(O, QuPhys.QuantumObject(ados_list[end][1], Hsys))
 
 # Power spectral density
-a = QuantumOptics.sigmam(basis)
+a = QuPhys.sigmam()
 Hsys = a' * a
 λ  = 1e-4
 W  = 2e-1
@@ -51,9 +50,9 @@ ados_s = SteadyState(L; verbose=false)
 # Density of states
 e = -5
 U = 10
-d_up = QuantumOptics.tensor( σm, I2)
-d_dn = QuantumOptics.tensor(-σz, σm)
-iden = QuantumOptics.tensor( I2, I2)
+d_up = kron( σm, I2)
+d_dn = kron(-σz, σm)
+iden = kron( I2, I2)
 H0 = e * (d_up' * d_up + d_dn' * d_dn)
 H1 = U * (d_up' * d_up * d_dn' * d_dn)
 Hsys = H0 + H1
