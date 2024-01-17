@@ -9,10 +9,7 @@ on:
   pull_request:
     branches:
       - 'main'
-    types:
-      - 'opened'
-      - 'synchronize'
-      - 'ready_for_review'
+    types: [review_requested, ready_for_review]
 
 jobs:
   build:
