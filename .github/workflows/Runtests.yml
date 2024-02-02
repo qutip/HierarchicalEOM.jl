@@ -7,12 +7,17 @@ on:
   pull_request:
     branches:
       - 'main'
-    types: [review_requested, ready_for_review]
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
 
 jobs:
   test:
     name: Julia ${{ matrix.julia-version }} - ${{ matrix.os }} ${{ matrix.arch }} ( ${{ matrix.group }} )
     runs-on: ${{ matrix.os }}
+    if: ${{ !github.event.pull_request.draft }}
     strategy:
       fail-fast: false
       matrix:
@@ -35,7 +40,6 @@ jobs:
             os: 'ubuntu-latest'
             arch: 'x64'
             group: 'HierarchicalEOM_QOExt'
-        include:
           - julia-version: '1'
             os: 'ubuntu-latest'
             arch: 'x64'
