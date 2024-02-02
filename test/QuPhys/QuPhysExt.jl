@@ -29,6 +29,7 @@ steps = 1
 tlist = 0:Δt:(Δt * steps)
 ados_list = evolution(L, ρ0, Δt, steps; verbose=false)
 ados_list = evolution(L, ρ0, tlist; verbose=false)
+@test Expect(O, ados_list[end]) ≈ QuPhys.expect(O, QuPhys.Qobj(ados_list[end][1], Hsys))
 @test Expect(O, ados_list[end]) ≈ QuPhys.expect(O, QuPhys.QuantumObject(ados_list[end][1], Hsys))
 
 # Power spectral density
@@ -50,9 +51,9 @@ ados_s = SteadyState(L; verbose=false)
 # Density of states
 e = -5
 U = 10
-d_up = kron( σm, I2)
-d_dn = kron(-σz, σm)
-iden = kron( I2, I2)
+d_up = tensor( σm, I2)
+d_dn = tensor(-σz, σm)
+iden = tensor( I2, I2)
 H0 = e * (d_up' * d_up + d_dn' * d_dn)
 H1 = U * (d_up' * d_up * d_dn' * d_dn)
 Hsys = H0 + H1
