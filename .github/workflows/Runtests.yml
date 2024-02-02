@@ -17,6 +17,7 @@ jobs:
   test:
     name: Julia ${{ matrix.julia-version }} - ${{ matrix.os }} ${{ matrix.arch }} ( ${{ matrix.group }} )
     runs-on: ${{ matrix.os }}
+    if: ${{ !github.event.pull_request.draft }}
     strategy:
       fail-fast: false
       matrix:
@@ -43,8 +44,6 @@ jobs:
             os: 'ubuntu-latest'
             arch: 'x64'
             group: 'HierarchicalEOM_QuPhysExt'
-            
-    if: ${{ !github.event.pull_request.draft }}
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v1
