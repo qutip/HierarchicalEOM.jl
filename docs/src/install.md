@@ -31,6 +31,15 @@ In order to get a better experience and take full advantage of `HierarchicalEOM`
 !!! compat "Extension for QuantumOptics.jl"
     `HierarchicalEOM.jl` provides an extension to support `QuantumOptics`-type object, but this feature requires `Julia 1.9+` and `HierarchicalEOM 0.3+`. See [here](@ref doc-ext-QuantumOptics) for more details.
 
+### [QuPhys.jl](https://github.com/albertomercurio/QuPhys.jl)
+`QuPhys` is kind of like a Julia version of [`QuTiP`](https://qutip.org/). It also provides many useful functions to create arbitrary quantum states and operators which can be combined in all the expected ways.  
+!!! note "Note" 
+    The inputs in `HierarchicalEOM` should be child-type of the standard `Base.AbstractVector` (for vector-type quantum states) and `Base.AbstractMatrix` (for matrix-type quantum operators). Users can still construct the vectors or matrices by standard method and take it as the input of `HierarchicalEOM`.  
+    For the users who constructs the quantum objects by `QuPhys` package, the standard type of vectors or matrices are stored in the `.data` field of the objects, i.e., `op.data` (where `op` is a `QuPhys`-type object). Thus, users should take it as the inputs of `HierarchicalEOM` for objects in `QuPhys` package.
+
+!!! compat "Extension for QuPhys.jl"
+    `HierarchicalEOM.jl` provides an extension to support `QuPhys`-type object, but this feature requires `Julia 1.9+` and `HierarchicalEOM 1.4+`. See [here](@ref doc-ext-QuPhys) for more details.
+
 ### [DifferentialEquations.jl](https://diffeq.sciml.ai/stable/)
 `DifferentialEquations` is needed to provide the low-level ODE solvers especially for solving [time evolution](@ref doc-Time-Evolution). For [low dependency usage](https://diffeq.sciml.ai/stable/features/low_dep/), users can use [`OrdinaryDiffEq.jl`](https://github.com/JuliaDiffEq/OrdinaryDiffEq.jl) instead.
 
