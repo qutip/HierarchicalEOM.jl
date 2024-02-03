@@ -51,9 +51,9 @@ ados_s = SteadyState(L; verbose=false)
 # Density of states
 e = -5
 U = 10
-d_up = tensor( σm, I2)
-d_dn = tensor(-σz, σm)
-iden = tensor( I2, I2)
+d_up = QuPhys.tensor( σm, I2)
+d_dn = QuPhys.tensor(-σz, σm)
+iden = QuPhys.tensor( I2, I2)
 H0 = e * (d_up' * d_up + d_dn' * d_dn)
 H1 = U * (d_up' * d_up * d_dn' * d_dn)
 Hsys = H0 + H1
