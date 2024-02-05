@@ -12,7 +12,7 @@ Although it doesn't store extra information (`type` and `dims`) from `QuPhys.Qua
 Furthermore, it provides an extra method to re-construct reduced density operator with the type of `QuPhys.QuantumObject`. Basically, it copies the `type` and `dims` information from another given `QuPhys.QuantumObject` (as shown in the example below). With this functionality, one can again use the other functions provided in [`QuPhys.jl`](https://github.com/albertomercurio/QuPhys.jl).
 
 The extension will be automatically loaded if user imports the package `QuPhys.jl` :
-```@example
+```julia
 using QuPhys
 using HierarchicalEOM
 
