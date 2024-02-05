@@ -9,13 +9,18 @@ on:
   pull_request:
     branches:
       - 'main'
-    types: [review_requested, ready_for_review]
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
 
 jobs:
   build:
     permissions:
       contents: write
     runs-on: ubuntu-latest
+    if: ${{ !github.event.pull_request.draft }}
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v1

@@ -79,6 +79,7 @@ const PAGES = Any[
         "Benchmark Solvers" => BM_output_files,
         "Extensions" => Any[
             "QuantumOptics.jl" => "extensions/QuantumOptics.md",
+            "QuPhys.jl" => "extensions/QuPhys.md",
             "CUDA.jl" => "extensions/CUDA.md"
         ]
     ],
