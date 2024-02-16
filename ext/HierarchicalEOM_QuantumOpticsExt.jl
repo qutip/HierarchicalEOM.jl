@@ -1,4 +1,4 @@
-module HierarchicalEOM_QOExt
+module HierarchicalEOM_QuantumOpticsExt
 
 import QuantumOptics: AbstractOperator, Operator
 using HierarchicalEOM
