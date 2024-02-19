@@ -39,7 +39,7 @@ jobs:
           - julia-version: '1'
             os: 'ubuntu-latest'
             arch: 'x64'
-            group: 'HierarchicalEOM_QOExt'
+            group: 'HierarchicalEOM_QuantumOpticsExt'
           - julia-version: '1'
             os: 'ubuntu-latest'
             arch: 'x64'

@@ -77,7 +77,7 @@ if GROUP == "HierarchicalEOM_CUDAExt"
     end
 end
 
-if (GROUP == "All") || (GROUP == "HierarchicalEOM_QOExt")
+if (GROUP == "All") || (GROUP == "HierarchicalEOM_QuantumOpticsExt")
     Pkg.activate("QuantumOptics")
     Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
     Pkg.instantiate()
