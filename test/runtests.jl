@@ -88,7 +88,6 @@ end
 
 if (GROUP == "All") || (GROUP == "HierarchicalEOM_QuantumToolboxExt")
     Pkg.activate("QuantumToolbox")
-    Pkg.add(url="https://github.com/albertomercurio/QuantumToolbox.jl")
     Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
     Pkg.instantiate()
     @testset "QuantumToolbox Extension" begin
