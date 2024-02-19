@@ -43,7 +43,7 @@ jobs:
           - julia-version: '1'
             os: 'ubuntu-latest'
             arch: 'x64'
-            group: 'HierarchicalEOM_QuPhysExt'
+            group: 'HierarchicalEOM_QuantumToolboxExt'
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v1
@@ -69,4 +69,6 @@ jobs:
           directories: src,ext
       - uses: codecov/codecov-action@v4
         with:
-          file: lcov.info
+          verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

@@ -1,13 +1,13 @@
-import QuPhys
+import QuantumToolbox
 
 # System Hamiltonian and initial state
-σx = QuPhys.sigmax()
-σz = QuPhys.sigmaz()
-σm = QuPhys.sigmam()
-I2 = QuPhys.eye(2)
+σx = QuantumToolbox.sigmax()
+σz = QuantumToolbox.sigmaz()
+σm = QuantumToolbox.sigmam()
+I2 = QuantumToolbox.eye(2)
 
 Hsys = 0.25 * σz + 0.5 * σx
-ρ0 = QuPhys.ket2dm(QuPhys.basis(2, 0))
+ρ0 = QuantumToolbox.ket2dm(QuantumToolbox.basis(2, 0))
 
 λ  = 0.1
 W  = 0.5
@@ -29,11 +29,11 @@ steps = 1
 tlist = 0:Δt:(Δt * steps)
 ados_list = evolution(L, ρ0, Δt, steps; verbose=false)
 ados_list = evolution(L, ρ0, tlist; verbose=false)
-@test Expect(O, ados_list[end]) ≈ QuPhys.expect(O, QuPhys.Qobj(ados_list[end][1], Hsys))
-@test Expect(O, ados_list[end]) ≈ QuPhys.expect(O, QuPhys.QuantumObject(ados_list[end][1], Hsys))
+@test Expect(O, ados_list[end]) ≈ QuantumToolbox.expect(O, QuantumToolbox.Qobj(ados_list[end][1], Hsys))
+@test Expect(O, ados_list[end]) ≈ QuantumToolbox.expect(O, QuantumToolbox.QuantumObject(ados_list[end][1], Hsys))
 
 # Power spectral density
-a = QuPhys.sigmam()
+a = QuantumToolbox.sigmam()
 Hsys = a' * a
 λ  = 1e-4
 W  = 2e-1
@@ -51,9 +51,9 @@ ados_s = SteadyState(L; verbose=false)
 # Density of states
 e = -5
 U = 10
-d_up = QuPhys.tensor( σm, I2)
-d_dn = QuPhys.tensor(-σz, σm)
-iden = QuPhys.tensor( I2, I2)
+d_up = QuantumToolbox.tensor( σm, I2)
+d_dn = QuantumToolbox.tensor(-σz, σm)
+iden = QuantumToolbox.tensor( I2, I2)
 H0 = e * (d_up' * d_up + d_dn' * d_dn)
 H1 = U * (d_up' * d_up * d_dn' * d_dn)
 Hsys = H0 + H1

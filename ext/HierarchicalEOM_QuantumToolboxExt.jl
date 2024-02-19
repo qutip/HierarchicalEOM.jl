@@ -1,26 +1,26 @@
-module HierarchicalEOM_QuPhysExt
+module HierarchicalEOM_QuantumToolboxExt
 
-import QuPhys: Qobj, QuantumObject
+import QuantumToolbox: Qobj, QuantumObject
 using HierarchicalEOM
 import HierarchicalEOM.HeomBase: HandleMatrixType
 
 @doc raw"""
     Qobj(data::AbstractMatrix, refOP::QuantumObject)
-Return the operator under the type of `QuPhys.QuantumObject` from a given matrix and reference operator (`type`, `dims`).
+Return the operator under the type of `QuantumToolbox.QuantumObject` from a given matrix and reference operator (`type`, `dims`).
 
 # Parameters
 - `data` : The matrix-type operator.
-- `refOP<:QuPhys.QuantumObject` : the reference operator from `QuPhys`.
+- `refOP<:QuantumToolbox.QuantumObject` : the reference operator from `QuantumToolbox`.
 """
 Qobj(data::AbstractMatrix, refOP::QuantumObject) = QuantumObject(data, refOP.type, refOP.dims)
 
 @doc raw"""
     QuantumObject(data::AbstractMatrix, refOP::QuantumObject)
-Return the operator under the type of `QuPhys.QuantumObject` from a given matrix and reference operator (`type`, `dims`).
+Return the operator under the type of `QuantumToolbox.QuantumObject` from a given matrix and reference operator (`type`, `dims`).
 
 # Parameters
 - `data` : The matrix-type operator.
-- `refOP<:QuPhys.QuantumObject` : the reference operator from `QuPhys`.
+- `refOP<:QuantumToolbox.QuantumObject` : the reference operator from `QuantumToolbox`.
 """
 QuantumObject(data::AbstractMatrix, refOP::QuantumObject) = QuantumObject(data, refOP.type, refOP.dims)
 
