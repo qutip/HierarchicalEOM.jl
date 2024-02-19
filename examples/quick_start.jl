@@ -33,16 +33,16 @@ HierarchicalEOM.versioninfo()
 # #### System Hamiltonian and initial state
 # You can construct system hamiltonian, initial state, and coupling operators by standard julia bulit-in types: `Vector`, `SparseVector`, `Matrix`, `SparseMatrix`.
 
-# Moreover, it is also convenient to use [`QuantumOptics`](https://qojulia.org/) or [`QuPhys`](https://github.com/albertomercurio/QuPhys.jl) framework. They both provide many useful functions to create arbitrary quantum states and operators which can be combined in all the expected ways.
+# Moreover, it is also convenient to use [`QuantumOptics`](https://qojulia.org/) or [`QuantumToolbox`](https://github.com/albertomercurio/QuantumToolbox.jl) framework. They both provide many useful functions to create arbitrary quantum states and operators which can be combined in all the expected ways.
 
-# Note that `HierarchicalEOM.jl` only accept standard julia bulit-in types. If you use `QuantumOptics` or `QuPhys` to construct the operators, remember that the matrix (or vector) in standard type are stored in `.data` field of the objects, i.e., `op.data`.  
+# Note that `HierarchicalEOM.jl` only accept standard julia bulit-in types. If you use `QuantumOptics` or `QuantumToolbox` to construct the operators, remember that the matrix (or vector) in standard type are stored in `.data` field of the objects, i.e., `op.data`.  
 # Thus, you should take it as the inputs of `HierarchicalEOM.jl`.
 
 # !!! compat "Extension for QuantumOptics.jl"
 #     `HierarchicalEOM.jl` provides an extension to support `QuantumOptics`-type object, but this feature requires `Julia 1.9+` and `HierarchicalEOM 0.3+`. See [here](@ref doc-ext-QuantumOptics) for more details.
 
-# !!! compat "Extension for QuPhys.jl"
-#     `HierarchicalEOM.jl` provides an extension to support `QuPhys`-type object, but this feature requires `Julia 1.9+` and `HierarchicalEOM 1.4+`. See [here](@ref doc-ext-QuPhys) for more details.
+# !!! compat "Extension for QuantumToolbox.jl"
+#     `HierarchicalEOM.jl` provides an extension to support `QuantumToolbox`-type object, but this feature requires `Julia 1.9+` and `HierarchicalEOM 1.4+`. See [here](@ref doc-ext-QuantumToolbox) for more details.
 
 # We demonstrate this tutorial by `QuantumOptics`:
 
