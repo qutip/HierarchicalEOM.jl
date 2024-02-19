@@ -86,12 +86,11 @@ if (GROUP == "All") || (GROUP == "HierarchicalEOM_QOExt")
     end
 end
 
-if (GROUP == "All") || (GROUP == "HierarchicalEOM_QuPhysExt")
-    Pkg.activate("QuPhys")
-    Pkg.add(url="https://github.com/albertomercurio/QuPhys.jl.git")
+if (GROUP == "All") || (GROUP == "HierarchicalEOM_QuantumToolboxExt")
+    Pkg.activate("QuantumToolbox")
     Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
     Pkg.instantiate()
-    @testset "QuPhys Extension" begin
-        include("QuPhys/QuPhysExt.jl")
+    @testset "QuantumToolbox Extension" begin
+        include("QuantumToolbox/QTExt.jl")
     end
 end

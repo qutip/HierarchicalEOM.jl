@@ -26,7 +26,6 @@ jobs:
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
-      - uses: julia-actions/cache@v1
       - name: Install X Server dependencies
         run: sudo apt-get update && sudo apt-get install -y xorg-dev mesa-utils xvfb libgl1 freeglut3-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev
       - name: Install Julia Package dependencies
@@ -41,4 +40,6 @@ jobs:
           directories: src
       - uses: codecov/codecov-action@v4
         with:
-          file: lcov.info
+          verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
