@@ -7,6 +7,8 @@ using Documenter, HierarchicalEOM
 
 const DRAFT = false # set `true` to disable cell evaluation
 
+ENV["GKSwstype"] = "100" # enable headless mode for GR to suppress warnings when plotting
+
 # clean and rebuild the output markdown directory for examples
 doc_output_path = abspath(joinpath(@__DIR__, "src", "examples"))
 if isdir(doc_output_path)
