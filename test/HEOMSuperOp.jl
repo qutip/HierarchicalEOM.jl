@@ -1,3 +1,6 @@
+using HierarchicalEOM
+using SparseArrays
+
 # Take waiting time distribution as an example
 WTD_ans = [
     0.0,

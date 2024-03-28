@@ -1,3 +1,7 @@
+using HierarchicalEOM
+
+include("test_utils.jl")
+
 # System Hamiltonian and initial state
 Hsys = 0.25 * [1 0; 0 -1] + 0.5 * [0 1; 1 0]
 ρ0   = [1 0; 0 0]

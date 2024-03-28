@@ -1,3 +1,4 @@
+using HierarchicalEOM
 import QuantumOptics
 
 # System Hamiltonian and initial state

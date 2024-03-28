@@ -1,3 +1,6 @@
+using HierarchicalEOM
+using SparseArrays
+
 a = [0 1; 0 0]
 
 Hsys = a' * a

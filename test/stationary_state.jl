@@ -1,3 +1,9 @@
+using HierarchicalEOM
+using SparseArrays
+using LinearAlgebra
+
+include("test_utils.jl")
+
 # System Hamiltonian and initial state
 d    = [0 1; 0 0]
 Hsys = d' * d

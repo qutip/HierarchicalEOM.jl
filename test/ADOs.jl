@@ -1,3 +1,6 @@
+using HierarchicalEOM
+using SparseArrays
+
 ados_b  = ADOs(spzeros(Int64, 20), 5)
 ados_f  = ADOs(spzeros(Int64,  8), 2)
 ados_bf = ADOs(spzeros(Int64, 40), 10)

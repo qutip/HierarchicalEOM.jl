@@ -1,3 +1,6 @@
+using HierarchicalEOM
+using SparseArrays
+
 e = -5
 U = 10
 d_up = kron(      [0 1; 0 0], [1 0; 0 1])

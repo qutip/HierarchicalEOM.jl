@@ -1,3 +1,8 @@
+using HierarchicalEOM
+using SparseArrays
+
+include("test_utils.jl")
+
 # Test Schrodinger type HEOM Liouvillian superoperator matrix
 t = 10
 Hsys = [0 1; 1 0]
