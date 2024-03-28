@@ -1,7 +1,13 @@
+using HierarchicalEOM
+using SparseArrays
+
+include("test_utils.jl")
+
 # Test Boson-type HEOM Liouvillian superoperator matrix under rotating wave approximation
 ωq = 1.1
 Λ  = 0.01
 Γ  = 0.02
+tier = 3
 Hsys_rwa = 0.5 * ωq * [1 0; 0 -1]
 op_rwa   = [0 0; 1 0]
 ρ0       = 0.5 * [1 1; 1 1]

@@ -1,3 +1,9 @@
+using HierarchicalEOM
+using SparseArrays
+using LinearAlgebra
+
+include("test_utils.jl")
+
 Btier = 2
 Ftier = 2
 Nb = 3

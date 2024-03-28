@@ -1,3 +1,4 @@
+using HierarchicalEOM
 import QuantumToolbox
 
 # System Hamiltonian and initial state

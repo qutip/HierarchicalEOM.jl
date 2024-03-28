@@ -17,8 +17,10 @@ on:
 
 jobs:
   build:
-    permissions:
+    permissions: # needed to allow julia-actions/cache to delete old caches that it has created
+      actions: write
       contents: write
+      statuses: write
     runs-on: ubuntu-latest
     if: ${{ !github.event.pull_request.draft }}
     steps:
@@ -26,13 +28,14 @@ jobs:
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
+      - uses: julia-actions/cache@v1
       - name: Install Julia Package dependencies
         run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
       - name: Build and deploy documentation
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # If authenticating with GitHub Actions token
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # If authenticating with SSH deploy key
-        run: julia --project=docs/ --code-coverage=user docs/make.jl
+        run: julia --project=docs/ --color=yes --code-coverage=user docs/make.jl
       - uses: julia-actions/julia-processcoverage@v1
         with:
           directories: src

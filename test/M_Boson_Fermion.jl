@@ -1,3 +1,8 @@
+using HierarchicalEOM
+using SparseArrays
+
+include("test_utils.jl")
+
 # Test Boson-Fermion-type HEOM Liouvillian superoperator matrix
 λ  = 0.1450
 W  = 0.6464
@@ -7,6 +12,11 @@ N  = 3
 tierb = 2
 tierf = 2
 
+# system-bath coupling operator
+Q = [
+    0.1234            0.1357 + 0.2468im; 
+    0.1357 - 0.2468im 0.5678
+]
 Bbath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
 Fbath = Fermion_Lorentz_Pade(Q, λ, μ, W, kT, N)
 

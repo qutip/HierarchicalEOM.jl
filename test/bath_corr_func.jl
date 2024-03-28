@@ -1,3 +1,5 @@
+using HierarchicalEOM
+
 λ  = 0.1450
 W  = 0.6464
 kT = 0.7414

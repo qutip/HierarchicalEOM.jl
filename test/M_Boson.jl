@@ -1,3 +1,8 @@
+using HierarchicalEOM
+using SparseArrays
+
+include("test_utils.jl")
+
 # Test Boson-type HEOM Liouvillian superoperator matrix
 λ  = 0.1450
 W  = 0.6464

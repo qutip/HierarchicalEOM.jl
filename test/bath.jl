@@ -1,3 +1,5 @@
+using HierarchicalEOM
+
 # prepare coupling operator and coefficients of exponential-exponential-expansion terms
 η0 = [1]
 γ0 = [2]

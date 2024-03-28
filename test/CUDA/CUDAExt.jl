@@ -2,6 +2,8 @@ using HierarchicalEOM
 using CUDA
 using LinearSolve
 
+include("../test_utils.jl")
+
 # re-define the bath (make the matrix smaller)
 λ  = 0.01
 W  = 0.5
