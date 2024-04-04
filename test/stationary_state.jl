@@ -1,8 +1,4 @@
-using HierarchicalEOM
-using SparseArrays
-using LinearAlgebra
-
-include("test_utils.jl")
+@time @testset "Stationary state" begin
 
 # System Hamiltonian and initial state
 d    = [0 1; 0 0]
@@ -43,3 +39,4 @@ bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
 @test_throws ErrorException SteadyState(L, ADOs(zeros(8), 2))
 @test_throws ErrorException SteadyState(L, ADOs(ados.data, ados.N, ODD))
 @test_throws ErrorException SteadyState(L, HEOMSuperOp(d, ODD, L) * ados)
+end

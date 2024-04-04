@@ -1,6 +1,4 @@
-using HierarchicalEOM
-
-include("test_utils.jl")
+@time @testset "Time evolution" begin
 
 # System Hamiltonian and initial state
 Hsys = 0.25 * [1 0; 0 -1] + 0.5 * [0 1; 1 0]
@@ -209,3 +207,4 @@ ados_wrong3 = ADOs((slowDD_ados[1]).data, (slowDD_ados[1]).N, ODD)
 rm("evolution_p.jld2")
 rm("evolution_o.jld2")
 rm("evolution_t.jld2")
+end

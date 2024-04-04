@@ -1,5 +1,4 @@
-using HierarchicalEOM
-using SparseArrays
+@time @testset "HEOM superoperator" begin
 
 # Take waiting time distribution as an example
 WTD_ans = [
@@ -104,3 +103,4 @@ J_wrong2 = HEOMSuperOp(γ_eR * d, EVEN, M_heom, "L")
 @test_throws ErrorException J_me - J_wrong2
 @test_throws ErrorException M_me - J_wrong1
 @test_throws ErrorException M_me - J_wrong2
+end

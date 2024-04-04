@@ -1,4 +1,4 @@
-using HierarchicalEOM
+@time @testset "Bath correlation functions" begin
 
 λ  = 0.1450
 W  = 0.6464
@@ -112,4 +112,5 @@ b = Fermion_Lorentz_Pade([0 0; 0 0], λ, μ, W, kT, N)
 for (i, e) in enumerate(b)
     @test e.η ≈ η[i] atol = 1.0e-10
     @test e.γ ≈ γ[i] atol = 1.0e-10
+end
 end

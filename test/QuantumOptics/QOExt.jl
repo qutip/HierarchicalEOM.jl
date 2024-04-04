@@ -1,5 +1,6 @@
-using HierarchicalEOM
 import QuantumOptics
+
+@time @testset "QuantumOptics Extension" begin
 
 # System Hamiltonian and initial state
 basis = QuantumOptics.SpinBasis(1//2)
@@ -74,3 +75,4 @@ Lo = M_Fermion(Hsys, tier, [fuL, fdL, fuR, fdR], ODD; verbose=false)
 ados_s = SteadyState(Le; verbose=false)
 ωlist = [0]
 @test DensityOfStates(Lo, ados_s, d_up, ωlist; verbose=false)[1] ≈ 0.17217519700362002
+end

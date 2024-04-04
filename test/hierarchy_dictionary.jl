@@ -1,8 +1,4 @@
-using HierarchicalEOM
-using SparseArrays
-using LinearAlgebra
-
-include("test_utils.jl")
+@time @testset "Hierarchy Dictionary" begin
 
 Btier = 2
 Ftier = 2
@@ -64,3 +60,4 @@ ados = SteadyState(L; verbose=false)
 nvec_b, nvec_f = L.hierarchy.idx2nvec[1]
 @test_throws ErrorException getIndexEnsemble(nvec_f, L.hierarchy.bosonPtr)
 @test_throws ErrorException getIndexEnsemble(nvec_b, L.hierarchy.fermionPtr)
+end
