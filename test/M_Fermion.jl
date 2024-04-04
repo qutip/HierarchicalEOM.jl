@@ -1,7 +1,4 @@
-using HierarchicalEOM
-using SparseArrays
-
-include("test_utils.jl")
+@time @testset "M_Fermion" begin
 
 # Test Fermion-type HEOM Liouvillian superoperator matrix
 λ  = 0.1450
@@ -78,3 +75,4 @@ ados = SteadyState(L; verbose=false)
 @test_throws BoundsError L[1:9301, 9300]
 @test_throws ErrorException ados[L.N + 1]
 @test_throws ErrorException M_Fermion([0, 0], tier, Fbath; verbose=false)
+end

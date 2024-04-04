@@ -1,4 +1,4 @@
-using HierarchicalEOM
+@time @testset "Bath and Exponent" begin
 
 # prepare coupling operator and coefficients of exponential-exponential-expansion terms
 η0 = [1]
@@ -137,3 +137,4 @@ end
 @test_throws ErrorException b[1:11]
 @test_throws ErrorException b[0:10]
 ################################################
+end

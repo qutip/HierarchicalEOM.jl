@@ -1,5 +1,4 @@
-using HierarchicalEOM
-using SparseArrays
+@time @testset "Power spectrum" begin
 
 a = [0 1; 0 0]
 
@@ -65,3 +64,4 @@ bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
 
 # remove all the temporary files
 rm("PSD.txt")
+end

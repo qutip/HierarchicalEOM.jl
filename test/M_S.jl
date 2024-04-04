@@ -1,7 +1,4 @@
-using HierarchicalEOM
-using SparseArrays
-
-include("test_utils.jl")
+@time @testset "M_S" begin
 
 # Test Schrodinger type HEOM Liouvillian superoperator matrix
 t = 10
@@ -42,3 +39,4 @@ ados = ados_list[end]
 @test_throws BoundsError L[1:5, 2]
 @test_throws ErrorException ados[L.N + 1]
 @test_throws ErrorException M_S([0, 0]; verbose=false)
+end

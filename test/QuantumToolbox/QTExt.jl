@@ -1,5 +1,6 @@
-using HierarchicalEOM
 import QuantumToolbox
+
+@time @testset "QuantumToolbox Extension" begin
 
 # System Hamiltonian and initial state
 σx = QuantumToolbox.sigmax()
@@ -74,3 +75,5 @@ Lo = M_Fermion(Hsys, tier, [fuL, fdL, fuR, fdR], ODD; verbose=false)
 ados_s = SteadyState(Le; verbose=false)
 ωlist = [0]
 @test DensityOfStates(Lo, ados_s, d_up, ωlist; verbose=false)[1] ≈ 0.17217519700362002
+
+end

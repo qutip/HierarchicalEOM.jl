@@ -1,9 +1,8 @@
-using HierarchicalEOM
 using CUDA
 using LinearSolve
 
-include("../test_utils.jl")
-
+CUDA.@time @testset "CUDA Extension" begin
+    
 # re-define the bath (make the matrix smaller)
 λ  = 0.01
 W  = 0.5
@@ -98,4 +97,5 @@ dos_cpu   = DensityOfStates(L_odd_cpu, ados_cpu, d_up, ωlist; verbose=false)
 dos_gpu   = DensityOfStates(L_odd_gpu, ados_cpu, d_up, ωlist; solver=KrylovJL_BICGSTAB(rtol=1f-10, atol=1f-12), verbose=false)
 for (i, ω) in enumerate(ωlist)
     @test dos_cpu[i] ≈ dos_gpu[i]  atol = 1e-6
+end
 end

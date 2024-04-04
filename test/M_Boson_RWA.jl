@@ -1,7 +1,4 @@
-using HierarchicalEOM
-using SparseArrays
-
-include("test_utils.jl")
+@time @testset "M_Boson (RWA)" begin
 
 # Test Boson-type HEOM Liouvillian superoperator matrix under rotating wave approximation
 ωq = 1.1
@@ -27,4 +24,5 @@ for (i, t) in enumerate(tlist)
     
     @test ρ_rwa[1, 1] ≈ abs(Gt) ^ 2 * ρ0[1, 1]
     @test ρ_rwa[1, 2] ≈ Gt * ρ0[1, 2]
+end
 end

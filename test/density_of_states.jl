@@ -1,5 +1,4 @@
-using HierarchicalEOM
-using SparseArrays
+@time @testset "Density of states" begin
 
 e = -5
 U = 10
@@ -76,3 +75,4 @@ bathb = Boson_DrudeLorentz_Pade(mat, 1, 1, 1, 2)
 
 # remove all the temporary files
 rm("DOS.txt")
+end

@@ -1,7 +1,4 @@
-using HierarchicalEOM
-using SparseArrays
-
-include("test_utils.jl")
+@time @testset "M_Boson" begin
 
 # Test Boson-type HEOM Liouvillian superoperator matrix
 λ  = 0.1450
@@ -68,3 +65,4 @@ ados = SteadyState(L; verbose=false)
 @test_throws BoundsError L[1:1821, 336]
 @test_throws ErrorException ados[L.N + 1]
 @test_throws ErrorException M_Boson([0, 0], tier, Bbath; verbose=false)
+end
