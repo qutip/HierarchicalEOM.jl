@@ -41,6 +41,6 @@ jobs:
           directories: src
       - uses: codecov/codecov-action@v4
         with:
-          verbose: true
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          files: lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
