@@ -29,7 +29,7 @@
 
 [aqua-img]: https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg
 [aqua-url]: https://github.com/JuliaTesting/Aqua.jl
-<!-->
+<!--
 [downloads-img]: https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/HierarchicalEOM
 [downloads-url]: https://pkgs.genieframework.com?packages=HierarchicalEOM
 -->
