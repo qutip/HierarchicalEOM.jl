@@ -25,11 +25,9 @@ core_tests = [
     "time_evolution.jl"
 ]
 
-if (GROUP == "All") || (GROUP == "Core")
-    @testset "Print version information" begin
-        @test HierarchicalEOM.versioninfo() === nothing
-    end
+HierarchicalEOM.versioninfo()
 
+if (GROUP == "All") || (GROUP == "Core")
     for test in core_tests
         include(test)
     end

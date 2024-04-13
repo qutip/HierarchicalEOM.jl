@@ -234,7 +234,8 @@ For more details about solvers and extra options, please refer to [`Differential
         end
     end
 
-    Tlist = _HandleFloatType(eltype(M), tlist)
+    ElType = eltype(M)
+    Tlist = _HandleFloatType(ElType, tlist)
     ADOs_list::Vector{ADOs} = [ados]
     if SAVE
         jldopen(FILENAME, "a") do file
@@ -242,16 +243,15 @@ For more details about solvers and extra options, please refer to [`Differential
         end
     end
 
-    # problem: dρ/dt = L * ρ(0)
-    L = MatrixOperator(M.data)
-    prob  = ODEProblem(L, _HandleVectorType(typeof(M.data), ados.data), (Tlist[1], Tlist[end]))
+    # problem: dρ/dt = L * ρ(t)
+    prob  = ODEProblem{true}(MatrixOperator(M.data), _HandleVectorType(typeof(M.data), ados.data), (Tlist[1], Tlist[end]))
 
     # setup integrator
     integrator = init(
         prob,
         solver;
-        reltol = _HandleFloatType(eltype(M), reltol),
-        abstol = _HandleFloatType(eltype(M), abstol),
+        reltol = _HandleFloatType(ElType, reltol),
+        abstol = _HandleFloatType(ElType, abstol),
         maxiters = maxiters,
         save_everystep = save_everystep,
         SOLVEROptions...
@@ -397,7 +397,8 @@ For more details about solvers and extra options, please refer to [`Differential
         end
     end
 
-    Tlist = _HandleFloatType(eltype(M), tlist)
+    ElType = eltype(M)
+    Tlist  = _HandleFloatType(ElType, tlist)
     ADOs_list::Vector{ADOs} = [ados]
     if SAVE
         jldopen(FILENAME, "a") do file
@@ -407,19 +408,27 @@ For more details about solvers and extra options, please refer to [`Differential
     
     Ht  = H(param, Tlist[1])
     _Ht = HandleMatrixType(Ht, M.dim, "H (Hamiltonian) at t=$(Tlist[1])")
-    Lt  = HEOMSuperOp(minus_i_L_op(_Ht), M.parity, M, "LR")
-    L   = MatrixOperator((M + Lt).data, update_func! = _update_L!)
-    
-    # problem: dρ/dt = L(t) * ρ(0)
+    L0  = MatrixOperator(M.data)
+    Lt  = MatrixOperator(HEOMSuperOp(minus_i_L_op(_Ht), M.parity, M, "LR").data, update_func! = _update_Lt!)
+
+    if verbose
+        print("Solving time evolution for ADOs with time-dependent Hamiltonian by Ordinary Differential Equations method...\n")
+        flush(stdout)
+        prog = Progress(length(Tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
+    end
+
+    parameters = (H = H, param = param, dim = M.dim, N = M.N, parity = M.parity)
+
+    # problem: dρ/dt = L(t) * ρ(t)
     ## M.dim will check whether the returned time-dependent Hamiltonian has the correct dimension
-    prob = ODEProblem(L, _HandleVectorType(typeof(M.data), ados.data), (Tlist[1], Tlist[end]), (M, H, param))
+    prob = ODEProblem{true}(L0 + Lt, _HandleVectorType(typeof(M.data), ados.data), (Tlist[1], Tlist[end]), parameters)
 
     # setup integrator
     integrator = init(
         prob,
         solver;
-        reltol = _HandleFloatType(eltype(M), reltol),
-        abstol = _HandleFloatType(eltype(M), abstol),
+        reltol = _HandleFloatType(ElType, reltol),
+        abstol = _HandleFloatType(ElType, abstol),
         maxiters = maxiters,
         save_everystep = save_everystep,
         SOLVEROptions...
@@ -459,14 +468,13 @@ For more details about solvers and extra options, please refer to [`Differential
 end
 
 # define the update function for evolution with time-dependent system Hamiltonian H(param, t)
-function _update_L!(L, u, p, t)
-    M, H, param = p
+function _update_Lt!(L, u, p, t)
 
     # check system dimension of Hamiltonian
-    Ht  = H(param, t)
-    _Ht = HandleMatrixType(Ht, M.dim, "H (Hamiltonian) at t=$(t)")
+    Ht  = p.H(p.param, t)
+    _Ht = HandleMatrixType(Ht, p.dim, "H (Hamiltonian) at t=$(t)")
 
     # update the block diagonal terms of L
-    L .= (M + HEOMSuperOp(minus_i_L_op(_Ht), M.parity, M, "LR")).data
+    copy!(L, HEOMSuperOp(minus_i_L_op(_Ht), p.parity, p.dim, p.N, "LR").data)
     nothing
 end

@@ -61,9 +61,9 @@ module HierarchicalEOM
 
         # for solving steady state
         import LinearSolve: LinearProblem, init, solve!, UMFPACKFactorization
-        import OrdinaryDiffEq: SteadyStateProblem, solve
-        import DiffEqBase: NormTerminationMode
-        import SteadyStateDiffEq: DynamicSS
+        import LinearAlgebra: norm
+        import OrdinaryDiffEq: solve
+        import DiffEqCallbacks: TerminateSteadyState
 
         export
             AbstractParity, OddParity, EvenParity, value, ODD, EVEN,

@@ -1,6 +1,8 @@
 using CUDA
 using LinearSolve
 
+CUDA.versioninfo()
+
 CUDA.@time @testset "CUDA Extension" begin
     
 # re-define the bath (make the matrix smaller)
@@ -76,6 +78,7 @@ U = 10
 II = [1 0; 0  1] ## identity matrix
 d_up = kron(     σm, II)
 d_dn = kron(-1 * σz, σm)
+ρ0   = kron([1 0; 0 0], [1 0; 0 0])
 Hsys = ϵ * (d_up' * d_up + d_dn' * d_dn) + U * (d_up' * d_up * d_dn' * d_dn)
 Γ  = 2
 μ  = 0
@@ -87,12 +90,17 @@ bath_up = Fermion_Lorentz_Pade(d_up, Γ, μ, W, kT, N)
 bath_dn = Fermion_Lorentz_Pade(d_dn, Γ, μ, W, kT, N)
 bath_list = [bath_up, bath_dn]
 
+## solve stationary state
+L_even_cpu = M_Fermion(Hsys, tier, bath_list; verbose=false)
+L_even_gpu = cu(L_even_cpu)
+ados_cpu   = SteadyState(L_even_cpu; verbose=false)
+ados_gpu   = SteadyState(L_even_gpu, ρ0, 10; verbose=false)
+@test all(isapprox.(ados_cpu.data, ados_gpu.data; atol = 1e-6))
+
 ## solve density of states
 ωlist = -5:0.5:5
-L_cpu     = M_Fermion(Hsys, tier, bath_list; verbose=false)
 L_odd_cpu = M_Fermion(Hsys, tier, bath_list, ODD; verbose=false)
 L_odd_gpu = cu(L_odd_cpu)
-ados_cpu  = SteadyState(L_cpu; verbose=false)
 dos_cpu   = DensityOfStates(L_odd_cpu, ados_cpu, d_up, ωlist; verbose=false)
 dos_gpu   = DensityOfStates(L_odd_gpu, ados_cpu, d_up, ωlist; solver=KrylovJL_BICGSTAB(rtol=1f-10, atol=1f-12), verbose=false)
 for (i, ω) in enumerate(ωlist)

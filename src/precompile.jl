@@ -28,7 +28,7 @@ PrecompileTools.@setup_workload begin
 
         # precompile Steadystate
         ados1 = SteadyState(Mfe; verbose=false)
-        ados1 = SteadyState(Mfe, ρ0; verbose=false)
+        ados1 = SteadyState(Mfe, ρ0; tspan=1, verbose=false)
         E1 = Expect(Hs, ados1)
 
         # precompile evolution
