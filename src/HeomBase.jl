@@ -187,15 +187,11 @@ function versioninfo(io::IO=stdout)
     println(io,
         "Package information:\n",
         "====================================\n",
-        "HierarchicalEOM   Ver. $(_get_pkg_version("HierarchicalEOM"))\n",
-        "LinearSolve       Ver. $(_get_pkg_version("LinearSolve"))\n",
-        "OrdinaryDiffEq    Ver. $(_get_pkg_version("OrdinaryDiffEq"))\n",
-        "SteadyStateDiffEq Ver. $(_get_pkg_version("SteadyStateDiffEq"))\n",
-        "SciMLOperators    Ver. $(_get_pkg_version("SciMLOperators"))\n",
-        "FastExpm          Ver. $(_get_pkg_version("FastExpm"))\n",
-        "JLD2              Ver. $(_get_pkg_version("JLD2"))\n",
-        "ProgressMeter     Ver. $(_get_pkg_version("ProgressMeter"))\n",
-        "PrecompileTools   Ver. $(_get_pkg_version("PrecompileTools"))\n"        
+        "HierarchicalEOM Ver. $(_get_pkg_version("HierarchicalEOM"))\n",
+        "LinearSolve     Ver. $(_get_pkg_version("LinearSolve"))\n",
+        "OrdinaryDiffEq  Ver. $(_get_pkg_version("OrdinaryDiffEq"))\n",
+        "FastExpm        Ver. $(_get_pkg_version("FastExpm"))\n",
+        "JLD2            Ver. $(_get_pkg_version("JLD2"))\n"      
     )
 
     # print System informations
