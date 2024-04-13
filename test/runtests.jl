@@ -5,6 +5,8 @@ using LinearAlgebra, SparseArrays
 
 const GROUP = get(ENV, "GROUP", "All")
 
+const testdir = dirname(@__FILE__)
+
 include("test_utils.jl")
 
 # Put Core tests in alphabetical order
@@ -29,27 +31,27 @@ HierarchicalEOM.versioninfo()
 
 if (GROUP == "All") || (GROUP == "Core")
     for test in core_tests
-        include(test)
+        include(joinpath(testdir, test))
     end
 end
 
+if (GROUP == "All") || (GROUP == "Code_Quality")
+    Pkg.add(["Aqua", "JET"])
+    include(joinpath(testdir, "aqua.jl"))
+    include(joinpath(testdir, "jet.jl"))
+end
+
 if GROUP == "HierarchicalEOM_CUDAExt"
-    Pkg.activate("CUDA")
-    Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
-    Pkg.instantiate()
-    include("CUDA/CUDAExt.jl")
+    Pkg.add("CUDA")
+    include(joinpath(testdir, "CUDA_Ext.jl"))
 end
 
-if (GROUP == "All") || (GROUP == "HierarchicalEOM_QuantumOpticsExt")
-    Pkg.activate("QuantumOptics")
-    Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
-    Pkg.instantiate()
-    include("QuantumOptics/QOExt.jl")
+if (GROUP == "All") || (GROUP == "QuantumOptics_Ext")
+    Pkg.add("QuantumOptics")
+    include(joinpath(testdir, "QuantumOpticsExt.jl"))
 end
 
-if (GROUP == "All") || (GROUP == "HierarchicalEOM_QuantumToolboxExt")
-    Pkg.activate("QuantumToolbox")
-    Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
-    Pkg.instantiate()
-    include("QuantumToolbox/QTExt.jl")
+if (GROUP == "All") || (GROUP == "QuantumToolbox_Ext")
+    Pkg.add("QuantumToolbox")
+    include(joinpath(testdir, "QuantumToolboxExt.jl"))
 end

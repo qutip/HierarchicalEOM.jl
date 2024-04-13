@@ -43,16 +43,23 @@ jobs:
         group:
           - Core
 
-        # for extensions
         include:
+          # for code quality
           - julia-version: '1'
             os: 'ubuntu-latest'
             arch: 'x64'
-            group: 'HierarchicalEOM_QuantumOpticsExt'
+            group: 'Code_Quality'
+
+          # for extensions
           - julia-version: '1'
             os: 'ubuntu-latest'
             arch: 'x64'
-            group: 'HierarchicalEOM_QuantumToolboxExt'
+            group: 'QuantumOptics_Ext'
+          - julia-version: '1'
+            os: 'ubuntu-latest'
+            arch: 'x64'
+            group: 'QuantumToolbox_Ext'
+
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
