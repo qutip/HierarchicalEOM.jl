@@ -2,13 +2,13 @@
 ![Fancy logo](./docs/src/assets/logo.png#gh-light-mode-only)
 
 # HierarchicalEOM.jl
-| **Release** | **Downloads** |
+| **Release** | **Documentation** |
 |:-----------:|:-------------:|
-| [![][release-img]][release-url] [![][license-img]][license-url] | [![][downloads-img]][downloads-url] |
+| [![][release-img]][release-url] [![][license-img]][license-url] | [![][docs-stable-img]][docs-stable-url] [![][docs-develop-img]][docs-develop-url] |
 
-| **Runtests** | **Coverage** | **Documentation** |
-|:------------:|:------------:|:-----------------:|
-| [![][runtests-img]][runtests-url] | [![][codecov-img]][codecov-url] | [![][docs-stable-img]][docs-stable-url] [![][docs-develop-img]][docs-develop-url] |
+| **Runtests** | **Coverage** |
+|:------------:|:------------:|
+| [![][runtests-img]][runtests-url] [![][aqua-img]][aqua-url] | [![][codecov-img]][codecov-url] |  |
 
 [release-img]: https://img.shields.io/github/release/NCKU-QFort/HierarchicalEOM.jl.svg
 [release-url]: https://github.com/NCKU-QFort/HierarchicalEOM.jl/releases
@@ -27,8 +27,12 @@
 [license-img]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
 [license-url]: https://opensource.org/licenses/Apache-2.0
 
+[aqua-img]: https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg
+[aqua-url]: https://github.com/JuliaTesting/Aqua.jl
+<!-->
 [downloads-img]: https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/HierarchicalEOM
 [downloads-url]: https://pkgs.genieframework.com?packages=HierarchicalEOM
+-->
 
 `HierarchicalEOM.jl` is a numerical framework written in [`Julia`](https://julialang.org/). It provides a user-friendly and efficient tool based on hierarchical equations of motion (HEOM) approach to simulate complex open quantum systems, including non-Markovian effects due to non-perturbative interaction with one (or multiple) environment(s). It is inspired by the [Quantum Toolbox in Python (QuTiP)](https://qutip.org).
 
