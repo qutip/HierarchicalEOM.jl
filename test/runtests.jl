@@ -41,9 +41,9 @@ if (GROUP == "All") || (GROUP == "Code_Quality")
     include(joinpath(testdir, "jet.jl"))
 end
 
-if GROUP == "HierarchicalEOM_CUDAExt"
+if GROUP == "CUDA_Ext"
     Pkg.add("CUDA")
-    include(joinpath(testdir, "CUDA_Ext.jl"))
+    include(joinpath(testdir, "CUDAExt.jl"))
 end
 
 if (GROUP == "All") || (GROUP == "QuantumOptics_Ext")
