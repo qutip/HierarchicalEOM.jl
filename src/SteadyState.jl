@@ -39,7 +39,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 end
 
 @doc raw"""
-    SteadyState(M, ρ0, tspan; solver, termination_condition, verbose, SOLVEROptions...)
+    SteadyState(M, ρ0, tspan; solver, verbose, SOLVEROptions...)
 Solve the steady state of the auxiliary density operators based on time evolution (ordinary differential equations; `SteadyStateDiffEq.jl`) with initial state is given in the type of density-matrix (`ρ0`).
 
 # Parameters
@@ -47,11 +47,13 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 - `ρ0` : system initial state (density matrix)
 - `tspan::Number` : the time limit to find stationary state. Default to `Inf`
 - `solver` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
-- `termination_condition` : The stationary state terminate condition in `DiffEqBase.jl`. Default to `NormTerminationMode()`.
+- `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-8`.
+- `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-10`.
+- `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver
 
-For more details about solvers, termination condition, and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
+For more details about solvers, and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
 
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
@@ -61,7 +63,9 @@ function SteadyState(
         ρ0,
         tspan::Number = Inf;
         solver = DP5(),
-        termination_condition = NormTerminationMode(),
+        reltol::Real = 1.0e-8,
+        abstol::Real = 1.0e-10,
+        save_everystep::Bool = false,
         verbose::Bool = true,
         SOLVEROptions...
     )
@@ -70,14 +74,16 @@ function SteadyState(
         ADOs(ρ0, M.N, M.parity),
         tspan;
         solver = solver,
-        termination_condition = termination_condition,
+        reltol = reltol,
+        abstol = abstol,
+        save_everystep = save_everystep,
         verbose = verbose,
         SOLVEROptions...
     )
 end
 
 @doc raw"""
-    SteadyState(M, ados, tspan; solver, termination_condition, verbose, SOLVEROptions...)
+    SteadyState(M, ados, tspan; solver, verbose, SOLVEROptions...)
 Solve the steady state of the auxiliary density operators based on time evolution (ordinary differential equations; `SteadyStateDiffEq.jl`) with initial state is given in the type of `ADOs`.
 
 # Parameters
@@ -85,11 +91,13 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 - `ados::ADOs` : initial auxiliary density operators
 - `tspan::Number` : the time limit to find stationary state. Default to `Inf`
 - `solver` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
-- `termination_condition` : The stationary state terminate condition in `DiffEqBase.jl`. Default to `NormTerminationMode()`.
+- `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-8`.
+- `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-10`.
+- `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver
 
-For more details about solvers, termination condition, and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
+For more details about solvers, and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
 
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
@@ -99,7 +107,9 @@ For more details about solvers, termination condition, and extra options, please
         ados::ADOs,
         tspan::Number = Inf;
         solver = DP5(),
-        termination_condition = NormTerminationMode(),
+        reltol::Real = 1.0e-8,
+        abstol::Real = 1.0e-10,
+        save_everystep::Bool = false,
         verbose::Bool = true,
         SOLVEROptions...
     )
@@ -107,26 +117,45 @@ For more details about solvers, termination condition, and extra options, please
     _check_sys_dim_and_ADOs_num(M, ados)
     _check_parity(M, ados)
 
+    ElType = eltype(M)
+    Tspan  = (_HandleFloatType(ElType, 0), _HandleFloatType(ElType, tspan))
+    RelTol = _HandleFloatType(ElType, reltol)
+    AbsTol = _HandleFloatType(ElType, abstol)
+
     # problem: dρ(t)/dt = L * ρ(t)
-    L = MatrixOperator(M.data)
-    prob = SteadyStateProblem(L, _HandleVectorType(typeof(M.data), ados.data))
+    prob = ODEProblem{true}(MatrixOperator(M.data), _HandleVectorType(typeof(M.data), ados.data), Tspan)
 
     # solving steady state of the ODE problem
     if verbose
-        print("Solving steady state for ADOs by Ordinary Differential Equations method...")
+        println("Solving steady state for ADOs by Ordinary Differential Equations method...")
         flush(stdout)
     end
     sol = solve(
         prob, 
-        DynamicSS(solver, _HandleFloatType(eltype(M), tspan));
-        termination_condition = termination_condition,
+        solver;
+        callback = TerminateSteadyState(AbsTol, RelTol, _ss_condition),
+        reltol = RelTol,
+        abstol = AbsTol,
+        save_everystep = save_everystep,
         SOLVEROptions...
     )
 
     if verbose
-        println("[DONE]")
+        println("Last timepoint t = $(sol.t[end])\n[DONE]")
         flush(stdout)
     end
 
-    return ADOs(_HandleVectorType(sol.u, false), M.dim, M.N, M.parity)
+    return ADOs(_HandleVectorType(sol.u[end], false), M.dim, M.N, M.parity)
+end
+
+function _ss_condition(integrator, abstol, reltol, min_t)
+    # this condition is same as DiffEqBase.NormTerminationMode
+    
+    du_dt = (integrator.u - integrator.uprev) / integrator.dt
+    norm_du_dt = norm(du_dt)
+    if (norm_du_dt <= reltol * norm(du_dt + integrator.u)) || (norm_du_dt <= abstol)
+        return true
+    else
+        return false
+    end
 end
