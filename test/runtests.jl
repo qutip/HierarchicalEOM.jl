@@ -27,31 +27,38 @@ core_tests = [
     "time_evolution.jl"
 ]
 
-HierarchicalEOM.versioninfo()
+if (GROUP == "All") || (GROUP == "Code_Quality")
+    Pkg.add(["Aqua", "JET"])
+
+    HierarchicalEOM.versioninfo()
+    include(joinpath(testdir, "aqua.jl"))
+    include(joinpath(testdir, "jet.jl"))
+end
 
 if (GROUP == "All") || (GROUP == "Core")
+    GROUP == "All" ? nothing : HierarchicalEOM.versioninfo() 
     for test in core_tests
         include(joinpath(testdir, test))
     end
 end
 
-if (GROUP == "All") || (GROUP == "Code_Quality")
-    Pkg.add(["Aqua", "JET"])
-    include(joinpath(testdir, "aqua.jl"))
-    include(joinpath(testdir, "jet.jl"))
-end
-
 if GROUP == "CUDA_Ext"
     Pkg.add("CUDA")
+
+    HierarchicalEOM.versioninfo()
     include(joinpath(testdir, "CUDAExt.jl"))
 end
 
 if (GROUP == "All") || (GROUP == "QuantumOptics_Ext")
     Pkg.add("QuantumOptics")
+
+    GROUP == "All" ? nothing : HierarchicalEOM.versioninfo()
     include(joinpath(testdir, "QuantumOpticsExt.jl"))
 end
 
 if (GROUP == "All") || (GROUP == "QuantumToolbox_Ext")
     Pkg.add("QuantumToolbox")
+
+    GROUP == "All" ? nothing : HierarchicalEOM.versioninfo()
     include(joinpath(testdir, "QuantumToolboxExt.jl"))
 end

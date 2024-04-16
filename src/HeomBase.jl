@@ -106,58 +106,58 @@ end
 Print the Logo of HierarchicalEOM package
 """
 function print_logo(io::IO=stdout)
-    default = Crayon(foreground = :default)
-    red     = Crayon(foreground = (203,  60,  51))
-    green   = Crayon(foreground = ( 56, 152,  38))
-    blue    = Crayon(foreground = ( 64,  99, 216))
-    purple  = Crayon(foreground = (149,  88, 178))
+    default = :default
+    green   =  28
+    blue    =  63
+    purple  = 133
+    red     = 124
     
-    print(io, green, "                                   __")
-    print(io, "\n")
-    
-    print(io, green, "                                  /  \\")
-    print(io, "\n")
-    
-    print(io, default, " __     __                     ")
-    print(io, red, "__")
-    print(io, green, " \\__/ ")
-    print(io, purple, "__")
-    print(io, "\n")
-    
-    print(io, default, "|  |   |  |                   ")
-    print(io, red, "/  \\")
-    print(io, default, "    ")
-    print(io, purple, "/  \\")
-    print(io, "\n")
-    
-    print(io, default, "|  |   |  | ______   ______   ")
-    print(io, red, "\\__/")
-    print(io, default, "_  _")
-    print(io, purple, "\\__/")
-    print(io, "\n")
+    printstyled(io, "                                   __", color=green, bold=true)
+    printstyled(io, "\n")
 
-    print(io, default, "|  |___|  |/  __  \\ /  ")
-    print(io, blue, "__")
-    print(io, default, "  \\ / '   \\/     \\")
-    print(io, "\n")
+    printstyled(io, "                                  /  \\", color=green, bold=true)
+    printstyled(io, "\n")
 
-    print(io, default, "|   ___   |  |__)  |  ")
-    print(io, blue, "/  \\")
-    print(io, default, "  |    _     _   |")
-    print(io, "\n")
+    printstyled(io, " __     __                     ", color=default)
+    printstyled(io, "__", color=red, bold=true)
+    printstyled(io, " \\__/ ", color=green, bold=true)
+    printstyled(io, "__", color=purple, bold=true)
+    printstyled(io, "\n")
 
-    print(io, default, "|  |   |  |   ____/| ")
-    print(io, blue, "(    )")
-    print(io, default, " |   / \\   / \\  |")
-    print(io, "\n")
+    printstyled(io, "|  |   |  |                   ", color=default)
+    printstyled(io, "/  \\", color=red, bold=true)
+    printstyled(io, "    ", color=default)
+    printstyled(io, "/  \\", color=purple, bold=true)
+    printstyled(io, "\n")
 
-    print(io, default, "|  |   |  |  |____ |  ")
-    print(io, blue, "\\__/")
-    print(io, default, "  |  |   | |   | |")
-    print(io, "\n")
+    printstyled(io, "|  |   |  | ______   ______   ", color=default)
+    printstyled(io, "\\__/", color=red, bold=true)
+    printstyled(io, "_  _", color=default)
+    printstyled(io, "\\__/", color=purple, bold=true)
+    printstyled(io, "\n")
 
-    print(io, default, "|__|   |__|\\______) \\______/|__|   |_|   |_|")
-    print(io, "\n")
+    printstyled(io, "|  |___|  |/  __  \\ /  ", color=default)
+    printstyled(io, "__", color=blue, bold=true)
+    printstyled(io, "  \\ / '   \\/     \\", color=default)
+    printstyled(io, "\n")
+
+    printstyled(io, "|   ___   |  |__)  |  ", color=default)
+    printstyled(io, "/  \\", color=blue, bold=true)
+    printstyled(io, "  |    _     _   |", color=default)
+    printstyled(io, "\n")
+
+    printstyled(io, "|  |   |  |   ____/| ", color=default)
+    printstyled(io, "(    )", color=blue, bold=true)
+    printstyled(io, " |   / \\   / \\  |", color=default)
+    printstyled(io, "\n")
+
+    printstyled(io, "|  |   |  |  |____ |  ", color=default)
+    printstyled(io, "\\__/", color=blue, bold=true)
+    printstyled(io, "  |  |   | |   | |", color=default)
+    printstyled(io, "\n")
+
+    printstyled(io, "|__|   |__|\\______) \\______/|__|   |_|   |_|", color=default)
+    printstyled(io, "\n")
 end
 
 """
