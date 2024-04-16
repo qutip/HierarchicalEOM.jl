@@ -9,7 +9,6 @@ module HierarchicalEOM
         import Pkg
         import LinearAlgebra: BLAS, kron
         import SparseArrays: I, sparse, SparseVector, SparseMatrixCSC
-        import Crayons: Crayon
 
         export
             spre, spost, Tr,
