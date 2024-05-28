@@ -9,9 +9,7 @@ module HeomBase
     import LinearAlgebra: BLAS, kron
     import SparseArrays: I, sparse, SparseVector, SparseMatrixCSC
 
-    export spre,
-        spost,
-        Tr,
+    export Tr,
         PROGBAR_OPTIONS,
         AbstractHEOMLSMatrix,
         _check_sys_dim_and_ADOs_num,
