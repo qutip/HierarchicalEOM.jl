@@ -3,10 +3,10 @@
 
 # HierarchicalEOM.jl
 
-| **Release**       | [![Release][release-img]](release-url) [![License][license-img]](license-url) [![arXiv][arxiv-img]](arxiv-url) |
+| **Release**       | [![Release][release-img]][release-url] [![License][license-img]][license-url] [![arXiv][arxiv-img]][arxiv-url] |
 |:-----------------:|:-------------|
-| **Runtests**      | [![Runtests][runtests-img]](runtests-url) [![Coverage][codecov-img]](codecov-url) [![Aqua QA][aqua-img]](aqua-url) [![JET][jet-img]](jet-url) |
-| **Documentation** | [![Doc-Stable][docs-stable-img]](docs-stable-url) [![Doc-Dev][docs-develop-img]](docs-develop-url) |
+| **Runtests**      | [![Runtests][runtests-img]][runtests-url] [![Coverage][codecov-img]][codecov-url] [![Aqua QA][aqua-img]][aqua-url] [![JET][jet-img]][jet-url] |
+| **Documentation** | [![Doc-Stable][docs-stable-img]][docs-stable-url] [![Doc-Dev][docs-develop-img]][docs-develop-url] |
 
 [release-img]: https://img.shields.io/github/release/NCKU-QFort/HierarchicalEOM.jl.svg
 [release-url]: https://github.com/NCKU-QFort/HierarchicalEOM.jl/releases
