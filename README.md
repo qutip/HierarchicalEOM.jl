@@ -3,7 +3,7 @@
 
 # HierarchicalEOM.jl
 
-| **Release**       | [![Release][release-img]](release-url) [![License][license-img]](license-url) |
+| **Release**       | [![Release][release-img]](release-url) [![License][license-img]](license-url) [![arXiv][arxiv-img]](arxiv-url) |
 |:-----------------:|:-------------|
 | **Runtests**      | [![Runtests][runtests-img]](runtests-url) [![Coverage][codecov-img]](codecov-url) [![Aqua QA][aqua-img]](aqua-url) [![JET][jet-img]](jet-url) |
 | **Documentation** | [![Doc-Stable][docs-stable-img]](docs-stable-url) [![Doc-Dev][docs-develop-img]](docs-develop-url) |
@@ -13,6 +13,9 @@
 
 [license-img]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
 [license-url]: https://opensource.org/licenses/Apache-2.0
+
+[arxiv-img]: https://img.shields.io/badge/arXiv-2306.07522-<COLOR>.svg
+[arxiv-url]: https://arxiv.org/abs/2306.07522
 
 [runtests-img]: https://github.com/NCKU-QFort/HierarchicalEOM.jl/actions/workflows/Runtests.yml/badge.svg
 [runtests-url]: https://github.com/NCKU-QFort/HierarchicalEOM.jl/actions/workflows/Runtests.yml
