@@ -4,7 +4,7 @@
 
 using HierarchicalEOM
 using LaTeXStrings
-import QuantumOptics, Plots
+import QuantumToolbox, Plots
 
 # ## Hamiltonian
 # The Jaynes-Cummings model is a standard model in the realm of cavity QED. It illustrates the interaction between a two-level atom ($\textrm{A}$) and a quantized single-mode within a cavity ($\textrm{c}$).
@@ -28,34 +28,27 @@ import QuantumOptics, Plots
 # ```
 # Here, $H_{\textrm{b}}$ describes a bosonic reservoir where $b_{k}$ $(b_{k}^{\dagger})$ is the bosonic annihilation (creation) operator associated to the $k$th mode (with frequency $\omega_{k}$). Also, $H_{\textrm{sb}}$ illustrates the interaction between the cavity and the bosonic reservoir.
 
-# Now, we can build the system Hamiltonian with the package [`QuantumOptics.jl`](https://qojulia.org) (optional) to construct the operators.
+# Now, we can build the system Hamiltonian with the package [`QuantumToolbox.jl`](https://github.com/qutip/QuantumToolbox.jl) (optional) to construct the operators.
 
-# !!! note "Note"
-#     Note that `HierarchicalEOM.jl` only accept standard julia bulit-in types. If you use `QuantumOptics` to construct the operators, remember that the matrix (or vector) in standard type are stored in `.data` field of the objects, i.e., `op.data` where `op` is a `QuantumOptics`-type object. Thus, you should take it as the inputs of `HierarchicalEOM.jl` for objects in `QuantumOptics` package.
+# !!! compat "Extension for QuantumToolbox.jl"
+#     `HierarchicalEOM.jl` provides an extension to support `QuantumToolbox`-type object, but this feature requires `Julia 1.9+` and `HierarchicalEOM 1.4+`. See [here](@ref doc-ext-QuantumToolbox) for more details.
 
-# !!! compat "Extension for QuantumOptics.jl"
-#     `HierarchicalEOM.jl` provides an extension to support `QuantumOptics`-type object, but this feature requires `Julia 1.9+` and `HierarchicalEOM 0.3+`. See [here](@ref doc-ext-QuantumOptics) for more details.
-
-N_photon = 2 ## We truncate the photon number of the system cavity to 2
+N = 3 ## system cavity Hilbert space cutoff
 ωA = 2
 ωc = 2
 g = 0.1
 
-## basis
-a_basis = QuantumOptics.FockBasis(N_photon)
-b_spin = QuantumOptics.SpinBasis(1 // 2)
-
 ## operators
-a_c = QuantumOptics.destroy(a_basis)
-I_c = QuantumOptics.identityoperator(a_basis)
-σz_A = QuantumOptics.sigmaz(b_spin)
-σm_A = QuantumOptics.sigmam(b_spin)
-I_A = QuantumOptics.identityoperator(b_spin)
+a_c = QuantumToolbox.destroy(N)
+I_c = QuantumToolbox.qeye(N)
+σz_A = QuantumToolbox.sigmaz()
+σm_A = QuantumToolbox.sigmam()
+I_A = QuantumToolbox.qeye(2)
 
 ## operators in tensor-space
-a = QuantumOptics.tensor(a_c, I_A)
-σz = QuantumOptics.tensor(I_c, σz_A)
-σm = QuantumOptics.tensor(I_c, σm_A)
+a = QuantumToolbox.tensor(a_c, I_A)
+σz = QuantumToolbox.tensor(I_c, σz_A)
+σm = QuantumToolbox.tensor(I_c, σm_A)
 
 ## Hamiltonian
 H_A = 0.5 * ωA * σz
@@ -65,8 +58,8 @@ H_int = g * (a' * σm + a * σm')
 H_s = H_A + H_c + H_int
 
 ## initial state
-ket0 = QuantumOptics.tensor(QuantumOptics.Ket(a_basis, [1, 0, 0]), QuantumOptics.Ket(b_spin, [1, 0]))
-ρ0 = QuantumOptics.dm(ket0);
+ket0 = QuantumToolbox.tensor(QuantumToolbox.basis(N, 0), QuantumToolbox.basis(2, 0))
+ρ0 = QuantumToolbox.ket2dm(ket0);
 
 # ## Construct bath objects
 # We assume the bosonic reservoir to have a [Drude-Lorentz Spectral Density](@ref Boson-Drude-Lorentz), and we utilize the Padé decomposition. Furthermore, the spectral densities depend on the following physical parameters: 
@@ -78,13 +71,13 @@ ket0 = QuantumOptics.tensor(QuantumOptics.Ket(a_basis, [1, 0, 0]), QuantumOptics
 W = 1
 kT = 0.025
 N = 20
-Bath = Boson_DrudeLorentz_Pade((a + a').data, Γ, W, kT, N)
+Bath = Boson_DrudeLorentz_Pade(a + a', Γ, W, kT, N)
 
 # Before incorporating the correlation function into the HEOMLS matrix, it is essential to verify if the total number of exponentials for the reservoir sufficiently describes the practical situation.
 
 tlist_test = 0:0.1:10;
 
-Bath_test = Boson_DrudeLorentz_Pade((a + a').data, Γ, W, kT, 1000);
+Bath_test = Boson_DrudeLorentz_Pade(a + a', Γ, W, kT, 1000);
 Ct = C(Bath, tlist_test);
 Ct2 = C(Bath_test, tlist_test);
 
@@ -102,16 +95,16 @@ Plots.yaxis!("C(t)")
 #   
 # Furthermore, we set the [important threshold](@ref doc-Importance-Value-and-Threshold) to be `1e-6`.
 pump = 0.01
-J_pump = sqrt(pump) * (σm').data
+J_pump = sqrt(pump) * σm'
 
 tier = 2
-M_Heom = M_Boson(H_s.data, tier, threshold = 1e-6, Bath)
+M_Heom = M_Boson(H_s, tier, threshold = 1e-6, Bath)
 M_Heom = addBosonDissipator(M_Heom, J_pump)
 
 # ## Solve time evolution of ADOs
 # (see also [Time Evolution](@ref doc-Time-Evolution))
 t_list = 0:1:500
-evo_H = evolution(M_Heom, ρ0.data, t_list);
+evo_H = evolution(M_Heom, ρ0, t_list);
 
 # ## Solve stationary state of ADOs
 # (see also [Stationary State](@ref doc-Stationary-State))
@@ -119,12 +112,12 @@ steady_H = SteadyState(M_Heom);
 
 # ## Expectation values
 # observable of atom: $\sigma_z$
-σz_evo_H = Expect(σz.data, evo_H)
-σz_steady_H = Expect(σz.data, steady_H)
+σz_evo_H = Expect(σz, evo_H)
+σz_steady_H = Expect(σz, steady_H)
 
 # observable of cavity: $a^\dagger a$ (average photon number)
-np_evo_H = Expect((a' * a).data, evo_H)
-np_steady_H = Expect((a' * a).data, steady_H)
+np_evo_H = Expect(a' * a, evo_H)
+np_steady_H = Expect(a' * a, steady_H)
 
 p1 = Plots.plot(
     t_list,
@@ -146,7 +139,7 @@ Plots.xaxis!("t")
 # ## Power spectrum
 # (see also [Spectrum](@ref doc-Spectrum))
 ω_list = 1:0.01:3
-psd_H = PowerSpectrum(M_Heom, steady_H, a.data, ω_list)
+psd_H = PowerSpectrum(M_Heom, steady_H, a, ω_list)
 
 Plots.plot(ω_list, psd_H, linewidth = 3)
 Plots.xaxis!(L"\omega")
@@ -163,29 +156,26 @@ Drude_Lorentz(ω, Γ, W) = 4 * Γ * W * ω / ((ω)^2 + (W)^2)
 n_b(ω, kT) = 1 / (exp(ω / kT) - 1)
 
 ## build the jump operators
-jump_op = [
-    sqrt(Drude_Lorentz(ωc, Γ, W) * (n_b(ωc, kT) + 1)) * a.data,
-    sqrt(Drude_Lorentz(ωc, Γ, W) * (n_b(ωc, kT))) * (a').data,
-    J_pump,
-];
+jump_op =
+    [sqrt(Drude_Lorentz(ωc, Γ, W) * (n_b(ωc, kT) + 1)) * a, sqrt(Drude_Lorentz(ωc, Γ, W) * (n_b(ωc, kT))) * a', J_pump];
 
 ## construct the HEOMLS matrix for master equation
-M_master = M_S(H_s.data)
+M_master = M_S(H_s)
 M_master = addBosonDissipator(M_master, jump_op)
 
 ## time evolution
-evo_M = evolution(M_master, ρ0.data, t_list);
+evo_M = evolution(M_master, ρ0, t_list);
 
 ## steady
 steady_M = SteadyState(M_master);
 
 ## expectation value of σz
-σz_evo_M = Expect(σz.data, evo_M)
-σz_steady_M = Expect(σz.data, steady_M)
+σz_evo_M = Expect(σz, evo_M)
+σz_steady_M = Expect(σz, steady_M)
 
 ## average photon number
-np_evo_M = Expect((a' * a).data, evo_M)
-np_steady_M = Expect((a' * a).data, steady_M)
+np_evo_M = Expect(a' * a, evo_M)
+np_steady_M = Expect(a' * a, steady_M)
 
 p1 = Plots.plot(
     t_list,
@@ -207,7 +197,7 @@ Plots.xaxis!("t")
 # We can also calculate the power spectrum
 
 ω_list = 1:0.01:3
-psd_M = PowerSpectrum(M_master, steady_M, a.data, ω_list)
+psd_M = PowerSpectrum(M_master, steady_M, a, ω_list)
 
 Plots.plot(ω_list, psd_M, linewidth = 3)
 Plots.xaxis!(L"\omega")
