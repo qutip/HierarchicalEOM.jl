@@ -48,7 +48,7 @@ HierarchicalEOM.versioninfo()
 
 import QuantumOptics: SpinBasis, sigmaz, sigmax, ⊗, Ket, Bra, dm
 
-basis = SpinBasis(1//2)
+basis = SpinBasis(1 // 2)
 
 ## The system Hamiltonian
 ϵ = 0.5 # energy of 2-level system
@@ -62,8 +62,8 @@ Hsys = 0.5 * ϵ * sigmaz(basis) + 0.5 * Δ * sigmax(basis)
 # #### Bath Properties
 # Now, we demonstrate how to describe the bath using the built-in implementation of ``J_D(\omega)`` under Pade expansion by calling [`Boson_DrudeLorentz_Pade`](@ref)
 
-λ  = 0.1  # coupling strength
-W  = 0.5  # band-width (cut-off frequency)
+λ = 0.1  # coupling strength
+W = 0.5  # band-width (cut-off frequency)
 kT = 0.5  # the product of the Boltzmann constant k and the absolute temperature T
 
 Q = sigmaz(basis) # system-bath coupling operator
@@ -74,7 +74,6 @@ N = 2 # Number of expansion terms to retain:
 ## Remember to give the operator in Standard matrix (AbstractMatrix) type
 ## That is, if using QuantumOptics package, give system coupling operator as Q.data
 bath = Boson_DrudeLorentz_Pade(Q.data, λ, W, kT, N)
-
 
 # For other different expansions of the different spectral density correlation functions, please refer to [Bosonic Bath](@ref doc-Bosonic-Bath) and [Fermionic Bath](@ref doc-Fermionic-Bath).
 
@@ -140,10 +139,24 @@ p01_e = Expect(P01.data, ados_list);
 # ### Plot the results
 using Plots, LaTeXStrings
 
-plot(tlist, p00_e, label = L"\textrm{P}_{00}", linecolor=:blue, linestyle=:solid, linewidth=3, grid=false)
-plot!(tlist, p01_e, label = L"\textrm{P}_{01}", linecolor=:red, linestyle=:solid, linewidth=3)
-plot!(tlist, ones(length(tlist)) .* p00_s, label = L"\textrm{P}_{00} \textrm{(Steady State)}", linecolor=:blue, linestyle=:dash, linewidth=3)
-plot!(tlist, ones(length(tlist)) .* p01_s, label = L"\textrm{P}_{01} \textrm{(Steady State)}", linecolor=:red, linestyle=:dash, linewidth=3)
+plot(tlist, p00_e, label = L"\textrm{P}_{00}", linecolor = :blue, linestyle = :solid, linewidth = 3, grid = false)
+plot!(tlist, p01_e, label = L"\textrm{P}_{01}", linecolor = :red, linestyle = :solid, linewidth = 3)
+plot!(
+    tlist,
+    ones(length(tlist)) .* p00_s,
+    label = L"\textrm{P}_{00} \textrm{(Steady State)}",
+    linecolor = :blue,
+    linestyle = :dash,
+    linewidth = 3,
+)
+plot!(
+    tlist,
+    ones(length(tlist)) .* p01_s,
+    label = L"\textrm{P}_{01} \textrm{(Steady State)}",
+    linecolor = :red,
+    linestyle = :dash,
+    linewidth = 3,
+)
 
 xlabel!("time")
 ylabel!("Population")
@@ -157,15 +170,15 @@ ylabel!("Population")
 
 ## The system Hamiltonian
 Hsys = [
-    0.25 1.50 2.50;
-    1.50 0.75 3.50;
+    0.25 1.50 2.50
+    1.50 0.75 3.50
     2.50 3.50 1.25
 ]
 
 ## System initial state
 ρ0 = [
-    1 0 0;
-    0 0 0;
+    1 0 0
+    0 0 0
     0 0 0
 ];
 
@@ -176,7 +189,7 @@ for i in 1:3
     ## system-bath coupling operator: |i><i|
     Q = zeros(3, 3)
     Q[i, i] = 1
-    
+
     push!(baths, Boson_DrudeLorentz_Pade(Q, λ, W, kT, N))
 end
 
@@ -195,9 +208,9 @@ p0 = Expect(P00, ados_list)
 p1 = Expect(P11, ados_list)
 p2 = Expect(P22, ados_list)
 
-plot(tlist, p0, linewidth=3, linecolor="blue", label=L"P_0", grid=false)
-plot!(tlist, p1, linewidth=3, linecolor="orange", label=L"P_1")
-plot!(tlist, p2, linewidth=3, linecolor=:green, label=L"P_2")
+plot(tlist, p0, linewidth = 3, linecolor = "blue", label = L"P_0", grid = false)
+plot!(tlist, p1, linewidth = 3, linecolor = "orange", label = L"P_1")
+plot!(tlist, p2, linewidth = 3, linecolor = :green, label = L"P_2")
 xlabel!("time")
 ylabel!("Population")
 

@@ -14,7 +14,7 @@ Return the operator under the type of `QuantumOptics.AbstractOperator` from a gi
 """
 Operator(data::AbstractMatrix, refOP::AbstractOperator) = Operator(refOP.basis_l, refOP.basis_r, data)
 
-function HandleMatrixType(M::AbstractOperator, dim::Int=0, MatrixName::String="")
+function HandleMatrixType(M::AbstractOperator, dim::Int = 0, MatrixName::String = "")
     if dim > 0
         if size(M.data) == (dim, dim)
             return copy(M.data)

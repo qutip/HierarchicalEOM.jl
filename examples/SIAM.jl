@@ -2,7 +2,7 @@
 
 # The investigation of the Kondo effect in single-impurity Anderson model is crucial as it serves both as a valuable testing ground for the theories of the Kondo effect and has the potential to lead to a better understanding of this intrinsic many-body phenomena.
 
-using HierarchicalEOM 
+using HierarchicalEOM
 import Plots
 
 # ## Hamiltonian
@@ -19,13 +19,13 @@ import Plots
 # Now, we can construct the system Hamiltonian
 ϵ = -5
 U = 10
-σm = [0 1; 0  0] ## σ-
+σm = [0 1; 0 0] ## σ-
 σz = [1 0; 0 -1] ## σz
-II = [1 0; 0  1] ## identity matrix
+II = [1 0; 0 1] ## identity matrix
 
 ## construct the annihilation operator for both spin-up and spin-down
 ## (utilize Jordan–Wigner transformation)
-d_up = kron(     σm, II)
+d_up = kron(σm, II)
 d_dn = kron(-1 * σz, σm)
 Hsys = ϵ * (d_up' * d_up + d_dn' * d_dn) + U * (d_up' * d_up * d_dn' * d_dn)
 
@@ -36,11 +36,11 @@ Hsys = ϵ * (d_up' * d_up + d_dn' * d_dn) + U * (d_up' * d_up * d_dn' * d_dn)
 # - the product of the Boltzmann constant $k$ and the absolute temperature $T$ : $kT$
 # - the chemical potential $\mu$
 # - the total number of exponentials for the reservoir $2(N + 1)$
-Γ  = 2
-μ  = 0
-W  = 10
+Γ = 2
+μ = 0
+W = 10
 kT = 0.5
-N  = 5
+N = 5
 bath_up = Fermion_Lorentz_Pade(d_up, Γ, μ, W, kT, N)
 bath_dn = Fermion_Lorentz_Pade(d_dn, Γ, μ, W, kT, N)
 bath_list = [bath_up, bath_dn]
@@ -49,7 +49,7 @@ bath_list = [bath_up, bath_dn]
 # (see also [HEOMLS Matrix for Fermionic Baths](@ref doc-M_Fermion))
 tier = 3
 M_even = M_Fermion(Hsys, tier, bath_list)
-M_odd  = M_Fermion(Hsys, tier, bath_list, ODD)
+M_odd = M_Fermion(Hsys, tier, bath_list, ODD)
 
 # ## Solve stationary state of ADOs
 # (see also [Stationary State](@ref doc-Stationary-State))

@@ -9,7 +9,7 @@ function i_eigval(N, M, p)
     A_matrix = zeros(M, M)
     for j in 1:M
         for k in 1:M
-            A_matrix[j, k] = (δ(j, k+1) + δ(j, k-1)) / √((fb(j-1) + p) * (fb(k-1) + p))
+            A_matrix[j, k] = (δ(j, k + 1) + δ(j, k - 1)) / √((fb(j - 1) + p) * (fb(k - 1) + p))
         end
     end
 
@@ -37,13 +37,12 @@ end
 
 # thoss's spectral (N-1/N) pade
 function pade_NmN(N; fermion::Bool)
-
     if fermion
-        local ζ = i_eigval(N    , 2 * N    , 0)
+        local ζ = i_eigval(N, 2 * N, 0)
         local χ = i_eigval(N - 1, 2 * N - 1, 2)
         prefactor = 0.5 * N * fb(N)
     else
-        local ζ = i_eigval(N    , 2 * N    , 2)
+        local ζ = i_eigval(N, 2 * N, 2)
         local χ = i_eigval(N - 1, 2 * N - 1, 4)
         prefactor = 0.5 * N * (fb(N) + 2)
     end
@@ -51,11 +50,11 @@ function pade_NmN(N; fermion::Bool)
     κ = []
     for j in 1:N
         term = prefactor
-        for k1 in 1:(N - 1)
-            term *= (χ[k1] ^ 2 - ζ[j] ^ 2) / (ζ[k1] ^ 2 - ζ[j] ^ 2 + δ(j, k1))
+        for k1 in 1:(N-1)
+            term *= (χ[k1]^2 - ζ[j]^2) / (ζ[k1]^2 - ζ[j]^2 + δ(j, k1))
         end
 
-        term /= (ζ[N] ^ 2 - ζ[j] ^ 2 + δ(j, N))
+        term /= (ζ[N]^2 - ζ[j]^2 + δ(j, N))
 
         push!(κ, term)
     end
@@ -65,8 +64,8 @@ end
 
 function _fermi_pade(x, κ, ζ, N)
     f = 0.5
-    for l in 2:(N + 1)
-        f -= 2 * κ[l] * x / (x ^ 2 + ζ[l] ^ 2)
+    for l in 2:(N+1)
+        f -= 2 * κ[l] * x / (x^2 + ζ[l]^2)
     end
     return f
 end

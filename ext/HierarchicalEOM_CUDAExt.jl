@@ -17,15 +17,15 @@ cu(M::AbstractHEOMLSMatrix) = CuSparseMatrixCSC(M)
     CuSparseMatrixCSC(M::AbstractHEOMLSMatrix)
 Return a new HEOMLS-matrix-type object with `M.data` is in the type of `CuSparseMatrixCSC{ComplexF32, Int32}` for gpu calculations.
 """
-function CuSparseMatrixCSC(M::T) where T <: AbstractHEOMLSMatrix
+function CuSparseMatrixCSC(M::T) where {T<:AbstractHEOMLSMatrix}
     A = M.data
     if typeof(A) <: CuSparseMatrixCSC
         return M
     else
         colptr = CuArray{Int32}(A.colptr)
         rowval = CuArray{Int32}(A.rowval)
-        nzval  = CuArray{ComplexF32}(A.nzval)
-        A_gpu  = CuSparseMatrixCSC{ComplexF32, Int32}(colptr, rowval, nzval, size(A))
+        nzval = CuArray{ComplexF32}(A.nzval)
+        A_gpu = CuSparseMatrixCSC{ComplexF32,Int32}(colptr, rowval, nzval, size(A))
         if T <: M_S
             return M_S(A_gpu, M.tier, M.dim, M.N, M.sup_dim, M.parity)
         elseif T <: M_Boson
@@ -33,18 +33,27 @@ function CuSparseMatrixCSC(M::T) where T <: AbstractHEOMLSMatrix
         elseif T <: M_Fermion
             return M_Fermion(A_gpu, M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
         else
-            return M_Boson_Fermion(A_gpu, M.Btier, M.Ftier, M.dim, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
+            return M_Boson_Fermion(
+                A_gpu,
+                M.Btier,
+                M.Ftier,
+                M.dim,
+                M.N,
+                M.sup_dim,
+                M.parity,
+                M.Bbath,
+                M.Fbath,
+                M.hierarchy,
+            )
         end
     end
 end
 
 # for changing a `CuArray` back to `ADOs`
-function _HandleVectorType(V::T, cp::Bool=false) where T <: CuArray
-    return Vector{ComplexF64}(V)
-end
+_HandleVectorType(V::T, cp::Bool = false) where {T<:CuArray} = Vector{ComplexF64}(V)
 
 # for changing the type of `ADOs` to match the type of HEOMLS matrix 
-function _HandleVectorType(MatrixType::Type{TM}, V::SparseVector) where TM <: CuSparseMatrixCSC
+function _HandleVectorType(MatrixType::Type{TM}, V::SparseVector) where {TM<:CuSparseMatrixCSC}
     TE = eltype(MatrixType)
     return CuArray{TE}(V)
 end
@@ -62,11 +71,11 @@ end
 #     return CuSparseMatrixCSC(A)
 # end
 
-function _HandleIdentityType(MatrixType::Type{TM}, S::Int) where TM <: CuSparseMatrixCSC
-    colptr = CuArray{Int32}(Int32(1):Int32(S+1))
+function _HandleIdentityType(MatrixType::Type{TM}, S::Int) where {TM<:CuSparseMatrixCSC}
+    colptr = CuArray{Int32}(Int32(1):Int32(S + 1))
     rowval = CuArray{Int32}(Int32(1):Int32(S))
-    nzval  = CUDA.ones(ComplexF32, S)
-    return CuSparseMatrixCSC{ComplexF32, Int32}(colptr, rowval, nzval, (S, S))
+    nzval = CUDA.ones(ComplexF32, S)
+    return CuSparseMatrixCSC{ComplexF32,Int32}(colptr, rowval, nzval, (S, S))
 end
 
 end

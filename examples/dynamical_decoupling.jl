@@ -23,9 +23,9 @@ import Plots
 # ```math
 # ψ(t=0)=\frac{1}{\sqrt{2}}\left(|0\rangle+|1\rangle\right)
 # ```
-ω0 = 0.
+ω0 = 0.0
 σz = [1 0; 0 -1]
-σx = [0 1; 1  0]
+σx = [0 1; 1 0]
 H0 = 0.5 * ω0 * σz
 
 ρ0 = 0.5 * [1 1; 1 1];
@@ -62,13 +62,10 @@ amp_slow = 0.01
 delay = 20
 
 Plots.plot(
-    tlist, 
-    [
-        [pulse(amp_fast, delay, t) for t in tlist],
-        [pulse(amp_slow, delay, t) for t in tlist]
-    ],
+    tlist,
+    [[pulse(amp_fast, delay, t) for t in tlist], [pulse(amp_slow, delay, t) for t in tlist]],
     label = ["Fast Pulse" "Slow Pulse"],
-    linestyle = [:solid :dash]
+    linestyle = [:solid :dash],
 )
 
 # ## Construct bath objects
@@ -77,10 +74,10 @@ Plots.plot(
 # - the band-width $W$
 # - the product of the Boltzmann constant $k$ and the absolute temperature $T$ : $kT$
 # - the total number of exponentials for the reservoir $(N + 1)$
-Γ  = 0.0005
-W  = 0.005
+Γ = 0.0005
+W = 0.005
 kT = 0.05
-N  = 3
+N = 3
 bath = Boson_DrudeLorentz_Pade(σz, Γ, W, kT, N)
 
 # ## Construct HEOMLS matrix
@@ -117,18 +114,14 @@ slowPulseResult = evolution(M, ρ0, tlist, H_D, slowTuple);
 ρ01 = [0 1; 0 0]
 
 Plots.plot(
-    tlist, 
-    [
-        Expect(ρ01, fastPulseResult),
-        Expect(ρ01, slowPulseResult),
-        Expect(ρ01, noPulseResult)
-    ],
+    tlist,
+    [Expect(ρ01, fastPulseResult), Expect(ρ01, slowPulseResult), Expect(ρ01, noPulseResult)],
     label = ["Fast Pulse" "Slow Pulse" "no Pulse"],
     linestyle = [:solid :dot :dash],
-    linewidth=3,
-    xlabel=L"t",
-    ylabel=L"\rho_{01}",
-    grid=false
+    linewidth = 3,
+    xlabel = L"t",
+    ylabel = L"\rho_{01}",
+    grid = false,
 )
 
 # This example is from QuTiP-BoFiN paper : [Phys. Rev. Research 5, 013181 (2023)](https://link.aps.org/doi/10.1103/PhysRevResearch.5.013181).

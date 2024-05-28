@@ -24,7 +24,7 @@ core_tests = [
     "M_S.jl",
     "power_spectrum.jl",
     "stationary_state.jl",
-    "time_evolution.jl"
+    "time_evolution.jl",
 ]
 
 if (GROUP == "All") || (GROUP == "Code_Quality")
@@ -36,7 +36,7 @@ if (GROUP == "All") || (GROUP == "Code_Quality")
 end
 
 if (GROUP == "All") || (GROUP == "Core")
-    GROUP == "All" ? nothing : HierarchicalEOM.versioninfo() 
+    GROUP == "All" ? nothing : HierarchicalEOM.versioninfo()
     for test in core_tests
         include(joinpath(testdir, test))
     end

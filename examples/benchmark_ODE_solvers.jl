@@ -9,17 +9,17 @@ HierarchicalEOM.versioninfo()
 
 # Here, we use the example of [driven systems and dynamical decoupling](@ref exp-dynamical-decoupling):
 
-Γ  = 0.0005
-W  = 0.005
+Γ = 0.0005
+W = 0.005
 kT = 0.05
-N  = 3
-tier  = 6
-amp   = 0.50
+N = 3
+tier = 6
+amp = 0.50
 delay = 20
 tlist = 0:0.4:400
 
 σz = [1 0; 0 -1]
-σx = [0 1; 1  0]
+σx = [0 1; 1 0]
 H0 = 0.0 * σz
 ρ0 = 0.5 * [1 1; 1 1];
 param = (amp, delay, σx)

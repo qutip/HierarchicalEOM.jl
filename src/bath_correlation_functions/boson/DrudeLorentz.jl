@@ -1,6 +1,13 @@
-function _boson_drude_lorentz_approx_discrepancy(λ::Real, W::Real, kT::Real, N::Int, η::Vector{Ti}, γ::Vector{Tj}) where {Ti, Tj <: Number}
+function _boson_drude_lorentz_approx_discrepancy(
+    λ::Real,
+    W::Real,
+    kT::Real,
+    N::Int,
+    η::Vector{Ti},
+    γ::Vector{Tj},
+) where {Ti,Tj<:Number}
     δ = 2 * λ * kT / W - 1.0im * λ
-    for k in 1:(N + 1)
+    for k in 1:(N+1)
         δ -= η[k] / γ[k]
     end
     return δ
@@ -20,24 +27,16 @@ Constructing Drude-Lorentz bosonic bath with Matsubara expansion
 # Returns
 - `bath::BosonBath` : a bosonic bath object with describes the interaction between system and bosonic bath
 """
-function Boson_DrudeLorentz_Matsubara(
-        op,
-        λ::Real,
-        W::Real,
-        kT::Real,
-        N::Int
-    )
-    β = 1. / kT
-    ϵ = matsubara(N, fermion=false)
+function Boson_DrudeLorentz_Matsubara(op, λ::Real, W::Real, kT::Real, N::Int)
+    β = 1.0 / kT
+    ϵ = matsubara(N, fermion = false)
 
-    η = ComplexF64[λ * W * (cot(W * β / 2.0) - 1.0im)]
+    η = ComplexF64[λ*W*(cot(W * β / 2.0)-1.0im)]
     γ = ComplexF64[W]
-    
+
     if N > 0
-        for l in 2:(N + 1)
-            append!(η,
-                4 * λ * W * ϵ[l] * (kT ^ 2) / (((ϵ[l] * kT) ^ 2) - W ^ 2)
-            )
+        for l in 2:(N+1)
+            append!(η, 4 * λ * W * ϵ[l] * (kT^2) / (((ϵ[l] * kT)^2) - W^2))
             append!(γ, ϵ[l] * kT)
         end
     end
@@ -67,24 +66,15 @@ The application of the Padé method to spectrum decompoisitions is described in 
 # Returns
 - `bath::BosonBath` : a bosonic bath object with describes the interaction between system and bosonic bath
 """
-function Boson_DrudeLorentz_Pade(
-        op,
-        λ::Real,
-        W::Real,
-        kT::Real,
-        N::Int
-    )
-    
-    β = 1. / kT
-    κ, ζ = pade_NmN(N, fermion=false)
+function Boson_DrudeLorentz_Pade(op, λ::Real, W::Real, kT::Real, N::Int)
+    β = 1.0 / kT
+    κ, ζ = pade_NmN(N, fermion = false)
 
-    η = ComplexF64[λ * W * (cot(W * β / 2.0) - 1.0im)]
+    η = ComplexF64[λ*W*(cot(W * β / 2.0)-1.0im)]
     γ = ComplexF64[W]
     if N > 0
-        for l in 2:(N + 1)
-            append!(η,
-                κ[l] * 4 * λ * W * ζ[l] * (kT ^ 2) / (((ζ[l] * kT) ^ 2) - W ^ 2)
-            )
+        for l in 2:(N+1)
+            append!(η, κ[l] * 4 * λ * W * ζ[l] * (kT^2) / (((ζ[l] * kT)^2) - W^2))
             append!(γ, ζ[l] * kT)
         end
     end

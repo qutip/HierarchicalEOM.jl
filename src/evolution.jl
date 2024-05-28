@@ -21,24 +21,24 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
 - `ADOs_list` : The auxiliary density operators of each time step.
 """
 function evolution(
-        M::AbstractHEOMLSMatrix, 
-        ρ0, 
-        Δt::Real,
-        steps::Int;
-        threshold   = 1.0e-6,
-        nonzero_tol = 1.0e-14,
-        verbose::Bool = true,
-        filename::String = ""
-    )
+    M::AbstractHEOMLSMatrix,
+    ρ0,
+    Δt::Real,
+    steps::Int;
+    threshold = 1.0e-6,
+    nonzero_tol = 1.0e-14,
+    verbose::Bool = true,
+    filename::String = "",
+)
     return evolution(
-        M, 
-        ADOs(ρ0, M.N, M.parity), 
-        Δt, 
+        M,
+        ADOs(ρ0, M.N, M.parity),
+        Δt,
         steps;
-        threshold   = threshold,
+        threshold = threshold,
         nonzero_tol = nonzero_tol,
-        verbose     = verbose,
-        filename    = filename
+        verbose = verbose,
+        filename = filename,
     )
 end
 
@@ -65,21 +65,20 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
 - `ADOs_list` : The auxiliary density operators of each time step.
 """
 @noinline function evolution(
-        M::AbstractHEOMLSMatrix, 
-        ados::ADOs,
-        Δt::Real,
-        steps::Int;
-        threshold   = 1.0e-6,
-        nonzero_tol = 1.0e-14,
-        verbose::Bool = true,
-        filename::String = ""
-    )
-
+    M::AbstractHEOMLSMatrix,
+    ados::ADOs,
+    Δt::Real,
+    steps::Int;
+    threshold = 1.0e-6,
+    nonzero_tol = 1.0e-14,
+    verbose::Bool = true,
+    filename::String = "",
+)
     _check_sys_dim_and_ADOs_num(M, ados)
     _check_parity(M, ados)
 
     SAVE::Bool = (filename != "")
-    if SAVE 
+    if SAVE
         FILENAME = filename * ".jld2"
         if isfile(FILENAME)
             error("FILE: $(FILENAME) already exist.")
@@ -89,7 +88,7 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
     ADOs_list::Vector{ADOs} = [ados]
     if SAVE
         jldopen(FILENAME, "a") do file
-            file["0"] = ados
+            return file["0"] = ados
         end
     end
 
@@ -109,18 +108,18 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
     if verbose
         print("Solving time evolution for ADOs by propagator method...\n")
         flush(stdout)
-        prog = Progress(steps + 1; start=1, desc="Progress : ", PROGBAR_OPTIONS...)
+        prog = Progress(steps + 1; start = 1, desc = "Progress : ", PROGBAR_OPTIONS...)
     end
     for n in 1:steps
         ρvec = exp_Mt * ρvec
-        
+
         # save the ADOs
         ados = ADOs(ρvec, M.dim, M.N, M.parity)
         push!(ADOs_list, ados)
-        
+
         if SAVE
             jldopen(FILENAME, "a") do file
-                file[string(n * Δt)] = ados
+                return file[string(n * Δt)] = ados
             end
         end
         if verbose
@@ -159,30 +158,30 @@ For more details about solvers and extra options, please refer to [`Differential
 - `ADOs_list` : The auxiliary density operators in each time point.
 """
 function evolution(
-        M::AbstractHEOMLSMatrix, 
-        ρ0, 
-        tlist::AbstractVector;
-        solver = DP5(),
-        reltol::Real = 1.0e-6,
-        abstol::Real = 1.0e-8,
-        maxiters::Real = 1e5,
-        save_everystep::Bool=false,
-        verbose::Bool = true,
-        filename::String = "",
-        SOLVEROptions...
-    )
+    M::AbstractHEOMLSMatrix,
+    ρ0,
+    tlist::AbstractVector;
+    solver = DP5(),
+    reltol::Real = 1.0e-6,
+    abstol::Real = 1.0e-8,
+    maxiters::Real = 1e5,
+    save_everystep::Bool = false,
+    verbose::Bool = true,
+    filename::String = "",
+    SOLVEROptions...,
+)
     return evolution(
-        M, 
-        ADOs(ρ0, M.N, M.parity), 
+        M,
+        ADOs(ρ0, M.N, M.parity),
         tlist;
         solver = solver,
         reltol = reltol,
         abstol = abstol,
         maxiters = maxiters,
         save_everystep = save_everystep,
-        verbose  = verbose,
+        verbose = verbose,
         filename = filename,
-        SOLVEROptions...
+        SOLVEROptions...,
     )
 end
 
@@ -210,24 +209,23 @@ For more details about solvers and extra options, please refer to [`Differential
 - `ADOs_list` : The auxiliary density operators in each time point.
 """
 @noinline function evolution(
-        M::AbstractHEOMLSMatrix, 
-        ados::ADOs, 
-        tlist::AbstractVector;
-        solver = DP5(),
-        reltol::Real = 1.0e-6,
-        abstol::Real = 1.0e-8,
-        maxiters::Real = 1e5,
-        save_everystep::Bool=false,
-        verbose::Bool = true,
-        filename::String = "",
-        SOLVEROptions...
-    )
-
+    M::AbstractHEOMLSMatrix,
+    ados::ADOs,
+    tlist::AbstractVector;
+    solver = DP5(),
+    reltol::Real = 1.0e-6,
+    abstol::Real = 1.0e-8,
+    maxiters::Real = 1e5,
+    save_everystep::Bool = false,
+    verbose::Bool = true,
+    filename::String = "",
+    SOLVEROptions...,
+)
     _check_sys_dim_and_ADOs_num(M, ados)
     _check_parity(M, ados)
 
     SAVE::Bool = (filename != "")
-    if SAVE 
+    if SAVE
         FILENAME = filename * ".jld2"
         if isfile(FILENAME)
             error("FILE: $(FILENAME) already exist.")
@@ -239,12 +237,13 @@ For more details about solvers and extra options, please refer to [`Differential
     ADOs_list::Vector{ADOs} = [ados]
     if SAVE
         jldopen(FILENAME, "a") do file
-            file[string(Tlist[1])] = ados
+            return file[string(Tlist[1])] = ados
         end
     end
 
     # problem: dρ/dt = L * ρ(t)
-    prob  = ODEProblem{true}(MatrixOperator(M.data), _HandleVectorType(typeof(M.data), ados.data), (Tlist[1], Tlist[end]))
+    prob =
+        ODEProblem{true}(MatrixOperator(M.data), _HandleVectorType(typeof(M.data), ados.data), (Tlist[1], Tlist[end]))
 
     # setup integrator
     integrator = init(
@@ -254,28 +253,28 @@ For more details about solvers and extra options, please refer to [`Differential
         abstol = _HandleFloatType(ElType, abstol),
         maxiters = maxiters,
         save_everystep = save_everystep,
-        SOLVEROptions...
+        SOLVEROptions...,
     )
 
     # start solving ode
     if verbose
         print("Solving time evolution for ADOs by Ordinary Differential Equations method...\n")
         flush(stdout)
-        prog = Progress(length(Tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
+        prog = Progress(length(Tlist); start = 1, desc = "Progress : ", PROGBAR_OPTIONS...)
     end
     idx = 1
     dt_list = diff(Tlist)
     for dt in dt_list
         idx += 1
         step!(integrator, dt, true)
-        
+
         # save the ADOs
         ados = ADOs(_HandleVectorType(integrator.u), M.dim, M.N, M.parity)
         push!(ADOs_list, ados)
-        
+
         if SAVE
             jldopen(FILENAME, "a") do file
-                file[string(Tlist[idx])] = ados
+                return file[string(Tlist[idx])] = ados
             end
         end
         if verbose
@@ -315,34 +314,34 @@ For more details about solvers and extra options, please refer to [`Differential
 - `ADOs_list` : The auxiliary density operators in each time point.
 """
 function evolution(
-        M::AbstractHEOMLSMatrix,
-        ρ0, 
-        tlist::AbstractVector,
-        H::Function,
-        param::Tuple = ();
-        solver = DP5(),
-        reltol::Real = 1.0e-6,
-        abstol::Real = 1.0e-8,
-        maxiters::Real = 1e5,
-        save_everystep::Bool=false,
-        verbose::Bool = true,
-        filename::String = "",
-        SOLVEROptions...
-    )
+    M::AbstractHEOMLSMatrix,
+    ρ0,
+    tlist::AbstractVector,
+    H::Function,
+    param::Tuple = ();
+    solver = DP5(),
+    reltol::Real = 1.0e-6,
+    abstol::Real = 1.0e-8,
+    maxiters::Real = 1e5,
+    save_everystep::Bool = false,
+    verbose::Bool = true,
+    filename::String = "",
+    SOLVEROptions...,
+)
     return evolution(
         M,
         ADOs(ρ0, M.N, M.parity),
         tlist,
-        H, 
+        H,
         param;
         solver = solver,
         reltol = reltol,
         abstol = abstol,
         maxiters = maxiters,
         save_everystep = save_everystep,
-        verbose  = verbose,
+        verbose = verbose,
         filename = filename,
-        SOLVEROptions...
+        SOLVEROptions...,
     )
 end
 
@@ -371,26 +370,25 @@ For more details about solvers and extra options, please refer to [`Differential
 - `ADOs_list` : The auxiliary density operators in each time point.
 """
 @noinline function evolution(
-        M::AbstractHEOMLSMatrix,
-        ados::ADOs, 
-        tlist::AbstractVector,
-        H::Function,
-        param::Tuple = ();
-        solver = DP5(),
-        reltol::Real = 1.0e-6,
-        abstol::Real = 1.0e-8,
-        maxiters::Real = 1e5,
-        save_everystep::Bool=false,
-        verbose::Bool = true,
-        filename::String = "",
-        SOLVEROptions...
-    )
-
+    M::AbstractHEOMLSMatrix,
+    ados::ADOs,
+    tlist::AbstractVector,
+    H::Function,
+    param::Tuple = ();
+    solver = DP5(),
+    reltol::Real = 1.0e-6,
+    abstol::Real = 1.0e-8,
+    maxiters::Real = 1e5,
+    save_everystep::Bool = false,
+    verbose::Bool = true,
+    filename::String = "",
+    SOLVEROptions...,
+)
     _check_sys_dim_and_ADOs_num(M, ados)
     _check_parity(M, ados)
 
     SAVE::Bool = (filename != "")
-    if SAVE 
+    if SAVE
         FILENAME = filename * ".jld2"
         if isfile(FILENAME)
             error("FILE: $(FILENAME) already exist.")
@@ -398,23 +396,25 @@ For more details about solvers and extra options, please refer to [`Differential
     end
 
     ElType = eltype(M)
-    Tlist  = _HandleFloatType(ElType, tlist)
+    Tlist = _HandleFloatType(ElType, tlist)
     ADOs_list::Vector{ADOs} = [ados]
     if SAVE
         jldopen(FILENAME, "a") do file
-            file[string(Tlist[1])] = ados
+            return file[string(Tlist[1])] = ados
         end
     end
-    
-    Ht  = H(param, Tlist[1])
+
+    Ht = H(param, Tlist[1])
     _Ht = HandleMatrixType(Ht, M.dim, "H (Hamiltonian) at t=$(Tlist[1])")
-    L0  = MatrixOperator(M.data)
-    Lt  = MatrixOperator(HEOMSuperOp(minus_i_L_op(_Ht), M.parity, M, "LR").data, update_func! = _update_Lt!)
+    L0 = MatrixOperator(M.data)
+    Lt = MatrixOperator(HEOMSuperOp(minus_i_L_op(_Ht), M.parity, M, "LR").data, update_func! = _update_Lt!)
 
     if verbose
-        print("Solving time evolution for ADOs with time-dependent Hamiltonian by Ordinary Differential Equations method...\n")
+        print(
+            "Solving time evolution for ADOs with time-dependent Hamiltonian by Ordinary Differential Equations method...\n",
+        )
         flush(stdout)
-        prog = Progress(length(Tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
+        prog = Progress(length(Tlist); start = 1, desc = "Progress : ", PROGBAR_OPTIONS...)
     end
 
     parameters = (H = H, param = param, dim = M.dim, N = M.N, parity = M.parity)
@@ -431,28 +431,30 @@ For more details about solvers and extra options, please refer to [`Differential
         abstol = _HandleFloatType(ElType, abstol),
         maxiters = maxiters,
         save_everystep = save_everystep,
-        SOLVEROptions...
+        SOLVEROptions...,
     )
 
     # start solving ode
     if verbose
-        print("Solving time evolution for ADOs with time-dependent Hamiltonian by Ordinary Differential Equations method...\n")
+        print(
+            "Solving time evolution for ADOs with time-dependent Hamiltonian by Ordinary Differential Equations method...\n",
+        )
         flush(stdout)
-        prog = Progress(length(Tlist); start=1, desc="Progress : ", PROGBAR_OPTIONS...)
+        prog = Progress(length(Tlist); start = 1, desc = "Progress : ", PROGBAR_OPTIONS...)
     end
     idx = 1
     dt_list = diff(Tlist)
     for dt in dt_list
         idx += 1
         step!(integrator, dt, true)
-        
+
         # save the ADOs
         ados = ADOs(_HandleVectorType(integrator.u), M.dim, M.N, M.parity)
         push!(ADOs_list, ados)
-        
+
         if SAVE
             jldopen(FILENAME, "a") do file
-                file[string(Tlist[idx])] = ados
+                return file[string(Tlist[idx])] = ados
             end
         end
         if verbose
@@ -471,10 +473,10 @@ end
 function _update_Lt!(L, u, p, t)
 
     # check system dimension of Hamiltonian
-    Ht  = p.H(p.param, t)
+    Ht = p.H(p.param, t)
     _Ht = HandleMatrixType(Ht, p.dim, "H (Hamiltonian) at t=$(t)")
 
     # update the block diagonal terms of L
     copy!(L, HEOMSuperOp(minus_i_L_op(_Ht), p.parity, p.dim, p.N, "LR").data)
-    nothing
+    return nothing
 end

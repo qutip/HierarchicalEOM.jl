@@ -4,16 +4,18 @@
     This function has been deprecated start from `HierarchicalEOM v1.1`, use `PowerSpectrum` or `DensityOfStates` instead.
 """
 function spectrum(
-        M::AbstractHEOMLSMatrix, 
-        ρ, 
-        op, 
-        ωlist::AbstractVector; 
-        solver=UMFPACKFactorization(), 
-        verbose::Bool = true,
-        filename::String = "",
-        SOLVEROptions...
+    M::AbstractHEOMLSMatrix,
+    ρ,
+    op,
+    ωlist::AbstractVector;
+    solver = UMFPACKFactorization(),
+    verbose::Bool = true,
+    filename::String = "",
+    SOLVEROptions...,
+)
+    return error(
+        "This function has been deprecated start from \`HierarchicalEOM v1.1\`, use \`PowerSpectrum\` or \`DensityOfStates\` instead.",
     )
-    error("This function has been deprecated start from \`HierarchicalEOM v1.1\`, use \`PowerSpectrum\` or \`DensityOfStates\` instead.")
 end
 
 @doc raw"""
@@ -24,22 +26,28 @@ This function is equivalent to:
 `PowerSpectrum(M, ρ, Q_op', Q_op, ωlist, reverse; solver, verbose, filename, SOLVEROptions...)`
 """
 function PowerSpectrum(
-        M::AbstractHEOMLSMatrix, 
-        ρ, 
-        Q_op, 
-        ωlist::AbstractVector,
-        reverse::Bool = false; 
-        solver=UMFPACKFactorization(), 
-        verbose::Bool = true,
-        filename::String = "",
-        SOLVEROptions...
-    )
+    M::AbstractHEOMLSMatrix,
+    ρ,
+    Q_op,
+    ωlist::AbstractVector,
+    reverse::Bool = false;
+    solver = UMFPACKFactorization(),
+    verbose::Bool = true,
+    filename::String = "",
+    SOLVEROptions...,
+)
     HandleMatrixType(Q_op, M.dim)
-    return PowerSpectrum(M, ρ, Q_op', Q_op, ωlist, reverse;
-        solver = solver, 
+    return PowerSpectrum(
+        M,
+        ρ,
+        Q_op',
+        Q_op,
+        ωlist,
+        reverse;
+        solver = solver,
         verbose = verbose,
         filename = filename,
-        SOLVEROptions...
+        SOLVEROptions...,
     )
 end
 
@@ -77,18 +85,17 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 - `spec::AbstractVector` : the spectrum list corresponds to the specified `ωlist`
 """
 @noinline function PowerSpectrum(
-        M::AbstractHEOMLSMatrix, 
-        ρ, 
-        P_op,
-        Q_op, 
-        ωlist::AbstractVector,
-        reverse::Bool = false; 
-        solver = UMFPACKFactorization(), 
-        verbose::Bool = true,
-        filename::String = "",
-        SOLVEROptions...
-    )
-
+    M::AbstractHEOMLSMatrix,
+    ρ,
+    P_op,
+    Q_op,
+    ωlist::AbstractVector,
+    reverse::Bool = false;
+    solver = UMFPACKFactorization(),
+    verbose::Bool = true,
+    filename::String = "",
+    SOLVEROptions...,
+)
     Size = size(M, 1)
 
     # Handle ρ
@@ -107,7 +114,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
         _P = HEOMSuperOp(P_op, EVEN, M)
     end
     _tr_P = Tr(M.dim, M.N) * _P.data
-    
+
     # Handle Q_op
     if typeof(Q_op) == HEOMSuperOp
         _check_sys_dim_and_ADOs_num(M, Q_op)
@@ -115,7 +122,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
         _check_parity(M, _Q_ados)
     else
         if M.parity == EVEN
-            _Q = HEOMSuperOp(Q_op,  ados.parity, M)
+            _Q = HEOMSuperOp(Q_op, ados.parity, M)
         else
             _Q = HEOMSuperOp(Q_op, !ados.parity, M)
         end
@@ -132,28 +139,28 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
     end
 
     ElType = eltype(M)
-    ωList  = _HandleFloatType(ElType, ωlist)
+    ωList = _HandleFloatType(ElType, ωlist)
     Length = length(ωList)
     Sω = Vector{Float64}(undef, Length)
 
     if verbose
         print("Calculating power spectrum in frequency domain...\n")
         flush(stdout)
-        prog = Progress(Length; desc="Progress : ", PROGBAR_OPTIONS...)
+        prog = Progress(Length; desc = "Progress : ", PROGBAR_OPTIONS...)
     end
 
     if reverse
-        i = convert(ElType,  1im)
+        i = convert(ElType, 1im)
     else
         i = convert(ElType, -1im)
     end
     I_total = _HandleIdentityType(typeof(M.data), Size)
-    Iω      = i * ωList[1] * I_total
-    cache   = init(LinearProblem(M.data + Iω, b), solver, SOLVEROptions...)
-    sol     = solve!(cache)
+    Iω = i * ωList[1] * I_total
+    cache = init(LinearProblem(M.data + Iω, b), solver, SOLVEROptions...)
+    sol = solve!(cache)
     @inbounds for (j, ω) in enumerate(ωList)
-        if j > 1            
-            Iω  = i * ω * I_total
+        if j > 1
+            Iω = i * ω * I_total
             cache.A = M.data + Iω
             sol = solve!(cache)
         end
@@ -163,13 +170,13 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 
         if SAVE
             open(FILENAME, "a") do file
-                write(file, "$(Sω[j]),\n")
+                return write(file, "$(Sω[j]),\n")
             end
         end
 
         if verbose
             next!(prog)
-        end 
+        end
     end
     if verbose
         println("[DONE]")

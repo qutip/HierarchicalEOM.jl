@@ -31,37 +31,35 @@ end
 ```
 """
 mutable struct Nvec
-    data::SparseVector{Int, Int}
+    data::SparseVector{Int,Int}
     level::Int
 end
 
 Nvec(V::Vector{Int}) = Nvec(sparsevec(V), sum(V))
-Nvec(V::SparseVector{Int, Int}) = Nvec(copy(V), sum(V))
+Nvec(V::SparseVector{Int,Int}) = Nvec(copy(V), sum(V))
 
 length(nvec::Nvec) = length(nvec.data)
 lastindex(nvec::Nvec) = length(nvec)
 
-getindex(nvec::Nvec, i::T) where {T <: Any} = nvec.data[i]
+getindex(nvec::Nvec, i::T) where {T<:Any} = nvec.data[i]
 
 keys(nvec::Nvec) = keys(nvec.data)
 
 iterate(nvec::Nvec, state::Int = 1) = state > length(nvec) ? nothing : (nvec[state], state + 1)
 
-function show(io::IO, nvec::Nvec)
-    print(io, "Nvec($(nvec[:]))")
-end
-function show(io::IO, m::MIME"text/plain", nvec::Nvec) show(io, nvec) end
+show(io::IO, nvec::Nvec) = print(io, "Nvec($(nvec[:]))")
+show(io::IO, m::MIME"text/plain", nvec::Nvec) = show(io, nvec)
 
 hash(nvec::Nvec, h::UInt) = hash(nvec.data, h)
 (==)(nvec1::Nvec, nvec2::Nvec) = hash(nvec1) == hash(nvec2)
 
 copy(nvec::Nvec) = Nvec(copy(nvec.data), nvec.level)
 
-function Nvec_plus!(nvec::Nvec, idx::Int) 
+function Nvec_plus!(nvec::Nvec, idx::Int)
     nvec.data[idx] += 1
-    nvec.level += 1
+    return nvec.level += 1
 end
-function Nvec_minus!(nvec::Nvec, idx::Int) 
+function Nvec_minus!(nvec::Nvec, idx::Int)
     nvec.data[idx] -= 1
-    nvec.level -= 1
+    return nvec.level -= 1
 end
