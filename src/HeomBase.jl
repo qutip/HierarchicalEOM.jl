@@ -47,11 +47,7 @@ function _HandleFloatType(ElType::Type{T}, V::Any) where {T<:Number}
 end
 
 # for changing a `Vector` back to `ADOs`
-_HandleVectorType(V::T, cp::Bool = true) where {T<:Vector} = if cp
-        return Vector{ComplexF64}(V)
-    else
-        return V
-    end
+_HandleVectorType(V::T, cp::Bool = true) where {T<:Vector} = cp ? Vector{ComplexF64}(V) : V
 
 # for changing the type of `ADOs` to match the type of HEOMLS matrix 
 function _HandleVectorType(MatrixType::Type{TM}, V::SparseVector) where {TM<:SparseMatrixCSC}
@@ -84,9 +80,7 @@ function _check_sys_dim_and_ADOs_num(A, B)
     end
 end
 
-_check_parity(A, B) = if typeof(A.parity) != typeof(B.parity)
-        error("Inconsistent parity.")
-    end
+_check_parity(A, B) = (typeof(A.parity) != typeof(B.parity)) ? error("Inconsistent parity.") : nothing
 
 function _get_pkg_version(pkg_name::String)
     D = Pkg.dependencies()

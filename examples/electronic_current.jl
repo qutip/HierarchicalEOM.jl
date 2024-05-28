@@ -96,12 +96,10 @@ function Ic(ados, M::M_Fermion, bathIdx::Int)
         end
     end
 
-    e = 1.60218e-19
-    ħ = 6.62607015e − 34 / (2 * π)
-    eV_to_Joule = 1.60218e-19  ## unit conversion
+    eV_to_Joule = 1.60218E-19  # unit conversion
 
     ## (e / ħ) * I  [change unit to μA] 
-    return (e / ħ) * real(1im * I) * eV_to_Joule * 1e6
+    return 1.519270639695384E15 * real(1im * I) * eV_to_Joule * 1E6
 end
 
 ## steady current

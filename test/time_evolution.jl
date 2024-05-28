@@ -205,11 +205,7 @@
     end
 
     H_wrong1(param, t) = zeros(3, 3)
-    H_wrong2(param, t) = if t == 0
-            zeros(2, 2)
-        else
-            zeros(3, 3)
-        end
+    H_wrong2(param, t) = t == 0 ? zeros(2, 2) : zeros(3, 3)
     ados_wrong1 = ADOs(zeros(8), 2)
     ados_wrong2 = ADOs(zeros(32), 2)
     ados_wrong3 = ADOs((slowDD_ados[1]).data, (slowDD_ados[1]).N, ODD)

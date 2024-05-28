@@ -50,9 +50,8 @@ show(io::IO, B::AbstractFermionBath) =
     print(io, "$(typeof(B))-type bath with (system) dim = $(B.dim) and $(B.Nterm) exponential-expansion terms\n")
 show(io::IO, m::MIME"text/plain", B::AbstractFermionBath) = show(io, B)
 
-checkbounds(B::AbstractBath, i::Int) = if (i < 1) || (i > B.Nterm)
-        error("Attempt to access $(B.Nterm)-exponent term Bath at index [$(i)]")
-    end
+checkbounds(B::AbstractBath, i::Int) =
+    ((i < 1) || (i > B.Nterm)) ? error("Attempt to access $(B.Nterm)-exponent term Bath at index [$(i)]") : nothing
 
 length(B::AbstractBath) = B.Nterm
 lastindex(B::AbstractBath) = B.Nterm

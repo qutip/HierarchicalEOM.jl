@@ -62,9 +62,8 @@ function ADOs(ρ, N::Int = 1, parity::AbstractParity = EVEN)
     return ADOs(sparsevec(_ρ.nzind, _ρ.nzval, N * length(_ρ)), N, parity)
 end
 
-checkbounds(A::ADOs, i::Int) = if (i > A.N) || (i < 1)
-        error("Attempt to access $(A.N)-element ADOs at index [$(i)]")
-    end
+checkbounds(A::ADOs, i::Int) =
+    ((i > A.N) || (i < 1)) ? error("Attempt to access $(A.N)-element ADOs at index [$(i)]") : nothing
 
 @doc raw"""
     length(A::ADOs)
