@@ -6,23 +6,23 @@ H_{\textrm{f}}  &amp;=\sum_{\sigma=\uparrow,\downarrow}\sum_{k}\epsilon_{\sigma,
 H_{\textrm{sf}} &amp;=\sum_{\sigma=\uparrow,\downarrow}\sum_{k}g_{k}c_{\sigma,k}^{\dagger}d_{\sigma} + g_{k}^*d_{\sigma}^{\dagger}c_{\sigma,k}.
 \end{aligned}\]</p><p>Here, <span>$d_\uparrow$</span> <span>$(d_\downarrow)$</span> annihilates a spin-up (spin-down) electron in the system, <span>$\epsilon$</span> is the energy of the electron, and <span>$U$</span> is the Coulomb repulsion energy for double occupation. Furthermore, <span>$c_{\sigma,k}$</span> <span>$(c_{\sigma,k}^{\dagger})$</span> annihilates (creates) an electron in the state <span>$k$</span> (with energy <span>$\epsilon_{\sigma,k}$</span>) of the reservoir.</p><p>Now, we can construct the system Hamiltonian</p><pre><code class="language-julia hljs">ϵ = -5
 U = 10
-σm = [0 1; 0  0] ## σ-
+σm = [0 1; 0 0] ## σ-
 σz = [1 0; 0 -1] ## σz
-II = [1 0; 0  1] ## identity matrix
+II = [1 0; 0 1] ## identity matrix
 
 # construct the annihilation operator for both spin-up and spin-down
 # (utilize Jordan–Wigner transformation)
-d_up = kron(     σm, II)
+d_up = kron(σm, II)
 d_dn = kron(-1 * σz, σm)
 Hsys = ϵ * (d_up&#39; * d_up + d_dn&#39; * d_dn) + U * (d_up&#39; * d_up * d_dn&#39; * d_dn)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">4×4 Matrix{Int64}:
  0   0   0  0
  0  -5   0  0
  0   0  -5  0
- 0   0   0  0</code></pre><h2 id="Construct-bath-objects"><a class="docs-heading-anchor" href="#Construct-bath-objects">Construct bath objects</a><a id="Construct-bath-objects-1"></a><a class="docs-heading-anchor-permalink" href="#Construct-bath-objects" title="Permalink"></a></h2><p>We assume the fermionic reservoir to have a <a href="../../bath_fermion/Fermion_Lorentz/#doc-Fermion-Lorentz">Lorentzian-shaped spectral density</a>, and we utilize the Padé decomposition. Furthermore, the spectral densities depend on the following physical parameters:</p><ul><li>the coupling strength <span>$\Gamma$</span> between system and reservoirs</li><li>the band-width <span>$W$</span></li><li>the product of the Boltzmann constant <span>$k$</span> and the absolute temperature <span>$T$</span> : <span>$kT$</span></li><li>the chemical potential <span>$\mu$</span></li><li>the total number of exponentials for the reservoir <span>$2(N + 1)$</span></li></ul><pre><code class="language-julia hljs">Γ  = 2
-μ  = 0
-W  = 10
+ 0   0   0  0</code></pre><h2 id="Construct-bath-objects"><a class="docs-heading-anchor" href="#Construct-bath-objects">Construct bath objects</a><a id="Construct-bath-objects-1"></a><a class="docs-heading-anchor-permalink" href="#Construct-bath-objects" title="Permalink"></a></h2><p>We assume the fermionic reservoir to have a <a href="../../bath_fermion/Fermion_Lorentz/#doc-Fermion-Lorentz">Lorentzian-shaped spectral density</a>, and we utilize the Padé decomposition. Furthermore, the spectral densities depend on the following physical parameters:</p><ul><li>the coupling strength <span>$\Gamma$</span> between system and reservoirs</li><li>the band-width <span>$W$</span></li><li>the product of the Boltzmann constant <span>$k$</span> and the absolute temperature <span>$T$</span> : <span>$kT$</span></li><li>the chemical potential <span>$\mu$</span></li><li>the total number of exponentials for the reservoir <span>$2(N + 1)$</span></li></ul><pre><code class="language-julia hljs">Γ = 2
+μ = 0
+W = 10
 kT = 0.5
-N  = 5
+N = 5
 bath_up = Fermion_Lorentz_Pade(d_up, Γ, μ, W, kT, N)
 bath_dn = Fermion_Lorentz_Pade(d_dn, Γ, μ, W, kT, N)
 bath_list = [bath_up, bath_dn]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2-element Vector{FermionBath}:
@@ -31,7 +31,7 @@ bath_list = [bath_up, bath_dn]</code></pre><pre class="documenter-example-output
  FermionBath object with (system) dim = 4 and 12 exponential-expansion terms
 </code></pre><h2 id="Construct-HEOMLS-matrix"><a class="docs-heading-anchor" href="#Construct-HEOMLS-matrix">Construct HEOMLS matrix</a><a id="Construct-HEOMLS-matrix-1"></a><a class="docs-heading-anchor-permalink" href="#Construct-HEOMLS-matrix" title="Permalink"></a></h2><p>(see also <a href="../../heom_matrix/M_Fermion/#doc-M_Fermion">HEOMLS Matrix for Fermionic Baths</a>)</p><pre><code class="language-julia hljs">tier = 3
 M_even = M_Fermion(Hsys, tier, bath_list)
-M_odd  = M_Fermion(Hsys, tier, bath_list, ODD)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Fermion type HEOMLS matrix acting on odd-parity ADOs
+M_odd = M_Fermion(Hsys, tier, bath_list, ODD)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Fermion type HEOMLS matrix acting on odd-parity ADOs
 system dim = 4
 number of ADOs N = 2325
 data =
@@ -59,4 +59,4 @@ data =
 </code></pre><h2 id="Calculate-density-of-states-(DOS)"><a class="docs-heading-anchor" href="#Calculate-density-of-states-(DOS)">Calculate density of states (DOS)</a><a id="Calculate-density-of-states-(DOS)-1"></a><a class="docs-heading-anchor-permalink" href="#Calculate-density-of-states-(DOS)" title="Permalink"></a></h2><p>(see also <a href="../../spectrum/#doc-Spectrum">Spectrum</a>)</p><pre><code class="language-julia hljs">ωlist = -10:1:10
 dos = DensityOfStates(M_odd, ados_s, d_up, ωlist)
 
-Plots.plot(ωlist, dos)</code></pre><img src="5ec4670a.svg" alt="Example block output"/><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../dynamical_decoupling/">« Driven Systems and Dynamical Decoupling</a><a class="docs-footer-nextpage" href="../electronic_current/">Electronic Current »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.3.0 on <span class="colophon-date" title="Tuesday 16 April 2024 16:10">Tuesday 16 April 2024</span>. Using Julia version 1.10.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+Plots.plot(ωlist, dos)</code></pre><img src="f89c133f.svg" alt="Example block output"/><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../dynamical_decoupling/">« Driven Systems and Dynamical Decoupling</a><a class="docs-footer-nextpage" href="../electronic_current/">Electronic Current »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.4.1 on <span class="colophon-date" title="Tuesday 28 May 2024 06:00">Tuesday 28 May 2024</span>. Using Julia version 1.10.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

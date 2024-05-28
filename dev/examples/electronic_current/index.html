@@ -8,16 +8,16 @@ H_{\textrm{sf}} &amp;=\sum_{\alpha=\textrm{L},\textrm{R}}\sum_{k}g_{\alpha,k}c_{
 \end{aligned}\]</p><p>Here, <span>$d$</span> <span>$(d^\dagger)$</span> annihilates (creates) an electron in the system and <span>$\epsilon$</span> is the energy of the electron. Furthermore, <span>$c_{\alpha,k}$</span> <span>$(c_{\alpha,k}^{\dagger})$</span> annihilates (creates) an electron in the state <span>$k$</span> (with energy <span>$\epsilon_{\alpha,k}$</span>) of the <span>$\alpha$</span>-th reservoir.</p><p>Now, we can construct the system Hamiltonian</p><pre><code class="language-julia hljs">d = [0 1; 0 0] ## annihilation operator of the system electron
 
 # The system Hamiltonian
-ϵ = 1. # site energy
+ϵ = 1.0 # site energy
 Hsys = ϵ * d&#39; * d
 
 # System initial state
-ρ0 = [1 0; 0 0];</code></pre><h2 id="Construct-bath-objects"><a class="docs-heading-anchor" href="#Construct-bath-objects">Construct bath objects</a><a id="Construct-bath-objects-1"></a><a class="docs-heading-anchor-permalink" href="#Construct-bath-objects" title="Permalink"></a></h2><p>We assume the fermionic reservoir to have a <a href="../../bath_fermion/Fermion_Lorentz/#doc-Fermion-Lorentz">Lorentzian-shaped spectral density</a>, and we utilize the Padé decomposition. Furthermore, the spectral densities depend on the following physical parameters:</p><ul><li>the coupling strength <span>$\Gamma$</span> between system and reservoirs</li><li>the band-width <span>$W$</span></li><li>the product of the Boltzmann constant <span>$k$</span> and the absolute temperature <span>$T$</span> : <span>$kT$</span></li><li>the chemical potential <span>$\mu$</span></li><li>the total number of exponentials for the reservoir <span>$2(N + 1)$</span></li></ul><pre><code class="language-julia hljs">Γ  = 0.01
-W  = 1
+ρ0 = [1 0; 0 0];</code></pre><h2 id="Construct-bath-objects"><a class="docs-heading-anchor" href="#Construct-bath-objects">Construct bath objects</a><a id="Construct-bath-objects-1"></a><a class="docs-heading-anchor-permalink" href="#Construct-bath-objects" title="Permalink"></a></h2><p>We assume the fermionic reservoir to have a <a href="../../bath_fermion/Fermion_Lorentz/#doc-Fermion-Lorentz">Lorentzian-shaped spectral density</a>, and we utilize the Padé decomposition. Furthermore, the spectral densities depend on the following physical parameters:</p><ul><li>the coupling strength <span>$\Gamma$</span> between system and reservoirs</li><li>the band-width <span>$W$</span></li><li>the product of the Boltzmann constant <span>$k$</span> and the absolute temperature <span>$T$</span> : <span>$kT$</span></li><li>the chemical potential <span>$\mu$</span></li><li>the total number of exponentials for the reservoir <span>$2(N + 1)$</span></li></ul><pre><code class="language-julia hljs">Γ = 0.01
+W = 1
 kT = 0.025851991
-μL =  1.  # Left  bath
-μR = -1.  # Right bath
-N  = 2
+μL = 1.0  # Left  bath
+μR = -1.0  # Right bath
+N = 2
 bath_L = Fermion_Lorentz_Pade(d, Γ, μL, W, kT, N)
 bath_R = Fermion_Lorentz_Pade(d, Γ, μR, W, kT, N)
 baths = [bath_L, bath_R]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2-element Vector{FermionBath}:
@@ -51,7 +51,7 @@ data =
 ⎢⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠲⢤⣀⠀⠀⠀⠀⠀⠉⠓⠦⣄⡀⠀⠀⠀⠀⣿⣿⣿⣧⢧⎥
 ⎣⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠒⠦⢤⣀⠀⠀⠀⠀⠉⠙⠲⠤⣄⡺⠭⣟⣻⣾⎦</code></pre><h2 id="Solve-time-evolution-of-ADOs"><a class="docs-heading-anchor" href="#Solve-time-evolution-of-ADOs">Solve time evolution of ADOs</a><a id="Solve-time-evolution-of-ADOs-1"></a><a class="docs-heading-anchor-permalink" href="#Solve-time-evolution-of-ADOs" title="Permalink"></a></h2><p>(see also <a href="../../time_evolution/#doc-Time-Evolution">Time Evolution</a>)</p><pre><code class="language-julia hljs">tlist = 0:0.5:100
 ados_evolution = evolution(M, ρ0, tlist);</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Solving time evolution for ADOs by Ordinary Differential Equations method...
-<span class="sgr32">Progress :  27%|█████▍              |  ETA: 0:00:00 ( 1.90 ms/it)</span><span class="sgr32">Progress :  72%|██████████████▍     |  ETA: 0:00:00 ( 1.40 ms/it)</span>[DONE]</code></pre><h2 id="Solve-stationary-state-of-ADOs"><a class="docs-heading-anchor" href="#Solve-stationary-state-of-ADOs">Solve stationary state of ADOs</a><a id="Solve-stationary-state-of-ADOs-1"></a><a class="docs-heading-anchor-permalink" href="#Solve-stationary-state-of-ADOs" title="Permalink"></a></h2><p>(see also <a href="../../stationary_state/#doc-Stationary-State">Stationary State</a>)</p><pre><code class="language-julia hljs">ados_steady = SteadyState(M);</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Solving steady state for ADOs by linear-solve method...[DONE]</code></pre><h2 id="Calculate-current"><a class="docs-heading-anchor" href="#Calculate-current">Calculate current</a><a id="Calculate-current-1"></a><a class="docs-heading-anchor-permalink" href="#Calculate-current" title="Permalink"></a></h2><p>Within the influence functional approach, the expectation value of the electronic current from the <span>$\alpha$</span>-fermionic bath into the system can be written in terms of the first-level-fermionic (<span>$n=1$</span>) auxiliary density operators, namely</p><p class="math-container">\[\langle I_\alpha(t) \rangle =(-e) \frac{d\langle \mathcal{N}_\alpha\rangle}{dt}=i e \sum_{q\in\textbf{q}}(-1)^{\delta_{\nu,-}} ~\textrm{Tr}\left[d^{\bar{\nu}}\rho^{(0,1,+)}_{\vert \textbf{q}}(t)\right],\]</p><p>where <span>$e$</span> represents the value of the elementary charge, and <span>$\mathcal{N}_\alpha=\sum_k c^\dagger_{\alpha,k}c_{\alpha,k}$</span> is the occupation number operator for the <span>$\alpha$</span>-fermionic bath.</p><p>Given an ADOs, we provide a function which calculates the current from the <span>$\alpha$</span>-fermionic bath into the system with the help of <a href="../../hierarchy_dictionary/#doc-Hierarchy-Dictionary">Hierarchy Dictionary</a>.</p><p><code>bathIdx</code>:</p><ul><li>1 means 1st bath (bath_L)</li><li>2 means 2nd bath (bath_R)</li></ul><pre><code class="language-julia hljs">function Ic(ados, M::M_Fermion, bathIdx::Int)
+<span class="sgr32">Progress :  26%|█████▎              |  ETA: 0:00:00 ( 1.93 ms/it)</span><span class="sgr32">Progress :  72%|██████████████▍     |  ETA: 0:00:00 ( 1.41 ms/it)</span>[DONE]</code></pre><h2 id="Solve-stationary-state-of-ADOs"><a class="docs-heading-anchor" href="#Solve-stationary-state-of-ADOs">Solve stationary state of ADOs</a><a id="Solve-stationary-state-of-ADOs-1"></a><a class="docs-heading-anchor-permalink" href="#Solve-stationary-state-of-ADOs" title="Permalink"></a></h2><p>(see also <a href="../../stationary_state/#doc-Stationary-State">Stationary State</a>)</p><pre><code class="language-julia hljs">ados_steady = SteadyState(M);</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Solving steady state for ADOs by linear-solve method...[DONE]</code></pre><h2 id="Calculate-current"><a class="docs-heading-anchor" href="#Calculate-current">Calculate current</a><a id="Calculate-current-1"></a><a class="docs-heading-anchor-permalink" href="#Calculate-current" title="Permalink"></a></h2><p>Within the influence functional approach, the expectation value of the electronic current from the <span>$\alpha$</span>-fermionic bath into the system can be written in terms of the first-level-fermionic (<span>$n=1$</span>) auxiliary density operators, namely</p><p class="math-container">\[\langle I_\alpha(t) \rangle =(-e) \frac{d\langle \mathcal{N}_\alpha\rangle}{dt}=i e \sum_{q\in\textbf{q}}(-1)^{\delta_{\nu,-}} ~\textrm{Tr}\left[d^{\bar{\nu}}\rho^{(0,1,+)}_{\vert \textbf{q}}(t)\right],\]</p><p>where <span>$e$</span> represents the value of the elementary charge, and <span>$\mathcal{N}_\alpha=\sum_k c^\dagger_{\alpha,k}c_{\alpha,k}$</span> is the occupation number operator for the <span>$\alpha$</span>-fermionic bath.</p><p>Given an ADOs, we provide a function which calculates the current from the <span>$\alpha$</span>-fermionic bath into the system with the help of <a href="../../hierarchy_dictionary/#doc-Hierarchy-Dictionary">Hierarchy Dictionary</a>.</p><p><code>bathIdx</code>:</p><ul><li>1 means 1st bath (bath_L)</li><li>2 means 2nd bath (bath_R)</li></ul><pre><code class="language-julia hljs">function Ic(ados, M::M_Fermion, bathIdx::Int)
     # the hierarchy dictionary
     HDict = M.hierarchy
 
@@ -76,12 +76,10 @@ ados_evolution = evolution(M, ρ0, tlist);</code></pre><pre class="documenter-ex
         end
     end
 
-    e = 1.60218e-19
-    ħ = 6.62607015e−34 / (2 * π)
-    eV_to_Joule = 1.60218e-19  ## unit conversion
+    eV_to_Joule = 1.60218E-19  # unit conversion
 
     # (e / ħ) * I  [change unit to μA]
-    return (e / ħ) * real(1im * I) * eV_to_Joule * 1e6
+    return 1.519270639695384E15 * real(1im * I) * eV_to_Joule * 1E6
 end
 
 # steady current
@@ -99,11 +97,11 @@ end
 Plots.plot(
     tlist,
     [Ie_L, Ie_R, Is_L, Is_R],
-    label=[&quot;Bath L&quot; &quot;Bath R&quot; &quot;Bath L (Steady State)&quot; &quot;Bath R (Steady State)&quot;],
-    linecolor=[ :blue   :red :blue  :red],
-    linestyle=[:solid :solid :dash :dash],
-    linewidth=3,
-    xlabel=&quot;time&quot;,
-    ylabel=&quot;Current&quot;,
-    grid=false
-)</code></pre><img src="52c75b56.svg" alt="Example block output"/><p>Note that this example can also be found in <a href="https://qutip.org/docs/latest/guide/heom/fermionic.html#steady-state-currents">qutip documentation</a></p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../SIAM/">« The single-impurity Anderson model</a><a class="docs-footer-nextpage" href="../benchmark_ODE_solvers/">DifferentialEquations solvers »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.3.0 on <span class="colophon-date" title="Tuesday 16 April 2024 16:10">Tuesday 16 April 2024</span>. Using Julia version 1.10.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+    label = [&quot;Bath L&quot; &quot;Bath R&quot; &quot;Bath L (Steady State)&quot; &quot;Bath R (Steady State)&quot;],
+    linecolor = [:blue :red :blue :red],
+    linestyle = [:solid :solid :dash :dash],
+    linewidth = 3,
+    xlabel = &quot;time&quot;,
+    ylabel = &quot;Current&quot;,
+    grid = false,
+)</code></pre><img src="4b224a6d.svg" alt="Example block output"/><p>Note that this example can also be found in <a href="https://qutip.org/docs/latest/guide/heom/fermionic.html#steady-state-currents">qutip documentation</a></p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../SIAM/">« The single-impurity Anderson model</a><a class="docs-footer-nextpage" href="../benchmark_ODE_solvers/">DifferentialEquations solvers »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.4.1 on <span class="colophon-date" title="Tuesday 28 May 2024 06:00">Tuesday 28 May 2024</span>. Using Julia version 1.10.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
