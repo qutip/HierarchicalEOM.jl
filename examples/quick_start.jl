@@ -33,31 +33,26 @@ HierarchicalEOM.versioninfo()
 # #### System Hamiltonian and initial state
 # You can construct system hamiltonian, initial state, and coupling operators by standard julia bulit-in types: `Vector`, `SparseVector`, `Matrix`, `SparseMatrix`.
 
-# Moreover, it is also convenient to use [`QuantumOptics`](https://qojulia.org/) or [`QuantumToolbox`](https://github.com/albertomercurio/QuantumToolbox.jl) framework. They both provide many useful functions to create arbitrary quantum states and operators which can be combined in all the expected ways.
-
-# Note that `HierarchicalEOM.jl` only accept standard julia bulit-in types. If you use `QuantumOptics` or `QuantumToolbox` to construct the operators, remember that the matrix (or vector) in standard type are stored in `.data` field of the objects, i.e., `op.data`.  
-# Thus, you should take it as the inputs of `HierarchicalEOM.jl`.
-
-# !!! compat "Extension for QuantumOptics.jl"
-#     `HierarchicalEOM.jl` provides an extension to support `QuantumOptics`-type object, but this feature requires `Julia 1.9+` and `HierarchicalEOM 0.3+`. See [here](@ref doc-ext-QuantumOptics) for more details.
+# Moreover, it is also convenient to use [`QuantumToolbox`](https://github.com/qutip/QuantumToolbox.jl) or [`QuantumOptics`](https://qojulia.org/) framework. They both provide many useful functions to create arbitrary quantum states and operators which can be combined in all the expected ways.
 
 # !!! compat "Extension for QuantumToolbox.jl"
 #     `HierarchicalEOM.jl` provides an extension to support `QuantumToolbox`-type object, but this feature requires `Julia 1.9+` and `HierarchicalEOM 1.4+`. See [here](@ref doc-ext-QuantumToolbox) for more details.
 
-# We demonstrate this tutorial by `QuantumOptics`:
+# !!! compat "Extension for QuantumOptics.jl"
+#     `HierarchicalEOM.jl` provides an extension to support `QuantumOptics`-type object, but this feature requires `Julia 1.9+` and `HierarchicalEOM 0.3+`. See [here](@ref doc-ext-QuantumOptics) for more details.
 
-import QuantumOptics: SpinBasis, sigmaz, sigmax, ⊗, Ket, Bra, dm
+# We demonstrate this tutorial by `QuantumToolbox`:
 
-basis = SpinBasis(1 // 2)
+import QuantumToolbox: sigmaz, sigmax, basis, ket2dm
 
 ## The system Hamiltonian
 ϵ = 0.5 # energy of 2-level system
 Δ = 1.0 # tunneling term
 
-Hsys = 0.5 * ϵ * sigmaz(basis) + 0.5 * Δ * sigmax(basis)
+Hsys = 0.5 * ϵ * sigmaz() + 0.5 * Δ * sigmax()
 
 ## System initial state
-ρ0 = dm(Ket(basis, [1, 0]));
+ρ0 = ket2dm(basis(2, 0));
 
 # #### Bath Properties
 # Now, we demonstrate how to describe the bath using the built-in implementation of ``J_D(\omega)`` under Pade expansion by calling [`Boson_DrudeLorentz_Pade`](@ref)
@@ -66,33 +61,27 @@ Hsys = 0.5 * ϵ * sigmaz(basis) + 0.5 * Δ * sigmax(basis)
 W = 0.5  # band-width (cut-off frequency)
 kT = 0.5  # the product of the Boltzmann constant k and the absolute temperature T
 
-Q = sigmaz(basis) # system-bath coupling operator
+Q = sigmaz() # system-bath coupling operator
 
 N = 2 # Number of expansion terms to retain:
 
 ## Padé expansion:
-## Remember to give the operator in Standard matrix (AbstractMatrix) type
-## That is, if using QuantumOptics package, give system coupling operator as Q.data
-bath = Boson_DrudeLorentz_Pade(Q.data, λ, W, kT, N)
+bath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
 
 # For other different expansions of the different spectral density correlation functions, please refer to [Bosonic Bath](@ref doc-Bosonic-Bath) and [Fermionic Bath](@ref doc-Fermionic-Bath).
 
 # ### HEOM Liouvillian superoperator
 # For bosonic bath, we can construct the HEOM Liouvillian superoperator matrix by calling [`M_Boson`](@ref)
 
-## maximum tier of hierarchy
-tier = 5
-
-## Remember to give the operator in Standard matrix (AbstractMatrix) type
-## That is, if using QuantumOptics package, give system hamiltonian as Hsys.data
-L = M_Boson(Hsys.data, tier, bath)
+tier = 5 # maximum tier of hierarchy
+L = M_Boson(Hsys, tier, bath)
 
 # To learn more about the HEOM Liouvillian superoperator matrix (including other types: `M_Fermion`, `M_Boson_Fermion`), please refer to [HEOMLS Matrices](@ref doc-HEOMLS-Matrix).
 
 # ### Time Evolution
 # Next, we can calculate the time evolution for the entire auxiliary density operators (ADOs) by calling [`evolution`](@ref)
 tlist = 0:0.2:50
-ados_list = evolution(L, ρ0.data, tlist);
+ados_list = evolution(L, ρ0, tlist);
 
 # To learn more about `evolution`, please refer to [Time Evolution](@ref doc-Time-Evolution).
 
@@ -121,20 +110,20 @@ ados_steady = SteadyState(L)
 
 ## Define the operators that measure the populations of the two
 ## system states:
-P00 = Ket(basis, [1, 0]) ⊗ Bra(basis, [1, 0])
-P11 = Ket(basis, [0, 1]) ⊗ Bra(basis, [0, 1])
+P00 = ket2dm(basis(2, 0))
+P11 = ket2dm(basis(2, 1))
 
 ## Define the operator that measures the 0, 1 element of density matrix
 ## (corresponding to coherence):
-P01 = Ket(basis, [1, 0]) ⊗ Bra(basis, [0, 1])
+P01 = basis(2, 0) * basis(2, 1)'
 
 ## for steady state
-p00_s = Expect(P00.data, ados_steady)
-p01_s = Expect(P01.data, ados_steady)
+p00_s = Expect(P00, ados_steady)
+p01_s = Expect(P01, ados_steady)
 
 ## for time evolution
-p00_e = Expect(P00.data, ados_list)
-p01_e = Expect(P01.data, ados_list);
+p00_e = Expect(P00, ados_list)
+p01_e = Expect(P01, ados_list);
 
 # ### Plot the results
 using Plots, LaTeXStrings
@@ -166,7 +155,7 @@ ylabel!("Population")
 
 # All you need to do is to provide a list of baths instead of a single bath
 
-# Note that, for the following, we use the built-in linear algebra in Julia (instead of `QuantumOptics.jl`) to construct the operators
+# Note that, for the following, we use the built-in linear algebra in Julia (instead of `QuantumToolbox.jl`) to construct the operators
 
 ## The system Hamiltonian
 Hsys = [

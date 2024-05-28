@@ -1,15 +1,15 @@
 # [Extension for QuantumToolbox.jl](@id doc-ext-QuantumToolbox)
 
-This is an extension to support [`QuantumToolbox`](https://github.com/albertomercurio/QuantumToolbox.jl)-type of operators (matrices)
+This is an extension to support [`QuantumToolbox`](https://github.com/qutip/QuantumToolbox.jl)-type of operators (matrices)
 
 !!! compat "Compat"
     The described feature requires `Julia 1.9+`.
 
-When users construct the operators (such as system Hamiltonian, coupling operators, initial states, etc) by [`QuantumToolbox.jl`](https://github.com/albertomercurio/QuantumToolbox.jl) and take those matrices as inputs of `HierarchicalEOM.jl`, it will extract the `data` (matrix) part in `QuantumToolbox.QuantumObject`. Therefore, the type of `data` in `AbstractHEOMLSMatrix` still remain as `SparseMatrixCSC{ComplexF64, Int64}` without the `type` and `dims` information stored in `QuantumToolbox.QuantumObject`.
+When users construct the operators (such as system Hamiltonian, coupling operators, initial states, etc) by [`QuantumToolbox.jl`](https://github.com/qutip/QuantumToolbox.jl) and take those matrices as inputs of `HierarchicalEOM.jl`, it will extract the `data` (matrix) part in `QuantumToolbox.QuantumObject`. Therefore, the type of `data` in `AbstractHEOMLSMatrix` still remain as `SparseMatrixCSC{ComplexF64, Int64}` without the `type` and `dims` information stored in `QuantumToolbox.QuantumObject`.
 
 Although it doesn't store extra information (`type` and `dims`) from `QuantumToolbox.QuantumObject`, it still supports calculating the expectation value ([`Expect`](@ref)) when the observable is given in the type of `QuantumToolbox.QuantumObject` (as long as the size of the matrix is equal).
 
-Furthermore, it provides an extra method to re-construct reduced density operator with the type of `QuantumToolbox.QuantumObject`. Basically, it copies the `type` and `dims` information from another given `QuantumToolbox.QuantumObject` (as shown in the example below). With this functionality, one can again use the other functions provided in [`QuantumToolbox.jl`](https://github.com/albertomercurio/QuantumToolbox.jl).
+Furthermore, it provides an extra method to re-construct reduced density operator with the type of `QuantumToolbox.QuantumObject`. Basically, it copies the `type` and `dims` information from another given `QuantumToolbox.QuantumObject` (as shown in the example below). With this functionality, one can again use the other functions provided in [`QuantumToolbox.jl`](https://github.com/qutip/QuantumToolbox.jl).
 
 The extension will be automatically loaded if user imports the package `QuantumToolbox.jl` :
 ```example

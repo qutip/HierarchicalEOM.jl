@@ -80,8 +80,8 @@ const PAGES = Any[
         "Examples" => EX_output_files,
         "Benchmark Solvers" => BM_output_files,
         "Extensions" => Any[
-            "QuantumOptics.jl" => "extensions/QuantumOptics.md",
             "QuantumToolbox.jl" => "extensions/QuantumToolbox.md",
+            "QuantumOptics.jl" => "extensions/QuantumOptics.md",
             "CUDA.jl" => "extensions/CUDA.md"
         ]
     ],
