@@ -24,11 +24,14 @@ module HeomBase
 end
 import .HeomBase.versioninfo as versioninfo
 import .HeomBase.print_logo as print_logo
-@reexport using .HeomBase: AbstractHEOMLSMatrix, spre, spost
+import .HeomBase.spre as spre
+import .HeomBase.spost as spost
+@reexport using .HeomBase
 
 # sub-module Bath for HierarchicalEOM
 module Bath
     using ..HeomBase
+    using ..HeomBase: spre, spost
     import Base: show, length, getindex, lastindex, iterate, checkbounds
     import LinearAlgebra: ishermitian, eigvals
     import SparseArrays: SparseMatrixCSC
@@ -61,6 +64,7 @@ end
 # sub-module HeomAPI for HierarchicalEOM
 module HeomAPI
     using ..HeomBase
+    using ..HeomBase: spre, spost
     using ..Bath
     import Base:
         ==,
