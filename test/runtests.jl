@@ -1,6 +1,7 @@
 using Pkg
 using Test
 using HierarchicalEOM
+using HierarchicalEOM: spre, spost
 using LinearAlgebra, SparseArrays
 
 const GROUP = get(ENV, "GROUP", "All")
