@@ -39,34 +39,34 @@ import QuantumOptics, Plots
 N_photon = 2 ## We truncate the photon number of the system cavity to 2
 ωA = 2
 ωc = 2
-g  = 0.1
+g = 0.1
 
 ## basis
 a_basis = QuantumOptics.FockBasis(N_photon)
-b_spin  = QuantumOptics.SpinBasis(1//2)
+b_spin = QuantumOptics.SpinBasis(1 // 2)
 
 ## operators
-a_c  = QuantumOptics.destroy(a_basis)
-I_c  = QuantumOptics.identityoperator(a_basis)
+a_c = QuantumOptics.destroy(a_basis)
+I_c = QuantumOptics.identityoperator(a_basis)
 σz_A = QuantumOptics.sigmaz(b_spin)
 σm_A = QuantumOptics.sigmam(b_spin)
-I_A  = QuantumOptics.identityoperator(b_spin)
+I_A = QuantumOptics.identityoperator(b_spin)
 
 ## operators in tensor-space
-a  = QuantumOptics.tensor(a_c, I_A)
+a = QuantumOptics.tensor(a_c, I_A)
 σz = QuantumOptics.tensor(I_c, σz_A)
 σm = QuantumOptics.tensor(I_c, σm_A)
 
 ## Hamiltonian
-H_A   = 0.5 * ωA * σz
-H_c   =       ωc * a' * a
-H_int = g * ( a' * σm + a * σm' )
+H_A = 0.5 * ωA * σz
+H_c = ωc * a' * a
+H_int = g * (a' * σm + a * σm')
 
 H_s = H_A + H_c + H_int
 
 ## initial state
-ket0 = QuantumOptics.tensor(QuantumOptics.Ket(a_basis,[1,0,0]),QuantumOptics.Ket(b_spin,[1,0]))
-ρ0   = QuantumOptics.dm(ket0);
+ket0 = QuantumOptics.tensor(QuantumOptics.Ket(a_basis, [1, 0, 0]), QuantumOptics.Ket(b_spin, [1, 0]))
+ρ0 = QuantumOptics.dm(ket0);
 
 # ## Construct bath objects
 # We assume the bosonic reservoir to have a [Drude-Lorentz Spectral Density](@ref Boson-Drude-Lorentz), and we utilize the Padé decomposition. Furthermore, the spectral densities depend on the following physical parameters: 
@@ -74,10 +74,10 @@ ket0 = QuantumOptics.tensor(QuantumOptics.Ket(a_basis,[1,0,0]),QuantumOptics.Ket
 # - the band-width $W$
 # - the product of the Boltzmann constant $k$ and the absolute temperature $T$ : $kT$
 # - the total number of exponentials for the reservoir $(N + 1)$
-Γ  = 0.01
-W  = 1
+Γ = 0.01
+W = 1
 kT = 0.025
-N  = 20
+N = 20
 Bath = Boson_DrudeLorentz_Pade((a + a').data, Γ, W, kT, N)
 
 # Before incorporating the correlation function into the HEOMLS matrix, it is essential to verify if the total number of exponentials for the reservoir sufficiently describes the practical situation.
@@ -85,13 +85,13 @@ Bath = Boson_DrudeLorentz_Pade((a + a').data, Γ, W, kT, N)
 tlist_test = 0:0.1:10;
 
 Bath_test = Boson_DrudeLorentz_Pade((a + a').data, Γ, W, kT, 1000);
-Ct  = C(Bath, tlist_test);
+Ct = C(Bath, tlist_test);
 Ct2 = C(Bath_test, tlist_test);
 
-Plots.plot(tlist_test,  real(Ct),  label="N=20 (real part )",  linestyle=:dash,  linewidth=3)
-Plots.plot!(tlist_test, real(Ct2), label="N=1000 (real part)", linestyle=:solid, linewidth=3)
-Plots.plot!(tlist_test, imag(Ct),  label="N=20 (imag part)",   linestyle=:dash,  linewidth=3)
-Plots.plot!(tlist_test, imag(Ct2), label="N=1000 (imag part)", linestyle=:solid, linewidth=3)
+Plots.plot(tlist_test, real(Ct), label = "N=20 (real part )", linestyle = :dash, linewidth = 3)
+Plots.plot!(tlist_test, real(Ct2), label = "N=1000 (real part)", linestyle = :solid, linewidth = 3)
+Plots.plot!(tlist_test, imag(Ct), label = "N=20 (imag part)", linestyle = :dash, linewidth = 3)
+Plots.plot!(tlist_test, imag(Ct2), label = "N=1000 (imag part)", linestyle = :solid, linewidth = 3)
 
 Plots.xaxis!("t")
 Plots.yaxis!("C(t)")
@@ -101,17 +101,17 @@ Plots.yaxis!("C(t)")
 # Here, we consider an incoherent pumping to the atom, which can be described by an Lindblad dissipator (see [here](@ref doc-Master-Equation) for more details).  
 #   
 # Furthermore, we set the [important threshold](@ref doc-Importance-Value-and-Threshold) to be `1e-6`.
-pump   = 0.01
+pump = 0.01
 J_pump = sqrt(pump) * (σm').data
 
 tier = 2
-M_Heom = M_Boson(H_s.data, tier, threshold=1e-6, Bath)
+M_Heom = M_Boson(H_s.data, tier, threshold = 1e-6, Bath)
 M_Heom = addBosonDissipator(M_Heom, J_pump)
 
 # ## Solve time evolution of ADOs
 # (see also [Time Evolution](@ref doc-Time-Evolution))
 t_list = 0:1:500
-evo_H  = evolution(M_Heom, ρ0.data, t_list);
+evo_H = evolution(M_Heom, ρ0.data, t_list);
 
 # ## Solve stationary state of ADOs
 # (see also [Stationary State](@ref doc-Stationary-State))
@@ -119,34 +119,28 @@ steady_H = SteadyState(M_Heom);
 
 # ## Expectation values
 # observable of atom: $\sigma_z$
-σz_evo_H    = Expect(σz.data, evo_H)
+σz_evo_H = Expect(σz.data, evo_H)
 σz_steady_H = Expect(σz.data, steady_H)
 
 # observable of cavity: $a^\dagger a$ (average photon number)
-np_evo_H    = Expect((a' * a).data, evo_H)
+np_evo_H = Expect((a' * a).data, evo_H)
 np_steady_H = Expect((a' * a).data, steady_H)
 
 p1 = Plots.plot(
     t_list,
-    [
-        σz_evo_H, 
-        ones(length(t_list)).* σz_steady_H
-    ],
-    label=[L"\langle \sigma_z \rangle"  L"\langle \sigma_z \rangle ~~(\textrm{steady})"],
-    linewidth=3,
-    linestyle=[:solid  :dash]
+    [σz_evo_H, ones(length(t_list)) .* σz_steady_H],
+    label = [L"\langle \sigma_z \rangle" L"\langle \sigma_z \rangle ~~(\textrm{steady})"],
+    linewidth = 3,
+    linestyle = [:solid :dash],
 )
 p2 = Plots.plot(
     t_list,
-    [
-        np_evo_H, 
-        ones(length(t_list)).* np_steady_H
-    ],
-    label=[L"\langle a^\dagger a \rangle"  L"\langle a^\dagger a \rangle ~~(\textrm{steady})"],
-    linewidth=3,
-    linestyle=[:solid  :dash]
+    [np_evo_H, ones(length(t_list)) .* np_steady_H],
+    label = [L"\langle a^\dagger a \rangle" L"\langle a^\dagger a \rangle ~~(\textrm{steady})"],
+    linewidth = 3,
+    linestyle = [:solid :dash],
 )
-Plots.plot(p1, p2, layout=[1,1])
+Plots.plot(p1, p2, layout = [1, 1])
 Plots.xaxis!("t")
 
 # ## Power spectrum
@@ -154,7 +148,7 @@ Plots.xaxis!("t")
 ω_list = 1:0.01:3
 psd_H = PowerSpectrum(M_Heom, steady_H, a.data, ω_list)
 
-Plots.plot(ω_list, psd_H, linewidth=3)
+Plots.plot(ω_list, psd_H, linewidth = 3)
 Plots.xaxis!(L"\omega")
 
 # ## Compare with Master Eq. approach
@@ -163,7 +157,7 @@ Plots.xaxis!(L"\omega")
 # The Lindblad master equations which describs the cavity couples to an extra bosonic reservoir with [Drude-Lorentzian spectral density](@ref Boson-Drude-Lorentz) is given by
 
 ## Drude_Lorentzian spectral density
-Drude_Lorentz(ω, Γ, W) = 4 * Γ * W * ω / ( (ω)^2 + (W)^2 )
+Drude_Lorentz(ω, Γ, W) = 4 * Γ * W * ω / ((ω)^2 + (W)^2)
 
 ## Bose-Einstein distribution
 n_b(ω, kT) = 1 / (exp(ω / kT) - 1)
@@ -171,8 +165,8 @@ n_b(ω, kT) = 1 / (exp(ω / kT) - 1)
 ## build the jump operators
 jump_op = [
     sqrt(Drude_Lorentz(ωc, Γ, W) * (n_b(ωc, kT) + 1)) * a.data,
-    sqrt(Drude_Lorentz(ωc, Γ, W) * (n_b(ωc, kT)))     * (a').data,
-    J_pump
+    sqrt(Drude_Lorentz(ωc, Γ, W) * (n_b(ωc, kT))) * (a').data,
+    J_pump,
 ];
 
 ## construct the HEOMLS matrix for master equation
@@ -186,34 +180,28 @@ evo_M = evolution(M_master, ρ0.data, t_list);
 steady_M = SteadyState(M_master);
 
 ## expectation value of σz
-σz_evo_M    = Expect(σz.data, evo_M)
+σz_evo_M = Expect(σz.data, evo_M)
 σz_steady_M = Expect(σz.data, steady_M)
 
 ## average photon number
-np_evo_M    = Expect((a' * a).data, evo_M)
+np_evo_M = Expect((a' * a).data, evo_M)
 np_steady_M = Expect((a' * a).data, steady_M)
 
 p1 = Plots.plot(
     t_list,
-    [
-        σz_evo_M, 
-        ones(length(t_list)).* σz_steady_M
-    ],
-    label=[L"\langle \sigma_z \rangle"  L"\langle \sigma_z \rangle ~~(\textrm{steady})"],
-    linewidth=3,
-    linestyle=[:solid  :dash],
+    [σz_evo_M, ones(length(t_list)) .* σz_steady_M],
+    label = [L"\langle \sigma_z \rangle" L"\langle \sigma_z \rangle ~~(\textrm{steady})"],
+    linewidth = 3,
+    linestyle = [:solid :dash],
 )
 p2 = Plots.plot(
     t_list,
-    [
-        np_evo_M, 
-        ones(length(t_list)).* np_steady_M
-    ],
-    label=[L"\langle a^\dagger a \rangle"  L"\langle a^\dagger a \rangle ~~(\textrm{steady})"],
-    linewidth=3,
-    linestyle=[:solid  :dash],
+    [np_evo_M, ones(length(t_list)) .* np_steady_M],
+    label = [L"\langle a^\dagger a \rangle" L"\langle a^\dagger a \rangle ~~(\textrm{steady})"],
+    linewidth = 3,
+    linestyle = [:solid :dash],
 )
-Plots.plot(p1, p2, layout=[1,1])
+Plots.plot(p1, p2, layout = [1, 1])
 Plots.xaxis!("t")
 
 # We can also calculate the power spectrum
@@ -221,7 +209,7 @@ Plots.xaxis!("t")
 ω_list = 1:0.01:3
 psd_M = PowerSpectrum(M_master, steady_M, a.data, ω_list)
 
-Plots.plot(ω_list, psd_M, linewidth=3)
+Plots.plot(ω_list, psd_M, linewidth = 3)
 Plots.xaxis!(L"\omega")
 
 # Due to the weak coupling between the system and an extra bosonic environment, the Master equation's outcome is expected to be similar to the results obtained from the HEOM method.

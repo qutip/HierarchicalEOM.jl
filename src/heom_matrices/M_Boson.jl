@@ -23,7 +23,14 @@ struct M_Boson{T} <: AbstractHEOMLSMatrix
     hierarchy::HierarchyDict
 end
 
-function M_Boson(Hsys, tier::Int, Bath::BosonBath, parity::AbstractParity=EVEN; threshold::Real = 0.0, verbose::Bool=true)
+function M_Boson(
+    Hsys,
+    tier::Int,
+    Bath::BosonBath,
+    parity::AbstractParity = EVEN;
+    threshold::Real = 0.0,
+    verbose::Bool = true,
+)
     return M_Boson(Hsys, tier, [Bath], parity, threshold = threshold, verbose = verbose)
 end
 
@@ -43,20 +50,20 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 
 [1] [Phys. Rev. B 88, 235426 (2013)](https://doi.org/10.1103/PhysRevB.88.235426)
 """
-@noinline function M_Boson(        
-        Hsys,
-        tier::Int,
-        Bath::Vector{BosonBath},
-        parity::AbstractParity=EVEN;
-        threshold::Real=0.0,
-        verbose::Bool=true
-    )
+@noinline function M_Boson(
+    Hsys,
+    tier::Int,
+    Bath::Vector{BosonBath},
+    parity::AbstractParity = EVEN;
+    threshold::Real = 0.0,
+    verbose::Bool = true,
+)
 
     # check for system dimension
     _Hsys = HandleMatrixType(Hsys, 0, "Hsys (system Hamiltonian)")
-    Nsys    = size(_Hsys, 1)
-    sup_dim = Nsys ^ 2
-    I_sup   = sparse(one(ComplexF64) * I, sup_dim, sup_dim)
+    Nsys = size(_Hsys, 1)
+    sup_dim = Nsys^2
+    I_sup = sparse(one(ComplexF64) * I, sup_dim, sup_dim)
 
     # the Liouvillian operator for free Hamiltonian term
     Lsys = minus_i_L_op(_Hsys)
@@ -66,7 +73,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         print("Checking the importance value for each ADOs...")
         flush(stdout)
     end
-    Nado, baths, hierarchy = genBathHierarchy(Bath, tier, Nsys, threshold=threshold)
+    Nado, baths, hierarchy = genBathHierarchy(Bath, tier, Nsys, threshold = threshold)
     idx2nvec = hierarchy.idx2nvec
     nvec2idx = hierarchy.nvec2idx
     if verbose && (threshold > 0.0)
@@ -83,7 +90,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
     if verbose
         println("Preparing block matrices for HEOM Liouvillian superoperator (using $(Nthread) threads)...")
         flush(stdout)
-        prog = Progress(Nado; desc="Processing: ", PROGBAR_OPTIONS...)
+        prog = Progress(Nado; desc = "Processing: ", PROGBAR_OPTIONS...)
     end
     @threads for idx in 1:Nado
         tID = threadid()
@@ -105,7 +112,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
             for k in 1:bB.Nterm
                 mode += 1
                 n_k = nvec[mode]
-                
+
                 # connect to bosonic (n-1)th-level superoperator
                 if n_k > 0
                     Nvec_minus!(nvec_neigh, mode)
@@ -142,5 +149,5 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         println("[DONE]")
         flush(stdout)
     end
-    return M_Boson{SparseMatrixCSC{ComplexF64, Int64}}(L_he, tier, Nsys, Nado, sup_dim, parity, Bath, hierarchy)
+    return M_Boson{SparseMatrixCSC{ComplexF64,Int64}}(L_he, tier, Nsys, Nado, sup_dim, parity, Bath, hierarchy)
 end

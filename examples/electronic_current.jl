@@ -22,7 +22,7 @@ import Plots
 d = [0 1; 0 0] ## annihilation operator of the system electron
 
 ## The system Hamiltonian
-ϵ = 1. # site energy
+ϵ = 1.0 # site energy
 Hsys = ϵ * d' * d
 
 ## System initial state
@@ -35,12 +35,12 @@ Hsys = ϵ * d' * d
 # - the product of the Boltzmann constant $k$ and the absolute temperature $T$ : $kT$
 # - the chemical potential $\mu$
 # - the total number of exponentials for the reservoir $2(N + 1)$
-Γ  = 0.01
-W  = 1
+Γ = 0.01
+W = 1
 kT = 0.025851991
-μL =  1.  # Left  bath
-μR = -1.  # Right bath
-N  = 2
+μL = 1.0  # Left  bath
+μR = -1.0  # Right bath
+N = 2
 bath_L = Fermion_Lorentz_Pade(d, Γ, μL, W, kT, N)
 bath_R = Fermion_Lorentz_Pade(d, Γ, μR, W, kT, N)
 baths = [bath_L, bath_R]
@@ -95,13 +95,11 @@ function Ic(ados, M::M_Fermion, bathIdx::Int)
             end
         end
     end
-    
-    e = 1.60218e-19
-    ħ = 6.62607015e−34 / (2 * π)
-    eV_to_Joule = 1.60218e-19  ## unit conversion
-    
+
+    eV_to_Joule = 1.60218E-19  # unit conversion
+
     ## (e / ħ) * I  [change unit to μA] 
-    return (e / ħ) * real(1im * I) * eV_to_Joule * 1e6
+    return 1.519270639695384E15 * real(1im * I) * eV_to_Joule * 1E6
 end
 
 ## steady current
@@ -117,15 +115,15 @@ for ados in ados_evolution
 end
 
 Plots.plot(
-    tlist, 
+    tlist,
     [Ie_L, Ie_R, Is_L, Is_R],
-    label=["Bath L" "Bath R" "Bath L (Steady State)" "Bath R (Steady State)"],
-    linecolor=[ :blue   :red :blue  :red],
-    linestyle=[:solid :solid :dash :dash],
-    linewidth=3,
-    xlabel="time",
-    ylabel="Current",
-    grid=false
+    label = ["Bath L" "Bath R" "Bath L (Steady State)" "Bath R (Steady State)"],
+    linecolor = [:blue :red :blue :red],
+    linestyle = [:solid :solid :dash :dash],
+    linewidth = 3,
+    xlabel = "time",
+    ylabel = "Current",
+    grid = false,
 )
 
 # Note that this example can also be found in [qutip documentation](https://qutip.org/docs/latest/guide/heom/fermionic.html#steady-state-currents)

@@ -13,16 +13,21 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
 """
-@noinline function SteadyState(M::AbstractHEOMLSMatrix; solver=UMFPACKFactorization(), verbose::Bool=true, SOLVEROptions...)
+@noinline function SteadyState(
+    M::AbstractHEOMLSMatrix;
+    solver = UMFPACKFactorization(),
+    verbose::Bool = true,
+    SOLVEROptions...,
+)
     # check parity
     if typeof(M.parity) != EvenParity
         error("The parity of M should be \"EVEN\".")
-    end    
+    end
 
     S = size(M, 1)
     A = _HandleSteadyStateMatrix(typeof(M.data), M, S)
-    b = sparsevec([1], [1. + 0.0im], S)
-    
+    b = sparsevec([1], [1.0 + 0.0im], S)
+
     # solving x where A * x = b
     if verbose
         print("Solving steady state for ADOs by linear-solve method...")
@@ -34,7 +39,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
         println("[DONE]")
         flush(stdout)
     end
-    
+
     return ADOs(_HandleVectorType(sol.u, false), M.dim, M.N, M.parity)
 end
 
@@ -59,18 +64,18 @@ For more details about solvers, and extra options, please refer to [`Differentia
 - `::ADOs` : The steady state of auxiliary density operators.
 """
 function SteadyState(
-        M::AbstractHEOMLSMatrix, 
-        ρ0,
-        tspan::Number = Inf;
-        solver = DP5(),
-        reltol::Real = 1.0e-8,
-        abstol::Real = 1.0e-10,
-        save_everystep::Bool = false,
-        verbose::Bool = true,
-        SOLVEROptions...
-    )
+    M::AbstractHEOMLSMatrix,
+    ρ0,
+    tspan::Number = Inf;
+    solver = DP5(),
+    reltol::Real = 1.0e-8,
+    abstol::Real = 1.0e-10,
+    save_everystep::Bool = false,
+    verbose::Bool = true,
+    SOLVEROptions...,
+)
     return SteadyState(
-        M, 
+        M,
         ADOs(ρ0, M.N, M.parity),
         tspan;
         solver = solver,
@@ -78,7 +83,7 @@ function SteadyState(
         abstol = abstol,
         save_everystep = save_everystep,
         verbose = verbose,
-        SOLVEROptions...
+        SOLVEROptions...,
     )
 end
 
@@ -103,22 +108,21 @@ For more details about solvers, and extra options, please refer to [`Differentia
 - `::ADOs` : The steady state of auxiliary density operators.
 """
 @noinline function SteadyState(
-        M::AbstractHEOMLSMatrix, 
-        ados::ADOs,
-        tspan::Number = Inf;
-        solver = DP5(),
-        reltol::Real = 1.0e-8,
-        abstol::Real = 1.0e-10,
-        save_everystep::Bool = false,
-        verbose::Bool = true,
-        SOLVEROptions...
-    )
-    
+    M::AbstractHEOMLSMatrix,
+    ados::ADOs,
+    tspan::Number = Inf;
+    solver = DP5(),
+    reltol::Real = 1.0e-8,
+    abstol::Real = 1.0e-10,
+    save_everystep::Bool = false,
+    verbose::Bool = true,
+    SOLVEROptions...,
+)
     _check_sys_dim_and_ADOs_num(M, ados)
     _check_parity(M, ados)
 
     ElType = eltype(M)
-    Tspan  = (_HandleFloatType(ElType, 0), _HandleFloatType(ElType, tspan))
+    Tspan = (_HandleFloatType(ElType, 0), _HandleFloatType(ElType, tspan))
     RelTol = _HandleFloatType(ElType, reltol)
     AbsTol = _HandleFloatType(ElType, abstol)
 
@@ -131,13 +135,13 @@ For more details about solvers, and extra options, please refer to [`Differentia
         flush(stdout)
     end
     sol = solve(
-        prob, 
+        prob,
         solver;
         callback = TerminateSteadyState(AbsTol, RelTol, _ss_condition),
         reltol = RelTol,
         abstol = AbsTol,
         save_everystep = save_everystep,
-        SOLVEROptions...
+        SOLVEROptions...,
     )
 
     if verbose
@@ -150,7 +154,7 @@ end
 
 function _ss_condition(integrator, abstol, reltol, min_t)
     # this condition is same as DiffEqBase.NormTerminationMode
-    
+
     du_dt = (integrator.u - integrator.uprev) / integrator.dt
     norm_du_dt = norm(du_dt)
     if (norm_du_dt <= reltol * norm(du_dt + integrator.u)) || (norm_du_dt <= abstol)

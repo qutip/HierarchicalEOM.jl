@@ -40,16 +40,12 @@ where ``[\cdot, \cdot]_-`` stands for commutator.
 
 Note that the parity only need to be set as `ODD` when the system contains fermionic systems and you need to calculate the spectrum (density of states) of it.
 """
-@noinline function M_S(        
-        Hsys,
-        parity::AbstractParity=EVEN;
-        verbose::Bool=true
-    )
+@noinline function M_S(Hsys, parity::AbstractParity = EVEN; verbose::Bool = true)
 
     # check for system dimension
     _Hsys = HandleMatrixType(Hsys, 0, "Hsys (system Hamiltonian)")
-    Nsys    = size(_Hsys, 1)
-    sup_dim = Nsys ^ 2
+    Nsys = size(_Hsys, 1)
+    sup_dim = Nsys^2
 
     # the Liouvillian operator for free Hamiltonian
     if verbose
@@ -61,5 +57,5 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         println("[DONE]")
         flush(stdout)
     end
-    return M_S{SparseMatrixCSC{ComplexF64, Int64}}(Lsys, 0, Nsys, 1, sup_dim, parity)
+    return M_S{SparseMatrixCSC{ComplexF64,Int64}}(Lsys, 0, Nsys, 1, sup_dim, parity)
 end

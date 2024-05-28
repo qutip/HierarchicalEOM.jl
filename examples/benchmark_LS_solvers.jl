@@ -8,20 +8,20 @@ using HierarchicalEOM
 HierarchicalEOM.versioninfo()
 
 # Here, we use the example of [the single-impurity Anderson model](@ref exp-SIAM):
-ϵ  = -5
-U  = 10
-Γ  = 2
-μ  = 0
-W  = 10
+ϵ = -5
+U = 10
+Γ = 2
+μ = 0
+W = 10
 kT = 0.5
-N  = 5
+N = 5
 tier = 2
 ωlist = -10:1:10
 
-σm = [0 1; 0  0]
+σm = [0 1; 0 0]
 σz = [1 0; 0 -1]
-II = [1 0; 0  1]
-d_up = kron(     σm, II)
+II = [1 0; 0 1]
+d_up = kron(σm, II)
 d_dn = kron(-1 * σz, σm)
 Hsys = ϵ * (d_up' * d_up + d_dn' * d_dn) + U * (d_up' * d_up * d_dn' * d_dn)
 
@@ -29,7 +29,7 @@ bath_up = Fermion_Lorentz_Pade(d_up, Γ, μ, W, kT, N)
 bath_dn = Fermion_Lorentz_Pade(d_dn, Γ, μ, W, kT, N)
 bath_list = [bath_up, bath_dn]
 M_even = M_Fermion(Hsys, tier, bath_list)
-M_odd  = M_Fermion(Hsys, tier, bath_list, ODD)
+M_odd = M_Fermion(Hsys, tier, bath_list, ODD)
 ados_s = SteadyState(M_even);
 
 # ## LinearSolve Solver List
@@ -69,7 +69,7 @@ MKLPardisoIterate();
 @benchmark SteadyState(M_even; solver = LUFactorization(), verbose = false)
 
 # ### KrylovJL_BICGSTAB
-@benchmark SteadyState(M_even; solver = KrylovJL_BICGSTAB(rtol=1e-10, atol=1e-12), verbose = false)
+@benchmark SteadyState(M_even; solver = KrylovJL_BICGSTAB(rtol = 1e-10, atol = 1e-12), verbose = false)
 
 # ### MKLPardisoFactorize
 @benchmark SteadyState(M_even; solver = MKLPardisoFactorize(), verbose = false)
@@ -88,7 +88,14 @@ MKLPardisoIterate();
 @benchmark DensityOfStates(M_odd, ados_s, d_up, ωlist; solver = LUFactorization(), verbose = false)
 
 # ### KrylovJL_BICGSTAB
-@benchmark DensityOfStates(M_odd, ados_s, d_up, ωlist; solver = KrylovJL_BICGSTAB(rtol=1e-10, atol=1e-12), verbose = false)
+@benchmark DensityOfStates(
+    M_odd,
+    ados_s,
+    d_up,
+    ωlist;
+    solver = KrylovJL_BICGSTAB(rtol = 1e-10, atol = 1e-12),
+    verbose = false,
+)
 
 # ### MKLPardisoFactorize
 @benchmark DensityOfStates(M_odd, ados_s, d_up, ωlist; solver = MKLPardisoFactorize(), verbose = false)

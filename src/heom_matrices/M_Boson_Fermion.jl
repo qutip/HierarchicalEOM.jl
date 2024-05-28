@@ -27,15 +27,42 @@ struct M_Boson_Fermion{T} <: AbstractHEOMLSMatrix
     hierarchy::MixHierarchyDict
 end
 
-function M_Boson_Fermion(Hsys, Btier::Int, Ftier::Int, Bbath::BosonBath, Fbath::FermionBath, parity::AbstractParity=EVEN; threshold::Real = 0.0, verbose::Bool=true)
+function M_Boson_Fermion(
+    Hsys,
+    Btier::Int,
+    Ftier::Int,
+    Bbath::BosonBath,
+    Fbath::FermionBath,
+    parity::AbstractParity = EVEN;
+    threshold::Real = 0.0,
+    verbose::Bool = true,
+)
     return M_Boson_Fermion(Hsys, Btier, Ftier, [Bbath], [Fbath], parity, threshold = threshold, verbose = verbose)
 end
 
-function M_Boson_Fermion(Hsys, Btier::Int, Ftier::Int, Bbath::Vector{BosonBath}, Fbath::FermionBath, parity::AbstractParity=EVEN; threshold::Real = 0.0, verbose::Bool=true)
+function M_Boson_Fermion(
+    Hsys,
+    Btier::Int,
+    Ftier::Int,
+    Bbath::Vector{BosonBath},
+    Fbath::FermionBath,
+    parity::AbstractParity = EVEN;
+    threshold::Real = 0.0,
+    verbose::Bool = true,
+)
     return M_Boson_Fermion(Hsys, Btier, Ftier, Bbath, [Fbath], parity, threshold = threshold, verbose = verbose)
 end
 
-function M_Boson_Fermion(Hsys, Btier::Int, Ftier::Int, Bbath::BosonBath, Fbath::Vector{FermionBath}, parity::AbstractParity=EVEN; threshold::Real = 0.0, verbose::Bool=true)
+function M_Boson_Fermion(
+    Hsys,
+    Btier::Int,
+    Ftier::Int,
+    Bbath::BosonBath,
+    Fbath::Vector{FermionBath},
+    parity::AbstractParity = EVEN;
+    threshold::Real = 0.0,
+    verbose::Bool = true,
+)
     return M_Boson_Fermion(Hsys, Btier, Ftier, [Bbath], Fbath, parity, threshold = threshold, verbose = verbose)
 end
 
@@ -58,22 +85,22 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 [1] [Phys. Rev. B  88, 235426 (2013)](https://doi.org/10.1103/PhysRevB.88.235426)
 [2] [Phys. Rev. B 103, 235413 (2021)](https://doi.org/10.1103/PhysRevB.103.235413)
 """
-@noinline function M_Boson_Fermion(        
-        Hsys,
-        Btier::Int,
-        Ftier::Int,
-        Bbath::Vector{BosonBath},
-        Fbath::Vector{FermionBath},
-        parity::AbstractParity=EVEN;
-        threshold::Real=0.0,
-        verbose::Bool=true
-    )
+@noinline function M_Boson_Fermion(
+    Hsys,
+    Btier::Int,
+    Ftier::Int,
+    Bbath::Vector{BosonBath},
+    Fbath::Vector{FermionBath},
+    parity::AbstractParity = EVEN;
+    threshold::Real = 0.0,
+    verbose::Bool = true,
+)
 
     # check for system dimension
     _Hsys = HandleMatrixType(Hsys, 0, "Hsys (system Hamiltonian)")
-    Nsys    = size(_Hsys, 1)
-    sup_dim = Nsys ^ 2
-    I_sup   = sparse(one(ComplexF64) * I, sup_dim, sup_dim)
+    Nsys = size(_Hsys, 1)
+    sup_dim = Nsys^2
+    I_sup = sparse(one(ComplexF64) * I, sup_dim, sup_dim)
 
     # the Liouvillian operator for free Hamiltonian term
     Lsys = minus_i_L_op(_Hsys)
@@ -100,13 +127,13 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
     if verbose
         println("Preparing block matrices for HEOM Liouvillian superoperator (using $(Nthread) threads)...")
         flush(stdout)
-        prog = Progress(Nado; desc="Processing: ", PROGBAR_OPTIONS...)
+        prog = Progress(Nado; desc = "Processing: ", PROGBAR_OPTIONS...)
     end
     @threads for idx in 1:Nado
         tID = threadid()
 
         # boson and fermion (current level) superoperator
-        sum_γ   = 0.0
+        sum_γ = 0.0
         nvec_b, nvec_f = idx2nvec[idx]
         if nvec_b.level >= 1
             sum_γ += bath_sum_γ(nvec_b, baths_b)
@@ -115,7 +142,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
             sum_γ += bath_sum_γ(nvec_f, baths_f)
         end
         add_operator!(Lsys - sum_γ * I_sup, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx)
-        
+
         # connect to bosonic (n+1)th- & (n-1)th- level superoperator
         mode = 0
         nvec_neigh = copy(nvec_b)
@@ -147,7 +174,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                 end
             end
         end
-        
+
         # connect to fermionic (n+1)th- & (n-1)th- level superoperator
         mode = 0
         nvec_neigh = copy(nvec_f)
@@ -161,17 +188,17 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                     Nvec_minus!(nvec_neigh, mode)
                     if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
                         idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
-                        op = minus_i_C_op(fB, k, nvec_f.level, sum(nvec_neigh[1:(mode - 1)]), parity)
+                        op = minus_i_C_op(fB, k, nvec_f.level, sum(nvec_neigh[1:(mode-1)]), parity)
                         add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
                     end
                     Nvec_plus!(nvec_neigh, mode)
 
-                # connect to fermionic (n+1)th-level superoperator
+                    # connect to fermionic (n+1)th-level superoperator
                 elseif nvec_f.level < Ftier
                     Nvec_plus!(nvec_neigh, mode)
                     if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
                         idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
-                        op = minus_i_A_op(fB, nvec_f.level, sum(nvec_neigh[1:(mode - 1)]), parity)
+                        op = minus_i_A_op(fB, nvec_f.level, sum(nvec_neigh[1:(mode-1)]), parity)
                         add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
                     end
                     Nvec_minus!(nvec_neigh, mode)
@@ -187,9 +214,20 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         flush(stdout)
     end
     L_he = sparse(reduce(vcat, L_row), reduce(vcat, L_col), reduce(vcat, L_val), Nado * sup_dim, Nado * sup_dim)
-    if verbose 
-        println("[DONE]") 
+    if verbose
+        println("[DONE]")
         flush(stdout)
     end
-    return M_Boson_Fermion{SparseMatrixCSC{ComplexF64, Int64}}(L_he, Btier, Ftier, Nsys, Nado, sup_dim, parity, Bbath, Fbath, hierarchy)
+    return M_Boson_Fermion{SparseMatrixCSC{ComplexF64,Int64}}(
+        L_he,
+        Btier,
+        Ftier,
+        Nsys,
+        Nado,
+        sup_dim,
+        parity,
+        Bbath,
+        Fbath,
+        hierarchy,
+    )
 end

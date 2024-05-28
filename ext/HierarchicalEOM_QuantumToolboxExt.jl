@@ -24,7 +24,7 @@ Return the operator under the type of `QuantumToolbox.QuantumObject` from a give
 """
 QuantumObject(data::AbstractMatrix, refOP::QuantumObject) = QuantumObject(data, refOP.type, refOP.dims)
 
-function HandleMatrixType(M::QuantumObject, dim::Int=0, MatrixName::String="")
+function HandleMatrixType(M::QuantumObject, dim::Int = 0, MatrixName::String = "")
     if dim > 0
         if size(M.data) == (dim, dim)
             return copy(M.data)

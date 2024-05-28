@@ -21,8 +21,8 @@ for rho in ados  # iteration
 end
 ```
 """
-mutable struct ADOs 
-    data::SparseVector{ComplexF64, Int64}
+mutable struct ADOs
+    data::SparseVector{ComplexF64,Int64}
     const dim::Int
     const N::Int
     const parity::AbstractParity
@@ -37,15 +37,15 @@ Gernerate the object of auxiliary density operators for HEOM model.
 - `N::Int` : the number of auxiliary density operators.
 - `parity::AbstractParity` : the parity label (`EVEN` or `ODD`). Default to `EVEN`.
 """
-function ADOs(V::AbstractVector, N::Int, parity::AbstractParity=EVEN)
+function ADOs(V::AbstractVector, N::Int, parity::AbstractParity = EVEN)
     # check the dimension of V
-    d  = size(V, 1)
+    d = size(V, 1)
     dim = √(d / N)
     if isinteger(dim)
         return ADOs(sparsevec(V), Int(dim), N, parity)
     else
         error("The dimension of vector is not consistent with the ADOs number \"N\".")
-    end    
+    end
 end
 
 @doc raw"""
@@ -57,16 +57,13 @@ Gernerate the object of auxiliary density operators for HEOM model.
 - `N::Int` : the number of auxiliary density operators.
 - `parity::AbstractParity` : the parity label (`EVEN` or `ODD`). Default to `EVEN`.
 """
-function ADOs(ρ, N::Int=1, parity::AbstractParity=EVEN)
+function ADOs(ρ, N::Int = 1, parity::AbstractParity = EVEN)
     _ρ = sparsevec(HandleMatrixType(ρ, 0, "ρ"))
     return ADOs(sparsevec(_ρ.nzind, _ρ.nzval, N * length(_ρ)), N, parity)
 end
 
-function checkbounds(A::ADOs, i::Int)
-    if (i > A.N) || (i < 1)
-        error("Attempt to access $(A.N)-element ADOs at index [$(i)]")
-    end
-end
+checkbounds(A::ADOs, i::Int) =
+    ((i > A.N) || (i < 1)) ? error("Attempt to access $(A.N)-element ADOs at index [$(i)]") : nothing
 
 @doc raw"""
     length(A::ADOs)
@@ -85,9 +82,9 @@ lastindex(A::ADOs) = length(A)
 function getindex(A::ADOs, i::Int)
     checkbounds(A, i)
 
-    sup_dim = A.dim ^ 2
-    back    = sup_dim * i
-    return sparse(reshape(A.data[(back - sup_dim + 1):back], A.dim, A.dim))
+    sup_dim = A.dim^2
+    back = sup_dim * i
+    return sparse(reshape(A.data[(back-sup_dim+1):back], A.dim, A.dim))
 end
 
 function getindex(A::ADOs, r::UnitRange{Int})
@@ -95,25 +92,19 @@ function getindex(A::ADOs, r::UnitRange{Int})
     checkbounds(A, r[end])
 
     result = []
-    sup_dim = A.dim ^ 2
+    sup_dim = A.dim^2
     for i in r
         back = sup_dim * i
-        push!(result, 
-            sparse(reshape(A.data[(back - sup_dim + 1):back], A.dim, A.dim))
-        )
+        push!(result, sparse(reshape(A.data[(back-sup_dim+1):back], A.dim, A.dim)))
     end
     return result
 end
 getindex(A::ADOs, ::Colon) = getindex(A, 1:lastindex(A))
 
-iterate(A::ADOs, state::Int = 1) = state > length(A) ? nothing : (A[state], state + 1) 
+iterate(A::ADOs, state::Int = 1) = state > length(A) ? nothing : (A[state], state + 1)
 
-function show(io::IO, A::ADOs)
-    print(io, 
-        "$(A.N) Auxiliary Density Operators with $(A.parity) and (system) dim = $(A.dim)\n"
-    )
-end
-function show(io::IO, m::MIME"text/plain", A::ADOs) show(io, A) end
+show(io::IO, A::ADOs) = print(io, "$(A.N) Auxiliary Density Operators with $(A.parity) and (system) dim = $(A.dim)\n")
+show(io::IO, m::MIME"text/plain", A::ADOs) = show(io, A)
 
 @doc raw"""
     getRho(ados)
@@ -125,9 +116,7 @@ Return the density matrix of the reduced state (system) from a given auxiliary d
 # Returns
 - `ρ` : The density matrix of the reduced state
 """
-function getRho(ados::ADOs)
-    return sparse(reshape(ados.data[1:((ados.dim) ^ 2)], ados.dim, ados.dim))
-end
+getRho(ados::ADOs) = sparse(reshape(ados.data[1:((ados.dim)^2)], ados.dim, ados.dim))
 
 @doc raw"""
     getADO(ados, idx)
@@ -160,8 +149,7 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in the 
 # Returns
 - `exp_val` : The expectation value
 """
-function Expect(op, ados::ADOs; take_real=true)
-    
+function Expect(op, ados::ADOs; take_real = true)
     if typeof(op) == HEOMSuperOp
         _check_sys_dim_and_ADOs_num(op, ados)
         exp_val = Tr(ados.dim, ados.N) * (op * ados).data
@@ -193,10 +181,9 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in one 
 # Returns
 - `exp_val` : The expectation value
 """
-function Expect(op, ados_list::Vector{ADOs}; take_real=true)
-
+function Expect(op, ados_list::Vector{ADOs}; take_real = true)
     dim = ados_list[1].dim
-    N   = ados_list[1].N
+    N = ados_list[1].N
     for i in 2:length(ados_list)
         _check_sys_dim_and_ADOs_num(ados_list[1], ados_list[i])
     end
@@ -209,9 +196,7 @@ function Expect(op, ados_list::Vector{ADOs}; take_real=true)
     end
     tr_op = Tr(dim, N) * _op.data
 
-    exp_val = [
-        (tr_op * ados.data) for ados in ados_list
-    ]
+    exp_val = [(tr_op * ados.data) for ados in ados_list]
 
     if take_real
         return real.(exp_val)

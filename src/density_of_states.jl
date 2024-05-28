@@ -22,16 +22,15 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 - `dos::AbstractVector` : the list of density of states corresponds to the specified `ωlist`
 """
 @noinline function DensityOfStates(
-        M::AbstractHEOMLSMatrix, 
-        ρ,
-        d_op,
-        ωlist::AbstractVector; 
-        solver=UMFPACKFactorization(), 
-        verbose::Bool = true,
-        filename::String = "",
-        SOLVEROptions...
-    )
-
+    M::AbstractHEOMLSMatrix,
+    ρ,
+    d_op,
+    ωlist::AbstractVector;
+    solver = UMFPACKFactorization(),
+    verbose::Bool = true,
+    filename::String = "",
+    SOLVEROptions...,
+)
     Size = size(M, 1)
 
     # check M
@@ -52,7 +51,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 
     # Handle d_op
     _tr = Tr(M.dim, M.N)
-    d_normal = HEOMSuperOp(d_op,  ODD, M)
+    d_normal = HEOMSuperOp(d_op, ODD, M)
     d_dagger = HEOMSuperOp(d_op', ODD, M)
     b_m = _HandleVectorType(typeof(M.data), (d_normal * ados).data)
     b_p = _HandleVectorType(typeof(M.data), (d_dagger * ados).data)
@@ -66,50 +65,51 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
             error("FILE: $(FILENAME) already exist.")
         end
     end
-    
+
     ElType = eltype(M)
-    ωList  = _HandleFloatType(ElType, ωlist)
+    ωList = _HandleFloatType(ElType, ωlist)
     Length = length(ωList)
     Aω = Vector{Float64}(undef, Length)
 
     if verbose
         print("Calculating density of states in frequency domain...\n")
         flush(stdout)
-        prog = Progress(Length; desc="Progress : ", PROGBAR_OPTIONS...)
+        prog = Progress(Length; desc = "Progress : ", PROGBAR_OPTIONS...)
     end
-    i  = convert(ElType, 1im)
+    i = convert(ElType, 1im)
     I_total = _HandleIdentityType(typeof(M.data), Size)
-    Iω      = i * ωList[1] * I_total
-    cache_m = init(LinearProblem(M.data - Iω, b_m),  solver, SOLVEROptions...)
+    Iω = i * ωList[1] * I_total
+    cache_m = init(LinearProblem(M.data - Iω, b_m), solver, SOLVEROptions...)
     cache_p = init(LinearProblem(M.data + Iω, b_p), solver, SOLVEROptions...)
-    sol_m   = solve!(cache_m)
-    sol_p   = solve!(cache_p)
+    sol_m = solve!(cache_m)
+    sol_p = solve!(cache_p)
     @inbounds for (j, ω) in enumerate(ωList)
         if j > 1
             Iω = i * ω * I_total
 
             cache_m.A = M.data - Iω
             sol_m = solve!(cache_m)
-            
+
             cache_p.A = M.data + Iω
             sol_p = solve!(cache_p)
         end
-        
+
         # trace over the Hilbert space of system (expectation value)
-        Aω[j] = -1 * (
-            real(_tr_d_normal * _HandleVectorType(sol_p.u, false)) + 
-            real(_tr_d_dagger * _HandleVectorType(sol_m.u, false))
-        )
+        Aω[j] =
+            -1 * (
+                real(_tr_d_normal * _HandleVectorType(sol_p.u, false)) +
+                real(_tr_d_dagger * _HandleVectorType(sol_m.u, false))
+            )
 
         if SAVE
             open(FILENAME, "a") do file
-                write(file, "$(Aω[j]),\n")
+                return write(file, "$(Aω[j]),\n")
             end
         end
 
         if verbose
             next!(prog)
-        end 
+        end
     end
     if verbose
         println("[DONE]")
