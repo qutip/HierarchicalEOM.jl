@@ -3,7 +3,7 @@
 
 # HierarchicalEOM.jl
 
-| **Release**       | [![Release][release-img]](release-url) [![License][license-img]](license-url) [![DOI][doi-img]](doi-url) |
+| **Release**       | [![Release][release-img]](release-url) [![License][license-img]](license-url) |
 |:-----------------:|:-------------|
 | **Runtests**      | [![Runtests][runtests-img]](runtests-url) [![Coverage][codecov-img]](codecov-url) [![Aqua QA][aqua-img]](aqua-url) [![JET][jet-img]](jet-url) |
 | **Documentation** | [![Doc-Stable][docs-stable-img]](docs-stable-url) [![Doc-Dev][docs-develop-img]](docs-develop-url) |
