@@ -2,8 +2,8 @@ abstract type AbstractHEOMLSMatrix end
 
 const PROGBAR_OPTIONS = Dict(:barlen => 20, :color => :green, :showspeed => true)
 
-spre(q::AbstractMatrix) = sparse(kron(Matrix(I, size(q)[1], size(q)[1]), q))
-spost(q::AbstractMatrix) = sparse(kron(transpose(q), Matrix(I, size(q)[1], size(q)[1])))
+spre(q::AbstractMatrix) = kron(I(size(q, 1)), sparse(q))
+spost(q::AbstractMatrix) = kron(sparse(transpose(sparse(q))), I(size(q, 1)))
 
 # equal to : transpose(sparse(vec(system_identity_matrix)))
 Tr(dim::Int, N::Int) = transpose(SparseVector(N * dim^2, [1 + n * (dim + 1) for n in 0:(dim-1)], ones(ComplexF64, dim)))
