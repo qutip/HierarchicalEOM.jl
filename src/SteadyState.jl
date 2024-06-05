@@ -25,7 +25,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
     end
 
     S = size(M, 1)
-    A = _HandleSteadyStateMatrix(typeof(M.data), M, S)
+    A = _HandleSteadyStateMatrix(M, S)
     b = sparsevec([1], [1.0 + 0.0im], S)
 
     # solving x where A * x = b

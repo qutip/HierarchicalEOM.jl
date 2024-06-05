@@ -50,12 +50,12 @@ end
 _HandleVectorType(V::T, cp::Bool = true) where {T<:Vector} = cp ? Vector{ComplexF64}(V) : V
 
 # for changing the type of `ADOs` to match the type of HEOMLS matrix 
-function _HandleVectorType(MatrixType::Type{TM}, V::SparseVector) where {TM<:SparseMatrixCSC}
+function _HandleVectorType(MatrixType::Type{TM}, V::SparseVector) where {TM<:AbstractMatrix}
     TE = eltype(MatrixType)
     return Vector{TE}(V)
 end
 
-function _HandleSteadyStateMatrix(MatrixType::Type{TM}, M::AbstractHEOMLSMatrix, S::Int) where {TM<:SparseMatrixCSC}
+function _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix, S::Int)
     ElType = eltype(M)
     A = copy(M.data)
     A[1, 1:S] .= 0
@@ -65,7 +65,7 @@ function _HandleSteadyStateMatrix(MatrixType::Type{TM}, M::AbstractHEOMLSMatrix,
     return A
 end
 
-function _HandleIdentityType(MatrixType::Type{TM}, S::Int) where {TM<:SparseMatrixCSC}
+function _HandleIdentityType(MatrixType::Type{TM}, S::Int) where {TM<:AbstractMatrix}
     ElType = eltype(MatrixType)
     return sparse(one(ElType) * I, S, S)
 end
