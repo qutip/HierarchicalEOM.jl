@@ -9,6 +9,17 @@ const DRAFT = false # set `true` to disable cell evaluation
 
 ENV["GKSwstype"] = "100" # enable headless mode for GR to suppress warnings when plotting
 
+const MathEngine = MathJax3(
+    Dict(
+        :loader => Dict("load" => ["[tex]/physics"]),
+        :tex => Dict(
+            "inlineMath" => [["\$", "\$"], ["\\(", "\\)"]],
+            "tags" => "ams",
+            "packages" => ["base", "ams", "autoload", "physics"],
+        ),
+    )
+)
+
 # clean and rebuild the output markdown directory for examples
 doc_output_path = abspath(joinpath(@__DIR__, "src", "examples"))
 if isdir(doc_output_path)
@@ -81,25 +92,27 @@ const PAGES = Any[
         "Benchmark Solvers" => BM_output_files,
         "Extensions" => Any[
             "QuantumToolbox.jl" => "extensions/QuantumToolbox.md",
-            "QuantumOptics.jl" => "extensions/QuantumOptics.md",
             "CUDA.jl" => "extensions/CUDA.md"
         ]
     ],
     "Library API" => "libraryAPI.md"
 ]
 
-makedocs(
+makedocs(;
     modules = [HierarchicalEOM],
+    authors = "Yi-Te Huang",
+    repo = Remotes.GitHub("qutip", "HierarchicalEOM.jl"),
     sitename = "Documentation | HierarchicalEOM.jl",
     pages  = PAGES,
-    format = Documenter.HTML(
-        prettyurls = (get(ENV, "CI", nothing) == "true"),    
-        ansicolor  = true
+    format = Documenter.HTML(;
+        prettyurls = get(ENV, "CI", "false") == "true",
+        canonical = "https://qutip.github.io/HierarchicalEOM.jl",
+        edit_link = "main",
+        mathengine = MathEngine,
+        ansicolor  = true,
+        size_threshold_ignore = ["libraryAPI.md"],
     ),
     draft  = DRAFT
 )
 
-deploydocs(
-    repo="github.com/NCKU-QFort/HierarchicalEOM.jl.git",
-    devbranch = "main"
-)
+deploydocs(; repo="github.com/qutip/HierarchicalEOM.jl", devbranch = "main")

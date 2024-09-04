@@ -33,13 +33,10 @@ HierarchicalEOM.versioninfo()
 # #### System Hamiltonian and initial state
 # You can construct system hamiltonian, initial state, and coupling operators by standard julia bulit-in types: `Vector`, `SparseVector`, `Matrix`, `SparseMatrix`.
 
-# Moreover, it is also convenient to use [`QuantumToolbox`](https://github.com/qutip/QuantumToolbox.jl) or [`QuantumOptics`](https://qojulia.org/) framework. They both provide many useful functions to create arbitrary quantum states and operators which can be combined in all the expected ways.
+# Moreover, it is also convenient to use [`QuantumToolbox`](https://github.com/qutip/QuantumToolbox.jl) framework. It provides many useful functions to create arbitrary quantum states and operators which can be combined in all the expected ways.
 
 # !!! compat "Extension for QuantumToolbox.jl"
 #     `HierarchicalEOM.jl` provides an extension to support `QuantumToolbox`-type object, but this feature requires `Julia 1.9+` and `HierarchicalEOM 1.4+`. See [here](@ref doc-ext-QuantumToolbox) for more details.
-
-# !!! compat "Extension for QuantumOptics.jl"
-#     `HierarchicalEOM.jl` provides an extension to support `QuantumOptics`-type object, but this feature requires `Julia 1.9+` and `HierarchicalEOM 0.3+`. See [here](@ref doc-ext-QuantumOptics) for more details.
 
 # We demonstrate this tutorial by `QuantumToolbox`:
 

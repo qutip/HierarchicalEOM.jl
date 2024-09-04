@@ -170,7 +170,7 @@ function versioninfo(io::IO = stdout)
         "\n",
         "Julia framework for Hierarchical Equations of Motion\n",
         "≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡\n",
-        "Copyright © NCKU-QFORT 2022 and later.\n",
+        "Copyright © QuTiP team 2023 and later.\n",
         "Lead  developer : Yi-Te Huang\n",
         "Other developers:\n",
         "    Simon Cross, Neill Lambert, Po-Chen Kuo and Shen-Liang Yang\n",
