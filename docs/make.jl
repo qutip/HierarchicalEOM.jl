@@ -5,7 +5,7 @@
 import Literate
 using Documenter, HierarchicalEOM
 
-const DRAFT = true # set `true` to disable cell evaluation
+const DRAFT = false # set `true` to disable cell evaluation
 
 ENV["GKSwstype"] = "100" # enable headless mode for GR to suppress warnings when plotting
 
@@ -89,7 +89,7 @@ const PAGES = Any[
         "Stationary State" => "stationary_state.md",
         "Spectrum" => "spectrum.md",
         "Examples" => EX_output_files,
-        "Benchmark Solvers" => BM_output_files,
+        #"Benchmark Solvers" => BM_output_files,
         "Extensions" => Any[
             "QuantumToolbox.jl" => "extensions/QuantumToolbox.md",
             "CUDA.jl" => "extensions/CUDA.md"
