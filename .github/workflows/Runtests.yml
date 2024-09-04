@@ -14,7 +14,7 @@ on:
     branches:
       - 'main'
     paths:
-      - '.github/workflows/CI.yml'
+      - '.github/workflows/Runtests.yml'
       - 'src/**'
       - 'ext/**'
       - 'test/**'
