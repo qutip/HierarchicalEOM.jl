@@ -42,9 +42,6 @@ UMFPACKFactorization();
 # This solver performs better when there is less structure to the sparsity pattern (depends on the complexity of your system and baths).
 KLUFactorization();
 
-# ### Julia's built-in LU factorization
-LUFactorization();
-
 # ### A generic BICGSTAB implementation from Krylov
 KrylovJL_BICGSTAB();
 
@@ -65,9 +62,6 @@ MKLPardisoIterate();
 # ### KLUFactorization
 @benchmark SteadyState(M_even; solver = KLUFactorization(), verbose = false)
 
-# ### Julia's built-in generic LU factorization
-@benchmark SteadyState(M_even; solver = LUFactorization(), verbose = false)
-
 # ### KrylovJL_BICGSTAB
 @benchmark SteadyState(M_even; solver = KrylovJL_BICGSTAB(rtol = 1e-10, atol = 1e-12), verbose = false)
 
@@ -83,9 +77,6 @@ MKLPardisoIterate();
 
 # ### KLUFactorization
 @benchmark DensityOfStates(M_odd, ados_s, d_up, ωlist; solver = KLUFactorization(), verbose = false)
-
-# ### Julia's built-in LU factorization
-@benchmark DensityOfStates(M_odd, ados_s, d_up, ωlist; solver = LUFactorization(), verbose = false)
 
 # ### KrylovJL_BICGSTAB
 @benchmark DensityOfStates(

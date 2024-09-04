@@ -9,6 +9,13 @@ on:
   pull_request:
     branches:
       - 'main'
+    paths:
+      - '.github/workflows/documentation.yml'
+      - 'src/**'
+      - 'ext/**'
+      - 'docs/**'
+      - 'examples/**'
+      - 'Project.toml'
     types:
       - opened
       - reopened
