@@ -20,7 +20,7 @@
 [runtests-img]: https://github.com/qutip/HierarchicalEOM.jl/actions/workflows/Runtests.yml/badge.svg
 [runtests-url]: https://github.com/qutip/HierarchicalEOM.jl/actions/workflows/Runtests.yml
 
-[codecov-img]: https://codecov.io/gh/qutip/HierarchicalEOM.jl/branch/main/graph/badge.svg?token=237Z7F7OOV
+[codecov-img]: https://codecov.io/gh/qutip/HierarchicalEOM.jl/graph/badge.svg?token=ICFVVNuLHW
 [codecov-url]: https://codecov.io/gh/qutip/HierarchicalEOM.jl
 
 [aqua-img]: https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg
