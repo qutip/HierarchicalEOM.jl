@@ -50,17 +50,17 @@ jobs:
 
         include:
           # for core tests on macOS
-          - version: '1.9'     # oldest
+          - julia-version: '1.9' # oldest
             os: 'macOS-latest'
             arch: 'arm64'
             group: 'Core'
-          - version: '1'       # latest
+          - julia-version: '1'   # latest
             os: 'macOS-latest'
             arch: 'arm64'
             group: 'Core'
 
           # for core tests (intermediate versions)
-          #- version: '1.x'
+          #- julia-version: '1.x'
           #  os: 'ubuntu-latest'
           #  arch: 'x64'
           #  group: 'Core'
