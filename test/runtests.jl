@@ -32,8 +32,7 @@ if (GROUP == "All") || (GROUP == "Code_Quality")
     Pkg.add(["Aqua", "JET"])
 
     HierarchicalEOM.versioninfo()
-    include(joinpath(testdir, "aqua.jl"))
-    include(joinpath(testdir, "jet.jl"))
+    include(joinpath(testdir, "code_quality.jl"))
 end
 
 if (GROUP == "All") || (GROUP == "Core")
@@ -48,13 +47,6 @@ if GROUP == "CUDA_Ext"
 
     HierarchicalEOM.versioninfo()
     include(joinpath(testdir, "CUDAExt.jl"))
-end
-
-if (GROUP == "All") || (GROUP == "QuantumOptics_Ext")
-    Pkg.add("QuantumOptics")
-
-    GROUP == "All" ? nothing : HierarchicalEOM.versioninfo()
-    include(joinpath(testdir, "QuantumOpticsExt.jl"))
 end
 
 if (GROUP == "All") || (GROUP == "QuantumToolbox_Ext")

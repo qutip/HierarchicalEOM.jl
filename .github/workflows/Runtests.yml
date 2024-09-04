@@ -36,13 +36,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # for Core functionalities
+        # for core tests (latest and oldest supported versions)
         julia-version:
-          - '1'
-          - '1.9'
+          - '1.9'  # oldest
+          - '1'    # latest
         os:
           - ubuntu-latest
-          - macOS-latest
           - windows-latest
         arch:
           - x64
@@ -50,17 +49,29 @@ jobs:
           - Core
 
         include:
-          # for code quality
+          # for core tests on macOS
+          - version: '1.9'     # oldest
+            os: 'macOS-latest'
+            arch: 'arm64'
+            group: 'Core'
+          - version: '1'       # latest
+            os: 'macOS-latest'
+            arch: 'arm64'
+            group: 'Core'
+
+          # for core tests (intermediate versions)
+          #- version: '1.x'
+          #  os: 'ubuntu-latest'
+          #  arch: 'x64'
+          #  group: 'Core'
+
+          # for code quality tests
           - julia-version: '1'
             os: 'ubuntu-latest'
             arch: 'x64'
             group: 'Code_Quality'
 
           # for extensions
-          - julia-version: '1'
-            os: 'ubuntu-latest'
-            arch: 'x64'
-            group: 'QuantumOptics_Ext'
           - julia-version: '1'
             os: 'ubuntu-latest'
             arch: 'x64'
