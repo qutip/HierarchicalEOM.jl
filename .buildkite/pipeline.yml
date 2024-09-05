@@ -14,7 +14,7 @@ steps:
       cuda: "*"
     env:
       GROUP: "CUDA_Ext"
-      SECRET_CODECOV_TOKEN: "xPPS+qHx6R93hyaYefGl5Hj0ojomvcMvB0azWyK0LkOrhuHNT0OegnOvcDfckKkPAw3c3zDPZyO7ogBUSUw/R9JRXF8oQd3yOxySp1vcdjsNsMvazW8Nc9QS+Cbb7/yQmtRHtkPNc4pzI0HsGPqr6pKyX8GOZRdspQ6R6KCmP95AF2KPgvhW+t/I98Z0qz8ksKgE6OQvo0XMSLKlAQRthWIBmeYf1IgjSxpibhLZhb5OKYjOUElGvRWL79SFBmbVqIHAdAVOMaL8VVoRMfgqE89SvshYEiDLNBCenxNrLAYcOHEA4ElrhmUhlVDwsqYfq7ooxHRIEkaIZ5/sL348LA==;U2FsdGVkX1+pTkirGXYb1wl7BDHCxbkVqFTOLY0ciN8+3TKlwnrtGpP+PrBs+fqJTIch2eJndJfpvbAL2DAzyg=="
+      SECRET_CODECOV_TOKEN: "LnZuLkirUZtLqOR8hrOChoiOgAKtHth5pTmttecSxdwANQSnwvvOZJRlWEg5otIVHfE2VMwDEitqFkQaSFxR8oO/7rl8Pxe2OiJCqyxosy5YYL5YLdfsUay2tBPau/lAy66dmB70LGhfyf7uUhpFKC2nlvGO+eyv0GKZ4JBu4PUiaLPOgkozGufQupkmOFGmpsWHo+a4HKN4/cOsIhF3P9JOWsBydlTtBMfFbG19qDGtUnrhaOfqitpoLo4h56kNDQstDnlApirMXS3B7tXMMxiUj/aWWE7ZQdDPrRrZMCv1eDcrRJktPWgJM1fUEQSy5mTSdEsyRDHp7JM8fdCamA==;U2FsdGVkX1/WQ6K/3LSCe5+vGyBKxftywEmwKVjgDXDW2mbj/BGoB3x7Vfx0LnTAvgu/DycV7AbhlsydNqmVBw=="
     timeout_in_minutes: 60
     if: | 
         // Don't run Buildkite if the commit message includes the text [skip tests]
