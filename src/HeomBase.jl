@@ -2,32 +2,35 @@ abstract type AbstractHEOMLSMatrix end
 
 const PROGBAR_OPTIONS = Dict(:barlen => 20, :color => :green, :showspeed => true)
 
-spre(q::AbstractMatrix) = kron(I(size(q, 1)), sparse(q))
-spost(q::AbstractMatrix) = kron(sparse(transpose(sparse(q))), I(size(q, 1)))
-
 # equal to : transpose(sparse(vec(system_identity_matrix)))
-Tr(dim::Int, N::Int) = transpose(SparseVector(N * dim^2, [1 + n * (dim + 1) for n in 0:(dim-1)], ones(ComplexF64, dim)))
-
-function HandleMatrixType(M, dim::Int = 0, MatrixName::String = "")
-    return error("HierarchicalEOM doesn't support matrix $(MatrixName) with type : $(typeof(M))")
+function _Tr(dims::Vector{Int}, N::Int)
+    D = prod(dims)
+    return transpose(SparseVector(N * D^2, [1 + n * (D + 1) for n in 0:(D-1)], ones(ComplexF64, D)))
 end
 
-function HandleMatrixType(M::AbstractMatrix, dim::Int = 0, MatrixName::String = "")
-    if dim > 0
-        if size(M) == (dim, dim)
-            return copy(M)
-        else
-            error("The size of matrix $(MatrixName) should be: ($(dim), $(dim)).")
-        end
-    elseif dim == 0
-        N1, N2 = size(M)
-        if N1 == N2
-            return copy(M)
-        else
-            error("The matrix $(MatrixName) should be squared matrix.")
-        end
+function HandleMatrixType(M::QuantumObject, MatrixName::String = ""; type::QuantumObjectType = Operator)
+    if M.type == type
+        return M
+    else
+        error("The matrix $(MatrixName) should be an $(Type).")
     end
 end
+function HandleMatrixType(
+    M::QuantumObject,
+    dims::Vector{Int},
+    MatrixName::String = "";
+    type::QuantumObjectType = Operator,
+)
+    if M.dims == dims
+        return HandleMatrixType(M, MatrixName; type = type)
+    else
+        error("The dims of $(MatrixName) should be: $(dims)")
+    end
+end
+HandleMatrixType(M, dims::Vector{Int}, MatrixName::String = ""; type::QuantumObjectType = Operator) =
+    HandleMatrixType(M, MatrixName; type = type)
+HandleMatrixType(M, MatrixName::String = ""; type::QuantumObjectType = Operator) =
+    error("HierarchicalEOM doesn't support matrix $(MatrixName) with type : $(typeof(M))")
 
 function _HandleFloatType(ElType::Type{T}, V::StepRangeLen) where {T<:Number}
     if real(ElType) == Float32
@@ -57,11 +60,12 @@ end
 
 function _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix, S::Int)
     ElType = eltype(M)
+    D = prod(M.dims)
     A = copy(M.data)
     A[1, 1:S] .= 0
 
     # sparse(row_idx, col_idx, values, row_dims, col_dims)
-    A += sparse(ones(ElType, M.dim), [(n - 1) * (M.dim + 1) + 1 for n in 1:(M.dim)], ones(ElType, M.dim), S, S)
+    A += sparse(ones(ElType, D), [(n - 1) * (D + 1) + 1 for n in 1:D], ones(ElType, D), S, S)
     return A
 end
 
@@ -71,8 +75,8 @@ function _HandleIdentityType(MatrixType::Type{TM}, S::Int) where {TM<:AbstractMa
 end
 
 function _check_sys_dim_and_ADOs_num(A, B)
-    if (A.dim != B.dim)
-        error("Inconsistent system dimension (\"dim\").")
+    if (A.dims != B.dims)
+        error("Inconsistent system dimension (\"dims\").")
     end
 
     if (A.N != B.N)
@@ -182,6 +186,7 @@ function versioninfo(io::IO = stdout)
         "Package information:\n",
         "====================================\n",
         "HierarchicalEOM Ver. $(_get_pkg_version("HierarchicalEOM"))\n",
+        "QuantumToolbox  Ver. $(_get_pkg_version("QuantumToolbox"))\n",
         "LinearSolve     Ver. $(_get_pkg_version("LinearSolve"))\n",
         "OrdinaryDiffEq  Ver. $(_get_pkg_version("OrdinaryDiffEq"))\n",
         "FastExpm        Ver. $(_get_pkg_version("FastExpm"))\n",

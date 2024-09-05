@@ -50,7 +50,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
     _check_sys_dim_and_ADOs_num(M, ados)
 
     # Handle d_op
-    _tr = Tr(M.dim, M.N)
+    _tr = _Tr(M.dims, M.N)
     d_normal = HEOMSuperOp(d_op, ODD, M)
     d_dagger = HEOMSuperOp(d_op', ODD, M)
     b_m = _HandleVectorType(typeof(M.data), (d_normal * ados).data)

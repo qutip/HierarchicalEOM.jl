@@ -1,9 +1,9 @@
 @time @testset "Stationary state" begin
 
     # System Hamiltonian and initial state
-    d = [0 1; 0 0]
+    d = sigmam()
     Hsys = d' * d
-    ρ0 = [1 0; 0 0]
+    ρ0 = Qobj([1 0; 0 0])
 
     # Bath properties:
     Γ = 1.0
@@ -20,15 +20,15 @@
 
     ados = SteadyState(L, ρ0; verbose = false)
     ρs = getRho(ados)
-    O = [1 0.5; 0.5 1]
-    @test Expect(O, ados) ≈ real(tr(O * ρs))
-    @test Expect(O, ados, take_real = false) ≈ tr(O * ρs)
+    O = qeye(2) + 0.5 * sigmax()
+    @test expect(O, ados) ≈ real(tr(O * ρs))
+    @test expect(O, ados, take_real = false) ≈ tr(O * ρs)
 
     ρ1 = getRho(SteadyState(L; verbose = false))
-    @test _is_Matrix_approx(ρ1, ρs)
+    @test isapprox(ρ1, ρs, atol = 1e-6)
 
-    mat = spzeros(ComplexF64, 2, 2)
-    mat2 = spzeros(ComplexF64, 3, 3)
+    mat = Qobj(spzeros(ComplexF64, 2, 2))
+    mat2 = Qobj(spzeros(ComplexF64, 3, 3))
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
     @test_throws ErrorException SteadyState(M_Fermion(mat, 2, bathf, ODD; verbose = false))
     @test_throws ErrorException SteadyState(M_Fermion(mat, 2, bathf, ODD; verbose = false), mat)

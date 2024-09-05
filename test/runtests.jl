@@ -1,7 +1,7 @@
 using Pkg
 using Test
+using QuantumToolbox
 using HierarchicalEOM
-using HierarchicalEOM: spre, spost
 using LinearAlgebra, SparseArrays
 
 const GROUP = get(ENV, "GROUP", "All")
@@ -47,11 +47,4 @@ if GROUP == "CUDA_Ext"
 
     HierarchicalEOM.versioninfo()
     include(joinpath(testdir, "CUDAExt.jl"))
-end
-
-if (GROUP == "All") || (GROUP == "QuantumToolbox_Ext")
-    Pkg.add("QuantumToolbox")
-
-    GROUP == "All" ? nothing : HierarchicalEOM.versioninfo()
-    include(joinpath(testdir, "QuantumToolboxExt.jl"))
 end

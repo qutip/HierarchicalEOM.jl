@@ -1,24 +1,4 @@
 @doc raw"""
-    spectrum(M, ρ, op, ωlist; solver, verbose, filename, SOLVEROptions...)
-!!! warning "Warning"
-    This function has been deprecated start from `HierarchicalEOM v1.1`, use `PowerSpectrum` or `DensityOfStates` instead.
-"""
-function spectrum(
-    M::AbstractHEOMLSMatrix,
-    ρ,
-    op,
-    ωlist::AbstractVector;
-    solver = UMFPACKFactorization(),
-    verbose::Bool = true,
-    filename::String = "",
-    SOLVEROptions...,
-)
-    return error(
-        "This function has been deprecated start from \`HierarchicalEOM v1.1\`, use \`PowerSpectrum\` or \`DensityOfStates\` instead.",
-    )
-end
-
-@doc raw"""
     PowerSpectrum(M, ρ, Q_op, ωlist, reverse; solver, verbose, filename, SOLVEROptions...)
 Calculate power spectrum for the system in frequency domain where `P_op` will be automatically set as the adjoint of `Q_op`.
 
@@ -36,12 +16,12 @@ function PowerSpectrum(
     filename::String = "",
     SOLVEROptions...,
 )
-    HandleMatrixType(Q_op, M.dim)
+    _Q_op = HandleMatrixType(Q_op, M.dims)
     return PowerSpectrum(
         M,
         ρ,
-        Q_op',
-        Q_op,
+        _Q_op',
+        _Q_op,
         ωlist,
         reverse;
         solver = solver,
@@ -113,7 +93,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
     else
         _P = HEOMSuperOp(P_op, EVEN, M)
     end
-    _tr_P = Tr(M.dim, M.N) * _P.data
+    _tr_P = _Tr(M.dims, M.N) * _P.data
 
     # Handle Q_op
     if typeof(Q_op) == HEOMSuperOp

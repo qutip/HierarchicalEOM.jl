@@ -6,7 +6,7 @@ HEOM Liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath
 - `data::T` : the sparse matrix of HEOM Liouvillian superoperator
 - `Btier` : the tier (cutoff level) for bosonic hierarchy
 - `Ftier` : the tier (cutoff level) for fermionic hierarchy
-- `dim` : the dimension of system
+- `dims` : the dimension list of the coupling operator (should be equal to the system dims).
 - `N` : the number of total ADOs
 - `sup_dim` : the dimension of system superoperator
 - `parity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
@@ -18,7 +18,7 @@ struct M_Boson_Fermion{T} <: AbstractHEOMLSMatrix
     data::T
     Btier::Int
     Ftier::Int
-    dim::Int
+    dims::Vector{Int}
     N::Int
     sup_dim::Int
     parity::AbstractParity
@@ -97,9 +97,8 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 )
 
     # check for system dimension
-    _Hsys = HandleMatrixType(Hsys, 0, "Hsys (system Hamiltonian)")
-    Nsys = size(_Hsys, 1)
-    sup_dim = Nsys^2
+    _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian)")
+    sup_dim = prod(_Hsys.dims)^2
     I_sup = sparse(one(ComplexF64) * I, sup_dim, sup_dim)
 
     # the Liouvillian operator for free Hamiltonian term
@@ -110,7 +109,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         print("Checking the importance value for each ADOs...")
         flush(stdout)
     end
-    Nado, baths_b, baths_f, hierarchy = genBathHierarchy(Bbath, Fbath, Btier, Ftier, Nsys, threshold = threshold)
+    Nado, baths_b, baths_f, hierarchy = genBathHierarchy(Bbath, Fbath, Btier, Ftier, _Hsys.dims, threshold = threshold)
     idx2nvec = hierarchy.idx2nvec
     nvec2idx = hierarchy.nvec2idx
     if verbose && (threshold > 0.0)
@@ -222,7 +221,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         L_he,
         Btier,
         Ftier,
-        Nsys,
+        copy(_Hsys.dims),
         Nado,
         sup_dim,
         parity,

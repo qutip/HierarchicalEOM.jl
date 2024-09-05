@@ -114,7 +114,7 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
         ρvec = exp_Mt * ρvec
 
         # save the ADOs
-        ados = ADOs(ρvec, M.dim, M.N, M.parity)
+        ados = ADOs(ρvec, M.dims, M.N, M.parity)
         push!(ADOs_list, ados)
 
         if SAVE
@@ -269,7 +269,7 @@ For more details about solvers and extra options, please refer to [`Differential
         step!(integrator, dt, true)
 
         # save the ADOs
-        ados = ADOs(_HandleVectorType(integrator.u), M.dim, M.N, M.parity)
+        ados = ADOs(_HandleVectorType(integrator.u), M.dims, M.N, M.parity)
         push!(ADOs_list, ados)
 
         if SAVE
@@ -405,9 +405,13 @@ For more details about solvers and extra options, please refer to [`Differential
     end
 
     Ht = H(param, Tlist[1])
-    _Ht = HandleMatrixType(Ht, M.dim, "H (Hamiltonian) at t=$(Tlist[1])")
+    _Ht = HandleMatrixType(Ht, M.dims, "H (Hamiltonian) at t=$(Tlist[1])")
+    Id = I(size(_Ht, 1))
     L0 = MatrixOperator(M.data)
-    Lt = MatrixOperator(HEOMSuperOp(minus_i_L_op(_Ht), M.parity, M, "LR").data, update_func! = _update_Lt!)
+    Lt = MatrixOperator(
+        HEOMSuperOp(-1.0im * (spre(_Ht, Id) - spost(_Ht, Id)), M.parity, M, "LR").data,
+        update_func! = _update_Lt!,
+    )
 
     if verbose
         print(
@@ -417,10 +421,10 @@ For more details about solvers and extra options, please refer to [`Differential
         prog = Progress(length(Tlist); start = 1, desc = "Progress : ", PROGBAR_OPTIONS...)
     end
 
-    parameters = (H = H, param = param, dim = M.dim, N = M.N, parity = M.parity)
+    parameters = (H = H, param = param, dims = M.dims, N = M.N, parity = M.parity, Id_cache = Id)
 
     # problem: dρ/dt = L(t) * ρ(t)
-    ## M.dim will check whether the returned time-dependent Hamiltonian has the correct dimension
+    ## M.dims will check whether the returned time-dependent Hamiltonian has the correct dimension
     prob = ODEProblem{true}(L0 + Lt, _HandleVectorType(typeof(M.data), ados.data), (Tlist[1], Tlist[end]), parameters)
 
     # setup integrator
@@ -449,7 +453,7 @@ For more details about solvers and extra options, please refer to [`Differential
         step!(integrator, dt, true)
 
         # save the ADOs
-        ados = ADOs(_HandleVectorType(integrator.u), M.dim, M.N, M.parity)
+        ados = ADOs(_HandleVectorType(integrator.u), M.dims, M.N, M.parity)
         push!(ADOs_list, ados)
 
         if SAVE
@@ -474,9 +478,9 @@ function _update_Lt!(L, u, p, t)
 
     # check system dimension of Hamiltonian
     Ht = p.H(p.param, t)
-    _Ht = HandleMatrixType(Ht, p.dim, "H (Hamiltonian) at t=$(t)")
+    _Ht = HandleMatrixType(Ht, p.dims, "H (Hamiltonian) at t=$(t)")
 
     # update the block diagonal terms of L
-    copy!(L, HEOMSuperOp(minus_i_L_op(_Ht), p.parity, p.dim, p.N, "LR").data)
+    copy!(L, HEOMSuperOp(-1.0im * (spre(_Ht, p.Id_cache) - spost(_Ht, p.Id_cache)), p.parity, p.dims, p.N, "LR").data)
     return nothing
 end

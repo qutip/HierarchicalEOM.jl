@@ -14,26 +14,26 @@ CUDA.@time @testset "CUDA Extension" begin
     tier = 3
 
     # System Hamiltonian
-    Hsys = [
+    Hsys = Qobj([
         0 0
         0 0
-    ]
+    ])
 
     # system-bath coupling operator
-    Qb = [
+    Qb = Qobj([
         0 1
         1 0
-    ]
-    Qf = [
+    ])
+    Qf = Qobj([
         0 1
         0 0
-    ]
+    ])
 
     # initial state
-    ρ0 = [
+    ρ0 = Qobj([
         0 0
         0 1
-    ]
+    ])
 
     Bbath = Boson_DrudeLorentz_Pade(Qb, λ, W, kT, N)
     Fbath = Fermion_Lorentz_Pade(Qf, λ, μ, W, kT, N)

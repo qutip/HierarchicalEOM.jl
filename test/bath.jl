@@ -9,7 +9,7 @@
     γ2 = [0.1, 0.2, 0.5, 0.6, 0.9]
     γ3 = [0.1, 0.2 + 0.3im, 0.4 - 0.5im, 0.6 + 0.7im, 0.8 - 0.9im]
     γ4 = [0.1, 0.2 - 0.3im, 0.4 + 0.5im, 0.6 - 0.7im, 0.8 + 0.9im]
-    op = [0 0; 0 0]
+    op = Qobj([0 0; 0 0])
 
     ################################################
     # Boson bath
@@ -26,7 +26,7 @@
     for e in b
         push!(η, e.η)
         push!(γ, e.γ)
-        @test e.op == [0 0; 0 0]
+        @test e.op == op
     end
     @test η == [1.0 + 0.0im, 10.0 + 0.0im, 5.0 + 0.0im, 9.0 + 0.0im]
     @test γ == [0.1 + 0.0im, 0.3 + 0.0im, 0.5 + 0.0im, 0.7 + 0.0im]
@@ -46,25 +46,25 @@
     for e in b
         push!(η, e.η)
         push!(γ, e.γ)
-        @test e.op == [0 0; 0 0]
+        @test e.op == op
         @test (e.types == "bR") || (e.types == "bI") || (e.types == "bRI")
     end
     @test η == [10.0 + 0.0im, 9.0 + 0.0im, 4.0 + 0.0im, 8.0 + 0.0im, 10.0 + 0.0im, 1.0 + 2.0im, 5.0 + 6.0im]
     @test γ == [0.3 + 0.0im, 0.7 + 0.0im, 0.2 + 0.0im, 0.6 + 0.0im, 0.9 + 0.0im, 0.1 + 0.0im, 0.5 + 0.0im]
-    @test show(devnull, MIME("text/plain"), b) == nothing
+    @test show(devnull, MIME("text/plain"), b) === nothing
 
     ## check for exponents
-    @test show(devnull, MIME("text/plain"), b[1]) == nothing
-    @test show(devnull, MIME("text/plain"), b[:]) == nothing
-    @test show(devnull, MIME("text/plain"), b[1:end]) == nothing
+    @test show(devnull, MIME("text/plain"), b[1]) === nothing
+    @test show(devnull, MIME("text/plain"), b[:]) === nothing
+    @test show(devnull, MIME("text/plain"), b[1:end]) === nothing
 
     ## check exceptions
     @test_throws ErrorException BosonBath(op, [0], [0, 0])
     @test_throws ErrorException BosonBath(op, [0, 0], [0, 0], [0], [0, 0])
     @test_throws ErrorException BosonBath(op, [0, 0], [0], [0, 0], [0, 0])
-    @test_throws ErrorException BosonBath([0, 0], [0, 0], [0, 0], [0, 0], [0, 0])
-    @test_warn "The system-bosonic-bath coupling operator \"op\" should be Hermitian operator" BosonBath(
-        [0 1; 0 0],
+    @test_throws ErrorException BosonBath(Qobj([0, 0]), [0, 0], [0, 0], [0, 0], [0, 0])
+    @test_warn "The system-bosonic-bath coupling operator \"op\" should be Hermitian Operator" BosonBath(
+        Qobj([0 1; 0 0]),
         [0, 0],
         [0, 0],
         [0, 0],
@@ -86,7 +86,7 @@
     for e in b
         push!(η, e.η)
         push!(γ, e.γ)
-        @test e.op == [0 0; 0 0]
+        @test e.op == op
         @test (e.types == "bA") || (e.types == "bE")
     end
     @test η == [1, 3, 5, 7, 9, 2, 4, 6, 8, 10]
@@ -114,7 +114,7 @@
     @test_throws ErrorException BosonBathRWA(op, [0, 0], [0], [0, 0], [0, 0])
     @test_throws ErrorException BosonBathRWA(op, [0, 0], [0, 0], [0], [0, 0])
     @test_throws ErrorException BosonBathRWA(op, [0, 0], [0, 0], [0, 0], [0])
-    @test_throws ErrorException BosonBathRWA([0, 0], [0, 0], [0, 0], [0, 0], [0, 0])
+    @test_throws ErrorException BosonBathRWA(Qobj([0, 0]), [0, 0], [0, 0], [0, 0], [0, 0])
     @test_warn "The elements in \'γ_absorb\' should be complex conjugate of the corresponding elements in \'γ_emit\'." BosonBathRWA(
         op,
         [0, 0],
@@ -132,22 +132,22 @@
     @test cp[1] ≈ 22.384506765987076 + 0.7399082821797519im
     @test cm[1] ≈ 26.994911851482776 - 0.799138487523946im
     for e in b
-        @test e.op == [0 0; 0 0]
+        @test e.op == op
         @test (e.types == "fA") || (e.types == "fE")
     end
-    @test show(devnull, MIME("text/plain"), b) == nothing
+    @test show(devnull, MIME("text/plain"), b) === nothing
 
     ## check for exponents
-    @test show(devnull, MIME("text/plain"), b[1]) == nothing
-    @test show(devnull, MIME("text/plain"), b[:]) == nothing
-    @test show(devnull, MIME("text/plain"), b[1:end]) == nothing
+    @test show(devnull, MIME("text/plain"), b[1]) === nothing
+    @test show(devnull, MIME("text/plain"), b[:]) === nothing
+    @test show(devnull, MIME("text/plain"), b[1:end]) === nothing
 
     ## check exceptions
     @test_throws ErrorException FermionBath(op, [0], [0, 0], [0, 0], [0, 0])
     @test_throws ErrorException FermionBath(op, [0, 0], [0], [0, 0], [0, 0])
     @test_throws ErrorException FermionBath(op, [0, 0], [0, 0], [0], [0, 0])
     @test_throws ErrorException FermionBath(op, [0, 0], [0, 0], [0, 0], [0])
-    @test_throws ErrorException FermionBath([0, 0], [0, 0], [0, 0], [0, 0], [0, 0])
+    @test_throws ErrorException FermionBath(Qobj([0, 0]), [0, 0], [0, 0], [0, 0], [0, 0])
     @test_warn "The elements in \'γ_absorb\' should be complex conjugate of the corresponding elements in \'γ_emit\'." FermionBath(
         op,
         [0, 0],

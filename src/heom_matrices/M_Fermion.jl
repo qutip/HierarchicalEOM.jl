@@ -5,7 +5,7 @@ HEOM Liouvillian superoperator matrix for fermionic bath
 # Fields
 - `data::T` : the sparse matrix of HEOM Liouvillian superoperator
 - `tier` : the tier (cutoff level) for the fermionic hierarchy
-- `dim` : the dimension of system
+- `dims` : the dimension list of the coupling operator (should be equal to the system dims).
 - `N` : the number of total ADOs
 - `sup_dim` : the dimension of system superoperator
 - `parity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
@@ -15,7 +15,7 @@ HEOM Liouvillian superoperator matrix for fermionic bath
 struct M_Fermion{T} <: AbstractHEOMLSMatrix
     data::T
     tier::Int
-    dim::Int
+    dims::Vector{Int}
     N::Int
     sup_dim::Int
     parity::AbstractParity
@@ -58,9 +58,8 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
 )
 
     # check for system dimension
-    _Hsys = HandleMatrixType(Hsys, 0, "Hsys (system Hamiltonian)")
-    Nsys = size(_Hsys, 1)
-    sup_dim = Nsys^2
+    _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian)")
+    sup_dim = prod(_Hsys.dims)^2
     I_sup = sparse(one(ComplexF64) * I, sup_dim, sup_dim)
 
     # the Liouvillian operator for free Hamiltonian term
@@ -71,7 +70,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         print("Checking the importance value for each ADOs...")
         flush(stdout)
     end
-    Nado, baths, hierarchy = genBathHierarchy(Bath, tier, Nsys, threshold = threshold)
+    Nado, baths, hierarchy = genBathHierarchy(Bath, tier, _Hsys.dims, threshold = threshold)
     idx2nvec = hierarchy.idx2nvec
     nvec2idx = hierarchy.nvec2idx
     if verbose && (threshold > 0.0)
@@ -146,5 +145,14 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         println("[DONE]")
         flush(stdout)
     end
-    return M_Fermion{SparseMatrixCSC{ComplexF64,Int64}}(L_he, tier, Nsys, Nado, sup_dim, parity, Bath, hierarchy)
+    return M_Fermion{SparseMatrixCSC{ComplexF64,Int64}}(
+        L_he,
+        tier,
+        copy(_Hsys.dims),
+        Nado,
+        sup_dim,
+        parity,
+        Bath,
+        hierarchy,
+    )
 end

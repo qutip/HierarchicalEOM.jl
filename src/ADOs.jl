@@ -1,10 +1,10 @@
 @doc raw"""
-    mutable struct ADOs
+    struct ADOs
 The Auxiliary Density Operators for HEOM model.
 
 # Fields
 - `data` : the vectorized auxiliary density operators
-- `dim` : the dimension of the system
+- `dims` : the dimension list of the coupling operator (should be equal to the system dims).
 - `N` : the number of auxiliary density operators
 - `parity`: the parity label (`EVEN` or `ODD`).
 
@@ -21,11 +21,11 @@ for rho in ados  # iteration
 end
 ```
 """
-mutable struct ADOs
+struct ADOs
     data::SparseVector{ComplexF64,Int64}
-    const dim::Int
-    const N::Int
-    const parity::AbstractParity
+    dims::Vector{Int}
+    N::Int
+    parity::AbstractParity
 end
 
 @doc raw"""
@@ -42,7 +42,7 @@ function ADOs(V::AbstractVector, N::Int, parity::AbstractParity = EVEN)
     d = size(V, 1)
     dim = √(d / N)
     if isinteger(dim)
-        return ADOs(sparsevec(V), Int(dim), N, parity)
+        return ADOs(sparsevec(V), [Int(dim)], N, parity)
     else
         error("The dimension of vector is not consistent with the ADOs number \"N\".")
     end
@@ -57,10 +57,12 @@ Gernerate the object of auxiliary density operators for HEOM model.
 - `N::Int` : the number of auxiliary density operators.
 - `parity::AbstractParity` : the parity label (`EVEN` or `ODD`). Default to `EVEN`.
 """
-function ADOs(ρ, N::Int = 1, parity::AbstractParity = EVEN)
-    _ρ = sparsevec(HandleMatrixType(ρ, 0, "ρ"))
-    return ADOs(sparsevec(_ρ.nzind, _ρ.nzval, N * length(_ρ)), N, parity)
+function ADOs(ρ::QuantumObject, N::Int = 1, parity::AbstractParity = EVEN)
+    _ρ = sparsevec(ket2dm(ρ).data)
+    return ADOs(sparsevec(_ρ.nzind, _ρ.nzval, N * length(_ρ)), ρ.dims, N, parity)
 end
+ADOs(ρ, N::Int = 1, parity::AbstractParity = EVEN) =
+    error("HierarchicalEOM doesn't support input `ρ` with type : $(typeof(ρ))")
 
 checkbounds(A::ADOs, i::Int) =
     ((i > A.N) || (i < 1)) ? error("Attempt to access $(A.N)-element ADOs at index [$(i)]") : nothing
@@ -82,9 +84,10 @@ lastindex(A::ADOs) = length(A)
 function getindex(A::ADOs, i::Int)
     checkbounds(A, i)
 
-    sup_dim = A.dim^2
+    D = prod(A.dims)
+    sup_dim = D^2
     back = sup_dim * i
-    return sparse(reshape(A.data[(back-sup_dim+1):back], A.dim, A.dim))
+    return QuantumObject(reshape(A.data[(back-sup_dim+1):back], D, D), Operator, A.dims)
 end
 
 function getindex(A::ADOs, r::UnitRange{Int})
@@ -92,10 +95,11 @@ function getindex(A::ADOs, r::UnitRange{Int})
     checkbounds(A, r[end])
 
     result = []
-    sup_dim = A.dim^2
+    D = prod(A.dims)
+    sup_dim = D^2
     for i in r
         back = sup_dim * i
-        push!(result, sparse(reshape(A.data[(back-sup_dim+1):back], A.dim, A.dim)))
+        push!(result, QuantumObject(reshape(A.data[(back-sup_dim+1):back], D, D), Operator, A.dims))
     end
     return result
 end
@@ -103,7 +107,7 @@ getindex(A::ADOs, ::Colon) = getindex(A, 1:lastindex(A))
 
 iterate(A::ADOs, state::Int = 1) = state > length(A) ? nothing : (A[state], state + 1)
 
-show(io::IO, A::ADOs) = print(io, "$(A.N) Auxiliary Density Operators with $(A.parity) and (system) dim = $(A.dim)\n")
+show(io::IO, A::ADOs) = print(io, "$(A.N) Auxiliary Density Operators with $(A.parity) and (system) dims = $(A.dims)\n")
 show(io::IO, m::MIME"text/plain", A::ADOs) = show(io, A)
 
 @doc raw"""
@@ -114,9 +118,12 @@ Return the density matrix of the reduced state (system) from a given auxiliary d
 - `ados::ADOs` : the auxiliary density operators for HEOM model
 
 # Returns
-- `ρ` : The density matrix of the reduced state
+- `ρ::QuantumObject` : The density matrix of the reduced state
 """
-getRho(ados::ADOs) = sparse(reshape(ados.data[1:((ados.dim)^2)], ados.dim, ados.dim))
+function getRho(ados::ADOs)
+    D = prod(ados.dims)
+    return QuantumObject(reshape(ados.data[1:(D^2)], D, D), Operator, ados.dims)
+end
 
 @doc raw"""
     getADO(ados, idx)
@@ -129,15 +136,15 @@ This function equals to calling : `ados[idx]`.
 - `idx::Int` : the index of the auxiliary density operator
 
 # Returns
-- `ρ_idx` : The auxiliary density operator
+- `ρ_idx::QuantumObject` : The auxiliary density operator
 """
 getADO(ados::ADOs, idx::Int) = ados[idx]
 
 @doc raw"""
-    Expect(op, ados; take_real=true)
+    expect(op, ados; take_real=true)
 Return the expectation value of the operator `op` for the reduced density operator in the given `ados`, namely
 ```math
-\textrm{Re}\left\{\textrm{Tr}\left[ O \rho \right]\right\},
+\textrm{Tr}\left[ O \rho \right],
 ```
 where ``O`` is the operator and ``\rho`` is the reduced density operator in the given ADOs.
 
@@ -149,13 +156,13 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in the 
 # Returns
 - `exp_val` : The expectation value
 """
-function Expect(op, ados::ADOs; take_real = true)
+function expect(op, ados::ADOs; take_real::Bool = true)
     if typeof(op) == HEOMSuperOp
         _check_sys_dim_and_ADOs_num(op, ados)
-        exp_val = Tr(ados.dim, ados.N) * (op * ados).data
+        exp_val = _Tr(ados.dims, ados.N) * (op * ados).data
     else
-        _op = HandleMatrixType(op, ados.dim, "op (observable)")
-        exp_val = tr(_op * getRho(ados))
+        _op = HandleMatrixType(op, ados.dims, "op (observable)"; type = Operator)
+        exp_val = tr(_op.data * getRho(ados).data)
     end
 
     if take_real
@@ -166,10 +173,10 @@ function Expect(op, ados::ADOs; take_real = true)
 end
 
 @doc raw"""
-    Expect(op, ados_list; take_real=true)
+    expect(op, ados_list; take_real=true)
 Return a list of expectation values of the operator `op` corresponds to the reduced density operators in the given `ados_list`, namely
 ```math
-\textrm{Re}\left\{\textrm{Tr}\left[ O \rho \right]\right\},
+\textrm{Tr}\left[ O \rho \right],
 ```
 where ``O`` is the operator and ``\rho`` is the reduced density operator in one of the `ADOs` from `ados_list`.
 
@@ -181,8 +188,8 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in one 
 # Returns
 - `exp_val` : The expectation value
 """
-function Expect(op, ados_list::Vector{ADOs}; take_real = true)
-    dim = ados_list[1].dim
+function expect(op, ados_list::Vector{ADOs}; take_real::Bool = true)
+    dims = ados_list[1].dims
     N = ados_list[1].N
     for i in 2:length(ados_list)
         _check_sys_dim_and_ADOs_num(ados_list[1], ados_list[i])
@@ -192,9 +199,9 @@ function Expect(op, ados_list::Vector{ADOs}; take_real = true)
         _check_sys_dim_and_ADOs_num(op, ados_list[1])
         _op = op
     else
-        _op = HEOMSuperOp(op, EVEN, dim, N, "L")
+        _op = HEOMSuperOp(op, EVEN, dims, N, "L")
     end
-    tr_op = Tr(dim, N) * _op.data
+    tr_op = _Tr(dims, N) * _op.data
 
     exp_val = [(tr_op * ados.data) for ados in ados_list]
 

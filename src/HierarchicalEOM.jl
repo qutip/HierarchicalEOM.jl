@@ -1,15 +1,14 @@
 module HierarchicalEOM
 import Reexport: @reexport
 
-export Bath, HeomAPI, Spectrum
-
 # sub-module HeomBase for HierarchicalEOM
 module HeomBase
     import Pkg
-    import LinearAlgebra: BLAS, kron
-    import SparseArrays: I, sparse, SparseVector, SparseMatrixCSC
+    import LinearAlgebra: BLAS, kron, I
+    import SparseArrays: sparse, SparseVector, SparseMatrixCSC
+    import QuantumToolbox: QuantumObject, QuantumObjectType, Operator, SuperOperator
 
-    export Tr,
+    export _Tr,
         PROGBAR_OPTIONS,
         AbstractHEOMLSMatrix,
         _check_sys_dim_and_ADOs_num,
@@ -24,17 +23,14 @@ module HeomBase
 end
 import .HeomBase.versioninfo as versioninfo
 import .HeomBase.print_logo as print_logo
-import .HeomBase.spre as spre
-import .HeomBase.spost as spost
-@reexport using .HeomBase
 
 # sub-module Bath for HierarchicalEOM
 module Bath
     using ..HeomBase
-    using ..HeomBase: spre, spost
     import Base: show, length, getindex, lastindex, iterate, checkbounds
-    import LinearAlgebra: ishermitian, eigvals
+    import LinearAlgebra: ishermitian, eigvals, I
     import SparseArrays: SparseMatrixCSC
+    import QuantumToolbox: QuantumObject, _spre, _spost
 
     export AbstractBath,
         BosonBath,
@@ -63,8 +59,8 @@ end
 
 # sub-module HeomAPI for HierarchicalEOM
 module HeomAPI
+    import Reexport: @reexport
     using ..HeomBase
-    using ..HeomBase: spre, spost
     using ..Bath
     import Base:
         ==,
@@ -87,6 +83,9 @@ module HeomAPI
     import Base.Threads: @threads, threadid, nthreads, lock, unlock, SpinLock
     import LinearAlgebra: I, kron, tr
     import SparseArrays: sparse, sparsevec, spzeros, SparseVector, SparseMatrixCSC
+    import QuantumToolbox:
+        QuantumObject, Operator, SuperOperator, _spre, _spost, spre, spost, sprepost, ket2dm, lindblad_dissipator
+    @reexport import QuantumToolbox: expect
     import ProgressMeter: Progress, next!
     import FastExpm: fastExpm
 
@@ -110,7 +109,6 @@ module HeomAPI
         ADOs,
         getRho,
         getADO,
-        Expect,
         Nvec,
         AbstractHierarchyDict,
         HierarchyDict,
@@ -151,12 +149,11 @@ module Spectrum
     import LinearSolve: LinearProblem, init, solve!, UMFPACKFactorization
     import ProgressMeter: Progress, next!
 
-    export spectrum, PowerSpectrum, DensityOfStates
+    export PowerSpectrum, DensityOfStates
 
     include("power_spectrum.jl")
     include("density_of_states.jl")
 end
 @reexport using .Spectrum
 
-include("precompile.jl")
 end

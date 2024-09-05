@@ -40,7 +40,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
         flush(stdout)
     end
 
-    return ADOs(_HandleVectorType(sol.u, false), M.dim, M.N, M.parity)
+    return ADOs(_HandleVectorType(sol.u, false), M.dims, M.N, M.parity)
 end
 
 @doc raw"""
@@ -149,7 +149,7 @@ For more details about solvers, and extra options, please refer to [`Differentia
         flush(stdout)
     end
 
-    return ADOs(_HandleVectorType(sol.u[end], false), M.dim, M.N, M.parity)
+    return ADOs(_HandleVectorType(sol.u[end], false), M.dims, M.N, M.parity)
 end
 
 function _ss_condition(integrator, abstol, reltol, min_t)

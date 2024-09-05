@@ -13,33 +13,33 @@
     μR = -0.5
     kT = 0.025
 
-    Hsys = [
+    Hsys = Qobj([
         0 0 0 0
         0 0.2 0 0
         0 0 0.208 0.04
         0 0 0.04 0.408
-    ]
+    ])
 
-    ρ0 = [
+    ρ0 = Qobj([
         1 0 0 0
         0 0 0 0
         0 0 0 0
         0 0 0 0
-    ]
+    ])
 
-    cop = [
+    cop = Qobj([
         0 1 0 0
         1 0 0 0
         0 0 0 1
         0 0 1 0
-    ]
+    ])
 
-    dop = [
+    dop = Qobj([
         0 0 1 0
         0 0 0 1
         0 0 0 0
         0 0 0 0
-    ]
+    ])
 
     bbath = Boson_DrudeLorentz_Matsubara(cop, Λ, ωcα, kT, Nb)
     fbath = [Fermion_Lorentz_Pade(dop, Γ, μL, Dα, kT, Nf), Fermion_Lorentz_Pade(dop, Γ, μR, Dα, kT, Nf)]

@@ -9,31 +9,31 @@
     tier = 3
 
     # System Hamiltonian
-    Hsys = [
+    Hsys = Qobj([
         0.6969 0.4364
         0.4364 0.3215
-    ]
+    ])
 
     # system-bath coupling operator
-    Q = [
+    Q = Qobj([
         0.1234 0.1357+0.2468im
         0.1357-0.2468im 0.5678
-    ]
+    ])
     Bbath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
     Fbath = Fermion_Lorentz_Pade(Q, λ, μ, W, kT, N)
 
     # jump operator
-    J = [0 0.1450-0.7414im; 0.1450+0.7414im 0]
+    J = Qobj([0 0.1450-0.7414im; 0.1450+0.7414im 0])
 
     L = M_Fermion(Hsys, tier, Fbath; verbose = false)
-    @test show(devnull, MIME("text/plain"), L) == nothing
+    @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (1196, 1196)
     @test L.N == 299
     @test nnz(L.data) == 21318
     L = addFermionDissipator(L, J)
     @test nnz(L.data) == 22516
     ados = SteadyState(L; verbose = false)
-    @test ados.dim == L.dim
+    @test ados.dims == L.dims
     @test length(ados) == L.N
     @test eltype(L) == eltype(ados)
     ρ0 = ados[1]
@@ -51,7 +51,7 @@
     @test nnz(L.data) == 2054
     ados = SteadyState(L; verbose = false)
     ρ2 = ados[1]
-    @test _is_Matrix_approx(ρ0, ρ2)
+    @test _is_Matrix_approx(ρ2, ρ0.data)
 
     L = M_Fermion(Hsys, tier, [Fbath, Fbath]; verbose = false)
     @test size(L) == (9300, 9300)
@@ -60,7 +60,7 @@
     L = addFermionDissipator(L, J)
     @test nnz(L.data) == 183640
     ados = SteadyState(L; verbose = false)
-    @test ados.dim == L.dim
+    @test ados.dims == L.dims
     @test length(ados) == L.N
     ρ0 = ados[1]
     @test getRho(ados) == ρ0

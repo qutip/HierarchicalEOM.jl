@@ -1,7 +1,7 @@
 module HierarchicalEOM_CUDAExt
 
 using HierarchicalEOM
-import HierarchicalEOM.HeomBase: _HandleVectorType, _HandleSteadyStateMatrix, _HandleIdentityType
+import HierarchicalEOM.HeomBase: AbstractHEOMLSMatrix, _HandleVectorType, _HandleIdentityType
 import CUDA
 import CUDA: cu, CuArray
 import CUDA.CUSPARSE: CuSparseMatrixCSC
