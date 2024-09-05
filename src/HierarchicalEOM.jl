@@ -158,5 +158,4 @@ module Spectrum
 end
 @reexport using .Spectrum
 
-include("precompile.jl")
 end
