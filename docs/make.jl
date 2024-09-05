@@ -7,6 +7,8 @@ using Documenter, HierarchicalEOM
 
 const DRAFT = false # set `true` to disable cell evaluation
 
+ENV["GKSwstype"] = "100" # enable headless mode for GR to suppress warnings when plotting
+
 const MathEngine = MathJax3(
     Dict(
         :loader => Dict("load" => ["[tex]/physics"]),
@@ -57,7 +59,7 @@ const PAGES = Any[
     "Home" => Any[
         "Introduction" => "index.md",
         "Installation" => "install.md",
-        #"Quick Start"  => "examples/quick_start.md",
+        "Quick Start"  => "examples/quick_start.md",
         "Cite HierarchicalEOM.jl" => "cite.md"
     ],
     "Manual" => Any[
