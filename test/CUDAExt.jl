@@ -32,21 +32,21 @@ CUDA.@time @testset "CUDA Extension" begin
     L_gpu = cu(L_cpu)
     ados_cpu = evolution(L_cpu, ψ0, [0, 10]; verbose = false)
     ados_gpu = evolution(L_gpu, ψ0, [0, 10]; verbose = false)
-    @test _is_Matrix_approx(getRho(ados_cpu[end]), getRho(ados_cpu[end]))
+    @test getRho(ados_cpu[end]) ≈ getRho(ados_gpu[end])
 
     ## Boson HEOMLS
     L_cpu = M_Boson(Hsys, tier, Bbath; verbose = false)
     L_gpu = cu(L_cpu)
     ados_cpu = evolution(L_cpu, ψ0, [0, 10]; verbose = false)
     ados_gpu = evolution(L_gpu, ψ0, [0, 10]; verbose = false)
-    @test _is_Matrix_approx(getRho(ados_cpu[end]), getRho(ados_cpu[end]))
+    @test getRho(ados_cpu[end]) ≈ getRho(ados_gpu[end])
 
     ## Boson Fermion HEOMLS
     L_cpu = M_Fermion(Hsys, tier, Fbath; verbose = false)
     L_gpu = cu(L_cpu)
     ados_cpu = evolution(L_cpu, ψ0, [0, 10]; verbose = false)
     ados_gpu = evolution(L_gpu, ψ0, [0, 10]; verbose = false)
-    @test _is_Matrix_approx(getRho(ados_cpu[end]), getRho(ados_cpu[end]))
+    @test getRho(ados_cpu[end]) ≈ getRho(ados_gpu[end])
 
     ## Boson Fermion HEOMLS
     L_cpu = M_Boson_Fermion(Hsys, tier, tier, Bbath, Fbath; verbose = false)
@@ -55,7 +55,7 @@ CUDA.@time @testset "CUDA Extension" begin
     ados_cpu = evolution(L_cpu, ψ0, tlist; verbose = false)
     ados_gpu = evolution(L_gpu, ψ0, tlist; verbose = false)
     for i in 1:length(tlist)
-        @test _is_Matrix_approx(getRho(ados_cpu[i]), getRho(ados_cpu[i]))
+        @test getRho(ados_cpu[i]) ≈ getRho(ados_gpu[i])
     end
 
     # SIAM
