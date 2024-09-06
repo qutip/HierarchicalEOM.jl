@@ -1,5 +1,7 @@
 module HierarchicalEOM
+
 import Reexport: @reexport
+@reexport using QuantumToolbox
 
 # sub-module HeomBase for HierarchicalEOM
 module HeomBase
@@ -23,6 +25,7 @@ module HeomBase
 end
 import .HeomBase.versioninfo as versioninfo
 import .HeomBase.print_logo as print_logo
+@reexport import .HeomBase: AbstractHEOMLSMatrix
 
 # sub-module Bath for HierarchicalEOM
 module Bath
@@ -84,8 +87,7 @@ module HeomAPI
     import LinearAlgebra: I, kron, tr
     import SparseArrays: sparse, sparsevec, spzeros, SparseVector, SparseMatrixCSC
     import QuantumToolbox:
-        QuantumObject, Operator, SuperOperator, _spre, _spost, spre, spost, sprepost, ket2dm, lindblad_dissipator
-    @reexport import QuantumToolbox: expect
+        QuantumObject, Operator, SuperOperator, _spre, _spost, spre, spost, sprepost, expect, ket2dm, lindblad_dissipator
     import ProgressMeter: Progress, next!
     import FastExpm: fastExpm
 
@@ -148,6 +150,7 @@ module Spectrum
     import ..HeomAPI: HEOMSuperOp, ADOs, EVEN, ODD
     import LinearSolve: LinearProblem, init, solve!, UMFPACKFactorization
     import ProgressMeter: Progress, next!
+    import QuantumToolbox: QuantumObject
 
     export PowerSpectrum, DensityOfStates
 

@@ -7,7 +7,7 @@ This method will return the time evolution of `ADOs` corresponds to `tlist = 0 :
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
-- `ρ0` : system initial state (density matrix)
+- `ρ0::QuantumObject` : system initial state (density matrix)
 - `Δt::Real` : A specific time step (time interval).
 - `steps::Int` : The number of time steps
 - `threshold::Real` : Determines the threshold for the Taylor series. Defaults to `1.0e-6`.
@@ -22,7 +22,7 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
 """
 function evolution(
     M::AbstractHEOMLSMatrix,
-    ρ0,
+    ρ0::QuantumObject,
     Δt::Real,
     steps::Int;
     threshold = 1.0e-6,
@@ -141,7 +141,7 @@ with initial state is given in the type of density-matrix (`ρ0`).
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
-- `ρ0` : system initial state (density matrix)
+- `ρ0::QuantumObject` : system initial state (density matrix)
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
@@ -159,7 +159,7 @@ For more details about solvers and extra options, please refer to [`Differential
 """
 function evolution(
     M::AbstractHEOMLSMatrix,
-    ρ0,
+    ρ0::QuantumObject,
     tlist::AbstractVector;
     solver = DP5(),
     reltol::Real = 1.0e-6,
@@ -295,7 +295,7 @@ Solve the time evolution for auxiliary density operators with time-dependent sys
 with initial state is given in the type of density-matrix (`ρ0`).
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model (with time-independent system Hamiltonian)
-- `ρ0` : system initial state (density matrix)
+- `ρ0::QuantumObject` : system initial state (density matrix)
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `H::Function` : a function for time-dependent part of system Hamiltonian. The function will be called by `H(param, t)` and should return the time-dependent part system Hamiltonian matrix at time `t` with `AbstractMatrix` type.
 - `param::Tuple`: the tuple of parameters which is used to call `H(param, t)` for the time-dependent system Hamiltonian. Default to empty tuple `()`.
@@ -315,7 +315,7 @@ For more details about solvers and extra options, please refer to [`Differential
 """
 function evolution(
     M::AbstractHEOMLSMatrix,
-    ρ0,
+    ρ0::QuantumObject,
     tlist::AbstractVector,
     H::Function,
     param::Tuple = ();

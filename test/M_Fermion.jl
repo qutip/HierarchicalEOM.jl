@@ -74,5 +74,5 @@
     @test_throws BoundsError L[1, 9301]
     @test_throws BoundsError L[1:9301, 9300]
     @test_throws ErrorException ados[L.N+1]
-    @test_throws ErrorException M_Fermion([0, 0], tier, Fbath; verbose = false)
+    @test_throws ErrorException M_Fermion(Qobj([0, 0]), tier, Fbath; verbose = false)
 end

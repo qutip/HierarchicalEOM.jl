@@ -24,7 +24,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
 @noinline function DensityOfStates(
     M::AbstractHEOMLSMatrix,
     ρ,
-    d_op,
+    d_op::QuantumObject,
     ωlist::AbstractVector;
     solver = UMFPACKFactorization(),
     verbose::Bool = true,

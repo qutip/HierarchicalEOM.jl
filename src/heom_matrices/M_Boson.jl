@@ -24,7 +24,7 @@ struct M_Boson{T} <: AbstractHEOMLSMatrix
 end
 
 function M_Boson(
-    Hsys,
+    Hsys::QuantumObject,
     tier::Int,
     Bath::BosonBath,
     parity::AbstractParity = EVEN;
@@ -51,7 +51,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 [1] [Phys. Rev. B 88, 235426 (2013)](https://doi.org/10.1103/PhysRevB.88.235426)
 """
 @noinline function M_Boson(
-    Hsys,
+    Hsys::QuantumObject,
     tier::Int,
     Bath::Vector{BosonBath},
     parity::AbstractParity = EVEN;

@@ -39,5 +39,5 @@
     @test_throws BoundsError L[1, 5]
     @test_throws BoundsError L[1:5, 2]
     @test_throws ErrorException ados[L.N+1]
-    @test_throws ErrorException M_S([0, 0]; verbose = false)
+    @test_throws ErrorException M_S(Qobj([0, 0]); verbose = false)
 end

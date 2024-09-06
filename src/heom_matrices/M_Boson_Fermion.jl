@@ -28,7 +28,7 @@ struct M_Boson_Fermion{T} <: AbstractHEOMLSMatrix
 end
 
 function M_Boson_Fermion(
-    Hsys,
+    Hsys::QuantumObject,
     Btier::Int,
     Ftier::Int,
     Bbath::BosonBath,
@@ -41,7 +41,7 @@ function M_Boson_Fermion(
 end
 
 function M_Boson_Fermion(
-    Hsys,
+    Hsys::QuantumObject,
     Btier::Int,
     Ftier::Int,
     Bbath::Vector{BosonBath},
@@ -54,7 +54,7 @@ function M_Boson_Fermion(
 end
 
 function M_Boson_Fermion(
-    Hsys,
+    Hsys::QuantumObject,
     Btier::Int,
     Ftier::Int,
     Bbath::BosonBath,
@@ -86,7 +86,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 [2] [Phys. Rev. B 103, 235413 (2021)](https://doi.org/10.1103/PhysRevB.103.235413)
 """
 @noinline function M_Boson_Fermion(
-    Hsys,
+    Hsys::QuantumObject,
     Btier::Int,
     Ftier::Int,
     Bbath::Vector{BosonBath},

@@ -24,7 +24,7 @@ struct M_Fermion{T} <: AbstractHEOMLSMatrix
 end
 
 function M_Fermion(
-    Hsys,
+    Hsys::QuantumObject,
     tier::Int,
     Bath::FermionBath,
     parity::AbstractParity = EVEN;
@@ -49,7 +49,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
 [1] [Phys. Rev. B 88, 235426 (2013)](https://doi.org/10.1103/PhysRevB.88.235426)
 """
 @noinline function M_Fermion(
-    Hsys,
+    Hsys::QuantumObject,
     tier::Int,
     Bath::Vector{FermionBath},
     parity::AbstractParity = EVEN;

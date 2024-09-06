@@ -81,5 +81,5 @@
 
     ## check exceptions
     @test_throws ErrorException ados[L.N+1]
-    @test_throws ErrorException M_Boson_Fermion([0, 0], tierb, tierf, Bbath, Fbath; verbose = false)
+    @test_throws ErrorException M_Boson_Fermion(Qobj([0, 0]), tierb, tierf, Bbath, Fbath; verbose = false)
 end

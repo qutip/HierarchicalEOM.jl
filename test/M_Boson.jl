@@ -64,5 +64,5 @@
     @test_throws BoundsError L[1, 1821]
     @test_throws BoundsError L[1:1821, 336]
     @test_throws ErrorException ados[L.N+1]
-    @test_throws ErrorException M_Boson([0, 0], tier, Bbath; verbose = false)
+    @test_throws ErrorException M_Boson(Qobj([0, 0]), tier, Bbath; verbose = false)
 end

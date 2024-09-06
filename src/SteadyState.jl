@@ -49,7 +49,7 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
-- `ρ0` : system initial state (density matrix)
+- `ρ0::QuantumObject` : system initial state (density matrix)
 - `tspan::Number` : the time limit to find stationary state. Default to `Inf`
 - `solver` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-8`.
@@ -65,7 +65,7 @@ For more details about solvers, and extra options, please refer to [`Differentia
 """
 function SteadyState(
     M::AbstractHEOMLSMatrix,
-    ρ0,
+    ρ0::QuantumObject,
     tspan::Number = Inf;
     solver = DP5(),
     reltol::Real = 1.0e-8,

@@ -1,8 +1,6 @@
 using Pkg
 using Test
-using QuantumToolbox
 using HierarchicalEOM
-using LinearAlgebra, SparseArrays
 
 const GROUP = get(ENV, "GROUP", "All")
 

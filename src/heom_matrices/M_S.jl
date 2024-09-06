@@ -40,7 +40,7 @@ where ``[\cdot, \cdot]_-`` stands for commutator.
 
 Note that the parity only need to be set as `ODD` when the system contains fermionic systems and you need to calculate the spectrum (density of states) of it.
 """
-@noinline function M_S(Hsys, parity::AbstractParity = EVEN; verbose::Bool = true)
+@noinline function M_S(Hsys::QuantumObject, parity::AbstractParity = EVEN; verbose::Bool = true)
 
     # check for system dimension
     _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian)")
