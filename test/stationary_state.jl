@@ -3,7 +3,7 @@
     # System Hamiltonian and initial state
     d = sigmam()
     Hsys = d' * d
-    ρ0 = Qobj([1 0; 0 0])
+    ψ0 = basis(2, 0)
 
     # Bath properties:
     Γ = 1.0
@@ -18,7 +18,7 @@
     tier = 5
     L = M_Fermion(Hsys, tier, baths; verbose = false)
 
-    ados = SteadyState(L, ρ0; verbose = false)
+    ados = SteadyState(L, ψ0; verbose = false)
     ρs = getRho(ados)
     O = qeye(2) + 0.5 * sigmax()
     @test expect(O, ados) ≈ real(tr(O * ρs))
