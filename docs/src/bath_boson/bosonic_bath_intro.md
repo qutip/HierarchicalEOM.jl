@@ -20,7 +20,7 @@ C(t_1, t_2)=\sum_i \eta_i e^{-\gamma_i (t_1-t_2)}.
 This allows us to define an iterative procedure which leads to the hierarchical equations of motion (HEOM).
 
 ## Construct BosonBath (with real and imaginary parts are combined)
-One can construct the [`BosonBath`](@ref) object with the coupling operator `Vs::AbstractMatrix` and the two lists `η::AbstractVector` and `γ::AbstractVector` which corresponds to the exponential terms ``\{\eta_i\}_i`` and ``\{\gamma_i\}_i``, respectively.
+One can construct the [`BosonBath`](@ref) object with the coupling operator `Vs::QuantumObject` and the two lists `η::AbstractVector` and `γ::AbstractVector` which corresponds to the exponential terms ``\{\eta_i\}_i`` and ``\{\gamma_i\}_i``, respectively.
 ```julia
 bath = BosonBath(Vs, η, γ)
 ```
@@ -52,7 +52,7 @@ One can check the information of the [`BosonBath`](@ref) by the `print` function
 print(bath)
 ```
 ```
-BosonBath object with (system) dim = 2 and 4 exponential-expansion terms
+BosonBath object with (system) dims = [2] and 4 exponential-expansion terms
 ```
 
 ## Calculate the correlation function
@@ -69,7 +69,7 @@ e = bath[2] # the 2nd-term
 print(e)
 ```
 ```
-Bath Exponent with types = "bRI", operator size = (2, 2), η = 1.5922874021206546e-6 + 0.0im, γ = 0.3141645167860635 + 0.0im.
+Bath Exponent with types = "bRI", η = 1.5922874021206546e-6 + 0.0im, γ = 0.3141645167860635 + 0.0im.
 ```
 
 The different types of the (bosonic-bath) [`Exponent`](@ref):
@@ -84,11 +84,11 @@ for e in bath
 end
 ```
 ```
-Bath Exponent with types = "bRI", operator size = (2, 2), η = 4.995832638723504e-5 - 2.5e-6im, γ = 0.005 + 0.0im.
+Bath Exponent with types = "bRI", η = 4.995832638723504e-5 - 2.5e-6im, γ = 0.005 + 0.0im.
 
-Bath Exponent with types = "bRI", operator size = (2, 2), η = 1.5922874021206546e-6 + 0.0im, γ = 0.3141645167860635 + 0.0im.
+Bath Exponent with types = "bRI", η = 1.5922874021206546e-6 + 0.0im, γ = 0.3141645167860635 + 0.0im.
 
-Bath Exponent with types = "bRI", operator size = (2, 2), η = 1.0039844180003819e-6 + 0.0im, γ = 0.6479143347831898 + 0.0im.
+Bath Exponent with types = "bRI", η = 1.0039844180003819e-6 + 0.0im, γ = 0.6479143347831898 + 0.0im.
 
-Bath Exponent with types = "bRI", operator size = (2, 2), η = 3.1005439801387293e-6 + 0.0im, γ = 1.8059644711829272 + 0.0im.
+Bath Exponent with types = "bRI", η = 3.1005439801387293e-6 + 0.0im, γ = 1.8059644711829272 + 0.0im.
 ```

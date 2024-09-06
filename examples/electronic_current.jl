@@ -2,8 +2,9 @@
 # 
 # In this example, we demonstrate how to compute an environmental observable: the electronic current. 
 
+import QuantumToolbox
 using HierarchicalEOM
-import LinearAlgebra: tr
+using LaTeXStrings
 import Plots
 
 # ## Hamiltonian
@@ -17,16 +18,16 @@ import Plots
 # ```
 # Here, $d$ $(d^\dagger)$ annihilates (creates) an electron in the system and $\epsilon$ is the energy of the electron. Furthermore, $c_{\alpha,k}$ $(c_{\alpha,k}^{\dagger})$ annihilates (creates) an electron in the state $k$ (with energy $\epsilon_{\alpha,k}$) of the $\alpha$-th reservoir.
 # 
-# Now, we can construct the system Hamiltonian
+# Now, we need to build the system Hamiltonian and initial state with the package [`QuantumToolbox.jl`](https://github.com/qutip/QuantumToolbox.jl) to construct the operators.
 
-d = [0 1; 0 0] ## annihilation operator of the system electron
+d = sigmam() ## annihilation operator of the system electron
 
 ## The system Hamiltonian
 ϵ = 1.0 # site energy
 Hsys = ϵ * d' * d
 
 ## System initial state
-ρ0 = [1 0; 0 0];
+ψ0 = basis(2, 0);
 
 # ## Construct bath objects
 # We assume the fermionic reservoir to have a [Lorentzian-shaped spectral density](@ref doc-Fermion-Lorentz), and we utilize the Padé decomposition. Furthermore, the spectral densities depend on the following physical parameters: 
@@ -53,7 +54,7 @@ M = M_Fermion(Hsys, tier, baths)
 # ## Solve time evolution of ADOs
 # (see also [Time Evolution](@ref doc-Time-Evolution))
 tlist = 0:0.5:100
-ados_evolution = evolution(M, ρ0, tlist);
+ados_evolution = evolution(M, ψ0, tlist);
 
 # ## Solve stationary state of ADOs
 # (see also [Stationary State](@ref doc-Stationary-State))

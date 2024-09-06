@@ -80,11 +80,11 @@ PowerSpectrum(M::AbstractHEOMLSMatrix, ρ, P_op, Q_op, ωlist::AbstractVector, r
 M::AbstractHEOMLSMatrix
 
 # the input state can be in either type (but usually ADOs):
-ρ::AbstractMatrix # the reduced density operator
+ρ::QuantumObject # the reduced density operator
 ρ::ADOs # the ADOs solved from "evolution" or "SteadyState"
 
-P::AbstractMatrix 
-Q::AbstractMatrix
+P::QuantumObject 
+Q::QuantumObject
 
 # the spectrum value for the specific frequency ω which need to be solved
 ωlist = 0:0.5:2 # [0.0, 0.5, 1.0, 1.5, 2.0]
@@ -123,11 +123,11 @@ Finially, one can obtain the density of states for specific ``\omega``, namely
 
 See also the docstring : 
 ```@docs
-DensityOfStates(M::AbstractHEOMLSMatrix, ρ, d_op, ωlist::AbstractVector; solver=UMFPACKFactorization(), verbose::Bool = true, filename::String = "", SOLVEROptions...)
+DensityOfStates(M::AbstractHEOMLSMatrix, ρ::QuantumObject, d_op::QuantumObject, ωlist::AbstractVector; solver=UMFPACKFactorization(), verbose::Bool = true, filename::String = "", SOLVEROptions...)
 ```
 
 ```julia
-Hs::AbstractMatrix # system Hamiltonian
+Hs::QuantumObject  # system Hamiltonian
 bath::FermionBath  # fermionic bath object
 tier::Int          # fermionic truncation level 
 
@@ -139,7 +139,7 @@ M_odd  = M_Fermion(Hs, tier, bath, ODD)
 ados = SteadyState(M_even)
 
 # the (usually annihilation) operator "d" as shown above
-d::AbstractMatrix 
+d::QuantumObject 
 
 # the spectrum value for the specific frequency ω which need to be solved
 ω_list = 0:0.5:2 # [0.0, 0.5, 1.0, 1.5, 2.0]

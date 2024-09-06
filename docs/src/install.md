@@ -20,17 +20,13 @@ julia> using HierarchicalEOM
 julia> HierarchicalEOM.versioninfo()
 ```
 
+## [QuantumToolbox.jl](https://github.com/qutip/QuantumToolbox.jl)
+`HierarchicalEOM.jl` is built upon `QuantumToolbox.jl`, which is a cutting-edge Julia package designed for quantum physics simulations, closely emulating the popular Python [`QuTiP`](https://qutip.org/) package. It provides many useful functions to create arbitrary quantum states and operators which can be combined in all the expected ways. It uniquely combines the simplicity and power of Julia with advanced features like GPU acceleration and distributed computing, making simulation of quantum systems more accessible and efficient.
+!!! note "Note" 
+    Start from `HierarchicalEOM v2.0.0+`, the inputs states and operators must be in the type of `QuantumObject` (defined in `QuantumToolbox`)
+
 ## Other Useful Packages
 In order to get a better experience and take full advantage of `HierarchicalEOM`, we recommend to install the following external packages:
-
-### [QuantumToolbox.jl](https://github.com/qutip/QuantumToolbox.jl)
-`QuantumToolbox` is a cutting-edge Julia package designed for quantum physics simulations, closely emulating the popular Python [`QuTiP`](https://qutip.org/) package. It provides many useful functions to create arbitrary quantum states and operators which can be combined in all the expected ways. It uniquely combines the simplicity and power of Julia with advanced features like GPU acceleration and distributed computing, making simulation of quantum systems more accessible and efficient.
-!!! note "Note" 
-    The inputs in `HierarchicalEOM` should be child-type of the standard `Base.AbstractVector` (for vector-type quantum states) and `Base.AbstractMatrix` (for matrix-type quantum operators). Users can still construct the vectors or matrices by standard method and take it as the input of `HierarchicalEOM`.  
-    For the users who constructs the quantum objects by `QuantumToolbox` package, the standard type of vectors or matrices are stored in the `.data` field of the objects, i.e., `op.data` (where `op` is a `QuantumToolbox`-type object). Thus, users should take it as the inputs of `HierarchicalEOM` for objects in `QuantumToolbox` package.
-
-!!! compat "Extension for QuantumToolbox.jl"
-    `HierarchicalEOM.jl` provides an extension to support `QuantumToolbox`-type object, but this feature requires `Julia 1.9+` and `HierarchicalEOM 1.4+`. See [here](@ref doc-ext-QuantumToolbox) for more details.
 
 ### [DifferentialEquations.jl](https://diffeq.sciml.ai/stable/)
 `DifferentialEquations` is needed to provide the low-level ODE solvers especially for solving [time evolution](@ref doc-Time-Evolution). For [low dependency usage](https://diffeq.sciml.ai/stable/features/low_dep/), users can use [`OrdinaryDiffEq.jl`](https://github.com/JuliaDiffEq/OrdinaryDiffEq.jl) instead.

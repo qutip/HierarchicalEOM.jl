@@ -5,6 +5,8 @@
 import Literate
 using Documenter, HierarchicalEOM
 
+DocMeta.setdocmeta!(HierarchicalEOM, :DocTestSetup, :(using HierarchicalEOM); recursive = true)
+
 const DRAFT = false # set `true` to disable cell evaluation
 
 ENV["GKSwstype"] = "100" # enable headless mode for GR to suppress warnings when plotting
@@ -91,7 +93,6 @@ const PAGES = Any[
         "Examples" => EX_output_files,
         "Benchmark Solvers" => BM_output_files,
         "Extensions" => Any[
-            "QuantumToolbox.jl" => "extensions/QuantumToolbox.md",
             "CUDA.jl" => "extensions/CUDA.md"
         ]
     ],

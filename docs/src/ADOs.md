@@ -21,7 +21,7 @@ which is usually obtained after solving the time [evolution](@ref doc-Time-Evolu
 ## Fields
 The fields of the structure [`ADOs`](@ref) are as follows:
  - `data` : the vectorized auxiliary density operators
- - `dim` : the dimension of the system
+ - `dims` : the dimension list of the coupling operator (should be equal to the system dims).
  - `N` : the number of auxiliary density operators
 - `parity`: the [parity](@ref doc-Parity) label
 
@@ -31,7 +31,7 @@ One obtain the value of each fields as follows:
 ados::ADOs
 
 ados.data
-ados.dim
+ados.dims
 ados.N
 ados.parity
 ```
@@ -39,7 +39,7 @@ ados.parity
     We express all the auxiliary density operators in only a single column vector `ADOs.data`. To obtain each auxiliary density operators in matrix form, please use the following methods and functions.
 
 ## Reduced Density Operator
-In order to obtain the system reduced density operator in matrix form, just simply call [`getRho`](@ref)
+In order to obtain the system reduced density operator in the type of `QuantumObject`, just simply call [`getRho`](@ref)
 ```julia
 ados::ADOs
 ρ = getRho(ados)
@@ -48,7 +48,7 @@ ados::ADOs
 ## High-Level Auxiliary Density Operators
 Although we express all the auxiliary density operators in the vector `ADOs.data`, we still make the [`ADOs`](@ref) like a list where accessing each element would return a specific auxiliary density operator in matrix type. 
 
-In order to obtain the auxiliary density operator in matrix form with a specific index `i`, just simply call [`getADO`](@ref)
+In order to obtain the auxiliary density operator in the type of `QuantumObject` with a specific index `i`, just simply call [`getADO`](@ref)
 ```julia
 ados::ADOs
 i::Int
@@ -95,16 +95,16 @@ Given an observable ``A`` and `ADOs` ``\rho^{(m,n,p)}_{\textbf{j} \vert \textbf{
 ```
 where, ``m=n=0`` represents the reduced density operator.
 
-One can directly calculate the expectation values using the function [`Expect`](@ref):
+One can directly calculate the expectation values using the function [`QuantumToolbox.expect`](@ref):
 ```julia
-A::AbstractMatrix # observable
+A::QuantumObject # observable
 
 # with a single ADOs
 ados::ADOs
-E = Expect(A, ados)
+E = expect(A, ados)
 
 # with a list contains many ADOs
 ados_list::Vector{ADOs}
-Elist = Expect(A, ados_list)
+Elist = expect(A, ados_list)
 ```
 Here, `Elist` contains the expectation values corresponding to the `ados_list`.
