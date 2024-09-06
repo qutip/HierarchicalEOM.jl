@@ -71,12 +71,6 @@ jobs:
             arch: 'x64'
             group: 'Code_Quality'
 
-          # for extensions
-          - julia-version: '1'
-            os: 'ubuntu-latest'
-            arch: 'x64'
-            group: 'QuantumToolbox_Ext'
-
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
