@@ -1,8 +1,8 @@
 @time @testset "Time evolution" begin
 
     # System Hamiltonian and initial state
-    Hsys = 0.25 * [1 0; 0 -1] + 0.5 * [0 1; 1 0]
-    ρ0 = [1 0; 0 0]
+    Hsys = 0.25 * sigmaz() + 0.5 * sigmax()
+    ψ0 = basis(2, 0)
 
     # Bath properties:
     λ = 0.1
@@ -10,14 +10,13 @@
     kT = 0.5
     N = 2
     tier = 5
-    Q = [1 0; 0 -1]  # System-bath coupling operator
+    Q = sigmaz()  # System-bath coupling operator
 
     bath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
 
     L = M_Boson(Hsys, tier, bath; verbose = false)
-    ρ0 = [1 0; 0 0]
     ρs = getRho(SteadyState(L; verbose = false))
-    ρ_wrong = zeros(3, 3)
+    ρ_wrong = Qobj(zeros(3, 3))
 
     Δt = 10
     steps = 10
@@ -26,13 +25,13 @@
         rm("evolution_p.jld2")
     end
     # using the method based on propagator
-    ados_list = evolution(L, ρ0, Δt, steps; verbose = false, filename = "evolution_p")
+    ados_list = evolution(L, ψ0, Δt, steps; verbose = false, filename = "evolution_p")
     ados_wrong1 = ADOs(zeros(8), 2)
     ados_wrong2 = ADOs(zeros(32), 2)
     ados_wrong3 = ADOs((ados_list[1]).data, (ados_list[1]).N, ODD)
     ados_wrong4 = HEOMSuperOp(Q, ODD, ados_list[end]) * ados_list[end]
     ρ_list_p = getRho.(ados_list)
-    @test_throws ErrorException evolution(L, ρ0, Δt, steps; verbose = false, filename = "evolution_p")
+    @test_throws ErrorException evolution(L, ψ0, Δt, steps; verbose = false, filename = "evolution_p")
     @test_throws ErrorException evolution(L, ρ_wrong, Δt, steps; verbose = false)
     @test_throws ErrorException evolution(L, ados_wrong1, Δt, steps; verbose = false)
     @test_throws ErrorException evolution(L, ados_wrong2, Δt, steps; verbose = false)
@@ -43,8 +42,8 @@
         rm("evolution_o.jld2")
     end
     # using the method based on ODE solver
-    ρ_list_e = getRho.(evolution(L, ρ0, tlist; verbose = false, filename = "evolution_o"))
-    @test_throws ErrorException evolution(L, ρ0, tlist; verbose = false, filename = "evolution_o")
+    ρ_list_e = getRho.(evolution(L, ψ0, tlist; verbose = false, filename = "evolution_o"))
+    @test_throws ErrorException evolution(L, ψ0, tlist; verbose = false, filename = "evolution_o")
     @test_throws ErrorException evolution(L, ρ_wrong, tlist; verbose = false)
     @test_throws ErrorException evolution(L, ados_wrong1, tlist; verbose = false)
     @test_throws ErrorException evolution(L, ados_wrong2, tlist; verbose = false)
@@ -52,17 +51,17 @@
     @test_throws ErrorException evolution(L, ados_wrong4, tlist; verbose = false)
 
     for i in 1:(steps+1)
-        @test _is_Matrix_approx(ρ_list_p[i], ρ_list_e[i])
+        @test ρ_list_p[i] ≈ ρ_list_e[i]
     end
-    @test _is_Matrix_approx(ρs, ρ_list_p[end])
-    @test _is_Matrix_approx(ρs, ρ_list_e[end])
+    @test isapprox(ρs, ρ_list_p[end]; atol = 1e-4)
+    @test isapprox(ρs, ρ_list_e[end]; atol = 1e-4)
 
     # time-dependent Hamiltonian
-    σz = [1 0; 0 -1]
-    P01 = [0 1; 0 0]
+    σz = sigmaz()
+    P01 = basis(2, 0) * basis(2, 1)'
 
     H_sys = 0 * σz
-    ρ0 = [0.5 0.5; 0.5 0.5]
+    ψ0 = (basis(2, 0) + basis(2, 1)) / √2
 
     bath = Boson_DrudeLorentz_Pade(σz, 0.0005, 0.005, 0.05, 3)
     L = M_Boson(H_sys, 6, bath; verbose = false)
@@ -74,9 +73,9 @@
 
         t = t % period
         if t < duration
-            return amplitude * [0 1; 1 0]
+            return amplitude * sigmax()
         else
-            return 0 * zeros(2, 2)
+            return Qobj([0 0; 0 0])
         end
     end
 
@@ -86,7 +85,7 @@
     end
     fastDD_ados = evolution(
         L,
-        ρ0,
+        ψ0,
         tlist,
         Ht,
         (0.50, 20, π / 2);
@@ -97,7 +96,7 @@
     )
     @test_throws ErrorException evolution(
         L,
-        ρ0,
+        ψ0,
         tlist,
         Ht,
         (0.50, 20, π / 2);
@@ -148,13 +147,13 @@
         0.47479965067847246,
         0.47451220871416044,
     ]
-    fastDD = Expect(P01, fastDD_ados)
+    fastDD = expect(P01, fastDD_ados)
     @test typeof(fastDD) == Vector{Float64}
     for i in 1:length(tlist)
         @test fastDD[i] ≈ fastBoFiN[i] atol = 1.0e-6
     end
 
-    slowDD_ados = evolution(L, ρ0, tlist, Ht, (0.01, 20, π / 2); reltol = 1e-12, abstol = 1e-12, verbose = false)
+    slowDD_ados = evolution(L, ψ0, tlist, Ht, (0.01, 20, π / 2); reltol = 1e-12, abstol = 1e-12, verbose = false)
     slowBoFiN = [
         0.4999999999999999,
         0.4949826158957288,
@@ -198,19 +197,19 @@
         0.14821389956195355,
         0.14240802098404504,
     ]
-    slowDD = Expect(P01, slowDD_ados; take_real = false)
+    slowDD = expect(P01, slowDD_ados; take_real = false)
     @test typeof(slowDD) == Vector{ComplexF64}
     for i in 1:length(tlist)
         @test slowDD[i] ≈ slowBoFiN[i] atol = 1.0e-6
     end
 
-    H_wrong1(param, t) = zeros(3, 3)
-    H_wrong2(param, t) = t == 0 ? zeros(2, 2) : zeros(3, 3)
+    H_wrong1(param, t) = Qobj(zeros(3, 3))
+    H_wrong2(param, t) = t == 0 ? Qobj(zeros(2, 2)) : Qobj(zeros(3, 3))
     ados_wrong1 = ADOs(zeros(8), 2)
     ados_wrong2 = ADOs(zeros(32), 2)
     ados_wrong3 = ADOs((slowDD_ados[1]).data, (slowDD_ados[1]).N, ODD)
-    @test_throws ErrorException evolution(L, ρ0, tlist, H_wrong1; verbose = false)
-    @test_throws ErrorException evolution(L, ρ0, tlist, H_wrong2; verbose = false)
+    @test_throws ErrorException evolution(L, ψ0, tlist, H_wrong1; verbose = false)
+    @test_throws ErrorException evolution(L, ψ0, tlist, H_wrong2; verbose = false)
     @test_throws ErrorException evolution(L, ados_wrong1, tlist, Ht; verbose = false)
     @test_throws ErrorException evolution(L, ados_wrong2, tlist, Ht; verbose = false)
     @test_throws ErrorException evolution(L, ados_wrong3, tlist, Ht; verbose = false)

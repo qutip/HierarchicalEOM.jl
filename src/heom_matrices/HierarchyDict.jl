@@ -86,14 +86,19 @@ function _Importance(B::Vector{T}, bathPtr::AbstractVector, nvec::Nvec) where {T
 end
 
 # for pure hierarchy dictionary
-@noinline function genBathHierarchy(B::Vector{T}, tier::Int, dim::Int; threshold::Real = 0.0) where {T<:AbstractBath}
+@noinline function genBathHierarchy(
+    B::Vector{T},
+    tier::Int,
+    dims::Vector{Int};
+    threshold::Real = 0.0,
+) where {T<:AbstractBath}
     Nterm = 0
     bathPtr = Tuple[]
 
     if T == BosonBath
         baths = AbstractBosonBath[]
         for (α, b) in enumerate(B)
-            if b.dim != dim
+            if b.dims != dims
                 error("The matrix size of the bosonic bath coupling operators are not consistent.")
             end
             push!(baths, b.bath...)
@@ -107,7 +112,7 @@ end
     elseif T == FermionBath
         baths = AbstractFermionBath[]
         for (α, b) in enumerate(B)
-            if b.dim != dim
+            if b.dims != dims
                 error("The matrix size of the fermionic bath coupling operators are not consistent.")
             end
             push!(baths, b.bath...)
@@ -169,7 +174,7 @@ end
     fB::Vector{FermionBath},
     tier_b::Int,
     tier_f::Int,
-    dim::Int;
+    dims::Vector{Int};
     threshold::Real = 0.0,
 )
     # deal with boson bath
@@ -177,7 +182,7 @@ end
     bosonPtr = Tuple[]
     baths_b = AbstractBosonBath[]
     for (α, b) in enumerate(bB)
-        if b.dim != dim
+        if b.dims != dims
             error("The matrix size of the bosonic bath coupling operators are not consistent.")
         end
         push!(baths_b, b.bath...)
@@ -194,7 +199,7 @@ end
     fermionPtr = Tuple[]
     baths_f = AbstractFermionBath[]
     for (α, b) in enumerate(fB)
-        if b.dim != dim
+        if b.dims != dims
             error("The matrix size of the fermionic bath coupling operators are not consistent.")
         end
         push!(baths_f, b.bath...)

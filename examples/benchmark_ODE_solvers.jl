@@ -18,10 +18,10 @@ amp = 0.50
 delay = 20
 tlist = 0:0.4:400
 
-σz = [1 0; 0 -1]
-σx = [0 1; 1 0]
+σz = sigmaz()
+σx = sigmax()
 H0 = 0.0 * σz
-ρ0 = 0.5 * [1 1; 1 1];
+ψ0 = (basis(2, 0) + basis(2, 1)) / √2
 param = (amp, delay, σx)
 
 function pulse(V, Δ, t)
@@ -53,20 +53,20 @@ M = M_Boson(H0, tier, bath);
 #   
 # ### DP5 (Default solver)
 # Dormand-Prince's 5/4 Runge-Kutta method. (free 4th order interpolant)
-@benchmark evolution(M, ρ0, tlist, H_D, param; abstol = 1e-12, reltol = 1e-12, verbose = false)
+@benchmark evolution(M, ψ0, tlist, H_D, param; abstol = 1e-12, reltol = 1e-12, verbose = false)
 
 # ### RK4
 # The canonical Runge-Kutta Order 4 method. Uses a defect control for adaptive stepping using maximum error over the whole interval.
-@benchmark evolution(M, ρ0, tlist, H_D, param; solver = RK4(), abstol = 1e-12, reltol = 1e-12, verbose = false)
+@benchmark evolution(M, ψ0, tlist, H_D, param; solver = RK4(), abstol = 1e-12, reltol = 1e-12, verbose = false)
 
 # ### Tsit5
 # Tsitouras 5/4 Runge-Kutta method. (free 4th order interpolant).
-@benchmark evolution(M, ρ0, tlist, H_D, param; solver = Tsit5(), abstol = 1e-12, reltol = 1e-12, verbose = false)
+@benchmark evolution(M, ψ0, tlist, H_D, param; solver = Tsit5(), abstol = 1e-12, reltol = 1e-12, verbose = false)
 
 # ### Vern7
 # Verner's “Most Efficient” 7/6 Runge-Kutta method. (lazy 7th order interpolant).
-@benchmark evolution(M, ρ0, tlist, H_D, param; solver = Vern7(), abstol = 1e-12, reltol = 1e-12, verbose = false)
+@benchmark evolution(M, ψ0, tlist, H_D, param; solver = Vern7(), abstol = 1e-12, reltol = 1e-12, verbose = false)
 
 # ### Vern9
 # Verner's “Most Efficient” 9/8 Runge-Kutta method. (lazy 9th order interpolant)
-@benchmark evolution(M, ρ0, tlist, H_D, param; solver = Vern9(), abstol = 1e-12, reltol = 1e-12, verbose = false)
+@benchmark evolution(M, ψ0, tlist, H_D, param; solver = Vern9(), abstol = 1e-12, reltol = 1e-12, verbose = false)

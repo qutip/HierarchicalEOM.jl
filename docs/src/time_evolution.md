@@ -18,12 +18,12 @@ Given an observable ``A`` and the [`ADOs`](@ref doc-ADOs) ``\rho^{(m,n,p)}_{\tex
 ```
 where, ``m=n=0`` represents the reduced density operator, see [`ADOs`](@ref doc-ADOs) for more details.
 
-One can directly calculate the expectation values using the function [`Expect`](@ref) together with the output of [`evolution`](@ref):
+One can directly calculate the expectation values using the function [`QuantumToolbox.expect`](@ref) together with the output of [`evolution`](@ref):
 ```julia
-A::AbstractMatrix # observable
+A::QuantumObject # observable
 ados_list = evolution(...) # the input parameters depend on the different methods you choose.
 
-Elist = Expect(A, ados_list)
+Elist = expect(A, ados_list)
 ```
 Here, `Elist` contains the expectation values corresponding to the `ados_list` (i.e., the reduced density operator in each time step).
 
@@ -57,12 +57,12 @@ The first method is implemented by solving the ordinary differential equation (O
     `HierarchicalEOM.jl` provides an extension to support GPU ([`CUDA.jl`](https://github.com/JuliaGPU/CUDA.jl)) acceleration for solving the time evolution (only for ODE method with time-independent system Hamiltonian), but this feature requires `Julia 1.9+` and `HierarchicalEOM 1.1+`. See [here](@ref doc-ext-CUDA) for more details.
 
 
-### Given the initial state as Density Operator (`AbstractMatrix` type)
+### Given the initial state as Density Operator (`QuantumObject` type)
 
 See the docstring of this method:  
 
 ```@docs
-evolution(M::AbstractHEOMLSMatrix, ρ0, tlist::AbstractVector; solver = DP5(), reltol::Real = 1.0e-6, abstol::Real = 1.0e-8, maxiters::Real = 1e5, save_everystep::Bool=false, verbose::Bool = true, filename::String = "", SOLVEROptions...)
+evolution(M::AbstractHEOMLSMatrix, ρ0::QuantumObject, tlist::AbstractVector; solver = DP5(), reltol::Real = 1.0e-6, abstol::Real = 1.0e-8, maxiters::Real = 1e5, save_everystep::Bool=false, verbose::Bool = true, filename::String = "", SOLVEROptions...)
 ```
 
 ```julia
@@ -70,7 +70,7 @@ evolution(M::AbstractHEOMLSMatrix, ρ0, tlist::AbstractVector; solver = DP5(), r
 M::AbstractHEOMLSMatrix  
 
 # the initial state of the system density operator
-ρ0::AbstractMatrix
+ρ0::QuantumObject
 
 # specific time points to save the solution during the solving process.  
 tlist = 0:0.5:2 # [0.0, 0.5, 1.0, 1.5, 2.0]
@@ -110,11 +110,11 @@ where ``\hat{\mathcal{G}}(t)\equiv \exp(\hat{\mathcal{M}}t)`` is the propagator 
 
 To construct the propagator, we wrap the function in the package [`fastExpm.jl`](https://github.com/fmentink/FastExpm.jl), which is optimized for the exponentiation of either large-dense or sparse matrices.
 
-### Given the initial state as Density Operator (`AbstractMatrix` type)
+### Given the initial state as Density Operator (`QuantumObject` type)
 See the docstring of this method:  
 
 ```@docs
-evolution(M::AbstractHEOMLSMatrix, ρ0, Δt::Real, steps::Int; threshold   = 1.0e-6, nonzero_tol = 1.0e-14, verbose::Bool = true, filename::String = "")
+evolution(M::AbstractHEOMLSMatrix, ρ0::QuantumObject, Δt::Real, steps::Int; threshold   = 1.0e-6, nonzero_tol = 1.0e-14, verbose::Bool = true, filename::String = "")
 ```
 
 ```julia
@@ -122,7 +122,7 @@ evolution(M::AbstractHEOMLSMatrix, ρ0, Δt::Real, steps::Int; threshold   = 1.0
 M::AbstractHEOMLSMatrix  
 
 # the initial state of the system density operator
-ρ0::AbstractMatrix
+ρ0::QuantumObject
 
 # A specific time interval (time step)
 Δt = 0.5
@@ -175,10 +175,10 @@ M = M_Fermion(H0, ...)
 M = M_BosonFermion(H0, ...)
 ```
 To solve the dynamics characterized by ``\hat{\mathcal{M}}`` together with the time-dependent part of system Hamiltonian ``H_1(t)``, you can call either of the following two functions (one takes the type of initial state as density matrix and the other one takes [`ADOs`](@ref)):
- - [`evolution(M::AbstractHEOMLSMatrix, ρ0, tlist::AbstractVector, H::Function, param::Tuple = ())`](@ref)
+ - [`evolution(M::AbstractHEOMLSMatrix, ρ0::QuantumObject, tlist::AbstractVector, H::Function, param::Tuple = ())`](@ref)
  - [`evolution(M::AbstractHEOMLSMatrix, ados::ADOs, tlist::AbstractVector, H::Function, param::Tuple = ())`](@ref).
 
-Here, the definition of user-defined function `H` must be in the form `H(p::Tuple, t)` and returns the time-dependent part of system Hamiltonian (in `AbstractMatrix` type) at any given time point `t`. The parameter `p` should be a `Tuple` which contains all the extra parameters you need for the function `H`. For example:
+Here, the definition of user-defined function `H` must be in the form `H(p::Tuple, t)` and returns the time-dependent part of system Hamiltonian (in `QuantumObject` type) at any given time point `t`. The parameter `p` should be a `Tuple` which contains all the extra parameters you need for the function `H`. For example:
 ```julia
 function H_pump(p, t)  
     p0, p1, p2 = p 
@@ -191,7 +191,7 @@ end
 The parameter tuple `p` will be passed to your function `H` directly from one of the parameter in `evolution` called `param`:
 ```julia
 M::AbstractHEOMLSMatrix
-ρ0::AbstractMatrix
+ρ0::QuantumObject
 tlist = 0:0.1:10
 p = (0.1, 1, 10)
 
@@ -208,7 +208,7 @@ function H_pump(p, t)
 end
 
 M::AbstractHEOMLSMatrix
-ρ0::AbstractMatrix
+ρ0::QuantumObject
 tlist = 0:0.1:10
 
 ados_list = evolution(M, ρ0, tlist, H_pump)
@@ -216,11 +216,11 @@ ados_list = evolution(M, ρ0, tlist, H_pump)
 !!! note "Note"
     The default value for `param` in `evolution` is an empty tuple `()`.
 
-### Given the initial state as Density Operator (`AbstractMatrix` type)
+### Given the initial state as Density Operator (`QuantumObject` type)
 See the docstring of this method:  
 
 ```@docs
-evolution(M::AbstractHEOMLSMatrix, ρ0, tlist::AbstractVector, H::Function, param::Tuple = (); solver = DP5(), reltol::Real = 1.0e-6, abstol::Real = 1.0e-8, maxiters::Real = 1e5, save_everystep::Bool=false, verbose::Bool = true, filename::String = "", SOLVEROptions...)
+evolution(M::AbstractHEOMLSMatrix, ρ0::QuantumObject, tlist::AbstractVector, H::Function, param::Tuple = (); solver = DP5(), reltol::Real = 1.0e-6, abstol::Real = 1.0e-8, maxiters::Real = 1e5, save_everystep::Bool=false, verbose::Bool = true, filename::String = "", SOLVEROptions...)
 ```
 
 

@@ -4,9 +4,10 @@
     kT = 0.7414
     μ = 0.8787
     N = 4
+    op = Qobj([0 0; 0 0])
 
     # Boson DrudeLorentz Matsubara
-    b = Boson_DrudeLorentz_Matsubara([0 0; 0 0], λ, W, kT, N)
+    b = Boson_DrudeLorentz_Matsubara(op, λ, W, kT, N)
     η = [
         0.20121058848333528 - 0.09372799999999999im,
         0.06084056770606083 + 0.0im,
@@ -28,7 +29,7 @@
     end
 
     # Boson DrudeLorentz Pade
-    b = Boson_DrudeLorentz_Pade([0 0; 0 0], λ, W, kT, N)
+    b = Boson_DrudeLorentz_Pade(op, λ, W, kT, N)
     η = [
         0.20121058848333528 - 0.09372799999999999im,
         0.060840591418808695 + 0.0im,
@@ -50,7 +51,7 @@
     end
 
     # Fermion Lorentz Matsubara
-    b = Fermion_Lorentz_Matsubara([0 0; 0 0], λ, μ, W, kT, N)
+    b = Fermion_Lorentz_Matsubara(op, λ, μ, W, kT, N)
     η = [
         0.023431999999999998 - 0.010915103984112131im,
         0.0 + 0.008970684904033346im,
@@ -82,7 +83,7 @@
     end
 
     # Fermion Lorentz Pade
-    b = Fermion_Lorentz_Pade([0 0; 0 0], λ, μ, W, kT, N)
+    b = Fermion_Lorentz_Pade(op, λ, μ, W, kT, N)
     η = [
         0.023431999999999998 - 0.01091510398411206im,
         0.0 + 0.008970684906245254im,

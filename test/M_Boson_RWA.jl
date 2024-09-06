@@ -5,9 +5,9 @@
     Λ = 0.01
     Γ = 0.02
     tier = 3
-    Hsys_rwa = 0.5 * ωq * [1 0; 0 -1]
-    op_rwa = [0 0; 1 0]
-    ρ0 = 0.5 * [1 1; 1 1]
+    Hsys_rwa = 0.5 * ωq * sigmaz()
+    op_rwa = sigmam()
+    ρ0 = ket2dm((basis(2, 0) + basis(2, 1)) / √2)
 
     tlist = 0:1:20
     d = 1im * √(Λ * (2 * Γ - Λ)) # non-Markov regime

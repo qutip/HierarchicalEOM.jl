@@ -13,7 +13,7 @@
 # Here are the functions in `HierarchicalEOM.jl` that we will use in this tutorial (Quick Start):
 
 import HierarchicalEOM
-import HierarchicalEOM: Boson_DrudeLorentz_Pade, M_Boson, evolution, SteadyState, getRho, BosonBath, Expect
+import HierarchicalEOM: Boson_DrudeLorentz_Pade, M_Boson, evolution, SteadyState, getRho, BosonBath
 
 # Note that you can also type `using HierarchicalEOM` to import everything you need in `HierarchicalEOM.jl`.
 # To check the versions of dependencies of `HierarchicalEOM.jl` , run the following function
@@ -31,16 +31,9 @@ HierarchicalEOM.versioninfo()
 # J_{D}(\omega)=\frac{2\lambda W\omega}{W^2+\omega^2},
 # ```
 # #### System Hamiltonian and initial state
-# You can construct system hamiltonian, initial state, and coupling operators by standard julia bulit-in types: `Vector`, `SparseVector`, `Matrix`, `SparseMatrix`.
+# You must construct system hamiltonian, initial state, and coupling operators by [`QuantumToolbox`](https://github.com/qutip/QuantumToolbox.jl) framework. It provides many useful functions to create arbitrary quantum states and operators which can be combined in all the expected ways.
 
-# Moreover, it is also convenient to use [`QuantumToolbox`](https://github.com/qutip/QuantumToolbox.jl) framework. It provides many useful functions to create arbitrary quantum states and operators which can be combined in all the expected ways.
-
-# !!! compat "Extension for QuantumToolbox.jl"
-#     `HierarchicalEOM.jl` provides an extension to support `QuantumToolbox`-type object, but this feature requires `Julia 1.9+` and `HierarchicalEOM 1.4+`. See [here](@ref doc-ext-QuantumToolbox) for more details.
-
-# We demonstrate this tutorial by `QuantumToolbox`:
-
-import QuantumToolbox: sigmaz, sigmax, basis, ket2dm
+import QuantumToolbox: Qobj, sigmaz, sigmax, basis, ket2dm, expect
 
 ## The system Hamiltonian
 ϵ = 0.5 # energy of 2-level system
@@ -115,12 +108,12 @@ P11 = ket2dm(basis(2, 1))
 P01 = basis(2, 0) * basis(2, 1)'
 
 ## for steady state
-p00_s = Expect(P00, ados_steady)
-p01_s = Expect(P01, ados_steady)
+p00_s = expect(P00, ados_steady)
+p01_s = expect(P01, ados_steady)
 
 ## for time evolution
-p00_e = Expect(P00, ados_list)
-p01_e = Expect(P01, ados_list);
+p00_e = expect(P00, ados_list)
+p01_e = expect(P01, ados_list);
 
 # ### Plot the results
 using Plots, LaTeXStrings
@@ -152,30 +145,22 @@ ylabel!("Population")
 
 # All you need to do is to provide a list of baths instead of a single bath
 
-# Note that, for the following, we use the built-in linear algebra in Julia (instead of `QuantumToolbox.jl`) to construct the operators
-
 ## The system Hamiltonian
-Hsys = [
+Hsys = Qobj([
     0.25 1.50 2.50
     1.50 0.75 3.50
     2.50 3.50 1.25
-]
+])
 
 ## System initial state
-ρ0 = [
-    1 0 0
-    0 0 0
-    0 0 0
-];
+ρ0 = ket2dm(basis(3, 0));
 
 ## Construct one bath for each system state:
 ## note that `BosonBath[]` make the list created in type: Vector{BosonBath}
 baths = BosonBath[]
-for i in 1:3
+for i in 0:2
     ## system-bath coupling operator: |i><i|
-    Q = zeros(3, 3)
-    Q[i, i] = 1
-
+    Q = ket2dm(basis(3, i))
     push!(baths, Boson_DrudeLorentz_Pade(Q, λ, W, kT, N))
 end
 
@@ -185,14 +170,14 @@ tlist = 0:0.025:5
 ados_list = evolution(L, ρ0, tlist)
 
 ## Projector for each system state:
-P00 = [1 0 0; 0 0 0; 0 0 0]
-P11 = [0 0 0; 0 1 0; 0 0 0]
-P22 = [0 0 0; 0 0 0; 0 0 1]
+P00 = ket2dm(basis(3, 0))
+P11 = ket2dm(basis(3, 1))
+P22 = ket2dm(basis(3, 2))
 
 ## calculate population for each system state:
-p0 = Expect(P00, ados_list)
-p1 = Expect(P11, ados_list)
-p2 = Expect(P22, ados_list)
+p0 = expect(P00, ados_list)
+p1 = expect(P11, ados_list)
+p2 = expect(P22, ados_list)
 
 plot(tlist, p0, linewidth = 3, linecolor = "blue", label = L"P_0", grid = false)
 plot!(tlist, p1, linewidth = 3, linecolor = "orange", label = L"P_1")

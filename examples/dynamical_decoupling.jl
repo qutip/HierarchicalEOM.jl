@@ -1,6 +1,7 @@
 # # [Driven Systems and Dynamical Decoupling](@id exp-dynamical-decoupling)
 # In this page, we show how to solve the time evolution with time-dependent Hamiltonian problems in hierarchical equations of motion approach.
 
+using QuantumToolbox
 using HierarchicalEOM
 using LaTeXStrings
 import Plots
@@ -23,12 +24,15 @@ import Plots
 # ```math
 # ψ(t=0)=\frac{1}{\sqrt{2}}\left(|0\rangle+|1\rangle\right)
 # ```
+
+# Now, we need to build the system Hamiltonian and initial state with the package [`QuantumToolbox.jl`](https://github.com/qutip/QuantumToolbox.jl) to construct the operators.
+
 ω0 = 0.0
-σz = [1 0; 0 -1]
-σx = [0 1; 1 0]
+σz = sigmaz()
+σx = sigmax()
 H0 = 0.5 * ω0 * σz
 
-ρ0 = 0.5 * [1 1; 1 1];
+ψ0 = (basis(2, 0) + basis(2, 1)) / √2;
 
 # The time-dependent driving term $H_{\textrm{D}}(t)$ has the form
 # ```math
@@ -89,7 +93,7 @@ M = M_Boson(H0, tier, bath)
 
 # ## time evolution with time-independent Hamiltonian
 # (see also [Time Evolution](@ref doc-Time-Evolution))
-noPulseResult = evolution(M, ρ0, tlist);
+noPulseResult = evolution(M, ψ0, tlist);
 
 # ## Solve time evolution with time-dependent Hamiltonian
 # (see also [Time Evolution](@ref doc-Time-Evolution))
@@ -104,18 +108,18 @@ end;
 fastTuple = (amp_fast, delay, σx)
 slowTuple = (amp_slow, delay, σx)
 
-fastPulseResult = evolution(M, ρ0, tlist, H_D, fastTuple);
-slowPulseResult = evolution(M, ρ0, tlist, H_D, slowTuple);
+fastPulseResult = evolution(M, ψ0, tlist, H_D, fastTuple);
+slowPulseResult = evolution(M, ψ0, tlist, H_D, slowTuple);
 
 # ## Measure the coherence
-# One can use the built-in function [`Expect`](@ref) to calculate the expectation value from a given observable and `ADOs`:
+# One can use the built-in function [`QuantumToolbox.expect`](@ref) to calculate the expectation value from a given observable and `ADOs`:
 
 ## Define the operator that measures the 0, 1 element of density matrix
-ρ01 = [0 1; 0 0]
+ρ01 = Qobj([0 1; 0 0])
 
 Plots.plot(
     tlist,
-    [Expect(ρ01, fastPulseResult), Expect(ρ01, slowPulseResult), Expect(ρ01, noPulseResult)],
+    [expect(ρ01, fastPulseResult), expect(ρ01, slowPulseResult), expect(ρ01, noPulseResult)],
     label = ["Fast Pulse" "Slow Pulse" "no Pulse"],
     linestyle = [:solid :dot :dash],
     linewidth = 3,

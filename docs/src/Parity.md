@@ -9,7 +9,7 @@ It is important to explicitly note that, here, by `parity` we do not refer to th
 ## Parity support for HEOMLS
 One can specify the parameter `parity::AbstractParity` in the function of constructing ``\hat{\mathcal{M}}`` which describes the dynamics of [`EVEN`](@ref)- or [`ODD`](@ref)-parity auxiliary density operators (ADOs). The default value of the parameter is `parity=EVEN`.
 ```julia
-Hs::AbstractMatrix  # system Hamiltonian
+Hs::QuantumObject   # system Hamiltonian
 Bbath::BosonBath    # bosonic   bath object
 Fbath::FermionBath  # fermionic bath object
 Btier::Int          # bosonic   truncation level 

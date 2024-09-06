@@ -34,7 +34,7 @@
 [docs-develop-img]: https://img.shields.io/badge/docs-dev-blue.svg
 [docs-develop-url]: https://qutip.org/HierarchicalEOM.jl/dev/
 
-`HierarchicalEOM.jl` is a numerical framework written in [`Julia`](https://julialang.org/). It provides a user-friendly and efficient tool based on hierarchical equations of motion (HEOM) approach to simulate complex open quantum systems, including non-Markovian effects due to non-perturbative interaction with one (or multiple) environment(s). It is build upon [`QuantumToolbox.jl`](https://github.com/qutip/QuantumToolbox.jl).
+`HierarchicalEOM.jl` is a numerical framework written in [`Julia`](https://julialang.org/). It provides a user-friendly and efficient tool based on hierarchical equations of motion (HEOM) approach to simulate complex open quantum systems, including non-Markovian effects due to non-perturbative interaction with one (or multiple) environment(s). It is built upon [`QuantumToolbox.jl`](https://github.com/qutip/QuantumToolbox.jl).
 
 ![](./docs/src/assets/heom_ecosystem.jpeg)
 

@@ -1,5 +1,5 @@
 @time @testset "Power spectrum" begin
-    a = [0 1; 0 0]
+    a = destroy(2)
 
     Hsys = a' * a
 
@@ -48,12 +48,11 @@
         @test psd1[i] ≈ psd2[i] atol = 1.0e-6
     end
 
-    mat = spzeros(ComplexF64, 2, 2)
-    mat2 = spzeros(ComplexF64, 3, 3)
+    mat = Qobj(spzeros(ComplexF64, 2, 2))
+    mat2 = Qobj(spzeros(ComplexF64, 3, 3))
     a_even = HEOMSuperOp(a, EVEN, L)
     a_odd = HEOMSuperOp(a, ODD, L)
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
-    @test_throws ErrorException spectrum(L, ados_s, a, ωlist; verbose = false)
     @test_throws ErrorException PowerSpectrum(L, ados_s, a, ωlist; verbose = false, filename = "PSD")
     @test_throws ErrorException PowerSpectrum(L, ados_s, a_even, ωlist; verbose = false)
     @test_throws ErrorException PowerSpectrum(L, ados_s, a_even, a_odd, ωlist; verbose = false)

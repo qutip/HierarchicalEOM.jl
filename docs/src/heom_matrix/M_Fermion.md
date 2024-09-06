@@ -18,7 +18,7 @@ To construct the HEOM matrix in this case, one can call
 
 For example:
 ```julia
-Hs::AbstractMatrix # system Hamiltonian
+Hs::QuantumObject # system Hamiltonian
 tier = 3
 Bath::FermionBath
 
@@ -31,7 +31,7 @@ M_odd  = M_Fermion(Hs, tier, Bath, ODD)
 The fields of the structure [`M_Fermion`](@ref) are as follows:
  - `data` : the sparse matrix of HEOM Liouvillian superoperator
  - `tier` : the tier (cutoff level) for the fermionic hierarchy
- - `dim` : the dimension of system
+ - `dims` : the dimension list of the coupling operator (should be equal to the system dims).
  - `N` : the number of total [ADOs](@ref doc-ADOs)
  - `sup_dim` : the dimension of system superoperator
  - `parity` : the [parity](@ref doc-Parity) label of the operator which HEOMLS is acting on.
@@ -44,7 +44,7 @@ M::M_Fermion
 
 M.data
 M.tier
-M.dim
+M.dims
 M.N
 M.sup_dim
 M.parity

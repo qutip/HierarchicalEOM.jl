@@ -18,7 +18,7 @@ and thus forms the two-fold hierarchy relations. See our paper for more details.
 
 In practice, the size of the matrix ``\hat{\mathcal{M}}`` must be finite and the hierarchical equations must be truncated at a suitable bosonic-level (``m_\textrm{max}``) and fermionic-level (``n_\textrm{max}``). These truncation levels (tiers) must be given when constructing ``\hat{\mathcal{M}}``.
 ```julia
-Hs::AbstractMatrix  # system Hamiltonian
+Hs::QuantumObject   # system Hamiltonian
 Bbath::BosonBath    # bosonic   bath object
 Fbath::FermionBath  # fermionic bath object
 Btier::Int          # bosonic   truncation level 
@@ -32,11 +32,11 @@ M = M_Boson_Fermion(Hs, Btier, Ftier, Bbath, Fbath)
 ## [Importance Value and Threshold](@id doc-Importance-Value-and-Threshold)
 The main computational complexity can be quantified by the total number of [auxiliary density operators (ADOs)](@ref doc-ADOs) because it directly affects the size of ``\hat{\mathcal{M}}``. 
 
-The computational effort can be further optimized by associating an **importance value** ``\mathcal{I}`` to each ADO and then discarding all the ADOs (in the second and higher levels) whose importance value is smaller than a threshold value ``\mathcal{I}_\textrm{th}``. The importance value for a given ADO : ``\mathcal{I}\left(\rho^{(m,n,p)}_{\textbf{j} \vert \textbf{q}}\right)`` is determined by its corresponding exponential terms of bath correlation function [see [Phys. Rev. B 88, 235426 (2013)](https://doi.org/10.1103/PhysRevB.88.235426) and [Phys. Rev. B 103, 235413 (2021)](https://doi.org/10.1103/PhysRevB.103.235413)]. This allows us to only consider the ADOs which affects the dynamics more, and thus, reduce the size of ``\hat{\mathcal{M}}``. Also see our paper for more details.
+The computational effort can be further optimized by associating an **importance value** ``\mathcal{I}`` to each ADO and then discarding all the ADOs (in the second and higher levels) whose importance value is smaller than a threshold value ``\mathcal{I}_\textrm{th}``. The importance value for a given ADO : ``\mathcal{I}\left(\rho^{(m,n,p)}_{\textbf{j} \vert \textbf{q}}\right)`` is determined by its corresponding exponential terms of bath correlation function [see [Phys. Rev. B 88, 235426 (2013)](https://doi.org/10.1103/PhysRevB.88.235426) and [Phys. Rev. B 103, 235413 (2021)](https://doi.org/10.1103/PhysRevB.103.235413)]. This allows us to only consider the ADOs which affects the dynamics more, and thus, reduce the size of ``\hat{\mathcal{M}}``. Also see our paper [ [Commun. Phys. 6, 313 (2023)](https://doi.org/10.1038/s42005-023-01427-2)  ] for more details.
 
 When you specify a threshold value ``\mathcal{I}_\textrm{th}`` with the parameter `threshold` to construct ``\hat{\mathcal{M}}``, we will remain all the ADOs where their hierarchy levels ``(m,n)\in\{(0,0), (0,1), (1,0), (1,1)\}``, and all the other high-level ADOs may be neglected if ``\mathcal{I}\left(\rho^{(m,n,p)}_{\textbf{j} \vert \textbf{q}}\right) < \mathcal{I}_\textrm{th}``. 
 ```julia
-Hs::AbstractMatrix  # system Hamiltonian
+Hs::QuantumObject   # system Hamiltonian
 Bbath::BosonBath    # bosonic   bath object
 Fbath::FermionBath  # fermionic bath object
 Btier::Int          # bosonic   truncation level 

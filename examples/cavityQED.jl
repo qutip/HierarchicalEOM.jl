@@ -2,9 +2,10 @@
 
 # Cavity quantum electrodynamics (cavity QED) is an important topic for studying the interaction between atoms (or other particles) and light confined in a reflective cavity, under conditions where the quantum nature of photons is significant.
 
+import QuantumToolbox
 using HierarchicalEOM
 using LaTeXStrings
-import QuantumToolbox, Plots
+import Plots
 
 # ## Hamiltonian
 # The Jaynes-Cummings model is a standard model in the realm of cavity QED. It illustrates the interaction between a two-level atom ($\textrm{A}$) and a quantized single-mode within a cavity ($\textrm{c}$).
@@ -28,10 +29,7 @@ import QuantumToolbox, Plots
 # ```
 # Here, $H_{\textrm{b}}$ describes a bosonic reservoir where $b_{k}$ $(b_{k}^{\dagger})$ is the bosonic annihilation (creation) operator associated to the $k$th mode (with frequency $\omega_{k}$). Also, $H_{\textrm{sb}}$ illustrates the interaction between the cavity and the bosonic reservoir.
 
-# Now, we can build the system Hamiltonian with the package [`QuantumToolbox.jl`](https://github.com/qutip/QuantumToolbox.jl) (optional) to construct the operators.
-
-# !!! compat "Extension for QuantumToolbox.jl"
-#     `HierarchicalEOM.jl` provides an extension to support `QuantumToolbox`-type object, but this feature requires `Julia 1.9+` and `HierarchicalEOM 1.4+`. See [here](@ref doc-ext-QuantumToolbox) for more details.
+# Now, we need to build the system Hamiltonian and initial state with the package [`QuantumToolbox.jl`](https://github.com/qutip/QuantumToolbox.jl) to construct the operators.
 
 N = 3 ## system cavity Hilbert space cutoff
 ωA = 2
@@ -39,16 +37,16 @@ N = 3 ## system cavity Hilbert space cutoff
 g = 0.1
 
 ## operators
-a_c = QuantumToolbox.destroy(N)
-I_c = QuantumToolbox.qeye(N)
-σz_A = QuantumToolbox.sigmaz()
-σm_A = QuantumToolbox.sigmam()
-I_A = QuantumToolbox.qeye(2)
+a_c = destroy(N)
+I_c = qeye(N)
+σz_A = sigmaz()
+σm_A = sigmam()
+I_A = qeye(2)
 
 ## operators in tensor-space
-a = QuantumToolbox.tensor(a_c, I_A)
-σz = QuantumToolbox.tensor(I_c, σz_A)
-σm = QuantumToolbox.tensor(I_c, σm_A)
+a = tensor(a_c, I_A)
+σz = tensor(I_c, σz_A)
+σm = tensor(I_c, σm_A)
 
 ## Hamiltonian
 H_A = 0.5 * ωA * σz
@@ -58,8 +56,7 @@ H_int = g * (a' * σm + a * σm')
 H_s = H_A + H_c + H_int
 
 ## initial state
-ket0 = QuantumToolbox.tensor(QuantumToolbox.basis(N, 0), QuantumToolbox.basis(2, 0))
-ρ0 = QuantumToolbox.ket2dm(ket0);
+ψ0 = tensor(basis(N, 0), basis(2, 0))
 
 # ## Construct bath objects
 # We assume the bosonic reservoir to have a [Drude-Lorentz Spectral Density](@ref Boson-Drude-Lorentz), and we utilize the Padé decomposition. Furthermore, the spectral densities depend on the following physical parameters: 
@@ -104,7 +101,7 @@ M_Heom = addBosonDissipator(M_Heom, J_pump)
 # ## Solve time evolution of ADOs
 # (see also [Time Evolution](@ref doc-Time-Evolution))
 t_list = 0:1:500
-evo_H = evolution(M_Heom, ρ0, t_list);
+evo_H = evolution(M_Heom, ψ0, t_list);
 
 # ## Solve stationary state of ADOs
 # (see also [Stationary State](@ref doc-Stationary-State))
@@ -112,12 +109,12 @@ steady_H = SteadyState(M_Heom);
 
 # ## Expectation values
 # observable of atom: $\sigma_z$
-σz_evo_H = Expect(σz, evo_H)
-σz_steady_H = Expect(σz, steady_H)
+σz_evo_H = expect(σz, evo_H)
+σz_steady_H = expect(σz, steady_H)
 
 # observable of cavity: $a^\dagger a$ (average photon number)
-np_evo_H = Expect(a' * a, evo_H)
-np_steady_H = Expect(a' * a, steady_H)
+np_evo_H = expect(a' * a, evo_H)
+np_steady_H = expect(a' * a, steady_H)
 
 p1 = Plots.plot(
     t_list,
@@ -164,18 +161,18 @@ M_master = M_S(H_s)
 M_master = addBosonDissipator(M_master, jump_op)
 
 ## time evolution
-evo_M = evolution(M_master, ρ0, t_list);
+evo_M = evolution(M_master, ψ0, t_list);
 
 ## steady
 steady_M = SteadyState(M_master);
 
 ## expectation value of σz
-σz_evo_M = Expect(σz, evo_M)
-σz_steady_M = Expect(σz, steady_M)
+σz_evo_M = expect(σz, evo_M)
+σz_steady_M = expect(σz, steady_M)
 
 ## average photon number
-np_evo_M = Expect(a' * a, evo_M)
-np_steady_M = Expect(a' * a, steady_M)
+np_evo_M = expect(a' * a, evo_M)
+np_steady_M = expect(a' * a, steady_M)
 
 p1 = Plots.plot(
     t_list,

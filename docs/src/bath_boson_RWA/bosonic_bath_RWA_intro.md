@@ -23,7 +23,7 @@ C^{\nu}(t_1, t_2)=\sum_i \eta_i^{\nu} e^{-\gamma_i^{\nu} (t_1-t_2)}.
 This allows us to define an iterative procedure which leads to the hierarchical equations of motion (HEOM).
 
 ## Construct BosonBath (RWA)
-One can construct the [`BosonBath`](@ref) object under RWA by calling the function [`BosonBathRWA`](@ref) together with the following parameters: system annihilation operator `a_s::AbstractMatrix` and the four lists `η_absorb::AbstractVector`, `γ_absorb::AbstractVector`, `η_emit::AbstractVector` and `γ_emit::AbstractVector` which correspond to the exponential terms ``\{\eta_i^{+}\}_i``, ``\{\gamma_i^{+}\}_i``, ``\{\eta_i^{-}\}_i`` and ``\{\gamma_i^{-}\}_i``, respectively. 
+One can construct the [`BosonBath`](@ref) object under RWA by calling the function [`BosonBathRWA`](@ref) together with the following parameters: system annihilation operator `a_s::QuantumObject` and the four lists `η_absorb::AbstractVector`, `γ_absorb::AbstractVector`, `η_emit::AbstractVector` and `γ_emit::AbstractVector` which correspond to the exponential terms ``\{\eta_i^{+}\}_i``, ``\{\gamma_i^{+}\}_i``, ``\{\eta_i^{-}\}_i`` and ``\{\gamma_i^{-}\}_i``, respectively. 
 ```julia
 bath = BosonBathRWA(a_s, η_absorb, γ_absorb, η_emit, γ_emit)
 ```
@@ -54,7 +54,7 @@ e = bath[2] # the 2nd-term
 print(e)
 ```
 ```
-Bath Exponent with types = "bA", operator size = (2, 2), η = 0.0 + 3.4090909090909113e-6im, γ = 0.1732050807568877 - 0.005im.
+Bath Exponent with types = "bA", η = 0.0 + 3.4090909090909113e-6im, γ = 0.1732050807568877 - 0.005im.
 ```
 
 The different types of the (bosonic-bath under RWA) [`Exponent`](@ref):
@@ -68,11 +68,11 @@ for e in bath
 end
 ```
 ```
-Bath Exponent with types = "bA", operator size = (2, 2), η = 6.25e-6 - 3.4090909090909113e-6im, γ = 0.05 - 0.005im.
+Bath Exponent with types = "bA", η = 6.25e-6 - 3.4090909090909113e-6im, γ = 0.05 - 0.005im.
 
-Bath Exponent with types = "bA", operator size = (2, 2), η = 0.0 + 3.4090909090909113e-6im, γ = 0.1732050807568877 - 0.005im.
+Bath Exponent with types = "bA", η = 0.0 + 3.4090909090909113e-6im, γ = 0.1732050807568877 - 0.005im.
 
-Bath Exponent with types = "bE", operator size = (2, 2), η = 6.25e-6 - 3.4090909090909113e-6im, γ = 0.05 + 0.005im.
+Bath Exponent with types = "bE", η = 6.25e-6 - 3.4090909090909113e-6im, γ = 0.05 + 0.005im.
 
-Bath Exponent with types = "bE", operator size = (2, 2), η = 0.0 + 3.4090909090909113e-6im, γ = 0.1732050807568877 + 0.005im.
+Bath Exponent with types = "bE", η = 0.0 + 3.4090909090909113e-6im, γ = 0.1732050807568877 + 0.005im.
 ```

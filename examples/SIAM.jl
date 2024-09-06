@@ -2,6 +2,7 @@
 
 # The investigation of the Kondo effect in single-impurity Anderson model is crucial as it serves both as a valuable testing ground for the theories of the Kondo effect and has the potential to lead to a better understanding of this intrinsic many-body phenomena.
 
+import QuantumToolbox
 using HierarchicalEOM
 import Plots
 
@@ -16,17 +17,17 @@ import Plots
 # ```
 # Here, $d_\uparrow$ $(d_\downarrow)$ annihilates a spin-up (spin-down) electron in the system, $\epsilon$ is the energy of the electron, and $U$ is the Coulomb repulsion energy for double occupation. Furthermore, $c_{\sigma,k}$ $(c_{\sigma,k}^{\dagger})$ annihilates (creates) an electron in the state $k$ (with energy $\epsilon_{\sigma,k}$) of the reservoir.
 # 
-# Now, we can construct the system Hamiltonian
+# Now, we need to build the system Hamiltonian and initial state with the package [`QuantumToolbox.jl`](https://github.com/qutip/QuantumToolbox.jl) to construct the operators.
 ϵ = -5
 U = 10
-σm = [0 1; 0 0] ## σ-
-σz = [1 0; 0 -1] ## σz
-II = [1 0; 0 1] ## identity matrix
+σm = sigmam() ## σ-
+σz = sigmaz() ## σz
+II = qeye(2)  ## identity matrix
 
 ## construct the annihilation operator for both spin-up and spin-down
 ## (utilize Jordan–Wigner transformation)
-d_up = kron(σm, II)
-d_dn = kron(-1 * σz, σm)
+d_up = tensor(σm, II)
+d_dn = tensor(-1 * σz, σm)
 Hsys = ϵ * (d_up' * d_up + d_dn' * d_dn) + U * (d_up' * d_up * d_dn' * d_dn)
 
 # ## Construct bath objects

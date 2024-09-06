@@ -71,19 +71,13 @@ jobs:
             arch: 'x64'
             group: 'Code_Quality'
 
-          # for extensions
-          - julia-version: '1'
-            os: 'ubuntu-latest'
-            arch: 'x64'
-            group: 'QuantumToolbox_Ext'
-
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
         with:
           version: ${{ matrix.julia-version }}
           arch: ${{ matrix.arch }}
-      - uses: julia-actions/cache@v1
+      - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
         env:
@@ -92,6 +86,8 @@ jobs:
         with:
           directories: src,ext
       - uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           files: lcov.info
-          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false

@@ -36,7 +36,7 @@
     γ_eL = γ_eR = 0.06676143449267714 # emission   rate towards Left and Right lead
     γ_aL = γ_aR = 0.0737827958503192  # absorption rate towards Left and Right lead
 
-    d = [0 1; 0 0]
+    d = sigmam()
     Hs = ϵ * d' * d
 
     ## Only local master equation
@@ -50,7 +50,7 @@
     @test size(M_me, 1) == size(J_me, 1)
     @test eltype(M_me) == eltype(J_me)
     @test nnz(J_me.data) == 1
-    @test J_me[1, 4] ≈ 0.0044570891355200214
+    @test J_me[4, 1] ≈ 0.0044570891355200214
     @test J_me.data * 2 ≈ (J_me - (-1) * J_me).data
     @test J_me.data * 2 ≈
           (HEOMSuperOp(√(2) * γ_eR * d, ODD, M_me, "L") * HEOMSuperOp(√(2) * γ_eR * d', ODD, M_me, "R")).data
@@ -63,12 +63,12 @@
 
     # calculating waiting time distribution
     WTD_me = []
-    trJρ = Expect(J_me, ados_s)
-    WTD_me = Expect(J_me, ados_list) ./ trJρ
+    trJρ = expect(J_me, ados_s)
+    WTD_me = expect(J_me, ados_list) ./ trJρ
     for i in 1:length(tlist)
         @test WTD_me[i] ≈ WTD_ans[i]
     end
-    @test Expect(J_me, ados_list[end]) / trJρ ≈ WTD_ans[end]
+    @test expect(J_me, ados_list[end]) / trJρ ≈ WTD_ans[end]
 
     ## Left lead with HEOM method and Right lead with local master equation
     bath = Fermion_Lorentz_Pade(d, Γ, μ, W, kT, N)
@@ -86,8 +86,8 @@
 
     # calculating waiting time distribution
     WTD_heom = []
-    trJρ1 = Expect(J_heom, ados_s1)
-    WTD_heom = Expect(J_heom, ados_list1) ./ trJρ1
+    trJρ1 = expect(J_heom, ados_s1)
+    WTD_heom = expect(J_heom, ados_list1) ./ trJρ1
     for i in 1:length(tlist)
         @test WTD_heom[i] ≈ WTD_ans[i] atol = 1e-5
     end

@@ -1,14 +1,9 @@
-function _is_Matrix_approx(M1, M2; atol = 1.0e-6)
+function _is_Matrix_approx(M1::QuantumObject, M2; atol = 1.0e-6)
     s1 = size(M1)
     s2 = size(M2)
     if s1 == s2
-        m, n = s1
-        for i in 1:m
-            for j in 1:n
-                if !isapprox(abs(M1[i, j]), abs(M2[i, j]), atol = atol)
-                    return false
-                end
-            end
+        if !isapprox(M1.data, M2, atol = atol)
+            return false
         end
         return true
     else

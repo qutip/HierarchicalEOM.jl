@@ -1,9 +1,9 @@
 @time @testset "Density of states" begin
     e = -5
     U = 10
-    d_up = kron([0 1; 0 0], [1 0; 0 1])
-    d_dn = kron(-1 * [1 0; 0 -1], [0 1; 0 0])
-    iden = kron([1 0; 0 1], [1 0; 0 1])
+    d_up = tensor(sigmam(), qeye(2))
+    d_dn = tensor(-1 * sigmaz(), sigmam())
+    iden = tensor(qeye(2), qeye(2))
 
     H0 = e * (d_up' * d_up + d_dn' * d_dn)
     H1 = U * (d_up' * d_up * d_dn' * d_dn)
@@ -63,10 +63,9 @@
         @test dos2[i] ≈ dos3[i] atol = 1.0e-10
     end
 
-    mat = spzeros(ComplexF64, 2, 2)
-    mat2 = spzeros(ComplexF64, 3, 3)
+    mat = Qobj(spzeros(ComplexF64, 2, 2))
+    mat2 = Qobj(spzeros(ComplexF64, 3, 3))
     bathb = Boson_DrudeLorentz_Pade(mat, 1, 1, 1, 2)
-    @test_throws ErrorException spectrum(Lo, ados_s, d_up, ωlist; verbose = false)
     @test_throws ErrorException DensityOfStates(Lo, ados_s, mat2, ωlist; verbose = false)
     @test_throws ErrorException DensityOfStates(Lo, ADOs(zeros(8), 2), d_up, ωlist; verbose = false)
     @test_throws ErrorException DensityOfStates(Lo, ADOs(zeros(32), 2), d_up, ωlist; verbose = false)

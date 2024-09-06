@@ -1,6 +1,6 @@
 # HierarchicalEOM.jl: An efficient Julia framework for Hierarchical Equations of Motion (HEOM) in open quantum systems
 
-`HierarchicalEOM.jl` is a numerical framework written in [`Julia`](https://julialang.org/). It provides a user-friendly and efficient tool based on hierarchical equations of motion (HEOM) approach to simulate complex open quantum systems, including non-Markovian effects due to non-perturbative interaction with one (or multiple) environment(s). It is inspired by the [Quantum Toolbox in Python (QuTiP)](https://qutip.org).
+`HierarchicalEOM.jl` is a numerical framework written in [`Julia`](https://julialang.org/). It provides a user-friendly and efficient tool based on hierarchical equations of motion (HEOM) approach to simulate complex open quantum systems, including non-Markovian effects due to non-perturbative interaction with one (or multiple) environment(s). It is built upon [`QuantumToolbox.jl`](https://github.com/qutip/QuantumToolbox.jl).
 
 While integrating many of the features present in other open-source HEOM packages, `HierarchicalEOM.jl` also includes new functionalities, such as the construction of even- and odd-parity [HEOM Liouvillian superoperator (HEOMLS) matrices](@ref doc-HEOMLS-Matrix), the estimation of [importance values](@ref doc-Importance-Value-and-Threshold) for all [auxiliary density operators (ADOs)](@ref doc-ADOs), and the calculation of [spectra](@ref doc-Spectrum) for both bosonic and fermionic systems. 
 

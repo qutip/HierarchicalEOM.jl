@@ -23,7 +23,7 @@ C^{\nu}(t_1, t_2)=\sum_i \eta_i^{\nu} e^{-\gamma_i^{\nu} (t_1-t_2)}.
 This allows us to define an iterative procedure which leads to the hierarchical equations of motion (HEOM).
 
 ## Construct FermionBath
-One can construct the [`FermionBath`](@ref) object with the system annihilation operator `ds::AbstractMatrix` and the four lists `η_absorb::AbstractVector`, `γ_absorb::AbstractVector`, `η_emit::AbstractVector` and `γ_emit::AbstractVector` which correspond to the exponential terms ``\{\eta_i^{+}\}_i``, ``\{\gamma_i^{+}\}_i``, ``\{\eta_i^{-}\}_i`` and ``\{\gamma_i^{-}\}_i``, respectively. 
+One can construct the [`FermionBath`](@ref) object with the system annihilation operator `ds::QuantumObject` and the four lists `η_absorb::AbstractVector`, `γ_absorb::AbstractVector`, `η_emit::AbstractVector` and `γ_emit::AbstractVector` which correspond to the exponential terms ``\{\eta_i^{+}\}_i``, ``\{\gamma_i^{+}\}_i``, ``\{\eta_i^{-}\}_i`` and ``\{\gamma_i^{-}\}_i``, respectively. 
 ```julia
 bath = FermionBath(ds, η_absorb, γ_absorb, η_emit, γ_emit)
 ```
@@ -57,7 +57,7 @@ e = bath[2] # the 2nd-term
 print(e)
 ```
 ```
-Bath Exponent with types = "fA", operator size = (2, 2), η = 0.0 + 3.4090909090909113e-6im, γ = 0.1732050807568877 - 0.005im.
+Bath Exponent with types = "fA", η = 0.0 + 3.4090909090909113e-6im, γ = 0.1732050807568877 - 0.005im.
 ```
 
 The different types of the (fermionic-bath) [`Exponent`](@ref):
@@ -71,11 +71,11 @@ for e in bath
 end
 ```
 ```
-Bath Exponent with types = "fA", operator size = (2, 2), η = 6.25e-6 - 3.4090909090909113e-6im, γ = 0.05 - 0.005im.
+Bath Exponent with types = "fA", η = 6.25e-6 - 3.4090909090909113e-6im, γ = 0.05 - 0.005im.
 
-Bath Exponent with types = "fA", operator size = (2, 2), η = 0.0 + 3.4090909090909113e-6im, γ = 0.1732050807568877 - 0.005im.
+Bath Exponent with types = "fA", η = 0.0 + 3.4090909090909113e-6im, γ = 0.1732050807568877 - 0.005im.
 
-Bath Exponent with types = "fE", operator size = (2, 2), η = 6.25e-6 - 3.4090909090909113e-6im, γ = 0.05 + 0.005im.
+Bath Exponent with types = "fE", η = 6.25e-6 - 3.4090909090909113e-6im, γ = 0.05 + 0.005im.
 
-Bath Exponent with types = "fE", operator size = (2, 2), η = 0.0 + 3.4090909090909113e-6im, γ = 0.1732050807568877 + 0.005im.
+Bath Exponent with types = "fE", η = 0.0 + 3.4090909090909113e-6im, γ = 0.1732050807568877 + 0.005im.
 ```

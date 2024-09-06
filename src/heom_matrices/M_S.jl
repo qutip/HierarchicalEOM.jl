@@ -10,7 +10,7 @@ where ``[\cdot, \cdot]_-`` stands for commutator.
 # Fields
 - `data::T` : the sparse matrix of HEOM Liouvillian superoperator
 - `tier` : the tier (cutoff level) for the hierarchy, which equals to `0` in this case
-- `dim` : the dimension of system
+- `dims` : the dimension list of the coupling operator (should be equal to the system dims).
 - `N` : the number of total ADOs, which equals to `1` (only the reduced density operator) in this case
 - `sup_dim` : the dimension of system superoperator
 - `parity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
@@ -18,7 +18,7 @@ where ``[\cdot, \cdot]_-`` stands for commutator.
 struct M_S{T} <: AbstractHEOMLSMatrix
     data::T
     tier::Int
-    dim::Int
+    dims::Vector{Int}
     N::Int
     sup_dim::Int
     parity::AbstractParity
@@ -40,12 +40,11 @@ where ``[\cdot, \cdot]_-`` stands for commutator.
 
 Note that the parity only need to be set as `ODD` when the system contains fermionic systems and you need to calculate the spectrum (density of states) of it.
 """
-@noinline function M_S(Hsys, parity::AbstractParity = EVEN; verbose::Bool = true)
+@noinline function M_S(Hsys::QuantumObject, parity::AbstractParity = EVEN; verbose::Bool = true)
 
     # check for system dimension
-    _Hsys = HandleMatrixType(Hsys, 0, "Hsys (system Hamiltonian)")
-    Nsys = size(_Hsys, 1)
-    sup_dim = Nsys^2
+    _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian)")
+    sup_dim = prod(_Hsys.dims)^2
 
     # the Liouvillian operator for free Hamiltonian
     if verbose
@@ -57,5 +56,5 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         println("[DONE]")
         flush(stdout)
     end
-    return M_S{SparseMatrixCSC{ComplexF64,Int64}}(Lsys, 0, Nsys, 1, sup_dim, parity)
+    return M_S{SparseMatrixCSC{ComplexF64,Int64}}(Lsys, 0, copy(_Hsys.dims), 1, sup_dim, parity)
 end

@@ -18,9 +18,9 @@ N = 5
 tier = 2
 ωlist = -10:1:10
 
-σm = [0 1; 0 0]
-σz = [1 0; 0 -1]
-II = [1 0; 0 1]
+σm = sigmam()
+σz = sigmaz()
+II = qeye(2)
 d_up = kron(σm, II)
 d_dn = kron(-1 * σz, σm)
 Hsys = ϵ * (d_up' * d_up + d_dn' * d_dn) + U * (d_up' * d_up * d_dn' * d_dn)

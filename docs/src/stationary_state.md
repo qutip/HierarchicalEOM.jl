@@ -35,11 +35,11 @@ until finding a stationary solution.
 `HierarchicalEOM.jl` wraps some of the functions in [DifferentialEquations.jl](https://diffeq.sciml.ai/stable/), which is a very rich numerical library for solving the differential equations and provides many ODE solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to the documentation of [DifferentialEquations.jl](https://diffeq.sciml.ai/stable/).
 
 
-### Given the initial state as Density Operator (`AbstractMatrix` type)
+### Given the initial state as Density Operator (`QuantumObject` type)
 See the docstring of this method:  
 
 ```@docs
-SteadyState(M::AbstractHEOMLSMatrix, ρ0, tspan::Number = Inf; solver = DP5(), termination_condition = NormTerminationMode(), verbose::Bool = true, SOLVEROptions...)
+SteadyState(M::AbstractHEOMLSMatrix, ρ0::QuantumObject, tspan::Number = Inf; solver = DP5(), termination_condition = NormTerminationMode(), verbose::Bool = true, SOLVEROptions...)
 ```
 
 ```julia
@@ -47,7 +47,7 @@ SteadyState(M::AbstractHEOMLSMatrix, ρ0, tspan::Number = Inf; solver = DP5(), t
 M::AbstractHEOMLSMatrix  
 
 # the initial state of the system density operator
-ρ0::AbstractMatrix
+ρ0::QuantumObject
 
 ados_steady = SteadyState(M, ρ0)
 ```
