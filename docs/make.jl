@@ -7,7 +7,7 @@ using Documenter, HierarchicalEOM
 
 DocMeta.setdocmeta!(HierarchicalEOM, :DocTestSetup, :(using HierarchicalEOM); recursive = true)
 
-const DRAFT = false # set `true` to disable cell evaluation
+const DRAFT = true # set `true` to disable cell evaluation
 
 ENV["GKSwstype"] = "100" # enable headless mode for GR to suppress warnings when plotting
 
