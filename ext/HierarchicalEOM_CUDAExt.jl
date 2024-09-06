@@ -27,17 +27,17 @@ function CuSparseMatrixCSC(M::T) where {T<:AbstractHEOMLSMatrix}
         nzval = CuArray{ComplexF32}(A.nzval)
         A_gpu = CuSparseMatrixCSC{ComplexF32,Int32}(colptr, rowval, nzval, size(A))
         if T <: M_S
-            return M_S(A_gpu, M.tier, M.dim, M.N, M.sup_dim, M.parity)
+            return M_S(A_gpu, M.tier, M.dims, M.N, M.sup_dim, M.parity)
         elseif T <: M_Boson
-            return M_Boson(A_gpu, M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+            return M_Boson(A_gpu, M.tier, M.dims, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
         elseif T <: M_Fermion
-            return M_Fermion(A_gpu, M.tier, M.dim, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+            return M_Fermion(A_gpu, M.tier, M.dims, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
         else
             return M_Boson_Fermion(
                 A_gpu,
                 M.Btier,
                 M.Ftier,
-                M.dim,
+                M.dims,
                 M.N,
                 M.sup_dim,
                 M.parity,
