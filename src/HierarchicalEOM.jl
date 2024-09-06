@@ -87,7 +87,17 @@ module HeomAPI
     import LinearAlgebra: I, kron, tr
     import SparseArrays: sparse, sparsevec, spzeros, SparseVector, SparseMatrixCSC
     import QuantumToolbox:
-        QuantumObject, Operator, SuperOperator, _spre, _spost, spre, spost, sprepost, expect, ket2dm, lindblad_dissipator
+        QuantumObject,
+        Operator,
+        SuperOperator,
+        _spre,
+        _spost,
+        spre,
+        spost,
+        sprepost,
+        expect,
+        ket2dm,
+        lindblad_dissipator
     import ProgressMeter: Progress, next!
     import FastExpm: fastExpm
 

@@ -243,7 +243,13 @@ where ``J(\omega)`` is the spectral density of the bath and ``n(\omega)`` repres
 - `δ::Number` : The approximation discrepancy (Default to `0.0`) which is used for adding the terminator to HEOM matrix (see function: addTerminator)
 - `combine::Bool` : Whether to combine the exponential-expansion terms with the same frequency. Defaults to `true`.
 """
-function BosonBath(op::QuantumObject, η::Vector{Ti}, γ::Vector{Tj}, δ::Number = 0.0; combine::Bool = true) where {Ti,Tj<:Number}
+function BosonBath(
+    op::QuantumObject,
+    η::Vector{Ti},
+    γ::Vector{Tj},
+    δ::Number = 0.0;
+    combine::Bool = true,
+) where {Ti,Tj<:Number}
     _op = HandleMatrixType(op, "op (coupling operator)")
     if combine
         ηnew, γnew = _combine_same_gamma(η, γ)
@@ -462,7 +468,12 @@ Generate bosonic bath which the real part and imaginary part of the bath correla
 - `η_imag::Vector{Tj<:Number}` : the imaginary part of coefficients ``\eta_i`` in bath correlation function ``\sum_i \eta_i \exp(-\gamma_i t)``.
 - `γ::Vector{Tk<:Number}` : the coefficients ``\gamma_i`` in bath correlation function ``\sum_i \eta_i \exp(-\gamma_i t)``.
 """
-function bosonRealImag(op::QuantumObject, η_real::Vector{Ti}, η_imag::Vector{Tj}, γ::Vector{Tk}) where {Ti,Tj,Tk<:Number}
+function bosonRealImag(
+    op::QuantumObject,
+    η_real::Vector{Ti},
+    η_imag::Vector{Tj},
+    γ::Vector{Tk},
+) where {Ti,Tj,Tk<:Number}
     _op = _check_bosonic_coupling_operator(op)
 
     # check if the length of coefficients are valid
@@ -551,7 +562,12 @@ Generate bosonic bath which describes the absorption process of the bosonic syst
 - `γ_absorb::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` of absorption bath correlation function ``C^{\nu=+}``.
 - `η_emit::Vector{Tk<:Number}` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
 """
-function bosonAbsorb(op::QuantumObject, η_absorb::Vector{Ti}, γ_absorb::Vector{Tj}, η_emit::Vector{Tk}) where {Ti,Tj,Tk<:Number}
+function bosonAbsorb(
+    op::QuantumObject,
+    η_absorb::Vector{Ti},
+    γ_absorb::Vector{Tj},
+    η_emit::Vector{Tk},
+) where {Ti,Tj,Tk<:Number}
     _op = _check_bosonic_RWA_coupling_operator(op)
 
     # check if the length of coefficients are valid
@@ -607,7 +623,12 @@ Generate bosonic bath which describes the emission process of the bosonic system
 - `γ_emit::Vector{Ti<:Number}` : the coefficients ``\gamma_i`` of emission bath correlation function ``C^{\nu=-}``.
 - `η_absorb::Vector{Ti<:Number}` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
 """
-function bosonEmit(op::QuantumObject, η_emit::Vector{Ti}, γ_emit::Vector{Tj}, η_absorb::Vector{Tk}) where {Ti,Tj,Tk<:Number}
+function bosonEmit(
+    op::QuantumObject,
+    η_emit::Vector{Ti},
+    γ_emit::Vector{Tj},
+    η_absorb::Vector{Tk},
+) where {Ti,Tj,Tk<:Number}
     _op = _check_bosonic_RWA_coupling_operator(op)
 
     # check if the length of coefficients are valid
@@ -736,7 +757,12 @@ Generate fermionic bath which describes the absorption process of the fermionic 
 - `γ_absorb::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` of absorption bath correlation function ``C^{\nu=+}``.
 - `η_emit::Vector{Tk<:Number}` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
 """
-function fermionAbsorb(op::QuantumObject, η_absorb::Vector{Ti}, γ_absorb::Vector{Tj}, η_emit::Vector{Tk}) where {Ti,Tj,Tk<:Number}
+function fermionAbsorb(
+    op::QuantumObject,
+    η_absorb::Vector{Ti},
+    γ_absorb::Vector{Tj},
+    η_emit::Vector{Tk},
+) where {Ti,Tj,Tk<:Number}
     _op = _check_fermionic_coupling_operator(op)
 
     # check if the length of coefficients are valid
@@ -795,7 +821,12 @@ Generate fermionic bath which describes the emission process of the fermionic sy
 - `γ_emit::Vector{Ti<:Number}` : the coefficients ``\gamma_i`` of emission bath correlation function ``C^{\nu=-}``.
 - `η_absorb::Vector{Ti<:Number}` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
 """
-function fermionEmit(op::QuantumObject, η_emit::Vector{Ti}, γ_emit::Vector{Tj}, η_absorb::Vector{Tk}) where {Ti,Tj,Tk<:Number}
+function fermionEmit(
+    op::QuantumObject,
+    η_emit::Vector{Ti},
+    γ_emit::Vector{Tj},
+    η_absorb::Vector{Tk},
+) where {Ti,Tj,Tk<:Number}
     _op = _check_fermionic_coupling_operator(op)
 
     # check if the length of coefficients are valid
