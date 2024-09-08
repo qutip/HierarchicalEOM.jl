@@ -12,7 +12,7 @@ Alternatively, this can also be done in Julia's [Pkg REPL](https://julialang.git
 ```
 More information about `Julia`'s package manager can be found at [`Pkg.jl`](https://julialang.github.io/Pkg.jl/v1/).  
 !!! note "Julia 1.10"
-    `HierarchicalEOM.jl` requires Julia 1.10 or higher (we dropped Julia 1.9 since ver.2.0.1)
+    `HierarchicalEOM.jl` requires Julia 1.10 or higher (we dropped Julia 1.9 since ver.2.1.0)
 
 To load the package and check the version information, use the command:
 ```julia
