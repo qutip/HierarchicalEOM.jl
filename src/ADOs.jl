@@ -42,7 +42,7 @@ function ADOs(V::AbstractVector, N::Int, parity::AbstractParity = EVEN)
     d = size(V, 1)
     dim = √(d / N)
     if isinteger(dim)
-        return ADOs(sparsevec(V), [Int(dim)], N, parity)
+        return ADOs(sparsevec(V), SVector{1,Int}(Int(dim)), N, parity)
     else
         error("The dimension of vector is not consistent with the ADOs number \"N\".")
     end

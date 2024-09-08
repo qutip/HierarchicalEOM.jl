@@ -160,7 +160,7 @@ module Spectrum
     using ..HeomBase
     import ..HeomAPI: HEOMSuperOp, ADOs, EVEN, ODD
     import SciMLBase: init, solve!
-    import LinearSolve: LinearProblem, UMFPACKFactorization
+    import LinearSolve: LinearProblem, SciMLLinearSolveAlgorithm, UMFPACKFactorization
     import ProgressMeter: Progress, next!
     import QuantumToolbox: QuantumObject
 

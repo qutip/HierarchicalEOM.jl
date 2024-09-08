@@ -158,6 +158,7 @@ Command line output of information on HierarchicalEOM, dependencies, and system 
 function versioninfo(io::IO = stdout)
     cpu = Sys.cpu_info()
     BLAS_info = BLAS.get_config().loaded_libs[1]
+    Sys.iswindows() ? OS_name = "Windows" : Sys.isapple() ? OS_name = "macOS" : OS_name = Sys.KERNEL
 
     # print the logo of HEOM package
     print("\n")
@@ -175,32 +176,28 @@ function versioninfo(io::IO = stdout)
         "    Simon Cross, Neill Lambert, Po-Chen Kuo and Shen-Liang Yang\n",
     )
 
-    # print package informations
+    # print package information
     println(
         io,
         "Package information:\n",
         "====================================\n",
+        "Julia              Ver. $(VERSION)\n",
         "HierarchicalEOM    Ver. $(_get_pkg_version("HierarchicalEOM"))\n",
         "QuantumToolbox     Ver. $(_get_pkg_version("QuantumToolbox"))\n",
         "LinearSolve        Ver. $(_get_pkg_version("LinearSolve"))\n",
-        "OrdinaryDiffEqCore Ver. $(_get_pkg_version("OrdinaryDiffEq"))\n",
+        "OrdinaryDiffEqCore Ver. $(_get_pkg_version("OrdinaryDiffEqCore"))\n",
     )
 
-    # print System informations
-    println(io, "System information:\n", "====================================\n", "Julia Version: $(VERSION)")
-    println(
-        io,
-        "OS       : ",
-        Sys.iswindows() ? "Windows" : Sys.isapple() ? "macOS" : Sys.KERNEL,
-        " (",
-        Sys.MACHINE,
-        ")",
-    )
-    println(io, "CPU      : ", length(cpu), " × ", cpu[1].model)
-    println(io, "Memory   : ", "$(round(Sys.total_memory() / 2 ^ 30, digits=3)) GB")
-    println(io, "WORD_SIZE: ", Sys.WORD_SIZE)
-    println(io, "LIBM     : ", Base.libm_name)
-    println(io, "LLVM     : ", "libLLVM-", Base.libllvm_version, " (", Sys.JIT, ", ", Sys.CPU_NAME, ")")
-    println(io, "BLAS     : ", basename(BLAS_info.libname), " (", BLAS_info.interface, ")")
+    # print System information
+    println(io, "System information:")
+    println(io, "====================================")
+    println(io, """OS       : $(OS_name) ($(Sys.MACHINE))""")
+    println(io, """CPU      : $(length(cpu)) × $(cpu[1].model)""")
+    println(io, """Memory   : $(round(Sys.total_memory() / 2 ^ 30, digits=3)) GB""")
+    println(io, """WORD_SIZE: $(Sys.WORD_SIZE)""")
+    println(io, """LIBM     : $(Base.libm_name)""")
+    println(io, """LLVM     : libLLVM-$(Base.libllvm_version) ($(Sys.JIT), $(Sys.CPU_NAME))""")
+    println(io, """BLAS     : $(basename(BLAS_info.libname)) ($(BLAS_info.interface))""")
+    println(io, """Threads  : $(Threads.nthreads()) (on $(Sys.CPU_THREADS) virtual cores)""")
     return print(io, "\n")
 end

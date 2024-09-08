@@ -88,7 +88,11 @@ function HEOMSuperOp(op, opParity::AbstractParity, dims::SVector, N::Int, mul_ba
     return HEOMSuperOp(HEOMLS, dims, N, opParity)
 end
 HEOMSuperOp(op, opParity::AbstractParity, dims::Int, N::Int, mul_basis::AbstractString) =
-    HEOMSuperOp(op, opParity, [dims], N, mul_basis)
+    HEOMSuperOp(op, opParity, SVector{1,Int}(dims), N, mul_basis)
+HEOMSuperOp(op, opParity::AbstractParity, dims::Vector{Int}, N::Int, mul_basis::AbstractString) =
+    HEOMSuperOp(op, opParity, SVector{length(dims),Int}(dims), N, mul_basis)
+HEOMSuperOp(op, opParity::AbstractParity, dims::Tuple, N::Int, mul_basis::AbstractString) =
+    HEOMSuperOp(op, opParity, SVector(dims), N, mul_basis)
 
 @doc raw"""
     size(M::HEOMSuperOp)
