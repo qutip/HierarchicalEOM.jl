@@ -8,11 +8,11 @@ Pkg.add("HierarchicalEOM")
 ```
 Alternatively, this can also be done in Julia's [Pkg REPL](https://julialang.github.io/Pkg.jl/v1/getting-started/) by pressing the key `]` in the REPL to use the package mode, and then type the following command:
 ```julia-REPL
-(1.9) pkg> add HierarchicalEOM
+(1.10) pkg> add HierarchicalEOM
 ```
 More information about `Julia`'s package manager can be found at [`Pkg.jl`](https://julialang.github.io/Pkg.jl/v1/).  
-!!! note "Julia 1.9"
-    `HierarchicalEOM.jl` requires Julia 1.9 or higher (we dropped Julia 1.8 since ver.1.12.1)
+!!! note "Julia 1.10"
+    `HierarchicalEOM.jl` requires Julia 1.10 or higher (we dropped Julia 1.9 since ver.2.0.1)
 
 To load the package and check the version information, use the command:
 ```julia

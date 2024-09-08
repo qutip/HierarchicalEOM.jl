@@ -89,7 +89,7 @@ end
 @noinline function genBathHierarchy(
     B::Vector{T},
     tier::Int,
-    dims::Vector{Int};
+    dims::SVector;
     threshold::Real = 0.0,
 ) where {T<:AbstractBath}
     Nterm = 0
@@ -174,7 +174,7 @@ end
     fB::Vector{FermionBath},
     tier_b::Int,
     tier_f::Int,
-    dims::Vector{Int};
+    dims::SVector;
     threshold::Real = 0.0,
 )
     # deal with boson bath

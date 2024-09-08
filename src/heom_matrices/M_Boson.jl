@@ -15,7 +15,7 @@ HEOM Liouvillian superoperator matrix for bosonic bath
 struct M_Boson{T} <: AbstractHEOMLSMatrix
     data::T
     tier::Int
-    dims::Vector{Int}
+    dims::SVector
     N::Int
     sup_dim::Int
     parity::AbstractParity

@@ -10,7 +10,7 @@ General HEOM superoperator matrix.
 """
 struct HEOMSuperOp
     data::SparseMatrixCSC{ComplexF64,Int64}
-    dims::Vector{Int}
+    dims::SVector
     N::Int
     parity::AbstractParity
 end
@@ -64,7 +64,7 @@ During the multiplication on all the `ADOs`, the parity of the output `ADOs` mig
 # Parameters
 - `op` : The system operator which will act on all `ADOs`.
 - `opParity::AbstractParity` : the parity label of the given operator (`op`), should be `EVEN` or `ODD`.
-- `dims::Vector{Int}` : the dimension list of the coupling operator (should be equal to the system dims).
+- `dims::SVector` : the dimension list of the coupling operator (should be equal to the system dims).
 - `N::Int` : the number of `ADOs`.
 - `mul_basis::AbstractString` : this specifies the basis for `op` to multiply on all `ADOs`.
 
@@ -73,7 +73,7 @@ if `mul_basis` is specified as
 - `"R"`  : the matrix `op` has same dimension with the system and acts on right-hand side.
 - `"LR"` : the matrix `op` is a SuperOperator of the system.
 """
-function HEOMSuperOp(op, opParity::AbstractParity, dims::Vector{Int}, N::Int, mul_basis::AbstractString)
+function HEOMSuperOp(op, opParity::AbstractParity, dims::SVector, N::Int, mul_basis::AbstractString)
     if mul_basis == "L"
         sup_op = spre(HandleMatrixType(op, dims, "op (operator)"))
     elseif mul_basis == "R"
@@ -88,7 +88,11 @@ function HEOMSuperOp(op, opParity::AbstractParity, dims::Vector{Int}, N::Int, mu
     return HEOMSuperOp(HEOMLS, dims, N, opParity)
 end
 HEOMSuperOp(op, opParity::AbstractParity, dims::Int, N::Int, mul_basis::AbstractString) =
-    HEOMSuperOp(op, opParity, [dims], N, mul_basis)
+    HEOMSuperOp(op, opParity, SVector{1,Int}(dims), N, mul_basis)
+HEOMSuperOp(op, opParity::AbstractParity, dims::Vector{Int}, N::Int, mul_basis::AbstractString) =
+    HEOMSuperOp(op, opParity, SVector{length(dims),Int}(dims), N, mul_basis)
+HEOMSuperOp(op, opParity::AbstractParity, dims::Tuple, N::Int, mul_basis::AbstractString) =
+    HEOMSuperOp(op, opParity, SVector(dims), N, mul_basis)
 
 @doc raw"""
     size(M::HEOMSuperOp)

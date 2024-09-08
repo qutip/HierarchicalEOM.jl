@@ -18,7 +18,7 @@ struct M_Boson_Fermion{T} <: AbstractHEOMLSMatrix
     data::T
     Btier::Int
     Ftier::Int
-    dims::Vector{Int}
+    dims::SVector
     N::Int
     sup_dim::Int
     parity::AbstractParity

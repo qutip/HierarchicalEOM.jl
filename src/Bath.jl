@@ -218,7 +218,7 @@ end
 struct BosonBath <: AbstractBath
     bath::Vector{AbstractBosonBath}
     op::QuantumObject
-    dims::Vector{Int}
+    dims::SVector
     Nterm::Int
     δ::Number
 end
@@ -364,7 +364,7 @@ A bosonic bath for the real part of bath correlation function ``C^{u=\textrm{R}}
 """
 struct bosonReal <: AbstractBosonBath
     Comm::SparseMatrixCSC{ComplexF64,Int64}
-    dims::Vector{Int}
+    dims::SVector
     η::AbstractVector
     γ::AbstractVector
     Nterm::Int
@@ -406,7 +406,7 @@ A bosonic bath for the imaginary part of bath correlation function ``C^{u=\textr
 struct bosonImag <: AbstractBosonBath
     Comm::SparseMatrixCSC{ComplexF64,Int64}
     anComm::SparseMatrixCSC{ComplexF64,Int64}
-    dims::Vector{Int}
+    dims::SVector
     η::AbstractVector
     γ::AbstractVector
     Nterm::Int
@@ -451,7 +451,7 @@ A bosonic bath which the real part and imaginary part of the bath correlation fu
 struct bosonRealImag <: AbstractBosonBath
     Comm::SparseMatrixCSC{ComplexF64,Int64}
     anComm::SparseMatrixCSC{ComplexF64,Int64}
-    dims::Vector{Int}
+    dims::SVector
     η_real::AbstractVector
     η_imag::AbstractVector
     γ::AbstractVector
@@ -545,7 +545,7 @@ struct bosonAbsorb <: AbstractBosonBath
     spre::SparseMatrixCSC{ComplexF64,Int64}
     spost::SparseMatrixCSC{ComplexF64,Int64}
     CommD::SparseMatrixCSC{ComplexF64,Int64}
-    dims::Vector{Int}
+    dims::SVector
     η::AbstractVector
     γ::AbstractVector
     η_emit::AbstractVector
@@ -606,7 +606,7 @@ struct bosonEmit <: AbstractBosonBath
     spre::SparseMatrixCSC{ComplexF64,Int64}
     spost::SparseMatrixCSC{ComplexF64,Int64}
     CommD::SparseMatrixCSC{ComplexF64,Int64}
-    dims::Vector{Int}
+    dims::SVector
     η::AbstractVector
     γ::AbstractVector
     η_absorb::AbstractVector
@@ -675,7 +675,7 @@ end
 struct FermionBath <: AbstractBath
     bath::Vector{AbstractFermionBath}
     op::QuantumObject
-    dims::Vector{Int}
+    dims::SVector
     Nterm::Int
     δ::Number
 end
@@ -740,7 +740,7 @@ struct fermionAbsorb <: AbstractFermionBath
     spost::SparseMatrixCSC{ComplexF64,Int64}
     spreD::SparseMatrixCSC{ComplexF64,Int64}
     spostD::SparseMatrixCSC{ComplexF64,Int64}
-    dims::Vector{Int}
+    dims::SVector
     η::AbstractVector
     γ::AbstractVector
     η_emit::AbstractVector
@@ -804,7 +804,7 @@ struct fermionEmit <: AbstractFermionBath
     spost::SparseMatrixCSC{ComplexF64,Int64}
     spreD::SparseMatrixCSC{ComplexF64,Int64}
     spostD::SparseMatrixCSC{ComplexF64,Int64}
-    dims::Vector{Int}
+    dims::SVector
     η::AbstractVector
     γ::AbstractVector
     η_absorb::AbstractVector

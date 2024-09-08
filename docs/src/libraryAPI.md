@@ -62,7 +62,7 @@ ODD
 HEOMSuperOp
 HEOMSuperOp(op, opParity::AbstractParity, refHEOMLS::AbstractHEOMLSMatrix, mul_basis::AbstractString="L")
 HEOMSuperOp(op, opParity::AbstractParity, refADOs::ADOs, mul_basis::AbstractString="L")
-HEOMSuperOp(op, opParity::AbstractParity, dims::Vector{Int}, N::Int, mul_basis::AbstractString)
+HEOMSuperOp(op, opParity::AbstractParity, dims::SVector, N::Int, mul_basis::AbstractString)
 M_S
 M_S(Hsys::QuantumObject, parity::AbstractParity=EVEN; verbose::Bool=true)
 M_Boson

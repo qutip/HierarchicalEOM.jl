@@ -11,7 +11,7 @@ function PowerSpectrum(
     Q_op,
     ωlist::AbstractVector,
     reverse::Bool = false;
-    solver = UMFPACKFactorization(),
+    solver::SciMLLinearSolveAlgorithm = UMFPACKFactorization(),
     verbose::Bool = true,
     filename::String = "",
     SOLVEROptions...,
@@ -54,12 +54,13 @@ remember to set the parameters:
 - `Q_op`: the system operator (or `HEOMSuperOp`) ``Q`` acting on the system.
 - `ωlist::AbstractVector` : the specific frequency points to solve.
 - `reverse::Bool` : If `true`, calculate ``\langle P(-t)Q(0) \rangle = \langle P(0)Q(t) \rangle = \langle P(t)Q(0) \rangle^*`` instead of ``\langle P(t) Q(0) \rangle``. Default to `false`.
-- `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
+- `solver::SciMLLinearSolveAlgorithm` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `filename::String` : If filename was specified, the value of spectrum for each ω will be saved into the file "filename.txt" during the solving process.
 - `SOLVEROptions` : extra options for solver 
 
-For more details about solvers and extra options, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
+# Notes
+- For more details about `solver` and `SOLVEROptions`, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
 
 # Returns
 - `spec::AbstractVector` : the spectrum list corresponds to the specified `ωlist`
@@ -71,7 +72,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
     Q_op,
     ωlist::AbstractVector,
     reverse::Bool = false;
-    solver = UMFPACKFactorization(),
+    solver::SciMLLinearSolveAlgorithm = UMFPACKFactorization(),
     verbose::Bool = true,
     filename::String = "",
     SOLVEROptions...,

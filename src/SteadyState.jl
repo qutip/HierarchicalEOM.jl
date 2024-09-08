@@ -4,18 +4,19 @@ Solve the steady state of the auxiliary density operators based on `LinearSolve.
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
-- `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
+- `solver::SciMLLinearSolveAlgorithm` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver 
 
-For more details about solvers and extra options, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
+# Notes
+- For more details about `solver` and `SOLVEROptions`, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
 
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
 """
 @noinline function SteadyState(
     M::AbstractHEOMLSMatrix;
-    solver = UMFPACKFactorization(),
+    solver::SciMLLinearSolveAlgorithm = UMFPACKFactorization(),
     verbose::Bool = true,
     SOLVEROptions...,
 )
@@ -45,20 +46,22 @@ end
 
 @doc raw"""
     SteadyState(M, ρ0, tspan; solver, verbose, SOLVEROptions...)
-Solve the steady state of the auxiliary density operators based on time evolution (ordinary differential equations; `SteadyStateDiffEq.jl`) with initial state is given in the type of density-matrix (`ρ0`).
+Solve the steady state of the auxiliary density operators based on time evolution (`OrdinaryDiffEq.jl`) with initial state is given in the type of density-matrix (`ρ0`).
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
 - `ρ0::QuantumObject` : system initial state (density matrix)
 - `tspan::Number` : the time limit to find stationary state. Default to `Inf`
-- `solver` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `solver::OrdinaryDiffEqAlgorithm` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-8`.
 - `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-10`.
 - `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver
 
-For more details about solvers, and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
+# Notes
+- For more details about `solver` please refer to [`DifferentialEquations.jl` (ODE Solvers)](https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/)
+- For more details about `SOLVEROptions` please refer to [`DifferentialEquations.jl` (Keyword Arguments)](https://docs.sciml.ai/DiffEqDocs/stable/basics/common_solver_opts/)
 
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
@@ -67,7 +70,7 @@ function SteadyState(
     M::AbstractHEOMLSMatrix,
     ρ0::QuantumObject,
     tspan::Number = Inf;
-    solver = DP5(),
+    solver::OrdinaryDiffEqAlgorithm = DP5(),
     reltol::Real = 1.0e-8,
     abstol::Real = 1.0e-10,
     save_everystep::Bool = false,
@@ -89,20 +92,22 @@ end
 
 @doc raw"""
     SteadyState(M, ados, tspan; solver, verbose, SOLVEROptions...)
-Solve the steady state of the auxiliary density operators based on time evolution (ordinary differential equations; `SteadyStateDiffEq.jl`) with initial state is given in the type of `ADOs`.
+Solve the steady state of the auxiliary density operators based on time evolution (`OrdinaryDiffEq.jl`) with initial state is given in the type of `ADOs`.
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
 - `ados::ADOs` : initial auxiliary density operators
 - `tspan::Number` : the time limit to find stationary state. Default to `Inf`
-- `solver` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `solver::OrdinaryDiffEqAlgorithm` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-8`.
 - `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-10`.
 - `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver
 
-For more details about solvers, and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
+# Notes
+- For more details about `solver` please refer to [`DifferentialEquations.jl` (ODE Solvers)](https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/)
+- For more details about `SOLVEROptions` please refer to [`DifferentialEquations.jl` (Keyword Arguments)](https://docs.sciml.ai/DiffEqDocs/stable/basics/common_solver_opts/)
 
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
@@ -111,7 +116,7 @@ For more details about solvers, and extra options, please refer to [`Differentia
     M::AbstractHEOMLSMatrix,
     ados::ADOs,
     tspan::Number = Inf;
-    solver = DP5(),
+    solver::OrdinaryDiffEqAlgorithm = DP5(),
     reltol::Real = 1.0e-8,
     abstol::Real = 1.0e-10,
     save_everystep::Bool = false,

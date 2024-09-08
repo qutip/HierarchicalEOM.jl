@@ -11,12 +11,13 @@ Calculate density of states for the fermionic system in frequency domain.
 - `ρ` :  the system density matrix or the auxiliary density operators.
 - `d_op` : The annihilation operator (``d`` as shown above) acting on the fermionic system.
 - `ωlist::AbstractVector` : the specific frequency points to solve.
-- `solver` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
+- `solver::SciMLLinearSolveAlgorithm` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `filename::String` : If filename was specified, the value of spectrum for each ω will be saved into the file "filename.txt" during the solving process.
 - `SOLVEROptions` : extra options for solver 
 
-For more details about solvers and extra options, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
+# Notes
+- For more details about `solver` and `SOLVEROptions`, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
 
 # Returns
 - `dos::AbstractVector` : the list of density of states corresponds to the specified `ωlist`
@@ -26,7 +27,7 @@ For more details about solvers and extra options, please refer to [`LinearSolve.
     ρ,
     d_op::QuantumObject,
     ωlist::AbstractVector;
-    solver = UMFPACKFactorization(),
+    solver::SciMLLinearSolveAlgorithm = UMFPACKFactorization(),
     verbose::Bool = true,
     filename::String = "",
     SOLVEROptions...,

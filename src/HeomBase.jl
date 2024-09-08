@@ -3,7 +3,7 @@ abstract type AbstractHEOMLSMatrix end
 const PROGBAR_OPTIONS = Dict(:barlen => 20, :color => :green, :showspeed => true)
 
 # equal to : transpose(sparse(vec(system_identity_matrix)))
-function _Tr(dims::Vector{Int}, N::Int)
+function _Tr(dims::SVector, N::Int)
     D = prod(dims)
     return transpose(SparseVector(N * D^2, [1 + n * (D + 1) for n in 0:(D-1)], ones(ComplexF64, D)))
 end
@@ -15,19 +15,14 @@ function HandleMatrixType(M::QuantumObject, MatrixName::String = ""; type::Quant
         error("The matrix $(MatrixName) should be an $(Type).")
     end
 end
-function HandleMatrixType(
-    M::QuantumObject,
-    dims::Vector{Int},
-    MatrixName::String = "";
-    type::QuantumObjectType = Operator,
-)
+function HandleMatrixType(M::QuantumObject, dims::SVector, MatrixName::String = ""; type::QuantumObjectType = Operator)
     if M.dims == dims
         return HandleMatrixType(M, MatrixName; type = type)
     else
         error("The dims of $(MatrixName) should be: $(dims)")
     end
 end
-HandleMatrixType(M, dims::Vector{Int}, MatrixName::String = ""; type::QuantumObjectType = Operator) =
+HandleMatrixType(M, dims::SVector, MatrixName::String = ""; type::QuantumObjectType = Operator) =
     HandleMatrixType(M, MatrixName; type = type)
 HandleMatrixType(M, MatrixName::String = ""; type::QuantumObjectType = Operator) =
     error("HierarchicalEOM doesn't support matrix $(MatrixName) with type : $(typeof(M))")
@@ -163,6 +158,7 @@ Command line output of information on HierarchicalEOM, dependencies, and system 
 function versioninfo(io::IO = stdout)
     cpu = Sys.cpu_info()
     BLAS_info = BLAS.get_config().loaded_libs[1]
+    Sys.iswindows() ? OS_name = "Windows" : Sys.isapple() ? OS_name = "macOS" : OS_name = Sys.KERNEL
 
     # print the logo of HEOM package
     print("\n")
@@ -180,34 +176,28 @@ function versioninfo(io::IO = stdout)
         "    Simon Cross, Neill Lambert, Po-Chen Kuo and Shen-Liang Yang\n",
     )
 
-    # print package informations
+    # print package information
     println(
         io,
         "Package information:\n",
         "====================================\n",
-        "HierarchicalEOM Ver. $(_get_pkg_version("HierarchicalEOM"))\n",
-        "QuantumToolbox  Ver. $(_get_pkg_version("QuantumToolbox"))\n",
-        "LinearSolve     Ver. $(_get_pkg_version("LinearSolve"))\n",
-        "OrdinaryDiffEq  Ver. $(_get_pkg_version("OrdinaryDiffEq"))\n",
-        "FastExpm        Ver. $(_get_pkg_version("FastExpm"))\n",
-        "JLD2            Ver. $(_get_pkg_version("JLD2"))\n",
+        "Julia              Ver. $(VERSION)\n",
+        "HierarchicalEOM    Ver. $(_get_pkg_version("HierarchicalEOM"))\n",
+        "QuantumToolbox     Ver. $(_get_pkg_version("QuantumToolbox"))\n",
+        "LinearSolve        Ver. $(_get_pkg_version("LinearSolve"))\n",
+        "OrdinaryDiffEqCore Ver. $(_get_pkg_version("OrdinaryDiffEqCore"))\n",
     )
 
-    # print System informations
-    println(io, "System information:\n", "====================================\n", "Julia Version: $(VERSION)")
-    println(
-        io,
-        "OS       : ",
-        Sys.iswindows() ? "Windows" : Sys.isapple() ? "macOS" : Sys.KERNEL,
-        " (",
-        Sys.MACHINE,
-        ")",
-    )
-    println(io, "CPU      : ", length(cpu), " × ", cpu[1].model)
-    println(io, "Memory   : ", "$(round(Sys.total_memory() / 2 ^ 30, digits=3)) GB")
-    println(io, "WORD_SIZE: ", Sys.WORD_SIZE)
-    println(io, "LIBM     : ", Base.libm_name)
-    println(io, "LLVM     : ", "libLLVM-", Base.libllvm_version, " (", Sys.JIT, ", ", Sys.CPU_NAME, ")")
-    println(io, "BLAS     : ", basename(BLAS_info.libname), " (", BLAS_info.interface, ")")
+    # print System information
+    println(io, "System information:")
+    println(io, "====================================")
+    println(io, """OS       : $(OS_name) ($(Sys.MACHINE))""")
+    println(io, """CPU      : $(length(cpu)) × $(cpu[1].model)""")
+    println(io, """Memory   : $(round(Sys.total_memory() / 2 ^ 30, digits=3)) GB""")
+    println(io, """WORD_SIZE: $(Sys.WORD_SIZE)""")
+    println(io, """LIBM     : $(Base.libm_name)""")
+    println(io, """LLVM     : libLLVM-$(Base.libllvm_version) ($(Sys.JIT), $(Sys.CPU_NAME))""")
+    println(io, """BLAS     : $(basename(BLAS_info.libname)) ($(BLAS_info.interface))""")
+    println(io, """Threads  : $(Threads.nthreads()) (on $(Sys.CPU_THREADS) virtual cores)""")
     return print(io, "\n")
 end

@@ -143,7 +143,7 @@ with initial state is given in the type of density-matrix (`ρ0`).
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
 - `ρ0::QuantumObject` : system initial state (density matrix)
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
-- `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `solver::OrdinaryDiffEqAlgorithm` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
 - `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
@@ -152,7 +152,9 @@ with initial state is given in the type of density-matrix (`ρ0`).
 - `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" during the solving process.
 - `SOLVEROptions` : extra options for solver
 
-For more details about solvers and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
+# Notes
+- For more details about `solver` please refer to [`DifferentialEquations.jl` (ODE Solvers)](https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/)
+- For more details about `SOLVEROptions` please refer to [`DifferentialEquations.jl` (Keyword Arguments)](https://docs.sciml.ai/DiffEqDocs/stable/basics/common_solver_opts/)
 
 # Returns
 - `ADOs_list` : The auxiliary density operators in each time point.
@@ -161,7 +163,7 @@ function evolution(
     M::AbstractHEOMLSMatrix,
     ρ0::QuantumObject,
     tlist::AbstractVector;
-    solver = DP5(),
+    solver::OrdinaryDiffEqAlgorithm = DP5(),
     reltol::Real = 1.0e-6,
     abstol::Real = 1.0e-8,
     maxiters::Real = 1e5,
@@ -194,7 +196,7 @@ with initial state is given in the type of `ADOs`.
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
 - `ados::ADOs` : initial auxiliary density operators
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
-- `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `solver::OrdinaryDiffEqAlgorithm` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
 - `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
@@ -203,7 +205,9 @@ with initial state is given in the type of `ADOs`.
 - `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" during the solving process.
 - `SOLVEROptions` : extra options for solver
 
-For more details about solvers and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
+# Notes
+- For more details about `solver` please refer to [`DifferentialEquations.jl` (ODE Solvers)](https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/)
+- For more details about `SOLVEROptions` please refer to [`DifferentialEquations.jl` (Keyword Arguments)](https://docs.sciml.ai/DiffEqDocs/stable/basics/common_solver_opts/)
 
 # Returns
 - `ADOs_list` : The auxiliary density operators in each time point.
@@ -212,7 +216,7 @@ For more details about solvers and extra options, please refer to [`Differential
     M::AbstractHEOMLSMatrix,
     ados::ADOs,
     tlist::AbstractVector;
-    solver = DP5(),
+    solver::OrdinaryDiffEqAlgorithm = DP5(),
     reltol::Real = 1.0e-6,
     abstol::Real = 1.0e-8,
     maxiters::Real = 1e5,
@@ -299,7 +303,7 @@ with initial state is given in the type of density-matrix (`ρ0`).
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `H::Function` : a function for time-dependent part of system Hamiltonian. The function will be called by `H(param, t)` and should return the time-dependent part system Hamiltonian matrix at time `t` with `AbstractMatrix` type.
 - `param::Tuple`: the tuple of parameters which is used to call `H(param, t)` for the time-dependent system Hamiltonian. Default to empty tuple `()`.
-- `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `solver::OrdinaryDiffEqAlgorithm` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
 - `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
@@ -308,7 +312,9 @@ with initial state is given in the type of density-matrix (`ρ0`).
 - `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" during the solving process.
 - `SOLVEROptions` : extra options for solver
 
-For more details about solvers and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
+# Notes
+- For more details about `solver` please refer to [`DifferentialEquations.jl` (ODE Solvers)](https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/)
+- For more details about `SOLVEROptions` please refer to [`DifferentialEquations.jl` (Keyword Arguments)](https://docs.sciml.ai/DiffEqDocs/stable/basics/common_solver_opts/)
 
 # Returns
 - `ADOs_list` : The auxiliary density operators in each time point.
@@ -319,7 +325,7 @@ function evolution(
     tlist::AbstractVector,
     H::Function,
     param::Tuple = ();
-    solver = DP5(),
+    solver::OrdinaryDiffEqAlgorithm = DP5(),
     reltol::Real = 1.0e-6,
     abstol::Real = 1.0e-8,
     maxiters::Real = 1e5,
@@ -355,7 +361,7 @@ with initial state is given in the type of `ADOs`.
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `H::Function` : a function for time-dependent part of system Hamiltonian. The function will be called by `H(param, t)` and should return the time-dependent part system Hamiltonian matrix at time `t` with `AbstractMatrix` type.
 - `param::Tuple`: the tuple of parameters which is used to call `H(param, t)` for the time-dependent system Hamiltonian. Default to empty tuple `()`.
-- `solver` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `solver::OrdinaryDiffEqAlgorithm` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-6`.
 - `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-8`.
 - `maxiters::Real` : Maximum number of iterations before stopping. Default to `1e5`.
@@ -364,7 +370,9 @@ with initial state is given in the type of `ADOs`.
 - `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" during the solving process.
 - `SOLVEROptions` : extra options for solver
 
-For more details about solvers and extra options, please refer to [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/)
+# Notes
+- For more details about `solver` please refer to [`DifferentialEquations.jl` (ODE Solvers)](https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/)
+- For more details about `SOLVEROptions` please refer to [`DifferentialEquations.jl` (Keyword Arguments)](https://docs.sciml.ai/DiffEqDocs/stable/basics/common_solver_opts/)
 
 # Returns
 - `ADOs_list` : The auxiliary density operators in each time point.
@@ -375,7 +383,7 @@ For more details about solvers and extra options, please refer to [`Differential
     tlist::AbstractVector,
     H::Function,
     param::Tuple = ();
-    solver = DP5(),
+    solver::OrdinaryDiffEqAlgorithm = DP5(),
     reltol::Real = 1.0e-6,
     abstol::Real = 1.0e-8,
     maxiters::Real = 1e5,
