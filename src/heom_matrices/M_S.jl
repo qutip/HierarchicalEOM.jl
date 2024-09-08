@@ -18,7 +18,7 @@ where ``[\cdot, \cdot]_-`` stands for commutator.
 struct M_S{T} <: AbstractHEOMLSMatrix
     data::T
     tier::Int
-    dims::Vector{Int}
+    dims::SVector
     N::Int
     sup_dim::Int
     parity::AbstractParity

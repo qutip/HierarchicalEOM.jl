@@ -8,6 +8,7 @@ module HeomBase
     import Pkg
     import LinearAlgebra: BLAS, kron, I
     import SparseArrays: sparse, SparseVector, SparseMatrixCSC
+    import StaticArraysCore: SVector
     import QuantumToolbox: QuantumObject, QuantumObjectType, Operator, SuperOperator
 
     export _Tr,
@@ -33,6 +34,7 @@ module Bath
     import Base: show, length, getindex, lastindex, iterate, checkbounds
     import LinearAlgebra: ishermitian, eigvals, I
     import SparseArrays: SparseMatrixCSC
+    import StaticArraysCore: SVector
     import QuantumToolbox: QuantumObject, _spre, _spost
 
     export AbstractBath,
@@ -84,8 +86,9 @@ module HeomAPI
         copy,
         eltype
     import Base.Threads: @threads, threadid, nthreads, lock, unlock, SpinLock
-    import LinearAlgebra: I, kron, tr
+    import LinearAlgebra: I, kron, tr, norm
     import SparseArrays: sparse, sparsevec, spzeros, SparseVector, SparseMatrixCSC
+    import StaticArraysCore: SVector
     import QuantumToolbox:
         QuantumObject,
         Operator,
@@ -101,16 +104,14 @@ module HeomAPI
     import ProgressMeter: Progress, next!
     import FastExpm: fastExpm
 
-    # for solving time evolution
+    # solving time evolution and steady state
+    import SciMLBase: solve, solve!, init, step!, ODEProblem
     import SciMLOperators: MatrixOperator
-    import OrdinaryDiffEq: ODEProblem, init, DP5, step!
-    import JLD2: jldopen
-
-    # for solving steady state
-    import LinearSolve: LinearProblem, init, solve!, UMFPACKFactorization
-    import LinearAlgebra: norm
-    import OrdinaryDiffEq: solve
+    import OrdinaryDiffEqCore: OrdinaryDiffEqAlgorithm
+    import OrdinaryDiffEqLowOrderRK: DP5
     import DiffEqCallbacks: TerminateSteadyState
+    import LinearSolve: LinearProblem, SciMLLinearSolveAlgorithm, UMFPACKFactorization
+    import JLD2: jldopen
 
     export AbstractParity,
         OddParity,
@@ -158,7 +159,8 @@ end
 module Spectrum
     using ..HeomBase
     import ..HeomAPI: HEOMSuperOp, ADOs, EVEN, ODD
-    import LinearSolve: LinearProblem, init, solve!, UMFPACKFactorization
+    import SciMLBase: init, solve!
+    import LinearSolve: LinearProblem, UMFPACKFactorization
     import ProgressMeter: Progress, next!
     import QuantumToolbox: QuantumObject
 

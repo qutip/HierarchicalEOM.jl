@@ -23,7 +23,7 @@ end
 """
 struct ADOs
     data::SparseVector{ComplexF64,Int64}
-    dims::Vector{Int}
+    dims::SVector
     N::Int
     parity::AbstractParity
 end
