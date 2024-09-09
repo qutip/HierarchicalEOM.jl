@@ -20,7 +20,7 @@ import Plots
 # 
 # Now, we need to build the system Hamiltonian and initial state with the package [`QuantumToolbox.jl`](https://github.com/qutip/QuantumToolbox.jl) to construct the operators.
 
-d = sigmam() ## annihilation operator of the system electron
+d = destroy(2) ## annihilation operator of the system electron
 
 ## The system Hamiltonian
 ϵ = 1.0 # site energy
