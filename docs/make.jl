@@ -7,7 +7,7 @@ using Documenter, HierarchicalEOM
 
 DocMeta.setdocmeta!(HierarchicalEOM, :DocTestSetup, :(using HierarchicalEOM); recursive = true)
 
-const DRAFT = true # set `true` to disable cell evaluation
+const DRAFT = false # set `true` to disable cell evaluation
 
 ENV["GKSwstype"] = "100" # enable headless mode for GR to suppress warnings when plotting
 
@@ -38,14 +38,6 @@ EXAMPLES = ["cavityQED", "dynamical_decoupling", "SIAM", "electronic_current"]
 EX_source_files = [abspath(joinpath(@__DIR__, "..", "examples", "$(ex_name).jl")) for ex_name in EXAMPLES]
 EX_output_files = ["examples/$(ex_name).md" for ex_name in EXAMPLES]
 for file in EX_source_files
-    Literate.markdown(file, doc_output_path)
-end
-
-# Generate benchmark pages
-BENCHMARKS = ["benchmark_ODE_solvers", "benchmark_LS_solvers"]
-BM_source_files = [abspath(joinpath(@__DIR__, "..", "examples", "$(bm_name).jl")) for bm_name in BENCHMARKS]
-BM_output_files = ["examples/$(bm_name).md" for bm_name in BENCHMARKS]
-for file in BM_source_files
     Literate.markdown(file, doc_output_path)
 end
 
@@ -81,7 +73,10 @@ const PAGES = Any[
         "Stationary State"=>"stationary_state.md",
         "Spectrum"=>"spectrum.md",
         "Examples"=>EX_output_files,
-        "Benchmark Solvers"=>BM_output_files,
+        "Solvers Lists"=>Any[
+            "ODE_solvers.md",
+            "LS_solvers.md",
+        ],
         "Extensions"=>Any["CUDA.jl"=>"extensions/CUDA.md"],
     ],
     "Library API"=>"libraryAPI.md",
