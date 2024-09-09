@@ -41,14 +41,6 @@ for file in EX_source_files
     Literate.markdown(file, doc_output_path)
 end
 
-# Generate benchmark pages
-BENCHMARKS = ["benchmark_LS_solvers"]
-BM_source_files = [abspath(joinpath(@__DIR__, "..", "examples", "$(bm_name).jl")) for bm_name in BENCHMARKS]
-BM_output_files = ["examples/$(bm_name).md" for bm_name in BENCHMARKS]
-for file in BM_source_files
-    Literate.markdown(file, doc_output_path)
-end
-
 const PAGES = Any[
     "Home"=>Any[
         "Introduction"=>"index.md",
@@ -81,7 +73,10 @@ const PAGES = Any[
         "Stationary State"=>"stationary_state.md",
         "Spectrum"=>"spectrum.md",
         "Examples"=>EX_output_files,
-        "Benchmark Solvers"=>BM_output_files,
+        "Solvers Lists"=>Any[
+            "ODE_solvers.md",
+            "LS_solvers.md",
+        ],
         "Extensions"=>Any["CUDA.jl"=>"extensions/CUDA.md"],
     ],
     "Library API"=>"libraryAPI.md",
