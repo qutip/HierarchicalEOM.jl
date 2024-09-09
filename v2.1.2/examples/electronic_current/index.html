@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Electronic Current · Documentation | HierarchicalEOM.jl</title><meta name="title" content="Electronic Current · Documentation | HierarchicalEOM.jl"/><meta property="og:title" content="Electronic Current · Documentation | HierarchicalEOM.jl"/><meta property="twitter:title" content="Electronic Current · Documentation | HierarchicalEOM.jl"/><meta name="description" content="Documentation for Documentation | HierarchicalEOM.jl."/><meta property="og:description" content="Documentation for Documentation | HierarchicalEOM.jl."/><meta property="twitter:description" content="Documentation for Documentation | HierarchicalEOM.jl."/><meta property="og:url" content="https://qutip.github.io/HierarchicalEOM.jl/examples/electronic_current/"/><meta property="twitter:url" content="https://qutip.github.io/HierarchicalEOM.jl/examples/electronic_current/"/><link rel="canonical" href="https://qutip.github.io/HierarchicalEOM.jl/examples/electronic_current/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img class="docs-light-only" src="../../assets/logo.png" alt="Documentation | HierarchicalEOM.jl logo"/><img class="docs-dark-only" src="../../assets/logo-dark.png" alt="Documentation | HierarchicalEOM.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">Documentation | HierarchicalEOM.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><span class="tocitem">Home</span><ul><li><a class="tocitem" href="../../">Introduction</a></li><li><a class="tocitem" href="../../install/">Installation</a></li><li><a class="tocitem" href="../quick_start/">Quick Start</a></li><li><a class="tocitem" href="../../cite/">Cite HierarchicalEOM.jl</a></li></ul></li><li><span class="tocitem">Manual</span><ul><li><input class="collapse-toggle" id="menuitem-2-1" type="checkbox"/><label class="tocitem" for="menuitem-2-1"><span class="docs-label">Bosonic Bath</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../bath_boson/bosonic_bath_intro/">Introduction</a></li><li><a class="tocitem" href="../../bath_boson/Boson_Drude_Lorentz/">Drude-Lorentz Spectral Density</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-2" type="checkbox"/><label class="tocitem" for="menuitem-2-2"><span class="docs-label">Bosonic Bath (RWA)</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../bath_boson_RWA/bosonic_bath_RWA_intro/">Introduction</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-3" type="checkbox"/><label class="tocitem" for="menuitem-2-3"><span class="docs-label">Fermionic Bath</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../bath_fermion/fermionic_bath_intro/">Introduction</a></li><li><a class="tocitem" href="../../bath_fermion/Fermion_Lorentz/">Lorentz Spectral Density</a></li></ul></li><li><a class="tocitem" href="../../ADOs/">Auxiliary Density Operators</a></li><li><input class="collapse-toggle" id="menuitem-2-5" type="checkbox"/><label class="tocitem" for="menuitem-2-5"><span class="docs-label">HEOMLS Matrices</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../heom_matrix/HEOMLS_intro/">Introduction</a></li><li><a class="tocitem" href="../../heom_matrix/schrodinger_eq/">HEOMLS for Schrödinger Equation</a></li><li><a class="tocitem" href="../../heom_matrix/M_Boson/">HEOMLS for Bosonic Bath</a></li><li><a class="tocitem" href="../../heom_matrix/M_Fermion/">HEOMLS for Fermionic Bath</a></li><li><a class="tocitem" href="../../heom_matrix/M_Boson_Fermion/">HEOMLS for Bosonic and Fermionic Bath</a></li><li><a class="tocitem" href="../../heom_matrix/master_eq/">HEOMLS for Master Equation</a></li></ul></li><li><a class="tocitem" href="../../Parity/">Parity Support</a></li><li><a class="tocitem" href="../../hierarchy_dictionary/">Hierarchy Dictionary</a></li><li><a class="tocitem" href="../../time_evolution/">Time Evolution</a></li><li><a class="tocitem" href="../../stationary_state/">Stationary State</a></li><li><a class="tocitem" href="../../spectrum/">Spectrum</a></li><li><input class="collapse-toggle" id="menuitem-2-11" type="checkbox" checked/><label class="tocitem" for="menuitem-2-11"><span class="docs-label">Examples</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../cavityQED/">Cavity QED system</a></li><li><a class="tocitem" href="../dynamical_decoupling/">Driven Systems and Dynamical Decoupling</a></li><li><a class="tocitem" href="../SIAM/">The single-impurity Anderson model</a></li><li class="is-active"><a class="tocitem" href>Electronic Current</a><ul class="internal"><li><a class="tocitem" href="#Hamiltonian"><span>Hamiltonian</span></a></li><li><a class="tocitem" href="#Construct-bath-objects"><span>Construct bath objects</span></a></li><li><a class="tocitem" href="#Construct-HEOMLS-matrix"><span>Construct HEOMLS matrix</span></a></li><li><a class="tocitem" href="#Solve-time-evolution-of-ADOs"><span>Solve time evolution of ADOs</span></a></li><li><a class="tocitem" href="#Solve-stationary-state-of-ADOs"><span>Solve stationary state of ADOs</span></a></li><li><a class="tocitem" href="#Calculate-current"><span>Calculate current</span></a></li></ul></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-12" type="checkbox"/><label class="tocitem" for="menuitem-2-12"><span class="docs-label">Solvers Lists</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../ODE_solvers/">DifferentialEquations solvers</a></li><li><a class="tocitem" href="../../LS_solvers/">LinearSolve solvers</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-13" type="checkbox"/><label class="tocitem" for="menuitem-2-13"><span class="docs-label">Extensions</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../extensions/CUDA/">CUDA.jl</a></li></ul></li></ul></li><li><a class="tocitem" href="../../libraryAPI/">Library API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Manual</a></li><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Electronic Current</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Electronic Current</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/qutip/HierarchicalEOM.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/qutip/HierarchicalEOM.jl/blob/main/examples/electronic_current.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Electronic-Current"><a class="docs-heading-anchor" href="#Electronic-Current">Electronic Current</a><a id="Electronic-Current-1"></a><a class="docs-heading-anchor-permalink" href="#Electronic-Current" title="Permalink"></a></h1><p>In this example, we demonstrate how to compute an environmental observable: the electronic current.</p><pre><code class="language-julia hljs">import QuantumToolbox
+using HierarchicalEOM
+using LaTeXStrings
+import Plots</code></pre><h2 id="Hamiltonian"><a class="docs-heading-anchor" href="#Hamiltonian">Hamiltonian</a><a id="Hamiltonian-1"></a><a class="docs-heading-anchor-permalink" href="#Hamiltonian" title="Permalink"></a></h2><p>We consider a single-level charge system coupled to two [left (L) and right (R)] fermionic reservoirs (<span>$\textrm{f}$</span>). The total Hamiltonian is given by <span>$H_{\textrm{T}}=H_\textrm{s}+H_\textrm{f}+H_\textrm{sf}$</span>, where each terms takes the form</p><p class="math-container">\[\begin{aligned}
+H_{\textrm{s}}  &amp;= \epsilon d^\dagger d,\\
+H_{\textrm{f}}  &amp;=\sum_{\alpha=\textrm{L},\textrm{R}}\sum_{k}\epsilon_{\alpha,k}c_{\alpha,k}^{\dagger}c_{\alpha,k},\\
+H_{\textrm{sf}} &amp;=\sum_{\alpha=\textrm{L},\textrm{R}}\sum_{k}g_{\alpha,k}c_{\alpha,k}^{\dagger}d + g_{\alpha,k}^* d^{\dagger}c_{\alpha,k}.
+\end{aligned}\]</p><p>Here, <span>$d$</span> <span>$(d^\dagger)$</span> annihilates (creates) an electron in the system and <span>$\epsilon$</span> is the energy of the electron. Furthermore, <span>$c_{\alpha,k}$</span> <span>$(c_{\alpha,k}^{\dagger})$</span> annihilates (creates) an electron in the state <span>$k$</span> (with energy <span>$\epsilon_{\alpha,k}$</span>) of the <span>$\alpha$</span>-th reservoir.</p><p>Now, we need to build the system Hamiltonian and initial state with the package <a href="https://github.com/qutip/QuantumToolbox.jl"><code>QuantumToolbox.jl</code></a> to construct the operators.</p><pre><code class="language-julia hljs">d = destroy(2) ## annihilation operator of the system electron
+
+# The system Hamiltonian
+ϵ = 1.0 # site energy
+Hsys = ϵ * d&#39; * d
+
+# System initial state
+ψ0 = basis(2, 0);</code></pre><h2 id="Construct-bath-objects"><a class="docs-heading-anchor" href="#Construct-bath-objects">Construct bath objects</a><a id="Construct-bath-objects-1"></a><a class="docs-heading-anchor-permalink" href="#Construct-bath-objects" title="Permalink"></a></h2><p>We assume the fermionic reservoir to have a <a href="../../bath_fermion/Fermion_Lorentz/#doc-Fermion-Lorentz">Lorentzian-shaped spectral density</a>, and we utilize the Padé decomposition. Furthermore, the spectral densities depend on the following physical parameters:</p><ul><li>the coupling strength <span>$\Gamma$</span> between system and reservoirs</li><li>the band-width <span>$W$</span></li><li>the product of the Boltzmann constant <span>$k$</span> and the absolute temperature <span>$T$</span> : <span>$kT$</span></li><li>the chemical potential <span>$\mu$</span></li><li>the total number of exponentials for the reservoir <span>$2(N + 1)$</span></li></ul><pre><code class="language-julia hljs">Γ = 0.01
+W = 1
+kT = 0.025851991
+μL = 1.0  # Left  bath
+μR = -1.0  # Right bath
+N = 2
+bath_L = Fermion_Lorentz_Pade(d, Γ, μL, W, kT, N)
+bath_R = Fermion_Lorentz_Pade(d, Γ, μR, W, kT, N)
+baths = [bath_L, bath_R]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">2-element Vector{FermionBath}:
+ FermionBath object with (system) dims = [2] and 6 exponential-expansion terms
+
+ FermionBath object with (system) dims = [2] and 6 exponential-expansion terms
+</code></pre><h2 id="Construct-HEOMLS-matrix"><a class="docs-heading-anchor" href="#Construct-HEOMLS-matrix">Construct HEOMLS matrix</a><a id="Construct-HEOMLS-matrix-1"></a><a class="docs-heading-anchor-permalink" href="#Construct-HEOMLS-matrix" title="Permalink"></a></h2><p>(see also <a href="../../heom_matrix/M_Fermion/#doc-M_Fermion">HEOMLS Matrix for Fermionic Baths</a>)</p><pre><code class="language-julia hljs">tier = 5
+M = M_Fermion(Hsys, tier, baths)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Fermion type HEOMLS matrix acting on even-parity ADOs
+system dims = [2]
+number of ADOs N = 1586
+data =
+6344×6344 SparseMatrixCSC{ComplexF64, Int64} with 60294 stored entries:
+⎡⣿⣿⣳⡿⣄⠘⢦⡀⠀⠈⢳⡀⠀⠀⠀⠀⠳⣄⠀⠀⠀⠀⠀⠀⠀⠈⢳⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⎤
+⎢⣽⡾⠿⣧⣬⡳⠀⠙⣆⠀⠀⠙⣆⠀⠀⠀⠀⠈⢳⡀⠀⠀⠀⠀⠀⠀⠀⠙⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⎥
+⎢⣀⠙⢦⡻⣿⣿⣀⡀⡈⢧⠀⠀⠈⢳⡀⠀⠀⠀⠀⠹⡄⠀⠀⠀⠀⠀⠀⠀⠈⢳⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⎥
+⎢⠈⠳⣄⠀⠀⠸⣿⣿⡟⣦⠀⠀⠀⠀⠳⡄⠀⠀⠀⠀⠘⢦⠀⠀⠀⠀⠀⠀⠀⠀⠳⡄⠀⠀⠀⠀⠀⠀⠀⠀⎥
+⎢⡀⠀⠈⠙⠦⣌⠻⣭⣿⣿⣀⡀⡀⢀⡀⠹⡄⠀⠀⠀⠀⠈⣇⠀⠀⠀⠀⠀⠀⠀⠀⠹⡄⠀⠀⠀⠀⠀⠀⠀⎥
+⎢⠙⠲⣄⠀⠀⠀⠀⠀⠀⠸⣿⣿⡟⢦⠳⡄⠀⠀⠀⠀⠀⠀⠈⢳⡀⠀⠀⠀⠀⠀⠀⠀⠙⣆⠀⠀⠀⠀⠀⠀⎥
+⎢⠀⠀⠈⠙⢦⣀⠀⠀⠀⢈⠻⣍⣿⣿⣀⣹⡄⠀⠀⠀⠀⠀⠀⠀⢳⡀⠀⠀⠀⠀⠀⠀⠀⠘⣆⠀⠀⠀⠀⠀⎥
+⎢⠀⠀⠀⠀⠀⠈⠙⠦⣄⡈⠙⠦⣄⣸⣿⣿⡆⠀⠀⠀⠀⠀⠀⠀⠀⢧⠀⠀⠀⠀⠀⠀⠀⠀⠘⡆⠀⠀⠀⠀⎥
+⎢⠙⢦⡀⠀⠀⠀⠀⠀⠀⠉⠀⠀⠀⠉⠈⠉⣿⣿⣾⢦⠹⣄⠘⢦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⣆⠀⠀⠀⎥
+⎢⠀⠀⠙⠲⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠺⣟⣻⣾⡇⠘⡆⠈⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣆⠀⠀⎥
+⎢⠀⠀⠀⠀⠀⠉⠲⣄⡀⠀⠀⠀⠀⠀⠀⠀⠓⢦⣉⠉⣿⣿⣏⠀⠈⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣆⠀⎥
+⎢⠀⠀⠀⠀⠀⠀⠀⠀⠉⠙⢦⣀⠀⠀⠀⠀⠲⣄⡈⠉⠋⠙⢻⣶⣶⣎⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡄⎥
+⎢⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠲⠤⣄⠀⠀⠉⠓⠦⣄⡸⢿⣻⣾⣀⡀⡀⢀⡀⠀⡀⠀⠀⣀⠀⠀⠀⢳⎥
+⎢⠙⠲⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣿⣿⡟⢦⠳⡄⠙⣆⠀⠈⢧⠀⠀⠀⎥
+⎢⠀⠀⠈⠙⢦⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢈⠻⣍⣿⣿⣀⣹⡄⠘⣆⠀⠈⢧⠀⠀⎥
+⎢⠀⠀⠀⠀⠀⠈⠙⠦⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠦⣄⣸⣿⣿⡆⠀⠘⡆⠀⠈⣇⠀⎥
+⎢⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠳⢤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠳⢤⣀⠉⠈⠉⣿⣿⡿⡄⠀⠀⠘⡆⎥
+⎢⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠲⠤⣄⠀⠀⠀⠀⠀⠀⠀⠀⢠⡀⠀⠈⠙⠲⠤⠛⠯⠿⣧⣤⣤⣠⡹⎥
+⎢⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠲⢤⣀⠀⠀⠀⠀⠀⠉⠓⠦⣄⡀⠀⠀⠀⠀⣿⣿⣿⣧⢧⎥
+⎣⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠒⠦⢤⣀⠀⠀⠀⠀⠉⠙⠲⠤⣄⡺⠭⣟⣻⣾⎦</code></pre><h2 id="Solve-time-evolution-of-ADOs"><a class="docs-heading-anchor" href="#Solve-time-evolution-of-ADOs">Solve time evolution of ADOs</a><a id="Solve-time-evolution-of-ADOs-1"></a><a class="docs-heading-anchor-permalink" href="#Solve-time-evolution-of-ADOs" title="Permalink"></a></h2><p>(see also <a href="../../time_evolution/#doc-Time-Evolution">Time Evolution</a>)</p><pre><code class="language-julia hljs">tlist = 0:0.5:100
+ados_evolution = evolution(M, ψ0, tlist);</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Solving time evolution for ADOs by Ordinary Differential Equations method...
+<span class="sgr32">Progress :  82%|████████████████▍   |  ETA: 0:00:00 ( 0.62 ms/it)</span>[DONE]</code></pre><h2 id="Solve-stationary-state-of-ADOs"><a class="docs-heading-anchor" href="#Solve-stationary-state-of-ADOs">Solve stationary state of ADOs</a><a id="Solve-stationary-state-of-ADOs-1"></a><a class="docs-heading-anchor-permalink" href="#Solve-stationary-state-of-ADOs" title="Permalink"></a></h2><p>(see also <a href="../../stationary_state/#doc-Stationary-State">Stationary State</a>)</p><pre><code class="language-julia hljs">ados_steady = SteadyState(M);</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Solving steady state for ADOs by linear-solve method...[DONE]</code></pre><h2 id="Calculate-current"><a class="docs-heading-anchor" href="#Calculate-current">Calculate current</a><a id="Calculate-current-1"></a><a class="docs-heading-anchor-permalink" href="#Calculate-current" title="Permalink"></a></h2><p>Within the influence functional approach, the expectation value of the electronic current from the <span>$\alpha$</span>-fermionic bath into the system can be written in terms of the first-level-fermionic (<span>$n=1$</span>) auxiliary density operators, namely</p><p class="math-container">\[\langle I_\alpha(t) \rangle =(-e) \frac{d\langle \mathcal{N}_\alpha\rangle}{dt}=i e \sum_{q\in\textbf{q}}(-1)^{\delta_{\nu,-}} ~\textrm{Tr}\left[d^{\bar{\nu}}\rho^{(0,1,+)}_{\vert \textbf{q}}(t)\right],\]</p><p>where <span>$e$</span> represents the value of the elementary charge, and <span>$\mathcal{N}_\alpha=\sum_k c^\dagger_{\alpha,k}c_{\alpha,k}$</span> is the occupation number operator for the <span>$\alpha$</span>-fermionic bath.</p><p>Given an ADOs, we provide a function which calculates the current from the <span>$\alpha$</span>-fermionic bath into the system with the help of <a href="../../hierarchy_dictionary/#doc-Hierarchy-Dictionary">Hierarchy Dictionary</a>.</p><p><code>bathIdx</code>:</p><ul><li>1 means 1st bath (bath_L)</li><li>2 means 2nd bath (bath_R)</li></ul><pre><code class="language-julia hljs">function Ic(ados, M::M_Fermion, bathIdx::Int)
+    # the hierarchy dictionary
+    HDict = M.hierarchy
+
+    # we need all the indices of ADOs for the first level
+    idx_list = HDict.lvl2idx[1]
+    I = 0.0im
+    for idx in idx_list
+        ρ1 = ados[idx]  ## 1st-level ADO
+
+        # find the corresponding bath index (α) and exponent term index (k)
+        nvec = HDict.idx2nvec[idx]
+        for (α, k, _) in getIndexEnsemble(nvec, HDict.bathPtr)
+            if α == bathIdx
+                exponent = M.bath[α][k]
+                if exponent.types == &quot;fA&quot;     ## fermion-absorption
+                    I += tr(exponent.op&#39; * ρ1)
+                elseif exponent.types == &quot;fE&quot; ## fermion-emission
+                    I -= tr(exponent.op&#39; * ρ1)
+                end
+                break
+            end
+        end
+    end
+
+    eV_to_Joule = 1.60218E-19  # unit conversion
+
+    # (e / ħ) * I  [change unit to μA]
+    return 1.519270639695384E15 * real(1im * I) * eV_to_Joule * 1E6
+end
+
+# steady current
+Is_L = ones(length(tlist)) .* Ic(ados_steady, M, 1)
+Is_R = ones(length(tlist)) .* Ic(ados_steady, M, 2)
+
+# time evolution current
+Ie_L = []
+Ie_R = []
+for ados in ados_evolution
+    push!(Ie_L, Ic(ados, M, 1))
+    push!(Ie_R, Ic(ados, M, 2))
+end
+
+Plots.plot(
+    tlist,
+    [Ie_L, Ie_R, Is_L, Is_R],
+    label = [&quot;Bath L&quot; &quot;Bath R&quot; &quot;Bath L (Steady State)&quot; &quot;Bath R (Steady State)&quot;],
+    linecolor = [:blue :red :blue :red],
+    linestyle = [:solid :solid :dash :dash],
+    linewidth = 3,
+    xlabel = &quot;time&quot;,
+    ylabel = &quot;Current&quot;,
+    grid = false,
+)</code></pre><img src="1d48ccf9.svg" alt="Example block output"/><p>Note that this example can also be found in <a href="https://qutip.org/docs/latest/guide/heom/fermionic.html#steady-state-currents">qutip documentation</a></p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../SIAM/">« The single-impurity Anderson model</a><a class="docs-footer-nextpage" href="../../ODE_solvers/">DifferentialEquations solvers »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.7.0 on <span class="colophon-date" title="Monday 9 September 2024 06:47">Monday 9 September 2024</span>. Using Julia version 1.10.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
