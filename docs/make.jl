@@ -42,7 +42,7 @@ for file in EX_source_files
 end
 
 # Generate benchmark pages
-BENCHMARKS = ["benchmark_ODE_solvers", "benchmark_LS_solvers"]
+BENCHMARKS = ["benchmark_LS_solvers"]
 BM_source_files = [abspath(joinpath(@__DIR__, "..", "examples", "$(bm_name).jl")) for bm_name in BENCHMARKS]
 BM_output_files = ["examples/$(bm_name).md" for bm_name in BENCHMARKS]
 for file in BM_source_files
