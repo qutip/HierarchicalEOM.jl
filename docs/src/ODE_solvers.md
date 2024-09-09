@@ -40,7 +40,6 @@ Verner's “Most Efficient” 7/6 Runge-Kutta method. (lazy 7th order interpolan
 ```julia
 Vern7()
 ```
-@benchmark evolution(M, ψ0, tlist, H_D, param; solver = Vern7(), abstol = 1e-12, reltol = 1e-12, verbose = false)
 
 ### Vern9
 Verner's “Most Efficient” 9/8 Runge-Kutta method. (lazy 9th order interpolant)
