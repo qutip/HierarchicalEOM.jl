@@ -52,7 +52,7 @@ One can check the information of the [`BosonBath`](@ref) by the `print` function
 print(bath)
 ```
 ```
-BosonBath object with (system) dims = [2] and 4 exponential-expansion terms
+BosonBath object with 4 exponential-expansion terms
 ```
 
 ## Calculate the correlation function

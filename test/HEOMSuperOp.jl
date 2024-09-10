@@ -95,6 +95,7 @@
     ## test for ERRORs
     J_wrong1 = HEOMSuperOp(γ_eR * d, ODD, M_me, "L")
     J_wrong2 = HEOMSuperOp(γ_eR * d, EVEN, M_heom, "L")
+    @test_throws ErrorException HEOMSuperOp(d, EVEN, M_heom, "LR")
     @test_throws ErrorException J_me * J_wrong2
     @test_throws ErrorException J_me + J_wrong1
     @test_throws ErrorException J_me + J_wrong2

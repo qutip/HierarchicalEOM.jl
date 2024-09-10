@@ -5,31 +5,28 @@ Calculate power spectrum for the system in frequency domain where `P_op` will be
 This function is equivalent to:
 `PowerSpectrum(M, ρ, Q_op', Q_op, ωlist, reverse; solver, verbose, filename, SOLVEROptions...)`
 """
-function PowerSpectrum(
+PowerSpectrum(
     M::AbstractHEOMLSMatrix,
-    ρ,
-    Q_op,
+    ρ::Union{QuantumObject,ADOs},
+    Q_op::QuantumObject,
     ωlist::AbstractVector,
     reverse::Bool = false;
     solver::SciMLLinearSolveAlgorithm = UMFPACKFactorization(),
     verbose::Bool = true,
     filename::String = "",
     SOLVEROptions...,
+) = PowerSpectrum(
+    M,
+    ρ,
+    Q_op',
+    Q_op,
+    ωlist,
+    reverse;
+    solver = solver,
+    verbose = verbose,
+    filename = filename,
+    SOLVEROptions...,
 )
-    _Q_op = HandleMatrixType(Q_op, M.dims)
-    return PowerSpectrum(
-        M,
-        ρ,
-        _Q_op',
-        _Q_op,
-        ωlist,
-        reverse;
-        solver = solver,
-        verbose = verbose,
-        filename = filename,
-        SOLVEROptions...,
-    )
-end
 
 @doc raw"""
     PowerSpectrum(M, ρ, P_op, Q_op, ωlist, reverse; solver, verbose, filename, SOLVEROptions...)
@@ -49,9 +46,9 @@ remember to set the parameters:
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the HEOMLS matrix.
-- `ρ` :  the system density matrix or the auxiliary density operators.
-- `P_op`: the system operator (or `HEOMSuperOp`) ``P`` acting on the system.
-- `Q_op`: the system operator (or `HEOMSuperOp`) ``Q`` acting on the system.
+- `ρ::Union{QuantumObject,ADOs}` :  the system density matrix or the auxiliary density operators.
+- `P_op::Union{QuantumObject,HEOMSuperOp}`: the system operator (or `HEOMSuperOp`) ``P`` acting on the system.
+- `Q_op::Union{QuantumObject,HEOMSuperOp}`: the system operator (or `HEOMSuperOp`) ``Q`` acting on the system.
 - `ωlist::AbstractVector` : the specific frequency points to solve.
 - `reverse::Bool` : If `true`, calculate ``\langle P(-t)Q(0) \rangle = \langle P(0)Q(t) \rangle = \langle P(t)Q(0) \rangle^*`` instead of ``\langle P(t) Q(0) \rangle``. Default to `false`.
 - `solver::SciMLLinearSolveAlgorithm` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
@@ -67,9 +64,9 @@ remember to set the parameters:
 """
 @noinline function PowerSpectrum(
     M::AbstractHEOMLSMatrix,
-    ρ,
-    P_op,
-    Q_op,
+    ρ::Union{QuantumObject,ADOs},
+    P_op::Union{QuantumObject,HEOMSuperOp},
+    Q_op::Union{QuantumObject,HEOMSuperOp},
     ωlist::AbstractVector,
     reverse::Bool = false;
     solver::SciMLLinearSolveAlgorithm = UMFPACKFactorization(),

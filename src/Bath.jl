@@ -9,7 +9,7 @@ An object which describes a single exponential-expansion term (naively, an excit
 The expansion of a bath correlation function can be expressed as : ``C(t) = \sum_i \eta_i \exp(-\gamma_i t)``.
 
 # Fields
-- `op` : The system coupling operator according to system-bath interaction.
+- `op::QuantumObject` : The system coupling operator according to system-bath interaction.
 - `η::Number` : the coefficient ``\eta_i`` in bath correlation function.
 - `γ::Number` : the coefficient ``\gamma_i`` in bath correlation function.
 - `types::String` : The type-tag of the exponent.
@@ -24,7 +24,7 @@ The different types of the Exponent:
 - `\"fE\"` : from emission fermionic correlation function ``C^{\nu=-}(t)``
 """
 struct Exponent
-    op::Any
+    op::QuantumObject
     η::Number
     γ::Number
     types::String
@@ -33,16 +33,13 @@ end
 show(io::IO, E::Exponent) = print(io, "Bath Exponent with types = \"$(E.types)\", η = $(E.η), γ = $(E.γ).\n")
 show(io::IO, m::MIME"text/plain", E::Exponent) = show(io, E)
 
-show(io::IO, B::AbstractBath) =
-    print(io, "$(typeof(B)) object with (system) dims = $(B.dims) and $(B.Nterm) exponential-expansion terms\n")
+show(io::IO, B::AbstractBath) = print(io, "$(typeof(B)) object with $(B.Nterm) exponential-expansion terms\n")
 show(io::IO, m::MIME"text/plain", B::AbstractBath) = show(io, B)
 
-show(io::IO, B::AbstractBosonBath) =
-    print(io, "$(typeof(B))-type bath with (system) dims = $(B.dims) and $(B.Nterm) exponential-expansion terms\n")
+show(io::IO, B::AbstractBosonBath) = print(io, "$(typeof(B))-type bath with $(B.Nterm) exponential-expansion terms\n")
 show(io::IO, m::MIME"text/plain", B::AbstractBosonBath) = show(io, B)
 
-show(io::IO, B::AbstractFermionBath) =
-    print(io, "$(typeof(B))-type bath with (system) dims = $(B.dims) and $(B.Nterm) exponential-expansion terms\n")
+show(io::IO, B::AbstractFermionBath) = print(io, "$(typeof(B))-type bath with $(B.Nterm) exponential-expansion terms\n")
 show(io::IO, m::MIME"text/plain", B::AbstractFermionBath) = show(io, B)
 
 checkbounds(B::AbstractBath, i::Int) =
@@ -199,7 +196,6 @@ An object which describes the interaction between system and bosonic bath
 # Fields
 - `bath` : the different boson-bath-type objects which describes the interaction between system and bosonic bath
 - `op` : The system coupling operator, must be Hermitian and, for fermionic systems, even-parity to be compatible with charge conservation.
-- `dims` : the dimension list of the coupling operator (should be equal to the system dims).
 - `Nterm` : the number of exponential-expansion term of correlation functions
 - `δ` : The approximation discrepancy which is used for adding the terminator to HEOM matrix (see function: addTerminator)
 
@@ -218,7 +214,6 @@ end
 struct BosonBath <: AbstractBath
     bath::Vector{AbstractBosonBath}
     op::QuantumObject
-    dims::SVector
     Nterm::Int
     δ::Number
 end
@@ -257,7 +252,7 @@ function BosonBath(
     else
         bRI = bosonRealImag(_op, real.(η), imag.(η), γ)
     end
-    return BosonBath(AbstractBosonBath[bRI], _op, _op.dims, bRI.Nterm, δ)
+    return BosonBath(AbstractBosonBath[bRI], _op, bRI.Nterm, δ)
 end
 
 @doc raw"""
@@ -281,7 +276,7 @@ C(\tau)=\sum_{u=\textrm{R},\textrm{I}}(\delta_{u, \textrm{R}} + i\delta_{u, \tex
 where ``\delta`` is the Kronecker delta function and ``C^{u}(\tau)=\sum_i \eta_i^u \exp(-\gamma_i^u \tau)``
 
 # Parameters
-- `op` : The system coupling operator, must be Hermitian and, for fermionic systems, even-parity to be compatible with charge conservation.
+- `op::QuantumObject` : The system coupling operator, must be Hermitian and, for fermionic systems, even-parity to be compatible with charge conservation.
 - `η_real::Vector{Ti<:Number}` : the coefficients ``\eta_i`` in real part of bath correlation function ``C^{u=\textrm{R}}``.
 - `γ_real::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` in real part of bath correlation function ``C^{u=\textrm{R}}``.
 - `η_imag::Vector{Tk<:Number}` : the coefficients ``\eta_i`` in imaginary part of bath correlation function ``C^{u=\textrm{I}}``.
@@ -290,7 +285,7 @@ where ``\delta`` is the Kronecker delta function and ``C^{u}(\tau)=\sum_i \eta_i
 - `combine::Bool` : Whether to combine the exponential-expansion terms with the same frequency. Defaults to `true`.
 """
 function BosonBath(
-    op,
+    op::QuantumObject,
     η_real::Vector{Ti},
     γ_real::Vector{Tj},
     η_imag::Vector{Tk},
@@ -342,12 +337,12 @@ function BosonBath(
             error("Conflicts occur in combining real and imaginary parts of bath correlation function.")
         end
 
-        return BosonBath(AbstractBosonBath[bR, bI, bRI], _op, _op.dims, Nterm_new, δ)
+        return BosonBath(AbstractBosonBath[bR, bI, bRI], _op, Nterm_new, δ)
 
     else
         bR = bosonReal(_op, η_real, γ_real)
         bI = bosonImag(_op, η_imag, γ_imag)
-        return BosonBath(AbstractBosonBath[bR, bI], _op, _op.dims, bR.Nterm + bI.Nterm, δ)
+        return BosonBath(AbstractBosonBath[bR, bI], _op, bR.Nterm + bI.Nterm, δ)
     end
 end
 
@@ -524,7 +519,7 @@ function BosonBathRWA(
 
     bA = bosonAbsorb(adjoint(_op), η_absorb, γ_absorb, η_emit)
     bE = bosonEmit(_op, η_emit, γ_emit, η_absorb)
-    return BosonBath(AbstractBosonBath[bA, bE], _op, _op.dims, bA.Nterm + bE.Nterm, δ)
+    return BosonBath(AbstractBosonBath[bA, bE], _op, bA.Nterm + bE.Nterm, δ)
 end
 
 @doc raw"""
@@ -656,7 +651,6 @@ An object which describes the interaction between system and fermionic bath
 # Fields
 - `bath` : the different fermion-bath-type objects which describes the interaction
 - `op` : The system \"emission\" operator according to the system-fermionic-bath interaction.
-- `dims` : the dimension list of the coupling operator (should be equal to the system dims).
 - `Nterm` : the number of exponential-expansion term of correlation functions
 - `δ` : The approximation discrepancy which is used for adding the terminator to HEOM matrix (see function: addTerminator)
 
@@ -675,7 +669,6 @@ end
 struct FermionBath <: AbstractBath
     bath::Vector{AbstractFermionBath}
     op::QuantumObject
-    dims::SVector
     Nterm::Int
     δ::Number
 end
@@ -717,7 +710,7 @@ function FermionBath(
     _op = HandleMatrixType(op, "op (coupling operator)")
     fA = fermionAbsorb(adjoint(_op), η_absorb, γ_absorb, η_emit)
     fE = fermionEmit(_op, η_emit, γ_emit, η_absorb)
-    return FermionBath(AbstractFermionBath[fA, fE], _op, _op.dims, fA.Nterm + fE.Nterm, δ)
+    return FermionBath(AbstractFermionBath[fA, fE], _op, fA.Nterm + fE.Nterm, δ)
 end
 
 @doc raw"""

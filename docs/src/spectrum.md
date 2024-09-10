@@ -73,7 +73,7 @@ Finially, one can obtain the value of the power spectrum for specific ``\omega``
 
 See also the docstring : 
 ```@docs
-PowerSpectrum(M::AbstractHEOMLSMatrix, ρ, P_op, Q_op, ωlist::AbstractVector, reverse::Bool = false; solver = UMFPACKFactorization(), verbose::Bool = true, filename::String = "", SOLVEROptions...)
+PowerSpectrum(M::AbstractHEOMLSMatrix, ρ::Union{QuantumObject,ADOs}, P_op::Union{QuantumObject,HEOMSuperOp}, Q_op::Union{QuantumObject,HEOMSuperOp}, ωlist::AbstractVector, reverse::Bool = false; solver = UMFPACKFactorization(), verbose::Bool = true, filename::String = "", SOLVEROptions...)
 ```
 
 ```julia

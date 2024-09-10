@@ -39,7 +39,7 @@ One can check the information of the [`FermionBath`](@ref) by the `print` functi
 print(bath)
 ```
 ```
-FermionBath object with (system) dim = 2 and 4 exponential-expansion terms
+FermionBath object with 4 exponential-expansion terms
 ```
 Note that [`FermionBath`](@ref) always have even number of exponential terms (half for ``C^{\nu=+}`` and half for ``C^{\nu=-}``)
 
