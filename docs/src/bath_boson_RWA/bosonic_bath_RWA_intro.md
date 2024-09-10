@@ -36,7 +36,7 @@ One can check the information of the [`BosonBath`](@ref) by the `print` function
 print(bath)
 ```
 ```
-BosonBath object with (system) dim = 2 and 4 exponential-expansion terms
+BosonBath object with 4 exponential-expansion terms
 ```
 Note that [`BosonBath`](@ref) under RWA always have even number of exponential terms (half for ``C^{\nu=+}`` and half for ``C^{\nu=-}``)
 

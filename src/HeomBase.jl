@@ -12,7 +12,7 @@ function HandleMatrixType(M::QuantumObject, MatrixName::String = ""; type::Quant
     if M.type == type
         return M
     else
-        error("The matrix $(MatrixName) should be an $(Type).")
+        error("The matrix $(MatrixName) should be an $(type).")
     end
 end
 function HandleMatrixType(M::QuantumObject, dims::SVector, MatrixName::String = ""; type::QuantumObjectType = Operator)

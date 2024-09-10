@@ -73,10 +73,7 @@ const PAGES = Any[
         "Stationary State"=>"stationary_state.md",
         "Spectrum"=>"spectrum.md",
         "Examples"=>EX_output_files,
-        "Solvers Lists"=>Any[
-            "ODE_solvers.md",
-            "LS_solvers.md",
-        ],
+        "Solvers Lists"=>Any["ODE_solvers.md", "LS_solvers.md"],
         "Extensions"=>Any["CUDA.jl"=>"extensions/CUDA.md"],
     ],
     "Library API"=>"libraryAPI.md",

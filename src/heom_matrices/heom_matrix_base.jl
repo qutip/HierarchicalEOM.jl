@@ -358,8 +358,8 @@ function addTerminator(M::Mtype, Bath::Union{BosonBath,FermionBath}) where {Mtyp
         error("The type of input HEOMLS matrix does not support this functionality.")
     end
 
-    if M.dims != Bath.dims
-        error("The system dimension between the HEOMLS matrix and Bath are not consistent.")
+    if M.dims != Bath.op.dims
+        error("The system dims between the HEOMLS matrix and Bath coupling operator are not consistent.")
     end
 
     if Bath.δ == 0

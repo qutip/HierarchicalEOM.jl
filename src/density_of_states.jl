@@ -8,8 +8,8 @@ Calculate density of states for the fermionic system in frequency domain.
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the HEOMLS matrix which acts on `ODD`-parity operators.
-- `ρ` :  the system density matrix or the auxiliary density operators.
-- `d_op` : The annihilation operator (``d`` as shown above) acting on the fermionic system.
+- `ρ::Union{QuantumObject,ADOs}` :  the system density matrix or the auxiliary density operators.
+- `d_op::QuantumObject` : The annihilation operator (``d`` as shown above) acting on the fermionic system.
 - `ωlist::AbstractVector` : the specific frequency points to solve.
 - `solver::SciMLLinearSolveAlgorithm` : solver in package `LinearSolve.jl`. Default to `UMFPACKFactorization()`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
@@ -24,7 +24,7 @@ Calculate density of states for the fermionic system in frequency domain.
 """
 @noinline function DensityOfStates(
     M::AbstractHEOMLSMatrix,
-    ρ,
+    ρ::Union{QuantumObject,ADOs},
     d_op::QuantumObject,
     ωlist::AbstractVector;
     solver::SciMLLinearSolveAlgorithm = UMFPACKFactorization(),

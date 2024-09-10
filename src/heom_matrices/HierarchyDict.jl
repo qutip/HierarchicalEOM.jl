@@ -98,7 +98,7 @@ end
     if T == BosonBath
         baths = AbstractBosonBath[]
         for (α, b) in enumerate(B)
-            if b.dims != dims
+            if b.op.dims != dims
                 error("The matrix size of the bosonic bath coupling operators are not consistent.")
             end
             push!(baths, b.bath...)
@@ -112,7 +112,7 @@ end
     elseif T == FermionBath
         baths = AbstractFermionBath[]
         for (α, b) in enumerate(B)
-            if b.dims != dims
+            if b.op.dims != dims
                 error("The matrix size of the fermionic bath coupling operators are not consistent.")
             end
             push!(baths, b.bath...)
@@ -182,7 +182,7 @@ end
     bosonPtr = Tuple[]
     baths_b = AbstractBosonBath[]
     for (α, b) in enumerate(bB)
-        if b.dims != dims
+        if b.op.dims != dims
             error("The matrix size of the bosonic bath coupling operators are not consistent.")
         end
         push!(baths_b, b.bath...)
@@ -199,7 +199,7 @@ end
     fermionPtr = Tuple[]
     baths_f = AbstractFermionBath[]
     for (α, b) in enumerate(fB)
-        if b.dims != dims
+        if b.op.dims != dims
             error("The matrix size of the fermionic bath coupling operators are not consistent.")
         end
         push!(baths_f, b.bath...)
