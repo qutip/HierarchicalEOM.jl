@@ -21,9 +21,10 @@ Therefore, we wrapped several functions in `CUDA` and `CUDA.CUSPARSE` in order t
 The extension will be automatically loaded if user imports the package `CUDA.jl` :
 
 ```julia
-using CUDA
 using HierarchicalEOM
 using LinearSolve # to change the solver for better GPU performance
+using CUDA
+CUDA.allowscalar(false) # Avoid unexpected scalar indexing
 ```
 
 ### Setup
