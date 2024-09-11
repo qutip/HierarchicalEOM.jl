@@ -1,5 +1,6 @@
-using CUDA
 using LinearSolve
+using CUDA
+CUDA.allowscalar(false) # Avoid unexpected scalar indexing
 
 CUDA.versioninfo()
 
