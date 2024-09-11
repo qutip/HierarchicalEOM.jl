@@ -40,7 +40,7 @@
 
 ## Installation
 
-> **_NOTE:_**  `QuantumToolbox.jl` requires `Julia 1.10+`.
+> **_NOTE:_**  `HierarchicalEOM.jl` requires `Julia 1.10+`.
 
 To install `HierarchicalEOM.jl`, run the following commands inside Julia's interactive session (also known as REPL):
 ```julia
