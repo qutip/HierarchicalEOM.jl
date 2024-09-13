@@ -12,7 +12,6 @@ module HeomBase
     import QuantumToolbox: QuantumObject, QuantumObjectType, Operator, SuperOperator
 
     export _Tr,
-        PROGBAR_OPTIONS,
         AbstractHEOMLSMatrix,
         _check_sys_dim_and_ADOs_num,
         _check_parity,
@@ -100,12 +99,12 @@ module HeomAPI
         sprepost,
         expect,
         ket2dm,
-        lindblad_dissipator
-    import ProgressMeter: Progress, next!
+        lindblad_dissipator,
+        steadystate,
+        ProgressBar,
+        next!
     import FastExpm: fastExpm
-
-    # solving time evolution and steady state
-    import SciMLBase: solve, solve!, init, step!, ODEProblem
+    import SciMLBase: init, solve, solve!, step!, ODEProblem
     import SciMLOperators: MatrixOperator
     import OrdinaryDiffEqCore: OrdinaryDiffEqAlgorithm
     import OrdinaryDiffEqLowOrderRK: DP5
@@ -137,7 +136,9 @@ module HeomAPI
         addFermionDissipator,
         addTerminator,
         evolution,
-        SteadyState
+        SteadyState, # has been deprecated, throws error only
+        PowerSpectrum,
+        DensityOfStates
 
     include("Parity.jl")
     include("ADOs.jl")
@@ -151,24 +152,10 @@ module HeomAPI
     include("heom_matrices/M_Boson_Fermion.jl")
 
     include("evolution.jl")
-    include("SteadyState.jl")
-end
-@reexport using .HeomAPI
-
-# sub-module Spectrum for HierarchicalEOM
-module Spectrum
-    using ..HeomBase
-    import ..HeomAPI: HEOMSuperOp, ADOs, EVEN, ODD
-    import SciMLBase: init, solve!
-    import LinearSolve: LinearProblem, SciMLLinearSolveAlgorithm, UMFPACKFactorization
-    import ProgressMeter: Progress, next!
-    import QuantumToolbox: QuantumObject
-
-    export PowerSpectrum, DensityOfStates
-
+    include("steadystate.jl")
     include("power_spectrum.jl")
     include("density_of_states.jl")
 end
-@reexport using .Spectrum
+@reexport using .HeomAPI
 
 end

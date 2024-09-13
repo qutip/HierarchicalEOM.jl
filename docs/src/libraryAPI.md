@@ -108,10 +108,10 @@ There are six function definitions of `evolution`, which depend on different inp
 evolution
 ```
 
-## Steady State
-There are three function definitions of `SteadyState`, which depend on different input types and methods to solve the stationary state:
+## Stationary State
+There are three function definitions of `steadystate`, which depend on different input types and methods to solve the stationary state:
 ```@docs
-SteadyState
+steadystate
 ```
 
 ## Spectrum

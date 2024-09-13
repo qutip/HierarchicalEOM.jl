@@ -24,7 +24,7 @@
     Le = M_Fermion(Hsys, tier, [fuL, fdL, fuR, fdR]; verbose = false)
     Lo = M_Fermion(Hsys, tier, [fuL, fdL, fuR, fdR], ODD; verbose = false)
 
-    ados_s = SteadyState(Le; verbose = false)
+    ados_s = steadystate(Le; verbose = false)
     ωlist = -20:2:20
 
     if isfile("DOS.txt")

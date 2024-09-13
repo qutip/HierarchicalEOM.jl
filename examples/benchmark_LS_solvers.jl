@@ -1,6 +1,6 @@
 # # [LinearSolve solvers](@id benchmark-LS-solvers)
 # 
-# In this page, we will benchmark several solvers provided by [LinearSolve.jl](https://docs.sciml.ai/LinearSolve/stable/) for solving SteadyState and spectrum in hierarchical equations of motion approach.  
+# In this page, we will benchmark several solvers provided by [LinearSolve.jl](https://docs.sciml.ai/LinearSolve/stable/) for solving steadystate and spectrum in hierarchical equations of motion approach.  
 
 using LinearSolve
 using BenchmarkTools
@@ -30,7 +30,7 @@ bath_dn = Fermion_Lorentz_Pade(d_dn, Γ, μ, W, kT, N)
 bath_list = [bath_up, bath_dn]
 M_even = M_Fermion(Hsys, tier, bath_list)
 M_odd = M_Fermion(Hsys, tier, bath_list, ODD)
-ados_s = SteadyState(M_even);
+ados_s = steadystate(M_even);
 
 # ## LinearSolve Solver List
 # (click [here](https://docs.sciml.ai/LinearSolve/stable/solvers/solvers/) to see the full solver list provided by `LinearSolve.jl`)
@@ -57,19 +57,19 @@ MKLPardisoIterate();
 # ## Solving Stationary State
 # Since we are using [`BenchmarkTools`](https://juliaci.github.io/BenchmarkTools.jl/stable/) (`@benchmark`) in the following, we set `verbose = false` to disable the output message.
 # ### UMFPACKFactorization (Default solver)
-@benchmark SteadyState(M_even; verbose = false)
+@benchmark steadystate(M_even; verbose = false)
 
 # ### KLUFactorization
-@benchmark SteadyState(M_even; solver = KLUFactorization(), verbose = false)
+@benchmark steadystate(M_even; solver = KLUFactorization(), verbose = false)
 
 # ### KrylovJL_BICGSTAB
-@benchmark SteadyState(M_even; solver = KrylovJL_BICGSTAB(rtol = 1e-10, atol = 1e-12), verbose = false)
+@benchmark steadystate(M_even; solver = KrylovJL_BICGSTAB(rtol = 1e-10, atol = 1e-12), verbose = false)
 
 # ### MKLPardisoFactorize
-@benchmark SteadyState(M_even; solver = MKLPardisoFactorize(), verbose = false)
+@benchmark steadystate(M_even; solver = MKLPardisoFactorize(), verbose = false)
 
 # ### MKLPardisoIterate
-@benchmark SteadyState(M_even; solver = MKLPardisoIterate(), verbose = false)
+@benchmark steadystate(M_even; solver = MKLPardisoIterate(), verbose = false)
 
 # ## Calculate Spectrum
 # ### UMFPACKFactorization (Default solver)

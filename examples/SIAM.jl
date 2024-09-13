@@ -54,7 +54,7 @@ M_odd = M_Fermion(Hsys, tier, bath_list, ODD)
 
 # ## Solve stationary state of ADOs
 # (see also [Stationary State](@ref doc-Stationary-State))
-ados_s = SteadyState(M_even)
+ados_s = steadystate(M_even)
 
 # ## Calculate density of states (DOS)
 # (see also [Spectrum](@ref doc-Spectrum))

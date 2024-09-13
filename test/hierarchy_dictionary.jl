@@ -44,7 +44,7 @@
     @test L.N == 106
     @test nnz(L.data) == 13536
 
-    ados = SteadyState(L; verbose = false)
+    ados = steadystate(L; verbose = false)
     @test Ic(ados, L, 1) ≈ 0.2883390125832726
     nvec_b, nvec_f = L.hierarchy.idx2nvec[1]
     @test_throws ErrorException getIndexEnsemble(nvec_f, L.hierarchy.bosonPtr)

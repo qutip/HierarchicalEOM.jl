@@ -1,6 +1,6 @@
 # [LinearSolve solvers](@id LS-solvers)
 
-In this page, we list several recommended solvers provided by [LinearSolve.jl](https://docs.sciml.ai/LinearSolve/stable/) for solving SteadyState and spectrum in hierarchical equations of motion approach.  
+In this page, we list several recommended solvers provided by [LinearSolve.jl](https://docs.sciml.ai/LinearSolve/stable/) for solving [`steadystate`](@ref) and spectrum in hierarchical equations of motion approach.  
 
 Remember to import `LinearSolve.jl`
 

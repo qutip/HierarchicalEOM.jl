@@ -14,7 +14,7 @@
     L = addBosonDissipator(L, 1e-3 * a')
     L = addTerminator(L, bath)
 
-    ados_s = SteadyState(L; verbose = false)
+    ados_s = steadystate(L; verbose = false)
     ωlist = 0.9:0.01:1.1
 
     if isfile("PSD.txt")

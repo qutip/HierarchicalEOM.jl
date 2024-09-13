@@ -58,7 +58,7 @@ ados_evolution = evolution(M, ψ0, tlist);
 
 # ## Solve stationary state of ADOs
 # (see also [Stationary State](@ref doc-Stationary-State))
-ados_steady = SteadyState(M);
+ados_steady = steadystate(M);
 
 # ## Calculate current
 # Within the influence functional approach, the expectation value of the electronic current from the $\alpha$-fermionic bath into the system can be written in terms of the first-level-fermionic ($n=1$) auxiliary density operators, namely

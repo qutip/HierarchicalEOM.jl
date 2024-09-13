@@ -32,7 +32,7 @@
     @test nnz(L.data) == 21318
     L = addFermionDissipator(L, J)
     @test nnz(L.data) == 22516
-    ados = SteadyState(L; verbose = false)
+    ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N
     @test eltype(L) == eltype(ados)
@@ -49,7 +49,7 @@
     @test size(L) == (148, 148)
     @test L.N == 37
     @test nnz(L.data) == 2054
-    ados = SteadyState(L; verbose = false)
+    ados = steadystate(L; verbose = false)
     ρ2 = ados[1]
     @test _is_Matrix_approx(ρ2, ρ0.data)
 
@@ -59,7 +59,7 @@
     @test nnz(L.data) == 174338
     L = addFermionDissipator(L, J)
     @test nnz(L.data) == 183640
-    ados = SteadyState(L; verbose = false)
+    ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N
     ρ0 = ados[1]
