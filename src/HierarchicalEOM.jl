@@ -105,7 +105,7 @@ module HeomAPI
     import FastExpm: fastExpm
 
     # solving time evolution and steady state
-    import SciMLBase: solve, solve!, init, step!, ODEProblem
+    import SciMLBase: init, solve, solve!, step!, ODEProblem
     import SciMLOperators: MatrixOperator
     import OrdinaryDiffEqCore: OrdinaryDiffEqAlgorithm
     import OrdinaryDiffEqLowOrderRK: DP5
@@ -137,7 +137,9 @@ module HeomAPI
         addFermionDissipator,
         addTerminator,
         evolution,
-        SteadyState
+        SteadyState,
+        PowerSpectrum,
+        DensityOfStates
 
     include("Parity.jl")
     include("ADOs.jl")
@@ -152,23 +154,9 @@ module HeomAPI
 
     include("evolution.jl")
     include("SteadyState.jl")
-end
-@reexport using .HeomAPI
-
-# sub-module Spectrum for HierarchicalEOM
-module Spectrum
-    using ..HeomBase
-    import ..HeomAPI: HEOMSuperOp, ADOs, EVEN, ODD
-    import SciMLBase: init, solve!
-    import LinearSolve: LinearProblem, SciMLLinearSolveAlgorithm, UMFPACKFactorization
-    import ProgressMeter: Progress, next!
-    import QuantumToolbox: QuantumObject
-
-    export PowerSpectrum, DensityOfStates
-
     include("power_spectrum.jl")
     include("density_of_states.jl")
 end
-@reexport using .Spectrum
+@reexport using .HeomAPI
 
 end
