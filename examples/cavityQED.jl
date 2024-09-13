@@ -105,7 +105,7 @@ evo_H = evolution(M_Heom, ψ0, t_list);
 
 # ## Solve stationary state of ADOs
 # (see also [Stationary State](@ref doc-Stationary-State))
-steady_H = SteadyState(M_Heom);
+steady_H = steadystate(M_Heom);
 
 # ## Expectation values
 # observable of atom: $\sigma_z$
@@ -164,7 +164,7 @@ M_master = addBosonDissipator(M_master, jump_op)
 evo_M = evolution(M_master, ψ0, t_list);
 
 ## steady
-steady_M = SteadyState(M_master);
+steady_M = steadystate(M_master);
 
 ## expectation value of σz
 σz_evo_M = expect(σz, evo_M)

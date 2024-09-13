@@ -65,11 +65,11 @@ M_odd_cpu  = M_Fermion(Hsys, tier, bath_list, ODD)
 M_odd_gpu  = cu(M_odd_cpu)
 
 # solve steady state with CPU
-ados_ss = SteadyState(M_even_cpu);
+ados_ss = steadystate(M_even_cpu);
 ```
 
 !!! note "Note"
-    This extension does not support for solving [`SteadyState`](@ref doc-Stationary-State) on GPU since it is not efficient and might get wrong solutions. If you really want to obtain the stationary state with GPU, you can repeatedly solve the [`evolution`](@ref doc-Time-Evolution) until you find it.
+    This extension does not support for solving [stationary state](@ref doc-Stationary-State) on GPU since it is not efficient and might get wrong solutions. If you really want to obtain the stationary state with GPU, you can repeatedly solve the [`evolution`](@ref doc-Time-Evolution) until you find it.
 
 ### Solving time evolution with CPU
 

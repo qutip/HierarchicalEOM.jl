@@ -82,8 +82,8 @@ CUDA.@time @testset "CUDA Extension" begin
     ## solve stationary state
     L_even_cpu = M_Fermion(Hsys, tier, bath_list; verbose = false)
     L_even_gpu = cu(L_even_cpu)
-    ados_cpu = SteadyState(L_even_cpu; verbose = false)
-    ados_gpu = SteadyState(L_even_gpu, ψ0, 10; verbose = false)
+    ados_cpu = steadystate(L_even_cpu; verbose = false)
+    ados_gpu = steadystate(L_even_gpu, ψ0, 10; verbose = false)
     @test all(isapprox.(ados_cpu.data, ados_gpu.data; atol = 1e-6))
 
     ## solve density of states

@@ -33,7 +33,7 @@
     @test nnz(L.data) == 43368
     L = addBosonDissipator(L, J)
     @test nnz(L.data) == 45590
-    ados = SteadyState(L; verbose = false)
+    ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N
     @test eltype(L) == eltype(ados)
@@ -51,7 +51,7 @@
     @test nnz(L.data) == 139210
     L = addFermionDissipator(L, J)
     @test nnz(L.data) == 145872
-    ados = SteadyState(L; verbose = false)
+    ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N
     ρ0 = ados[1]
@@ -68,7 +68,7 @@
     @test nnz(L.data) == 167108
     L = addBosonDissipator(L, J)
     @test nnz(L.data) == 175330
-    ados = SteadyState(L; verbose = false)
+    ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N
     ρ0 = ados[1]

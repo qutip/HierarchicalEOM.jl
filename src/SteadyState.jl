@@ -1,5 +1,7 @@
+SteadyState(args...; kwargs...) = error("`SteadyState` has been deprecated, please use `steadystate` instead.")
+
 @doc raw"""
-    SteadyState(M; solver, verbose, SOLVEROptions...)
+    steadystate(M::AbstractHEOMLSMatrix; solver, verbose, SOLVEROptions...)
 Solve the steady state of the auxiliary density operators based on `LinearSolve.jl` (i.e., solving ``x`` where ``A \times x = b``).
 
 # Parameters
@@ -14,7 +16,7 @@ Solve the steady state of the auxiliary density operators based on `LinearSolve.
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
 """
-@noinline function SteadyState(
+function steadystate(
     M::AbstractHEOMLSMatrix;
     solver::SciMLLinearSolveAlgorithm = UMFPACKFactorization(),
     verbose::Bool = true,
@@ -45,7 +47,7 @@ Solve the steady state of the auxiliary density operators based on `LinearSolve.
 end
 
 @doc raw"""
-    SteadyState(M, ρ0, tspan; solver, verbose, SOLVEROptions...)
+    steadystate(M::AbstractHEOMLSMatrix, ρ0, tspan; solver, verbose, SOLVEROptions...)
 Solve the steady state of the auxiliary density operators based on time evolution (`OrdinaryDiffEq.jl`) with initial state is given in the type of density-matrix (`ρ0`).
 
 # Parameters
@@ -66,7 +68,7 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
 """
-function SteadyState(
+function steadystate(
     M::AbstractHEOMLSMatrix,
     ρ0::QuantumObject,
     tspan::Number = Inf;
@@ -77,7 +79,7 @@ function SteadyState(
     verbose::Bool = true,
     SOLVEROptions...,
 )
-    return SteadyState(
+    return steadystate(
         M,
         ADOs(ρ0, M.N, M.parity),
         tspan;
@@ -91,7 +93,7 @@ function SteadyState(
 end
 
 @doc raw"""
-    SteadyState(M, ados, tspan; solver, verbose, SOLVEROptions...)
+    steadystate(M::AbstractHEOMLSMatrix, ados, tspan; solver, verbose, SOLVEROptions...)
 Solve the steady state of the auxiliary density operators based on time evolution (`OrdinaryDiffEq.jl`) with initial state is given in the type of `ADOs`.
 
 # Parameters
@@ -112,7 +114,7 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
 """
-@noinline function SteadyState(
+function steadystate(
     M::AbstractHEOMLSMatrix,
     ados::ADOs,
     tspan::Number = Inf;

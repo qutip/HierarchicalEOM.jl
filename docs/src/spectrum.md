@@ -81,7 +81,7 @@ M::AbstractHEOMLSMatrix
 
 # the input state can be in either type (but usually ADOs):
 ρ::QuantumObject # the reduced density operator
-ρ::ADOs # the ADOs solved from "evolution" or "SteadyState"
+ρ::ADOs # the ADOs solved from "evolution" or "steadystate"
 
 P::QuantumObject 
 Q::QuantumObject
@@ -136,7 +136,7 @@ M_even = M_Fermion(Hs, tier, bath)
 M_odd  = M_Fermion(Hs, tier, bath, ODD) 
 
 # the input state can be in either type of density operator matrix or ADOs (but usually ADOs):
-ados = SteadyState(M_even)
+ados = steadystate(M_even)
 
 # the (usually annihilation) operator "d" as shown above
 d::QuantumObject 

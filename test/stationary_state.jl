@@ -18,22 +18,24 @@
     tier = 5
     L = M_Fermion(Hsys, tier, baths; verbose = false)
 
-    ados = SteadyState(L, ψ0; verbose = false)
+    ados = steadystate(L, ψ0; verbose = false)
     ρs = getRho(ados)
     O = qeye(2) + 0.5 * sigmax()
     @test expect(O, ados) ≈ real(tr(O * ρs))
     @test expect(O, ados, take_real = false) ≈ tr(O * ρs)
 
-    ρ1 = getRho(SteadyState(L; verbose = false))
+    ρ1 = getRho(steadystate(L; verbose = false))
     @test isapprox(ρ1, ρs, atol = 1e-6)
 
     mat = Qobj(spzeros(ComplexF64, 2, 2))
     mat2 = Qobj(spzeros(ComplexF64, 3, 3))
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
-    @test_throws ErrorException SteadyState(M_Fermion(mat, 2, bathf, ODD; verbose = false))
-    @test_throws ErrorException SteadyState(M_Fermion(mat, 2, bathf, ODD; verbose = false), mat)
-    @test_throws ErrorException SteadyState(L, mat2)
-    @test_throws ErrorException SteadyState(L, ADOs(zeros(8), 2))
-    @test_throws ErrorException SteadyState(L, ADOs(ados.data, ados.N, ODD))
-    @test_throws ErrorException SteadyState(L, HEOMSuperOp(d, ODD, L) * ados)
+    @test_throws ErrorException SteadyState(L)
+    @test_throws ErrorException SteadyState(L, ψ0)
+    @test_throws ErrorException steadystate(M_Fermion(mat, 2, bathf, ODD; verbose = false))
+    @test_throws ErrorException steadystate(M_Fermion(mat, 2, bathf, ODD; verbose = false), mat)
+    @test_throws ErrorException steadystate(L, mat2)
+    @test_throws ErrorException steadystate(L, ADOs(zeros(8), 2))
+    @test_throws ErrorException steadystate(L, ADOs(ados.data, ados.N, ODD))
+    @test_throws ErrorException steadystate(L, HEOMSuperOp(d, ODD, L) * ados)
 end

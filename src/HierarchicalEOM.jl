@@ -100,6 +100,7 @@ module HeomAPI
         expect,
         ket2dm,
         lindblad_dissipator,
+        steadystate,
         ProgressBar,
         next!
     import FastExpm: fastExpm
@@ -135,7 +136,7 @@ module HeomAPI
         addFermionDissipator,
         addTerminator,
         evolution,
-        SteadyState,
+        SteadyState, # has been deprecated, throws error only
         PowerSpectrum,
         DensityOfStates
 
@@ -151,7 +152,7 @@ module HeomAPI
     include("heom_matrices/M_Boson_Fermion.jl")
 
     include("evolution.jl")
-    include("SteadyState.jl")
+    include("steadystate.jl")
     include("power_spectrum.jl")
     include("density_of_states.jl")
 end

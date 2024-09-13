@@ -13,10 +13,10 @@
 # Here are the functions in `HierarchicalEOM.jl` that we will use in this tutorial (Quick Start):
 
 import HierarchicalEOM
-import HierarchicalEOM: Boson_DrudeLorentz_Pade, M_Boson, evolution, SteadyState, getRho, BosonBath
+import HierarchicalEOM: Boson_DrudeLorentz_Pade, M_Boson, evolution, getRho, BosonBath
 
 # Note that you can also type `using HierarchicalEOM` to import everything you need in `HierarchicalEOM.jl`.
-# To check the versions of dependencies of `HierarchicalEOM.jl` , run the following function
+# To check the versions of dependencies of `HierarchicalEOM.jl`, run the following function
 
 HierarchicalEOM.versioninfo()
 
@@ -33,7 +33,7 @@ HierarchicalEOM.versioninfo()
 # #### System Hamiltonian and initial state
 # You must construct system hamiltonian, initial state, and coupling operators by [`QuantumToolbox`](https://github.com/qutip/QuantumToolbox.jl) framework. It provides many useful functions to create arbitrary quantum states and operators which can be combined in all the expected ways.
 
-import QuantumToolbox: Qobj, sigmaz, sigmax, basis, ket2dm, expect
+import QuantumToolbox: Qobj, sigmaz, sigmax, basis, ket2dm, expect, steadystate
 
 ## The system Hamiltonian
 ϵ = 0.5 # energy of 2-level system
@@ -76,10 +76,10 @@ ados_list = evolution(L, ρ0, tlist);
 # To learn more about `evolution`, please refer to [Time Evolution](@ref doc-Time-Evolution).
 
 # ### Stationary State
-# We can also solve the stationary state of the auxiliary density operators (ADOs) by calling [`SteadyState`](@ref).
-ados_steady = SteadyState(L)
+# We can also solve the stationary state of the auxiliary density operators (ADOs) by calling [`steadystate`](@ref).
+ados_steady = steadystate(L)
 
-# To learn more about `SteadyState`, please refer to [Stationary State](@ref doc-Stationary-State).
+# To learn more about `steadystate`, please refer to [Stationary State](@ref doc-Stationary-State).
 
 # ### Reduced Density Operator
 # To obtain the reduced density operator, one can either access the first element of auxiliary density operator (`ADOs`) or call [`getRho`](@ref):
@@ -96,7 +96,7 @@ ados_steady = SteadyState(L)
 # state but also easily take high-order terms into account without struggling in finding the indices (see [Auxiliary Density Operators](@ref doc-ADOs) and [Hierarchy Dictionary](@ref doc-Hierarchy-Dictionary) for more details).
 
 # ### Expectation Value
-# We can now compare the results obtained from `evolution` and `SteadyState`:
+# We can now compare the results obtained from `evolution` and `steadystate`:
 
 ## Define the operators that measure the populations of the two
 ## system states:

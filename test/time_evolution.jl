@@ -15,7 +15,7 @@
     bath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
 
     L = M_Boson(Hsys, tier, bath; verbose = false)
-    ρs = getRho(SteadyState(L; verbose = false))
+    ρs = getRho(steadystate(L; verbose = false))
     ρ_wrong = Qobj(zeros(3, 3))
 
     Δt = 10
