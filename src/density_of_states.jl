@@ -75,7 +75,7 @@ Calculate density of states for the fermionic system in frequency domain.
     if verbose
         print("Calculating density of states in frequency domain...\n")
         flush(stdout)
-        prog = Progress(Length; desc = "Progress : ", PROGBAR_OPTIONS...)
+        prog = ProgressBar(Length)
     end
     i = convert(ElType, 1im)
     I_total = _HandleIdentityType(typeof(M.data), Size)

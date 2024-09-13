@@ -108,7 +108,7 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
     if verbose
         print("Solving time evolution for ADOs by propagator method...\n")
         flush(stdout)
-        prog = Progress(steps + 1; start = 1, desc = "Progress : ", PROGBAR_OPTIONS...)
+        prog = ProgressBar(steps + 1)
     end
     for n in 1:steps
         ρvec = exp_Mt * ρvec
@@ -264,7 +264,7 @@ with initial state is given in the type of `ADOs`.
     if verbose
         print("Solving time evolution for ADOs by Ordinary Differential Equations method...\n")
         flush(stdout)
-        prog = Progress(length(Tlist); start = 1, desc = "Progress : ", PROGBAR_OPTIONS...)
+        prog = ProgressBar(length(Tlist))
     end
     idx = 1
     dt_list = diff(Tlist)
@@ -426,7 +426,7 @@ with initial state is given in the type of `ADOs`.
             "Solving time evolution for ADOs with time-dependent Hamiltonian by Ordinary Differential Equations method...\n",
         )
         flush(stdout)
-        prog = Progress(length(Tlist); start = 1, desc = "Progress : ", PROGBAR_OPTIONS...)
+        prog = ProgressBar(length(Tlist))
     end
 
     parameters = (H = H, param = param, dims = M.dims, N = M.N, parity = M.parity, Id_cache = Id)
@@ -452,7 +452,7 @@ with initial state is given in the type of `ADOs`.
             "Solving time evolution for ADOs with time-dependent Hamiltonian by Ordinary Differential Equations method...\n",
         )
         flush(stdout)
-        prog = Progress(length(Tlist); start = 1, desc = "Progress : ", PROGBAR_OPTIONS...)
+        prog = ProgressBar(length(Tlist))
     end
     idx = 1
     dt_list = diff(Tlist)

@@ -12,7 +12,6 @@ module HeomBase
     import QuantumToolbox: QuantumObject, QuantumObjectType, Operator, SuperOperator
 
     export _Tr,
-        PROGBAR_OPTIONS,
         AbstractHEOMLSMatrix,
         _check_sys_dim_and_ADOs_num,
         _check_parity,
@@ -100,11 +99,10 @@ module HeomAPI
         sprepost,
         expect,
         ket2dm,
-        lindblad_dissipator
-    import ProgressMeter: Progress, next!
+        lindblad_dissipator,
+        ProgressBar,
+        next!
     import FastExpm: fastExpm
-
-    # solving time evolution and steady state
     import SciMLBase: init, solve, solve!, step!, ODEProblem
     import SciMLOperators: MatrixOperator
     import OrdinaryDiffEqCore: OrdinaryDiffEqAlgorithm

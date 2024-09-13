@@ -124,7 +124,7 @@ remember to set the parameters:
     if verbose
         print("Calculating power spectrum in frequency domain...\n")
         flush(stdout)
-        prog = Progress(Length; desc = "Progress : ", PROGBAR_OPTIONS...)
+        prog = ProgressBar(Length)
     end
 
     if reverse

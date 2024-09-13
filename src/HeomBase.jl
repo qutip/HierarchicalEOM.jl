@@ -1,7 +1,5 @@
 abstract type AbstractHEOMLSMatrix end
 
-const PROGBAR_OPTIONS = Dict(:barlen => 20, :color => :green, :showspeed => true)
-
 # equal to : transpose(sparse(vec(system_identity_matrix)))
 function _Tr(dims::SVector, N::Int)
     D = prod(dims)
