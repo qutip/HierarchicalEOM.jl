@@ -25,7 +25,7 @@
         rm("evolution_p.jld2")
     end
     # using the method based on propagator
-    ados_list = evolution(L, ψ0, Δt, steps; verbose = false, filename = "evolution_p")
+    ados_list = evolution(L, ψ0, Δt, steps; verbose = false, filename = "evolution_p").ados
     ados_wrong1 = ADOs(zeros(8), 2)
     ados_wrong2 = ADOs(zeros(32), 2)
     ados_wrong3 = ADOs((ados_list[1]).data, (ados_list[1]).N, ODD)

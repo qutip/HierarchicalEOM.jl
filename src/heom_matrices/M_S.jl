@@ -58,3 +58,6 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
     end
     return M_S{SparseMatrixCSC{ComplexF64,Int64}}(Lsys, 0, copy(_Hsys.dims), 1, sup_dim, parity)
 end
+
+_getBtier(M::M_S) = 0
+_getFtier(M::M_S) = 0

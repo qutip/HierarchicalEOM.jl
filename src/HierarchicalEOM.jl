@@ -135,7 +135,9 @@ module HeomAPI
         addBosonDissipator,
         addFermionDissipator,
         addTerminator,
-        evolution,
+        TimeEvolutionHEOMSol,
+        HEOMsolve,
+        evolution,   # has been deprecated, throws error only
         SteadyState, # has been deprecated, throws error only
         PowerSpectrum,
         DensityOfStates

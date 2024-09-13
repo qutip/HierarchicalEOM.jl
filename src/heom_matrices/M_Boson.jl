@@ -159,3 +159,6 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         hierarchy,
     )
 end
+
+_getBtier(M::M_Boson) = M.tier
+_getFtier(M::M_Boson) = 0

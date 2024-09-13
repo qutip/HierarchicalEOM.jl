@@ -156,3 +156,6 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         hierarchy,
     )
 end
+
+_getBtier(M::M_Fermion) = 0
+_getFtier(M::M_Fermion) = M.tier

@@ -52,7 +52,7 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
-- `ρ0::QuantumObject` : system initial state (density matrix)
+- `ρ0::Union{QuantumObject,ADOs}` : system initial state (density matrix) or initial auxiliary density operators (`ADOs`)
 - `tspan::Number` : the time limit to find stationary state. Default to `Inf`
 - `solver::OrdinaryDiffEqAlgorithm` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-8`.
@@ -70,7 +70,7 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 """
 function steadystate(
     M::AbstractHEOMLSMatrix,
-    ρ0::QuantumObject,
+    ρ0::T_state,
     tspan::Number = Inf;
     solver::OrdinaryDiffEqAlgorithm = DP5(),
     reltol::Real = 1.0e-8,
@@ -78,55 +78,10 @@ function steadystate(
     save_everystep::Bool = false,
     verbose::Bool = true,
     SOLVEROptions...,
-)
-    return steadystate(
-        M,
-        ADOs(ρ0, M.N, M.parity),
-        tspan;
-        solver = solver,
-        reltol = reltol,
-        abstol = abstol,
-        save_everystep = save_everystep,
-        verbose = verbose,
-        SOLVEROptions...,
-    )
-end
-
-@doc raw"""
-    steadystate(M::AbstractHEOMLSMatrix, ados, tspan; solver, verbose, SOLVEROptions...)
-Solve the steady state of the auxiliary density operators based on time evolution (`OrdinaryDiffEq.jl`) with initial state is given in the type of `ADOs`.
-
-# Parameters
-- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
-- `ados::ADOs` : initial auxiliary density operators
-- `tspan::Number` : the time limit to find stationary state. Default to `Inf`
-- `solver::OrdinaryDiffEqAlgorithm` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
-- `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-8`.
-- `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-10`.
-- `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
-- `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
-- `SOLVEROptions` : extra options for solver
-
-# Notes
-- For more details about `solver` please refer to [`DifferentialEquations.jl` (ODE Solvers)](https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/)
-- For more details about `SOLVEROptions` please refer to [`DifferentialEquations.jl` (Keyword Arguments)](https://docs.sciml.ai/DiffEqDocs/stable/basics/common_solver_opts/)
-
-# Returns
-- `::ADOs` : The steady state of auxiliary density operators.
-"""
-function steadystate(
-    M::AbstractHEOMLSMatrix,
-    ados::ADOs,
-    tspan::Number = Inf;
-    solver::OrdinaryDiffEqAlgorithm = DP5(),
-    reltol::Real = 1.0e-8,
-    abstol::Real = 1.0e-10,
-    save_everystep::Bool = false,
-    verbose::Bool = true,
-    SOLVEROptions...,
-)
-    _check_sys_dim_and_ADOs_num(M, ados)
-    _check_parity(M, ados)
+) where {T_state<:Union{QuantumObject,ADOs}}
+    _ados = (T_state <: QuantumObject) ? ADOs(ρ0, M.N, M.parity) : ρ0
+    _check_sys_dim_and_ADOs_num(M, _ados)
+    _check_parity(M, _ados)
 
     ElType = eltype(M)
     Tspan = (_HandleFloatType(ElType, 0), _HandleFloatType(ElType, tspan))
@@ -134,7 +89,7 @@ function steadystate(
     AbsTol = _HandleFloatType(ElType, abstol)
 
     # problem: dρ(t)/dt = L * ρ(t)
-    prob = ODEProblem{true}(MatrixOperator(M.data), _HandleVectorType(typeof(M.data), ados.data), Tspan)
+    prob = ODEProblem{true}(MatrixOperator(M.data), _HandleVectorType(typeof(M.data), _ados.data), Tspan)
 
     # solving steady state of the ODE problem
     if verbose
