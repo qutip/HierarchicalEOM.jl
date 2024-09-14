@@ -37,8 +37,8 @@ CUDA.@time @testset "CUDA Extension" begin
     L_gpu = cu(L_cpu)
     sol_cpu = HEOMsolve(L_cpu, ψ0, [0, 10]; e_ops = e_ops_cpu, verbose = false)
     sol_gpu = HEOMsolve(L_gpu, ψ0, [0, 10]; e_ops = e_ops_gpu, verbose = false)
-    @test all(isapprox.(sol_cpu.expect[1,:], sol_gpu.expect[1,:], atol = 1e-4))
-    @test all(isapprox.(sol_cpu.expect[1,:], sol_gpu.expect[2,:], atol = 1e-4))
+    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1e-4))
+    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[2, :], atol = 1e-4))
     @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu.ados[end]), atol = 1e-4)
 
     ## Boson HEOMLS
@@ -46,8 +46,8 @@ CUDA.@time @testset "CUDA Extension" begin
     L_gpu = cu(L_cpu)
     sol_cpu = HEOMsolve(L_cpu, ψ0, [0, 10]; e_ops = e_ops_cpu, verbose = false)
     sol_gpu = HEOMsolve(L_gpu, ψ0, [0, 10]; e_ops = e_ops_gpu, verbose = false)
-    @test all(isapprox.(sol_cpu.expect[1,:], sol_gpu.expect[1,:], atol = 1e-4))
-    @test all(isapprox.(sol_cpu.expect[1,:], sol_gpu.expect[2,:], atol = 1e-4))
+    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1e-4))
+    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[2, :], atol = 1e-4))
     @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu.ados[end]), atol = 1e-4)
 
     ## Fermion HEOMLS
@@ -55,8 +55,8 @@ CUDA.@time @testset "CUDA Extension" begin
     L_gpu = cu(L_cpu)
     sol_cpu = HEOMsolve(L_cpu, ψ0, [0, 10]; e_ops = e_ops_cpu, verbose = false)
     sol_gpu = HEOMsolve(L_gpu, ψ0, [0, 10]; e_ops = e_ops_gpu, verbose = false)
-    @test all(isapprox.(sol_cpu.expect[1,:], sol_gpu.expect[1,:], atol = 1e-4))
-    @test all(isapprox.(sol_cpu.expect[1,:], sol_gpu.expect[2,:], atol = 1e-4))
+    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1e-4))
+    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[2, :], atol = 1e-4))
     @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu.ados[end]), atol = 1e-4)
 
     ## Boson Fermion HEOMLS
@@ -65,8 +65,8 @@ CUDA.@time @testset "CUDA Extension" begin
     tlist = 0:1:10
     sol_cpu = HEOMsolve(L_cpu, ψ0, tlist; e_ops = e_ops_cpu, saveat = tlist, verbose = false)
     sol_gpu = HEOMsolve(L_gpu, ψ0, tlist; e_ops = e_ops_gpu, saveat = tlist, verbose = false)
-    @test all(isapprox.(sol_cpu.expect[1,:], sol_gpu.expect[1,:], atol = 1e-4))
-    @test all(isapprox.(sol_cpu.expect[1,:], sol_gpu.expect[2,:], atol = 1e-4))
+    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1e-4))
+    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[2, :], atol = 1e-4))
     for i in 1:length(tlist)
         @test isapprox(getRho(sol_cpu.ados[i]), getRho(sol_gpu.ados[i]), atol = 1e-4)
     end

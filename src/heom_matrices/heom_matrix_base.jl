@@ -32,8 +32,13 @@ if `mul_basis` is specified as
 - `"R"`  : the matrix `op` has same dimension with the system and acts on right-hand side.
 - `"LR"` : the matrix `op` is a superoperator of the system.
 """
-HEOMSuperOp(op, opParity::AbstractParity, refHEOMLS::AbstractHEOMLSMatrix, mul_basis::AbstractString = "L"; Id_cache = I(refHEOMLS.N)) =
-    HEOMSuperOp(op, opParity, refHEOMLS.dims, refHEOMLS.N, mul_basis; Id_cache = Id_cache)
+HEOMSuperOp(
+    op,
+    opParity::AbstractParity,
+    refHEOMLS::AbstractHEOMLSMatrix,
+    mul_basis::AbstractString = "L";
+    Id_cache = I(refHEOMLS.N),
+) = HEOMSuperOp(op, opParity, refHEOMLS.dims, refHEOMLS.N, mul_basis; Id_cache = Id_cache)
 
 @doc raw"""
     HEOMSuperOp(op, opParity, refADOs, mul_basis="L"; Id_cache=I(refADOs.N))

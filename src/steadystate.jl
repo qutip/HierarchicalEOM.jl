@@ -74,7 +74,7 @@ function steadystate(
     verbose::Bool = true,
     SOLVEROptions...,
 ) where {T_state<:Union{QuantumObject,ADOs}}
-    
+
     # handle initial state
     ados = (T_state <: QuantumObject) ? ADOs(ρ0, M.N, M.parity) : ρ0
     _check_sys_dim_and_ADOs_num(M, ados)
@@ -86,7 +86,8 @@ function steadystate(
     kwargs = merge(DEFAULT_ODE_SOLVER_OPTIONS, SOLVEROptions)
     cb = TerminateSteadyState(kwargs.abstol, kwargs.reltol, _ss_condition)
     kwargs2 =
-        haskey(kwargs, :callback) ? merge(kwargs, (callback = CallbackSet(kwargs.callback, cb),)) : merge(kwargs, (callback = cb,))
+        haskey(kwargs, :callback) ? merge(kwargs, (callback = CallbackSet(kwargs.callback, cb),)) :
+        merge(kwargs, (callback = cb,))
 
     # define ODE problem
     prob = ODEProblem{true,FullSpecialize}(MatrixOperator(M.data), u0, Tspan; kwargs2...)

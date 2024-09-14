@@ -99,7 +99,7 @@
         filename = "evolution_t",
     )
     fastDD_ados = fastDD_sol.ados
-    fastDD1 = real.(fastDD_sol.expect[1,:])
+    fastDD1 = real.(fastDD_sol.expect[1, :])
     fastDD2 = expect(P01, fastDD_ados)
     @test_throws ErrorException HEOMsolve(
         L,
@@ -161,9 +161,20 @@
     @test all(isapprox.(fastDD2, fastBoFiN; atol = 1.0e-6))
 
     p_slow = (amplitude = 0.01, delay = 20, integral = π / 2)
-    slowDD_sol = HEOMsolve(L, ψ0, tlist; H_t = Ht, params = p_slow, e_ops = [P01], saveat = tlist, reltol = 1e-12, abstol = 1e-12, verbose = false)
+    slowDD_sol = HEOMsolve(
+        L,
+        ψ0,
+        tlist;
+        H_t = Ht,
+        params = p_slow,
+        e_ops = [P01],
+        saveat = tlist,
+        reltol = 1e-12,
+        abstol = 1e-12,
+        verbose = false,
+    )
     slowDD_ados = slowDD_sol.ados
-    slowDD1 = slowDD_sol.expect[1,:]
+    slowDD1 = slowDD_sol.expect[1, :]
     slowDD2 = expect(P01, slowDD_ados; take_real = false)
     slowBoFiN = [
         0.4999999999999999,

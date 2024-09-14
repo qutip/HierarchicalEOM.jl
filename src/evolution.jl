@@ -149,7 +149,7 @@ function HEOMsolve(
             flush(stdout)
         end
         jldopen(FILENAME, "w") do file
-            file["ados"] = ADOs_list
+            return file["ados"] = ADOs_list
         end
         if verbose
             println("[DONE]")
@@ -243,7 +243,8 @@ function HEOMsolve(
     kwargs = merge(default_values, SOLVEROptions)
     cb = PresetTimeCallback(t_l, _HEOM_evolution_callback, save_positions = (false, false))
     kwargs2 =
-        haskey(kwargs, :callback) ? merge(kwargs, (callback = CallbackSet(kwargs.callback, cb),)) : merge(kwargs, (callback = cb,))
+        haskey(kwargs, :callback) ? merge(kwargs, (callback = CallbackSet(kwargs.callback, cb),)) :
+        merge(kwargs, (callback = cb,))
 
     p = (
         L = M.data,
@@ -283,7 +284,7 @@ function HEOMsolve(
             flush(stdout)
         end
         jldopen(FILENAME, "w") do file
-            file["ados"] = ADOs_list
+            return file["ados"] = ADOs_list
         end
         if verbose
             println("[DONE]")
@@ -306,7 +307,8 @@ end
 
 function _generate_Eops(M::AbstractHEOMLSMatrix, e_ops, Id_cache)
     MType = Base.typename(typeof(M.data)).wrapper{eltype(M)}
-    tr_e_ops = [transpose(_Tr(M)) * MType(HEOMSuperOp(op, EVEN, M.dims, M.N, "L"; Id_cache = Id_cache)).data for op in e_ops]
+    tr_e_ops =
+        [transpose(_Tr(M)) * MType(HEOMSuperOp(op, EVEN, M.dims, M.N, "L"; Id_cache = Id_cache)).data for op in e_ops]
     return tr_e_ops
 end
 

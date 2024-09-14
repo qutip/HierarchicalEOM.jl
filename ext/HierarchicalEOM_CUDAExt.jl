@@ -51,7 +51,7 @@ end
 function CuSparseMatrixCSC{ComplexF32}(M::HEOMSuperOp)
     A = M.data
     AType = typeof(A)
-    if AType == CuSparseMatrixCSC{ComplexF32, Int32}
+    if AType == CuSparseMatrixCSC{ComplexF32,Int32}
         return M
     elseif AType <: CuSparseMatrixCSC
         colptr = CuArray{Int32}(A.colPtr)
