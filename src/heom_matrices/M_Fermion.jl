@@ -1,9 +1,9 @@
 @doc raw"""
-    struct M_Fermion{T} <: AbstractHEOMLSMatrix
+    struct M_Fermion <: AbstractHEOMLSMatrix
 HEOM Liouvillian superoperator matrix for fermionic bath
 
 # Fields
-- `data::T` : the sparse matrix of HEOM Liouvillian superoperator
+- `data<:AbstractSparseMatrix` : the sparse matrix of HEOM Liouvillian superoperator
 - `tier` : the tier (cutoff level) for the fermionic hierarchy
 - `dims` : the dimension list of the coupling operator (should be equal to the system dims).
 - `N` : the number of total ADOs
@@ -12,7 +12,7 @@ HEOM Liouvillian superoperator matrix for fermionic bath
 - `bath::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
 - `hierarchy::HierarchyDict`: the object which contains all dictionaries for fermion-bath-ADOs hierarchy.
 """
-struct M_Fermion{T} <: AbstractHEOMLSMatrix
+struct M_Fermion{T<:AbstractSparseMatrix} <: AbstractHEOMLSMatrix{T}
     data::T
     tier::Int
     dims::SVector

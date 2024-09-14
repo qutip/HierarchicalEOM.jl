@@ -1,4 +1,5 @@
-SteadyState(args...; kwargs...) = error("`SteadyState` has been deprecated, please use `steadystate` instead.")
+SteadyState(M::AbstractHEOMLSMatrix, args...; kwargs...) =
+    error("`SteadyState` has been deprecated, please use `steadystate` instead.")
 
 @doc raw"""
     steadystate(M::AbstractHEOMLSMatrix; solver, verbose, SOLVEROptions...)
@@ -55,9 +56,6 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 - `ρ0::Union{QuantumObject,ADOs}` : system initial state (density matrix) or initial auxiliary density operators (`ADOs`)
 - `tspan::Number` : the time limit to find stationary state. Default to `Inf`
 - `solver::OrdinaryDiffEqAlgorithm` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
-- `reltol::Real` : Relative tolerance in adaptive timestepping. Default to `1.0e-8`.
-- `abstol::Real` : Absolute tolerance in adaptive timestepping. Default to `1.0e-10`.
-- `save_everystep::Bool` : Saves the result at every step. Defaults to `false`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver
 
@@ -73,38 +71,32 @@ function steadystate(
     ρ0::T_state,
     tspan::Number = Inf;
     solver::OrdinaryDiffEqAlgorithm = DP5(),
-    reltol::Real = 1.0e-8,
-    abstol::Real = 1.0e-10,
-    save_everystep::Bool = false,
     verbose::Bool = true,
     SOLVEROptions...,
 ) where {T_state<:Union{QuantumObject,ADOs}}
-    _ados = (T_state <: QuantumObject) ? ADOs(ρ0, M.N, M.parity) : ρ0
-    _check_sys_dim_and_ADOs_num(M, _ados)
-    _check_parity(M, _ados)
+    
+    # handle initial state
+    ados = (T_state <: QuantumObject) ? ADOs(ρ0, M.N, M.parity) : ρ0
+    _check_sys_dim_and_ADOs_num(M, ados)
+    _check_parity(M, ados)
+    u0 = _HandleVectorType(typeof(M.data), ados.data)
 
-    ElType = eltype(M)
-    Tspan = (_HandleFloatType(ElType, 0), _HandleFloatType(ElType, tspan))
-    RelTol = _HandleFloatType(ElType, reltol)
-    AbsTol = _HandleFloatType(ElType, abstol)
+    Tspan = (0, tspan)
 
-    # problem: dρ(t)/dt = L * ρ(t)
-    prob = ODEProblem{true}(MatrixOperator(M.data), _HandleVectorType(typeof(M.data), _ados.data), Tspan)
+    kwargs = merge(DEFAULT_ODE_SOLVER_OPTIONS, SOLVEROptions)
+    cb = TerminateSteadyState(kwargs.abstol, kwargs.reltol, _ss_condition)
+    kwargs2 =
+        haskey(kwargs, :callback) ? merge(kwargs, (callback = CallbackSet(kwargs.callback, cb),)) : merge(kwargs, (callback = cb,))
+
+    # define ODE problem
+    prob = ODEProblem{true,FullSpecialize}(MatrixOperator(M.data), u0, Tspan; kwargs2...)
 
     # solving steady state of the ODE problem
     if verbose
         println("Solving steady state for ADOs by Ordinary Differential Equations method...")
         flush(stdout)
     end
-    sol = solve(
-        prob,
-        solver;
-        callback = TerminateSteadyState(AbsTol, RelTol, _ss_condition),
-        reltol = RelTol,
-        abstol = AbsTol,
-        save_everystep = save_everystep,
-        SOLVEROptions...,
-    )
+    sol = solve(prob, solver)
 
     if verbose
         println("Last timepoint t = $(sol.t[end])\n[DONE]")

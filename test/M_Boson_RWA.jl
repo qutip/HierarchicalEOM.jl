@@ -14,7 +14,7 @@
 
     B_rwa = BosonBathRWA(op_rwa, [0], [Λ - 1im * ωq], [0.5 * Γ * Λ], [Λ + 1im * ωq])
     L = M_Boson(Hsys_rwa, tier, B_rwa; verbose = false)
-    ados_list = evolution(L, ρ0, tlist; reltol = 1e-10, abstol = 1e-12, verbose = false)
+    ados_list = HEOMsolve(L, ρ0, tlist; reltol = 1e-10, abstol = 1e-12, verbose = false).ados
 
     for (i, t) in enumerate(tlist)
         ρ_rwa = getRho(ados_list[i])

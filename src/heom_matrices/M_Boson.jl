@@ -1,9 +1,9 @@
 @doc raw"""
-    struct M_Boson{T} <: AbstractHEOMLSMatrix
+    struct M_Boson <: AbstractHEOMLSMatrix
 HEOM Liouvillian superoperator matrix for bosonic bath
 
 # Fields
-- `data::T` : the sparse matrix of HEOM Liouvillian superoperator
+- `data<:AbstractSparseMatrix` : the sparse matrix of HEOM Liouvillian superoperator
 - `tier` : the tier (cutoff level) for the bosonic hierarchy
 - `dims` : the dimension list of the coupling operator (should be equal to the system dims).
 - `N` : the number of total ADOs
@@ -12,7 +12,7 @@ HEOM Liouvillian superoperator matrix for bosonic bath
 - `bath::Vector{BosonBath}` : the vector which stores all `BosonBath` objects
 - `hierarchy::HierarchyDict`: the object which contains all dictionaries for boson-bath-ADOs hierarchy.
 """
-struct M_Boson{T} <: AbstractHEOMLSMatrix
+struct M_Boson{T<:AbstractSparseMatrix} <: AbstractHEOMLSMatrix{T}
     data::T
     tier::Int
     dims::SVector

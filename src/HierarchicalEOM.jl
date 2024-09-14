@@ -85,13 +85,14 @@ module HeomAPI
         copy,
         eltype
     import Base.Threads: @threads, threadid, nthreads, lock, unlock, SpinLock
-    import LinearAlgebra: I, kron, tr, norm
-    import SparseArrays: sparse, sparsevec, spzeros, SparseVector, SparseMatrixCSC
+    import LinearAlgebra: I, kron, tr, norm, dot, mul!
+    import SparseArrays: sparse, sparsevec, spzeros, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
     import StaticArraysCore: SVector
     import QuantumToolbox:
         QuantumObject,
         Operator,
         SuperOperator,
+        TimeDependentOperatorSum,
         _spre,
         _spost,
         spre,
@@ -99,16 +100,18 @@ module HeomAPI
         sprepost,
         expect,
         ket2dm,
+        liouvillian,
         lindblad_dissipator,
         steadystate,
         ProgressBar,
         next!
+
     import FastExpm: fastExpm
-    import SciMLBase: init, solve, solve!, step!, ODEProblem
+    import SciMLBase: init, solve, solve!, u_modified!, ODEProblem, FullSpecialize, CallbackSet
     import SciMLOperators: MatrixOperator
     import OrdinaryDiffEqCore: OrdinaryDiffEqAlgorithm
     import OrdinaryDiffEqLowOrderRK: DP5
-    import DiffEqCallbacks: TerminateSteadyState
+    import DiffEqCallbacks: PresetTimeCallback, TerminateSteadyState
     import LinearSolve: LinearProblem, SciMLLinearSolveAlgorithm, UMFPACKFactorization
     import JLD2: jldopen
 

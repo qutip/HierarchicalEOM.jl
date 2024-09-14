@@ -1,4 +1,5 @@
-evolution(args...; kwargs...) = error("`evolution` has been deprecated, please use `HEOMsolve` instead.")
+evolution(M::AbstractHEOMLSMatrix, args...; kwargs...) =
+    error("`evolution` has been deprecated, please use `HEOMsolve` instead.")
 
 const DEFAULT_ODE_SOLVER_OPTIONS = (abstol = 1e-8, reltol = 1e-6, save_everystep = false, save_end = true)
 
@@ -78,16 +79,25 @@ function HEOMsolve(
     verbose::Bool = true,
     filename::String = "",
 ) where {T_state<:Union{QuantumObject,ADOs}}
-    _ados = (T_state <: QuantumObject) ? ADOs(ρ0, M.N, M.parity) : ρ0
-    _check_sys_dim_and_ADOs_num(M, _ados)
-    _check_parity(M, _ados)
+
+    # check filename
+    if filename != ""
+        FILENAME = filename * ".jld2"
+        isfile(FILENAME) && error("FILE: $(FILENAME) already exist.")
+    end
+
+    # handle initial state
+    ados = (T_state <: QuantumObject) ? ADOs(ρ0, M.N, M.parity) : ρ0
+    _check_sys_dim_and_ADOs_num(M, ados)
+    _check_parity(M, ados)
+    ρvec = _HandleVectorType(typeof(M.data), ados.data)
 
     if e_ops isa Nothing
         expvals = Array{ComplexF64}(undef, 0, steps + 1)
         is_empty_e_ops = true
     else
         expvals = Array{ComplexF64}(undef, length(e_ops), length(steps + 1))
-        tr_op = [_Tr(M.dims, M.N) * HEOMSuperOp(op, EVEN, M.dims, M.N, "L").data for op in e_ops]
+        tr_op = [_Tr(M) * HEOMSuperOp(op, EVEN, M.dims, M.N, "L").data for op in e_ops]
         is_empty_e_ops = isempty(e_ops)
     end
 
@@ -95,14 +105,6 @@ function HEOMsolve(
         ADOs_list = Vector{ADOs}(undef, steps + 1)
     else
         ADOs_list = Vector{ADOs}(undef, 1)
-    end
-
-    SAVE::Bool = (filename != "")
-    if SAVE
-        FILENAME = filename * ".jld2"
-        if isfile(FILENAME)
-            error("FILE: $(FILENAME) already exist.")
-        end
     end
 
     # Generate propagator
@@ -117,28 +119,19 @@ function HEOMsolve(
     end
 
     # start solving
-    ρvec = copy(_ados.data)
     if verbose
         print("Solving time evolution for ADOs by propagator method...\n")
         flush(stdout)
     end
     prog = ProgressBar(steps + 1, enable = verbose)
     for n in 0:steps
-        # save the ADOs
-        ados_t = ADOs(ρvec, M.dims, M.N, M.parity)
-        if SAVE
-            jldopen(FILENAME, "a") do file
-                return file[string(n * Δt)] = ados_t
-            end
-        end
-
         # calculate expectation values
         if !is_empty_e_ops
             _expect = op -> dot(op, ρvec)
-            @. expvals[:, progr.counter[]+1] = _expect(tr_op)
-            n == steps ? ADOs_list[1] = ados_t : nothing
+            @. expvals[:, prog.counter[]+1] = _expect(tr_op)
+            n == steps ? ADOs_list[1] = ADOs(ρvec, M.dims, M.N, M.parity) : nothing
         else
-            ADOs_list[n+1] = ados_t
+            ADOs_list[n+1] = ADOs(ρvec, M.dims, M.N, M.parity)
         end
 
         ρvec = exp_Mt * ρvec
@@ -147,6 +140,21 @@ function HEOMsolve(
     if verbose
         println("[DONE]\n")
         flush(stdout)
+    end
+
+    # save ADOs to file
+    if filename != ""
+        if verbose
+            print("Saving ADOs to $(FILENAME) ...")
+            flush(stdout)
+        end
+        jldopen(FILENAME, "w") do file
+            file["ados"] = ADOs_list
+        end
+        if verbose
+            println("[DONE]")
+            flush(stdout)
+        end
     end
 
     return TimeEvolutionHEOMSol(
@@ -172,7 +180,7 @@ Solve the time evolution for auxiliary density operators based on ordinary diffe
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `e_ops::Union{Nothing,AbstractVector}`: List of operators for which to calculate expectation values.
 - `solver::OrdinaryDiffEqAlgorithm` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
-- `H_t::Union{Nothing,Function,TimeDependentOperatorSum}=nothing`: The time-dependent Hamiltonian or Liouvillian.
+- `H_t::Union{Nothing,Function,TimeDependentOperatorSum}=nothing`: The time-dependent Hamiltonian or Liouvillian. It will be called by `H_t(t, params)`.
 - `params::NamedTuple=NamedTuple()`: The parameters of the time evolution.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" during the solving process.
@@ -200,70 +208,87 @@ function HEOMsolve(
     filename::String = "",
     SOLVEROptions...,
 ) where {T_state<:Union{QuantumObject,ADOs}}
-    _ados = (T_state <: QuantumObject) ? ADOs(ρ0, M.N, M.parity) : ρ0
-    _check_sys_dim_and_ADOs_num(M, _ados)
-    _check_parity(M, _ados)
 
-    SAVE::Bool = (filename != "")
-    if SAVE
+    # check filename
+    if filename != ""
         FILENAME = filename * ".jld2"
-        if isfile(FILENAME)
-            error("FILE: $(FILENAME) already exist.")
-        end
+        isfile(FILENAME) && error("FILE: $(FILENAME) already exist.")
     end
 
-    ElType = eltype(M)
-    Tlist = _HandleFloatType(ElType, tlist)
-    ADOs_list::Vector{ADOs} = [ados]
-    if SAVE
-        jldopen(FILENAME, "a") do file
-            return file[string(Tlist[1])] = ados
-        end
+    # handle initial state
+    ados = (T_state <: QuantumObject) ? ADOs(ρ0, M.N, M.parity) : ρ0
+    _check_sys_dim_and_ADOs_num(M, ados)
+    _check_parity(M, ados)
+    u0 = _HandleVectorType(typeof(M.data), ados.data)
+
+    t_l = convert(Vector{Float64}, tlist) # Convert it into Float64 to avoid type instabilities for OrdinaryDiffEq.jl
+
+    # handle e_ops
+    Id_cache = I(M.N)
+    if e_ops isa Nothing
+        expvals = Array{ComplexF64}(undef, 0, length(t_l))
+        tr_e_ops = typeof(M.data)[]
+        is_empty_e_ops = true
+    else
+        expvals = Array{ComplexF64}(undef, length(e_ops), length(t_l))
+        tr_e_ops = _generate_Eops(M, e_ops, Id_cache)
+        is_empty_e_ops = isempty(e_ops)
     end
 
-    # problem: dρ/dt = L * ρ(t)
-    prob =
-        ODEProblem{true}(MatrixOperator(M.data), _HandleVectorType(typeof(M.data), ados.data), (Tlist[1], Tlist[end]))
+    # handle kwargs
+    haskey(SOLVEROptions, :save_idxs) &&
+        throw(ArgumentError("The keyword argument \"save_idxs\" is not supported in HierarchicalEOM.jl."))
+    saveat = is_empty_e_ops ? t_l : [t_l[end]]
+    default_values = (DEFAULT_ODE_SOLVER_OPTIONS..., saveat = saveat)
+    kwargs = merge(default_values, SOLVEROptions)
+    cb = PresetTimeCallback(t_l, _HEOM_evolution_callback, save_positions = (false, false))
+    kwargs2 =
+        haskey(kwargs, :callback) ? merge(kwargs, (callback = CallbackSet(kwargs.callback, cb),)) : merge(kwargs, (callback = cb,))
 
-    # setup integrator
-    integrator = init(
-        prob,
-        solver;
-        reltol = _HandleFloatType(ElType, reltol),
-        abstol = _HandleFloatType(ElType, abstol),
-        maxiters = maxiters,
-        save_everystep = save_everystep,
-        SOLVEROptions...,
+    p = (
+        L = M.data,
+        dims = M.dims,
+        N = M.N,
+        parity = M.parity,
+        H_t = H_t,
+        Id_cache = Id_cache,
+        params = params,
+        is_empty_e_ops = is_empty_e_ops,
+        tr_e_ops = tr_e_ops,
+        expvals = expvals,
+        prog = ProgressBar(length(t_l), enable = verbose),
     )
+
+    # define ODE problem
+    _dudt! = (H_t isa Nothing) ? _ti_dudt! : _td_dudt!
+    prob = ODEProblem{true,FullSpecialize}(_dudt!, u0, (t_l[1], t_l[end]), p; kwargs2...)
 
     # start solving ode
     if verbose
         print("Solving time evolution for ADOs by Ordinary Differential Equations method...\n")
         flush(stdout)
-        prog = ProgressBar(length(Tlist))
     end
-    idx = 1
-    dt_list = diff(Tlist)
-    for dt in dt_list
-        idx += 1
-        step!(integrator, dt, true)
-
-        # save the ADOs
-        ados = ADOs(_HandleVectorType(integrator.u), M.dims, M.N, M.parity)
-        push!(ADOs_list, ados)
-
-        if SAVE
-            jldopen(FILENAME, "a") do file
-                return file[string(Tlist[idx])] = ados
-            end
-        end
-        if verbose
-            next!(prog)
-        end
-    end
+    sol = solve(prob, solver)
     if verbose
         println("[DONE]\n")
         flush(stdout)
+    end
+
+    ADOs_list = map(ρvec -> ADOs(_HandleVectorType(ρvec, false), M.dims, M.N, M.parity), sol.u)
+
+    # save ADOs to file
+    if filename != ""
+        if verbose
+            print("Saving ADOs to $(FILENAME) ...")
+            flush(stdout)
+        end
+        jldopen(FILENAME, "w") do file
+            file["ados"] = ADOs_list
+        end
+        if verbose
+            println("[DONE]")
+            flush(stdout)
+        end
     end
 
     return TimeEvolutionHEOMSol(
@@ -279,25 +304,33 @@ function HEOMsolve(
     )
 end
 
-function _HEOM_evolution(integrator)
-    internal_params = integrator.p
-    prog = internal_params.prog
+function _generate_Eops(M::AbstractHEOMLSMatrix, e_ops, Id_cache)
+    MType = Base.typename(typeof(M.data)).wrapper{eltype(M)}
+    tr_e_ops = [transpose(_Tr(M)) * MType(HEOMSuperOp(op, EVEN, M.dims, M.N, "L"; Id_cache = Id_cache)).data for op in e_ops]
+    return tr_e_ops
+end
 
-    if !internal_params.is_empty_e_ops
-        expvals = internal_params.expvals
-        tr_e_ops = internal_params.tr_e_ops
+function _HEOM_evolution_callback(integrator)
+    p = integrator.p
+    prog = p.prog
+    expvals = p.expvals
+    tr_e_ops = p.tr_e_ops
 
-        ρ = integrator.u
-        _expect = op -> dot(op, ρ)
+    if !p.is_empty_e_ops
+        _expect = op -> dot(op, integrator.u)
         @. expvals[:, prog.counter[]+1] = _expect(tr_e_ops)
     end
     next!(prog)
     return u_modified!(integrator, false)
 end
 
-_ti_dudt!(du, u, p, t) = mul!(du, p.L, u)
+_ti_dudt!(du, u, p, t) = mul!(du, p.L, u) # du/dt = L * u(t)
 function _td_dudt!(du, u, p, t)
+    # check system dimension of H_t
+    _Ht = HandleMatrixType(liouvillian(p.H_t(t, p.params)), p.dims, "H_t at t=$(t)"; type = SuperOperator)
+    L_t = HEOMSuperOp(_Ht, p.parity, p.dims, p.N, "LR"; Id_cache = p.Id_cache).data
+
+    # du/dt = [L + L(t)] * u(t)
     mul!(du, p.L, u)
-    L_t = liouvillian(p.H_t(t, p))
     return mul!(du, L_t, u, 1, 1)
 end

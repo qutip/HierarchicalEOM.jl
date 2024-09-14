@@ -40,7 +40,7 @@ if (GROUP == "All") || (GROUP == "Core")
     end
 end
 
-if GROUP == "CUDA_Ext"
+if (GROUP == "CUDA_Ext") || (GROUP == "All")
     Pkg.add("CUDA")
 
     HierarchicalEOM.versioninfo()

@@ -84,25 +84,28 @@ remember to set the parameters:
     end
     _check_sys_dim_and_ADOs_num(M, ados)
 
+    Id_cache = I(M.N)
+
     # Handle P_op
-    if typeof(P_op) == HEOMSuperOp
+    if typeof(P_op) <: HEOMSuperOp
         _check_sys_dim_and_ADOs_num(M, P_op)
         _P = P_op
     else
-        _P = HEOMSuperOp(P_op, EVEN, M)
+        _P = HEOMSuperOp(P_op, EVEN, M; Id_cache = Id_cache)
     end
-    _tr_P = _Tr(M.dims, M.N) * _P.data
+    MType = Base.typename(typeof(M.data)).wrapper{eltype(M)}
+    _tr_P = transpose(_Tr(M)) * MType(_P).data
 
     # Handle Q_op
-    if typeof(Q_op) == HEOMSuperOp
+    if typeof(Q_op) <: HEOMSuperOp
         _check_sys_dim_and_ADOs_num(M, Q_op)
         _Q_ados = Q_op * ados
         _check_parity(M, _Q_ados)
     else
         if M.parity == EVEN
-            _Q = HEOMSuperOp(Q_op, ados.parity, M)
+            _Q = HEOMSuperOp(Q_op, ados.parity, M; Id_cache = Id_cache)
         else
-            _Q = HEOMSuperOp(Q_op, !ados.parity, M)
+            _Q = HEOMSuperOp(Q_op, !ados.parity, M; Id_cache = Id_cache)
         end
         _Q_ados = _Q * ados
     end
@@ -144,7 +147,7 @@ remember to set the parameters:
         end
 
         # trace over the Hilbert space of system (expectation value)
-        Sω[j] = -1 * real(_tr_P * _HandleVectorType(sol.u, false))
+        Sω[j] = -1 * real(dot(_tr_P, sol.u))
 
         if SAVE
             open(FILENAME, "a") do file
