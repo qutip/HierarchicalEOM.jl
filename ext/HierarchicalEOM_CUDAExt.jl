@@ -1,10 +1,10 @@
 module HierarchicalEOM_CUDAExt
 
 using HierarchicalEOM
-import HierarchicalEOM.HeomBase: AbstractHEOMLSMatrix, _HandleVectorType, _HandleIdentityType
+import HierarchicalEOM.HeomBase: AbstractHEOMLSMatrix, _Tr, _HandleVectorType, _HandleIdentityType
 import CUDA
 import CUDA: cu, CuArray
-import CUDA.CUSPARSE: CuSparseMatrixCSC
+import CUDA.CUSPARSE: CuSparseVector, CuSparseMatrixCSC
 import SparseArrays: sparse, SparseVector, SparseMatrixCSC
 
 @doc raw"""
@@ -47,6 +47,30 @@ function CuSparseMatrixCSC(M::T) where {T<:AbstractHEOMLSMatrix}
             )
         end
     end
+end
+function CuSparseMatrixCSC{ComplexF32}(M::HEOMSuperOp)
+    A = M.data
+    AType = typeof(A)
+    if AType == CuSparseMatrixCSC{ComplexF32,Int32}
+        return M
+    elseif AType <: CuSparseMatrixCSC
+        colptr = CuArray{Int32}(A.colPtr)
+        rowval = CuArray{Int32}(A.rowVal)
+        nzval = CuArray{ComplexF32}(A.nzVal)
+        A_gpu = CuSparseMatrixCSC{ComplexF32,Int32}(colptr, rowval, nzval, size(A))
+        return HEOMSuperOp(A_gpu, M.dims, M.N, M.parity)
+    else
+        colptr = CuArray{Int32}(A.colptr)
+        rowval = CuArray{Int32}(A.rowval)
+        nzval = CuArray{ComplexF32}(A.nzval)
+        A_gpu = CuSparseMatrixCSC{ComplexF32,Int32}(colptr, rowval, nzval, size(A))
+        return HEOMSuperOp(A_gpu, M.dims, M.N, M.parity)
+    end
+end
+
+function _Tr(M::AbstractHEOMLSMatrix{T}) where {T<:CuSparseMatrixCSC}
+    D = prod(M.dims)
+    return CuSparseVector(SparseVector(M.N * D^2, [1 + n * (D + 1) for n in 0:(D-1)], ones(eltype(M), D)))
 end
 
 # for changing a `CuArray` back to `ADOs`

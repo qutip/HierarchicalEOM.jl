@@ -1,9 +1,9 @@
 @doc raw"""
-    struct M_Boson_Fermion{T} <: AbstractHEOMLSMatrix
+    struct M_Boson_Fermion <: AbstractHEOMLSMatrix
 HEOM Liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath 
 
 # Fields
-- `data::T` : the sparse matrix of HEOM Liouvillian superoperator
+- `data<:AbstractSparseMatrix` : the sparse matrix of HEOM Liouvillian superoperator
 - `Btier` : the tier (cutoff level) for bosonic hierarchy
 - `Ftier` : the tier (cutoff level) for fermionic hierarchy
 - `dims` : the dimension list of the coupling operator (should be equal to the system dims).
@@ -14,7 +14,7 @@ HEOM Liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath
 - `Fbath::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
 - `hierarchy::MixHierarchyDict`: the object which contains all dictionaries for mixed-bath-ADOs hierarchy.
 """
-struct M_Boson_Fermion{T} <: AbstractHEOMLSMatrix
+struct M_Boson_Fermion{T<:AbstractSparseMatrix} <: AbstractHEOMLSMatrix{T}
     data::T
     Btier::Int
     Ftier::Int
@@ -230,3 +230,6 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         hierarchy,
     )
 end
+
+_getBtier(M::M_Boson_Fermion) = M.Btier
+_getFtier(M::M_Boson_Fermion) = M.Ftier

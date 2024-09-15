@@ -1,9 +1,13 @@
-abstract type AbstractHEOMLSMatrix end
+abstract type AbstractHEOMLSMatrix{T} end
 
-# equal to : transpose(sparse(vec(system_identity_matrix)))
+# equal to : sparse(vec(system_identity_matrix))
 function _Tr(dims::SVector, N::Int)
     D = prod(dims)
-    return transpose(SparseVector(N * D^2, [1 + n * (D + 1) for n in 0:(D-1)], ones(ComplexF64, D)))
+    return SparseVector(N * D^2, [1 + n * (D + 1) for n in 0:(D-1)], ones(ComplexF64, D))
+end
+function _Tr(M::AbstractHEOMLSMatrix{T}) where {T<:SparseMatrixCSC}
+    D = prod(M.dims)
+    return SparseVector(M.N * D^2, [1 + n * (D + 1) for n in 0:(D-1)], ones(eltype(M), D))
 end
 
 function HandleMatrixType(M::QuantumObject, MatrixName::String = ""; type::QuantumObjectType = Operator)

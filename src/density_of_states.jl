@@ -51,20 +51,20 @@ Calculate density of states for the fermionic system in frequency domain.
     _check_sys_dim_and_ADOs_num(M, ados)
 
     # Handle d_op
-    _tr = _Tr(M.dims, M.N)
-    d_normal = HEOMSuperOp(d_op, ODD, M)
-    d_dagger = HEOMSuperOp(d_op', ODD, M)
+    MType = Base.typename(typeof(M.data)).wrapper{eltype(M)}
+    _tr = transpose(_Tr(M))
+    Id_cache = I(M.N)
+    d_normal = HEOMSuperOp(d_op, ODD, M; Id_cache = Id_cache)
+    d_dagger = HEOMSuperOp(d_op', ODD, M; Id_cache = Id_cache)
     b_m = _HandleVectorType(typeof(M.data), (d_normal * ados).data)
     b_p = _HandleVectorType(typeof(M.data), (d_dagger * ados).data)
-    _tr_d_normal = _tr * d_normal.data
-    _tr_d_dagger = _tr * d_dagger.data
+    _tr_d_normal = _tr * MType(d_normal).data
+    _tr_d_dagger = _tr * MType(d_dagger).data
 
     SAVE::Bool = (filename != "")
     if SAVE
         FILENAME = filename * ".txt"
-        if isfile(FILENAME)
-            error("FILE: $(FILENAME) already exist.")
-        end
+        isfile(FILENAME) && error("FILE: $(FILENAME) already exist.")
     end
 
     ElType = eltype(M)
@@ -75,19 +75,21 @@ Calculate density of states for the fermionic system in frequency domain.
     if verbose
         print("Calculating density of states in frequency domain...\n")
         flush(stdout)
-        prog = ProgressBar(Length)
     end
+    prog = ProgressBar(Length; enable = verbose)
     i = convert(ElType, 1im)
     I_total = _HandleIdentityType(typeof(M.data), Size)
-    Iω = i * ωList[1] * I_total
-    cache_m = init(LinearProblem(M.data - Iω, b_m), solver, SOLVEROptions...)
-    cache_p = init(LinearProblem(M.data + Iω, b_p), solver, SOLVEROptions...)
-    sol_m = solve!(cache_m)
-    sol_p = solve!(cache_p)
-    @inbounds for (j, ω) in enumerate(ωList)
-        if j > 1
-            Iω = i * ω * I_total
+    cache_m = cache_p = nothing
+    for ω in ωList
+        Iω = i * ω * I_total
 
+        if prog.counter[] == 0
+            cache_m = init(LinearProblem(M.data - Iω, b_m), solver, SOLVEROptions...)
+            sol_m = solve!(cache_m)
+
+            cache_p = init(LinearProblem(M.data + Iω, b_p), solver, SOLVEROptions...)
+            sol_p = solve!(cache_p)
+        else
             cache_m.A = M.data - Iω
             sol_m = solve!(cache_m)
 
@@ -96,21 +98,15 @@ Calculate density of states for the fermionic system in frequency domain.
         end
 
         # trace over the Hilbert space of system (expectation value)
-        Aω[j] =
-            -1 * (
-                real(_tr_d_normal * _HandleVectorType(sol_p.u, false)) +
-                real(_tr_d_dagger * _HandleVectorType(sol_m.u, false))
-            )
+        val = -1 * real(dot(_tr_d_normal, sol_p.u) + dot(_tr_d_dagger, sol_m.u))
+        Aω[prog.counter[]+1] = val
 
         if SAVE
             open(FILENAME, "a") do file
-                return write(file, "$(Aω[j]),\n")
+                return write(file, "$(val),\n")
             end
         end
-
-        if verbose
-            next!(prog)
-        end
+        next!(prog)
     end
     if verbose
         println("[DONE]")

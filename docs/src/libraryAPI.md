@@ -103,13 +103,14 @@ getIndexEnsemble
 ```
 
 ## [Time Evolution](@id lib-Time-Evolution)
-There are six function definitions of `evolution`, which depend on different input types and methods to solve the time evolution:
+There are two function definitions of `HEOMsolve`, which depend on different methods to solve the time evolution:
 ```@docs
-evolution
+HEOMsolve
+TimeEvolutionHEOMSol
 ```
 
 ## Stationary State
-There are three function definitions of `steadystate`, which depend on different input types and methods to solve the stationary state:
+There are two function definitions of `steadystate`, which depend on different methods to solve the stationary state:
 ```@docs
 steadystate
 ```

@@ -11,6 +11,7 @@
     N = 2
     tier = 5
     Q = sigmaz()  # System-bath coupling operator
+    e_ops = [rand_dm(2), rand_dm(2)]
 
     bath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
 
@@ -25,36 +26,57 @@
         rm("evolution_p.jld2")
     end
     # using the method based on propagator
-    ados_list = evolution(L, ψ0, Δt, steps; verbose = false, filename = "evolution_p")
+    ados_list = HEOMsolve(L, ψ0, Δt, steps; verbose = false, filename = "evolution_p").ados
+    sol_p = HEOMsolve(L, ψ0, Δt, steps; e_ops = e_ops, verbose = false)
+    expvals_p = sol_p.expect
     ados_wrong1 = ADOs(zeros(8), 2)
     ados_wrong2 = ADOs(zeros(32), 2)
     ados_wrong3 = ADOs((ados_list[1]).data, (ados_list[1]).N, ODD)
     ados_wrong4 = HEOMSuperOp(Q, ODD, ados_list[end]) * ados_list[end]
     ρ_list_p = getRho.(ados_list)
-    @test_throws ErrorException evolution(L, ψ0, Δt, steps; verbose = false, filename = "evolution_p")
-    @test_throws ErrorException evolution(L, ρ_wrong, Δt, steps; verbose = false)
-    @test_throws ErrorException evolution(L, ados_wrong1, Δt, steps; verbose = false)
-    @test_throws ErrorException evolution(L, ados_wrong2, Δt, steps; verbose = false)
-    @test_throws ErrorException evolution(L, ados_wrong3, Δt, steps; verbose = false)
-    @test_throws ErrorException evolution(L, ados_wrong4, Δt, steps; verbose = false)
+    @test show(devnull, MIME("text/plain"), sol_p) === nothing
+    @test length(sol_p.ados) == 1
+    @test_throws ErrorException evolution(L, ψ0, Δt, steps; verbose = false)
+    @test_throws ErrorException HEOMsolve(L, ψ0, Δt, steps; verbose = false, filename = "evolution_p")
+    @test_throws ErrorException HEOMsolve(L, ρ_wrong, Δt, steps; verbose = false)
+    @test_throws ErrorException HEOMsolve(L, ados_wrong1, Δt, steps; verbose = false)
+    @test_throws ErrorException HEOMsolve(L, ados_wrong2, Δt, steps; verbose = false)
+    @test_throws ErrorException HEOMsolve(L, ados_wrong3, Δt, steps; verbose = false)
+    @test_throws ErrorException HEOMsolve(L, ados_wrong4, Δt, steps; verbose = false)
 
     if isfile("evolution_o.jld2")
         rm("evolution_o.jld2")
     end
     # using the method based on ODE solver
-    ρ_list_e = getRho.(evolution(L, ψ0, tlist; verbose = false, filename = "evolution_o"))
-    @test_throws ErrorException evolution(L, ψ0, tlist; verbose = false, filename = "evolution_o")
-    @test_throws ErrorException evolution(L, ρ_wrong, tlist; verbose = false)
-    @test_throws ErrorException evolution(L, ados_wrong1, tlist; verbose = false)
-    @test_throws ErrorException evolution(L, ados_wrong2, tlist; verbose = false)
-    @test_throws ErrorException evolution(L, ados_wrong3, tlist; verbose = false)
-    @test_throws ErrorException evolution(L, ados_wrong4, tlist; verbose = false)
+    sol_e = HEOMsolve(L, ψ0, tlist; e_ops = e_ops, saveat = tlist, verbose = false, filename = "evolution_o")
+    ρ_list_e = getRho.(sol_e.ados)
+    expvals_e = sol_e.expect
+    @test show(devnull, MIME("text/plain"), sol_e) === nothing
+    @test_throws ErrorException evolution(L, ψ0, tlist; verbose = false)
+    @test_throws ErrorException HEOMsolve(L, ψ0, tlist; verbose = false, filename = "evolution_o")
+    @test_throws ErrorException HEOMsolve(L, ρ_wrong, tlist; verbose = false)
+    @test_throws ErrorException HEOMsolve(L, ados_wrong1, tlist; verbose = false)
+    @test_throws ErrorException HEOMsolve(L, ados_wrong2, tlist; verbose = false)
+    @test_throws ErrorException HEOMsolve(L, ados_wrong3, tlist; verbose = false)
+    @test_throws ErrorException HEOMsolve(L, ados_wrong4, tlist; verbose = false)
 
-    for i in 1:(steps+1)
-        @test ρ_list_p[i] ≈ ρ_list_e[i]
-    end
+    @test all(expvals_p .≈ expvals_e)
+    @test all([ρ_list_p[i] ≈ ρ_list_e[i] for i in 1:(steps+1)])
     @test isapprox(ρs, ρ_list_p[end]; atol = 1e-4)
     @test isapprox(ρs, ρ_list_e[end]; atol = 1e-4)
+    @test isapprox(ρs, getRho(sol_p.ados[1]); atol = 1e-4)
+    jldopen("evolution_p.jld2", "r") do file
+        ados_list = file["ados"]
+        @test typeof(ados_list) == Vector{ADOs}
+        @test length(ados_list) == steps + 1
+        @test all([ρ_list_p[i] ≈ getRho(ados_list[i]) for i in 1:(steps+1)])
+    end
+    jldopen("evolution_o.jld2", "r") do file
+        ados_list = file["ados"]
+        @test typeof(ados_list) == Vector{ADOs}
+        @test length(ados_list) == steps + 1
+        @test all([ρ_list_e[i] ≈ getRho(ados_list[i]) for i in 1:(steps+1)])
+    end
 
     # time-dependent Hamiltonian
     σz = sigmaz()
@@ -66,14 +88,13 @@
     bath = Boson_DrudeLorentz_Pade(σz, 0.0005, 0.005, 0.05, 3)
     L = M_Boson(H_sys, 6, bath; verbose = false)
 
-    function Ht(param, t)
-        amplitude, delay, integral = param
-        duration = integral / amplitude
-        period = duration + delay
+    function Ht(t, p)
+        duration = p.integral / p.amplitude
+        period = duration + p.delay
 
         t = t % period
         if t < duration
-            return amplitude * sigmax()
+            return p.amplitude * sigmax()
         else
             return Qobj([0 0; 0 0])
         end
@@ -83,27 +104,38 @@
     if isfile("evolution_t.jld2")
         rm("evolution_t.jld2")
     end
-    fastDD_ados = evolution(
+    p_fast = (amplitude = 0.5, delay = 20, integral = π / 2)
+    fastDD_sol = HEOMsolve(
         L,
         ψ0,
-        tlist,
-        Ht,
-        (0.50, 20, π / 2);
+        tlist;
+        H_t = Ht,
+        params = p_fast,
+        e_ops = [P01],
+        saveat = tlist,
         reltol = 1e-12,
         abstol = 1e-12,
         verbose = false,
         filename = "evolution_t",
     )
-    @test_throws ErrorException evolution(
+    fastDD_ados = fastDD_sol.ados
+    fastDD1 = real.(fastDD_sol.expect[1, :])
+    fastDD2 = expect(P01, fastDD_ados)
+    jldopen("evolution_t.jld2", "r") do file
+        ados_list = file["ados"]
+        @test typeof(ados_list) == Vector{ADOs}
+        @test length(ados_list) == length(tlist)
+    end
+    @test_throws ErrorException HEOMsolve(
         L,
         ψ0,
-        tlist,
-        Ht,
-        (0.50, 20, π / 2);
+        tlist;
+        H_t = Ht,
+        params = p_fast,
         verbose = false,
         filename = "evolution_t",
     )
-    @test_throws ErrorException evolution(L, ρ_wrong, tlist, Ht; verbose = false)
+    @test_throws ErrorException HEOMsolve(L, ρ_wrong, tlist; H_t = Ht, verbose = false)
     fastBoFiN = [
         0.4999999999999999,
         0.4972948770876402,
@@ -147,13 +179,29 @@
         0.47479965067847246,
         0.47451220871416044,
     ]
-    fastDD = expect(P01, fastDD_ados)
-    @test typeof(fastDD) == Vector{Float64}
-    for i in 1:length(tlist)
-        @test fastDD[i] ≈ fastBoFiN[i] atol = 1.0e-6
-    end
+    @test show(devnull, MIME("text/plain"), fastDD_sol) === nothing
+    @test length(fastDD_sol.ados) == length(tlist)
+    @test size(fastDD_sol.expect) == (1, length(tlist))
+    @test typeof(fastDD1) == typeof(fastDD2) == Vector{Float64}
+    @test all(isapprox.(fastDD1, fastBoFiN; atol = 1.0e-6))
+    @test all(isapprox.(fastDD2, fastBoFiN; atol = 1.0e-6))
 
-    slowDD_ados = evolution(L, ψ0, tlist, Ht, (0.01, 20, π / 2); reltol = 1e-12, abstol = 1e-12, verbose = false)
+    p_slow = (amplitude = 0.01, delay = 20, integral = π / 2)
+    slowDD_sol = HEOMsolve(
+        L,
+        ψ0,
+        tlist;
+        H_t = Ht,
+        params = p_slow,
+        e_ops = [P01],
+        saveat = tlist,
+        reltol = 1e-12,
+        abstol = 1e-12,
+        verbose = false,
+    )
+    slowDD_ados = slowDD_sol.ados
+    slowDD1 = slowDD_sol.expect[1, :]
+    slowDD2 = expect(P01, slowDD_ados; take_real = false)
     slowBoFiN = [
         0.4999999999999999,
         0.4949826158957288,
@@ -197,22 +245,23 @@
         0.14821389956195355,
         0.14240802098404504,
     ]
-    slowDD = expect(P01, slowDD_ados; take_real = false)
-    @test typeof(slowDD) == Vector{ComplexF64}
-    for i in 1:length(tlist)
-        @test slowDD[i] ≈ slowBoFiN[i] atol = 1.0e-6
-    end
+    @test show(devnull, MIME("text/plain"), slowDD_sol) === nothing
+    @test length(slowDD_sol.ados) == length(tlist)
+    @test size(slowDD_sol.expect) == (1, length(tlist))
+    @test typeof(slowDD1) == typeof(slowDD2) == Vector{ComplexF64}
+    @test all(isapprox.(slowDD1, slowBoFiN; atol = 1.0e-6))
+    @test all(isapprox.(slowDD2, slowBoFiN; atol = 1.0e-6))
 
-    H_wrong1(param, t) = Qobj(zeros(3, 3))
-    H_wrong2(param, t) = t == 0 ? Qobj(zeros(2, 2)) : Qobj(zeros(3, 3))
+    H_wrong1(t, p) = Qobj(zeros(3, 3))
+    H_wrong2(t, p) = t == 0 ? Qobj(zeros(2, 2)) : Qobj(zeros(3, 3))
     ados_wrong1 = ADOs(zeros(8), 2)
     ados_wrong2 = ADOs(zeros(32), 2)
     ados_wrong3 = ADOs((slowDD_ados[1]).data, (slowDD_ados[1]).N, ODD)
-    @test_throws ErrorException evolution(L, ψ0, tlist, H_wrong1; verbose = false)
-    @test_throws ErrorException evolution(L, ψ0, tlist, H_wrong2; verbose = false)
-    @test_throws ErrorException evolution(L, ados_wrong1, tlist, Ht; verbose = false)
-    @test_throws ErrorException evolution(L, ados_wrong2, tlist, Ht; verbose = false)
-    @test_throws ErrorException evolution(L, ados_wrong3, tlist, Ht; verbose = false)
+    @test_throws ErrorException HEOMsolve(L, ψ0, tlist; H_t = H_wrong1, verbose = false)
+    @test_throws ErrorException HEOMsolve(L, ψ0, tlist; H_t = H_wrong2, verbose = false)
+    @test_throws ErrorException HEOMsolve(L, ados_wrong1, tlist; H_t = Ht, verbose = false)
+    @test_throws ErrorException HEOMsolve(L, ados_wrong2, tlist; H_t = Ht, verbose = false)
+    @test_throws ErrorException HEOMsolve(L, ados_wrong3, tlist; H_t = Ht, verbose = false)
 
     # remove all the temporary files
     rm("evolution_p.jld2")

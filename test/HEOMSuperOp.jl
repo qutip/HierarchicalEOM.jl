@@ -59,7 +59,7 @@
     # create HEOM Liouvuillian superoperator without quantum jump
     M0 = M_me - J_me
     ados_s = steadystate(M_me; verbose = false)
-    ados_list = evolution(M0, J_me * ados_s, tlist; verbose = false)
+    ados_list = HEOMsolve(M0, J_me * ados_s, tlist; verbose = false).ados
 
     # calculating waiting time distribution
     WTD_me = []
@@ -82,7 +82,7 @@
     # create HEOM Liouvuillian superoperator without quantum jump
     M1 = M_heom - J_heom
     ados_s1 = steadystate(M_heom; verbose = false)
-    ados_list1 = evolution(M1, J_heom * ados_s1, tlist; verbose = false)
+    ados_list1 = HEOMsolve(M1, J_heom * ados_s1, tlist; verbose = false).ados
 
     # calculating waiting time distribution
     WTD_heom = []

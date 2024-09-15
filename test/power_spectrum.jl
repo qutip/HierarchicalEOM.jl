@@ -47,6 +47,7 @@
     for i in 1:length(ωlist)
         @test psd1[i] ≈ psd2[i] atol = 1.0e-6
     end
+    @test length(readlines("PSD.txt")) == length(ωlist)
 
     mat = Qobj(spzeros(ComplexF64, 2, 2))
     mat2 = Qobj(spzeros(ComplexF64, 3, 3))

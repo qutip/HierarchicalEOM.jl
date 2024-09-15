@@ -84,25 +84,28 @@ remember to set the parameters:
     end
     _check_sys_dim_and_ADOs_num(M, ados)
 
+    Id_cache = I(M.N)
+
     # Handle P_op
-    if typeof(P_op) == HEOMSuperOp
+    if typeof(P_op) <: HEOMSuperOp
         _check_sys_dim_and_ADOs_num(M, P_op)
         _P = P_op
     else
-        _P = HEOMSuperOp(P_op, EVEN, M)
+        _P = HEOMSuperOp(P_op, EVEN, M; Id_cache = Id_cache)
     end
-    _tr_P = _Tr(M.dims, M.N) * _P.data
+    MType = Base.typename(typeof(M.data)).wrapper{eltype(M)}
+    _tr_P = transpose(_Tr(M)) * MType(_P).data
 
     # Handle Q_op
-    if typeof(Q_op) == HEOMSuperOp
+    if typeof(Q_op) <: HEOMSuperOp
         _check_sys_dim_and_ADOs_num(M, Q_op)
         _Q_ados = Q_op * ados
         _check_parity(M, _Q_ados)
     else
         if M.parity == EVEN
-            _Q = HEOMSuperOp(Q_op, ados.parity, M)
+            _Q = HEOMSuperOp(Q_op, ados.parity, M; Id_cache = Id_cache)
         else
-            _Q = HEOMSuperOp(Q_op, !ados.parity, M)
+            _Q = HEOMSuperOp(Q_op, !ados.parity, M; Id_cache = Id_cache)
         end
         _Q_ados = _Q * ados
     end
@@ -111,9 +114,7 @@ remember to set the parameters:
     SAVE::Bool = (filename != "")
     if SAVE
         FILENAME = filename * ".txt"
-        if isfile(FILENAME)
-            error("FILE: $(FILENAME) already exist.")
-        end
+        isfile(FILENAME) && error("FILE: $(FILENAME) already exist.")
     end
 
     ElType = eltype(M)
@@ -124,37 +125,32 @@ remember to set the parameters:
     if verbose
         print("Calculating power spectrum in frequency domain...\n")
         flush(stdout)
-        prog = ProgressBar(Length)
     end
-
-    if reverse
-        i = convert(ElType, 1im)
-    else
-        i = convert(ElType, -1im)
-    end
+    prog = ProgressBar(Length; enable = verbose)
+    i = reverse ? convert(ElType, 1im) : i = convert(ElType, -1im)
     I_total = _HandleIdentityType(typeof(M.data), Size)
-    Iω = i * ωList[1] * I_total
-    cache = init(LinearProblem(M.data + Iω, b), solver, SOLVEROptions...)
-    sol = solve!(cache)
-    @inbounds for (j, ω) in enumerate(ωList)
-        if j > 1
-            Iω = i * ω * I_total
+    cache = nothing
+    for ω in ωList
+        Iω = i * ω * I_total
+
+        if prog.counter[] == 0
+            cache = init(LinearProblem(M.data + Iω, b), solver, SOLVEROptions...)
+            sol = solve!(cache)
+        else
             cache.A = M.data + Iω
             sol = solve!(cache)
         end
 
         # trace over the Hilbert space of system (expectation value)
-        Sω[j] = -1 * real(_tr_P * _HandleVectorType(sol.u, false))
+        val = -1 * real(dot(_tr_P, sol.u))
+        Sω[prog.counter[]+1] = val
 
         if SAVE
             open(FILENAME, "a") do file
-                return write(file, "$(Sω[j]),\n")
+                return write(file, "$(val),\n")
             end
         end
-
-        if verbose
-            next!(prog)
-        end
+        next!(prog)
     end
     if verbose
         println("[DONE]")

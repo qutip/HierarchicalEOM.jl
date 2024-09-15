@@ -13,7 +13,7 @@
 # Here are the functions in `HierarchicalEOM.jl` that we will use in this tutorial (Quick Start):
 
 import HierarchicalEOM
-import HierarchicalEOM: Boson_DrudeLorentz_Pade, M_Boson, evolution, getRho, BosonBath
+import HierarchicalEOM: Boson_DrudeLorentz_Pade, M_Boson, HEOMsolve, getRho, BosonBath
 
 # Note that you can also type `using HierarchicalEOM` to import everything you need in `HierarchicalEOM.jl`.
 # To check the versions of dependencies of `HierarchicalEOM.jl`, run the following function
@@ -44,6 +44,14 @@ Hsys = 0.5 * ϵ * sigmaz() + 0.5 * Δ * sigmax()
 ## System initial state
 ρ0 = ket2dm(basis(2, 0));
 
+## Define the operators that measure the populations of the two system states:
+P00 = ket2dm(basis(2, 0))
+P11 = ket2dm(basis(2, 1))
+
+## Define the operator that measures the 0, 1 element of density matrix
+## (corresponding to coherence):
+P01 = basis(2, 0) * basis(2, 1)'
+
 # #### Bath Properties
 # Now, we demonstrate how to describe the bath using the built-in implementation of ``J_D(\omega)`` under Pade expansion by calling [`Boson_DrudeLorentz_Pade`](@ref)
 
@@ -69,11 +77,11 @@ L = M_Boson(Hsys, tier, bath)
 # To learn more about the HEOM Liouvillian superoperator matrix (including other types: `M_Fermion`, `M_Boson_Fermion`), please refer to [HEOMLS Matrices](@ref doc-HEOMLS-Matrix).
 
 # ### Time Evolution
-# Next, we can calculate the time evolution for the entire auxiliary density operators (ADOs) by calling [`evolution`](@ref)
+# Next, we can calculate the time evolution for the entire auxiliary density operators (ADOs) by calling [`HEOMsolve`](@ref)
 tlist = 0:0.2:50
-ados_list = evolution(L, ρ0, tlist);
+sol = HEOMsolve(L, ρ0, tlist; e_ops = [P00, P11, P01])
 
-# To learn more about `evolution`, please refer to [Time Evolution](@ref doc-Time-Evolution).
+# To learn more about `HEOMsolve`, please refer to [Time Evolution](@ref doc-Time-Evolution).
 
 # ### Stationary State
 # We can also solve the stationary state of the auxiliary density operators (ADOs) by calling [`steadystate`](@ref).
@@ -84,36 +92,27 @@ ados_steady = steadystate(L)
 # ### Reduced Density Operator
 # To obtain the reduced density operator, one can either access the first element of auxiliary density operator (`ADOs`) or call [`getRho`](@ref):
 
-## reduce density operator in third time step of the evolution
-ρ = ados_list[3][1]
-ρ = getRho(ados_list[3])
+## reduce density operator in the final time (`end`) of the evolution
+ados_list = sol.ados
+ρ = ados_list[end][1]  # index `1` represents the reduced density operator
+ρ = getRho(ados_list[end])
 
 ## reduce density operator in stationary state
 ρ = ados_steady[1]
-ρ = getRho(ados_steady);
+ρ = getRho(ados_steady)
 
 # One of the great features of `HierarchicalEOM.jl` is that we allow users to not only considering the density operator of the reduced
 # state but also easily take high-order terms into account without struggling in finding the indices (see [Auxiliary Density Operators](@ref doc-ADOs) and [Hierarchy Dictionary](@ref doc-Hierarchy-Dictionary) for more details).
 
 # ### Expectation Value
-# We can now compare the results obtained from `evolution` and `steadystate`:
-
-## Define the operators that measure the populations of the two
-## system states:
-P00 = ket2dm(basis(2, 0))
-P11 = ket2dm(basis(2, 1))
-
-## Define the operator that measures the 0, 1 element of density matrix
-## (corresponding to coherence):
-P01 = basis(2, 0) * basis(2, 1)'
+# We can now compare the results obtained from `HEOMsolve` and `steadystate`:
+## for time evolution
+p00_e = real(sol.expect[1, :]) # P00 is the 1st element in e_ops
+p01_e = real(sol.expect[3, :]); # P01 is the 3rd element in e_ops
 
 ## for steady state
 p00_s = expect(P00, ados_steady)
-p01_s = expect(P01, ados_steady)
-
-## for time evolution
-p00_e = expect(P00, ados_list)
-p01_e = expect(P01, ados_list);
+p01_s = expect(P01, ados_steady);
 
 # ### Plot the results
 using Plots, LaTeXStrings
@@ -155,6 +154,11 @@ Hsys = Qobj([
 ## System initial state
 ρ0 = ket2dm(basis(3, 0));
 
+## Projector for each system state:
+P00 = ket2dm(basis(3, 0))
+P11 = ket2dm(basis(3, 1))
+P22 = ket2dm(basis(3, 2));
+
 ## Construct one bath for each system state:
 ## note that `BosonBath[]` make the list created in type: Vector{BosonBath}
 baths = BosonBath[]
@@ -167,17 +171,12 @@ end
 L = M_Boson(Hsys, tier, baths)
 
 tlist = 0:0.025:5
-ados_list = evolution(L, ρ0, tlist)
-
-## Projector for each system state:
-P00 = ket2dm(basis(3, 0))
-P11 = ket2dm(basis(3, 1))
-P22 = ket2dm(basis(3, 2))
+sol = HEOMsolve(L, ρ0, tlist; e_ops = [P00, P11, P22])
 
 ## calculate population for each system state:
-p0 = expect(P00, ados_list)
-p1 = expect(P11, ados_list)
-p2 = expect(P22, ados_list)
+p0 = real(sol.expect[1, :])
+p1 = real(sol.expect[2, :])
+p2 = real(sol.expect[3, :])
 
 plot(tlist, p0, linewidth = 3, linecolor = "blue", label = L"P_0", grid = false)
 plot!(tlist, p1, linewidth = 3, linecolor = "orange", label = L"P_1")

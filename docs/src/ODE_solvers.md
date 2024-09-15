@@ -10,7 +10,7 @@ using OrdinaryDiffEq ## or "using DifferentialEquations"
 
 (click [here](https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/) to see the full solver list provided by `DifferentialEquations.jl`)
 
-For any extra solver options, we can add it in the function `evolution` with keyword arguments. These keyword arguments will be directly pass to the solvers in `DifferentialEquations`
+For any extra solver options, we can add it in the function `HEOMsolve` with keyword arguments. These keyword arguments will be directly pass to the solvers in `DifferentialEquations`
 (click [here](https://docs.sciml.ai/DiffEqDocs/stable/basics/common_solver_opts/) to see the documentation for the common solver options)
 
 ### DP5 (Default solver)

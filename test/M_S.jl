@@ -9,7 +9,7 @@
     @test size(L) == (4, 4)
     @test L.N == 1
     @test nnz(L.data) == 8
-    ados_list = evolution(L, ψ0, 0:1:t; reltol = 1e-8, abstol = 1e-10, verbose = false)
+    ados_list = HEOMsolve(L, ψ0, 0:1:t; reltol = 1e-8, abstol = 1e-10, verbose = false).ados
     ados = ados_list[end]
     @test ados.dims == L.dims
     @test length(ados) == L.N
@@ -25,7 +25,7 @@
     L = addBosonDissipator(L, √(0.01) * sigmaz())
     L = addFermionDissipator(L, √(0.01) * sigmaz())
     @test nnz(L.data) == 10
-    ados_list = evolution(L, ψ0, 0:0.5:t; reltol = 1e-8, abstol = 1e-10, verbose = false)
+    ados_list = HEOMsolve(L, ψ0, 0:0.5:t; reltol = 1e-8, abstol = 1e-10, verbose = false).ados
     ados = ados_list[end]
     ρ3 = ados[1]
     @test getRho(ados) == ρ3

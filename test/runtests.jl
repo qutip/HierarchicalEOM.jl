@@ -1,6 +1,7 @@
 using Pkg
 using Test
 using HierarchicalEOM
+import JLD2: jldopen
 
 const GROUP = get(ENV, "GROUP", "All")
 
@@ -40,7 +41,7 @@ if (GROUP == "All") || (GROUP == "Core")
     end
 end
 
-if GROUP == "CUDA_Ext"
+if (GROUP == "CUDA_Ext")# || (GROUP == "All")
     Pkg.add("CUDA")
 
     HierarchicalEOM.versioninfo()

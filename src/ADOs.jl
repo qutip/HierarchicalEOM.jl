@@ -28,6 +28,11 @@ struct ADOs
     parity::AbstractParity
 end
 
+# these functions are for forward compatibility
+ADOs(data::SparseVector{ComplexF64,Int64}, dim::Int, N::Int, parity::AbstractParity) = ADOs(data, [dim], N, parity)
+ADOs(data::SparseVector{ComplexF64,Int64}, dims::AbstractVector, N::Int, parity::AbstractParity) =
+    ADOs(data, SVector{length(dims),Int}(dims), N, parity)
+
 @doc raw"""
     ADOs(V, N, parity)
 Gernerate the object of auxiliary density operators for HEOM model.
@@ -157,9 +162,9 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in the 
 - `exp_val` : The expectation value
 """
 function expect(op, ados::ADOs; take_real::Bool = true)
-    if typeof(op) == HEOMSuperOp
+    if typeof(op) <: HEOMSuperOp
         _check_sys_dim_and_ADOs_num(op, ados)
-        exp_val = _Tr(ados.dims, ados.N) * (op * ados).data
+        exp_val = dot(transpose(_Tr(ados.dims, ados.N)), (SparseMatrixCSC(op) * ados).data)
     else
         _op = HandleMatrixType(op, ados.dims, "op (observable)"; type = Operator)
         exp_val = tr(_op.data * getRho(ados).data)
@@ -195,15 +200,15 @@ function expect(op, ados_list::Vector{ADOs}; take_real::Bool = true)
         _check_sys_dim_and_ADOs_num(ados_list[1], ados_list[i])
     end
 
-    if typeof(op) == HEOMSuperOp
+    if typeof(op) <: HEOMSuperOp
         _check_sys_dim_and_ADOs_num(op, ados_list[1])
         _op = op
     else
         _op = HEOMSuperOp(op, EVEN, dims, N, "L")
     end
-    tr_op = _Tr(dims, N) * _op.data
+    tr_op = transpose(_Tr(dims, N)) * SparseMatrixCSC(_op).data
 
-    exp_val = [(tr_op * ados.data) for ados in ados_list]
+    exp_val = [dot(tr_op, ados.data) for ados in ados_list]
 
     if take_real
         return real.(exp_val)

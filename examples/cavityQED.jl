@@ -101,7 +101,7 @@ M_Heom = addBosonDissipator(M_Heom, J_pump)
 # ## Solve time evolution of ADOs
 # (see also [Time Evolution](@ref doc-Time-Evolution))
 t_list = 0:1:500
-evo_H = evolution(M_Heom, ψ0, t_list);
+sol_H = HEOMsolve(M_Heom, ψ0, t_list; e_ops = [σz, a' * a])
 
 # ## Solve stationary state of ADOs
 # (see also [Stationary State](@ref doc-Stationary-State))
@@ -109,11 +109,11 @@ steady_H = steadystate(M_Heom);
 
 # ## Expectation values
 # observable of atom: $\sigma_z$
-σz_evo_H = expect(σz, evo_H)
+σz_evo_H = real(sol_H.expect[1, :])
 σz_steady_H = expect(σz, steady_H)
 
 # observable of cavity: $a^\dagger a$ (average photon number)
-np_evo_H = expect(a' * a, evo_H)
+np_evo_H = real(sol_H.expect[2, :])
 np_steady_H = expect(a' * a, steady_H)
 
 p1 = Plots.plot(
@@ -161,17 +161,17 @@ M_master = M_S(H_s)
 M_master = addBosonDissipator(M_master, jump_op)
 
 ## time evolution
-evo_M = evolution(M_master, ψ0, t_list);
+sol_M = HEOMsolve(M_master, ψ0, t_list; e_ops = [σz, a' * a]);
 
-## steady
+## steady state
 steady_M = steadystate(M_master);
 
 ## expectation value of σz
-σz_evo_M = expect(σz, evo_M)
+σz_evo_M = real(sol_M.expect[1, :])
 σz_steady_M = expect(σz, steady_M)
 
 ## average photon number
-np_evo_M = expect(a' * a, evo_M)
+np_evo_M = real(sol_M.expect[2, :])
 np_steady_M = expect(a' * a, steady_M)
 
 p1 = Plots.plot(

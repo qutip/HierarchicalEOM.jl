@@ -3,20 +3,20 @@
 General HEOM superoperator matrix.  
 
 # Fields
-- `data` : the HEOM superoperator matrix
+- `data<:AbstractSparseMatrix` : the HEOM superoperator matrix
 - `dims` : the dimension list of the coupling operator (should be equal to the system dims).
 - `N` : the number of auxiliary density operators
 - `parity`: the parity label (`EVEN` or `ODD`).
 """
-struct HEOMSuperOp
-    data::SparseMatrixCSC{ComplexF64,Int64}
+struct HEOMSuperOp{T<:AbstractSparseMatrix}
+    data::T
     dims::SVector
     N::Int
     parity::AbstractParity
 end
 
 @doc raw"""
-    HEOMSuperOp(op, opParity, refHEOMLS, mul_basis="L")
+    HEOMSuperOp(op, opParity, refHEOMLS, mul_basis="L"; Id_cache=I(refHEOMLS.N))
 Construct the HEOM superoperator matrix corresponding to the given system operator which acts on all `ADOs`.  
 
 During the multiplication on all the `ADOs`, the parity of the output `ADOs` might change depend on the parity of this HEOM superoperator.
@@ -32,11 +32,16 @@ if `mul_basis` is specified as
 - `"R"`  : the matrix `op` has same dimension with the system and acts on right-hand side.
 - `"LR"` : the matrix `op` is a superoperator of the system.
 """
-HEOMSuperOp(op, opParity::AbstractParity, refHEOMLS::AbstractHEOMLSMatrix, mul_basis::AbstractString = "L") =
-    HEOMSuperOp(op, opParity, refHEOMLS.dims, refHEOMLS.N, mul_basis)
+HEOMSuperOp(
+    op,
+    opParity::AbstractParity,
+    refHEOMLS::AbstractHEOMLSMatrix,
+    mul_basis::AbstractString = "L";
+    Id_cache = I(refHEOMLS.N),
+) = HEOMSuperOp(op, opParity, refHEOMLS.dims, refHEOMLS.N, mul_basis; Id_cache = Id_cache)
 
 @doc raw"""
-    HEOMSuperOp(op, opParity, refADOs, mul_basis="L")
+    HEOMSuperOp(op, opParity, refADOs, mul_basis="L"; Id_cache=I(refADOs.N))
 Construct the HEOMLS matrix corresponding to the given system operator which multiplies on the "L"eft-hand ("R"ight-hand) side basis of all `ADOs`.  
 
 During the multiplication on all the `ADOs`, the parity of the output `ADOs` might change depend on the parity of this HEOM superoperator.
@@ -52,11 +57,11 @@ if `mul_basis` is specified as
 - `"R"`  : the matrix `op` has same dimension with the system and acts on right-hand side.
 - `"LR"` : the matrix `op` is a superoperator of the system.
 """
-HEOMSuperOp(op, opParity::AbstractParity, refADOs::ADOs, mul_basis::AbstractString = "L") =
-    HEOMSuperOp(op, opParity, refADOs.dims, refADOs.N, mul_basis)
+HEOMSuperOp(op, opParity::AbstractParity, refADOs::ADOs, mul_basis::AbstractString = "L"; Id_cache = I(refADOs.N)) =
+    HEOMSuperOp(op, opParity, refADOs.dims, refADOs.N, mul_basis; Id_cache = Id_cache)
 
 @doc raw"""
-    HEOMSuperOp(op, opParity, dims, N, mul_basis)
+    HEOMSuperOp(op, opParity, dims, N, mul_basis; Id_cache=I(N))
 Construct the HEOM superoperator matrix corresponding to the given system operator which acts on all `ADOs`.  
 
 During the multiplication on all the `ADOs`, the parity of the output `ADOs` might change depend on the parity of this HEOM superoperator.
@@ -73,7 +78,7 @@ if `mul_basis` is specified as
 - `"R"`  : the matrix `op` has same dimension with the system and acts on right-hand side.
 - `"LR"` : the matrix `op` is a SuperOperator of the system.
 """
-function HEOMSuperOp(op, opParity::AbstractParity, dims::SVector, N::Int, mul_basis::AbstractString)
+function HEOMSuperOp(op, opParity::AbstractParity, dims::SVector, N::Int, mul_basis::AbstractString; Id_cache = I(N))
     if mul_basis == "L"
         sup_op = spre(HandleMatrixType(op, dims, "op (operator)"))
     elseif mul_basis == "R"
@@ -84,15 +89,24 @@ function HEOMSuperOp(op, opParity::AbstractParity, dims::SVector, N::Int, mul_ba
         error("The multiplication basis (mul_basis) can only be given as a string with either \"L\", \"R\", or \"LR\".")
     end
 
-    HEOMLS = kron(sparse(one(ComplexF64) * I, N, N), sup_op.data)
-    return HEOMSuperOp(HEOMLS, dims, N, opParity)
+    return HEOMSuperOp(kron(Id_cache, sup_op.data), dims, N, opParity)
 end
-HEOMSuperOp(op, opParity::AbstractParity, dims::Int, N::Int, mul_basis::AbstractString) =
-    HEOMSuperOp(op, opParity, SVector{1,Int}(dims), N, mul_basis)
-HEOMSuperOp(op, opParity::AbstractParity, dims::Vector{Int}, N::Int, mul_basis::AbstractString) =
-    HEOMSuperOp(op, opParity, SVector{length(dims),Int}(dims), N, mul_basis)
-HEOMSuperOp(op, opParity::AbstractParity, dims::Tuple, N::Int, mul_basis::AbstractString) =
-    HEOMSuperOp(op, opParity, SVector(dims), N, mul_basis)
+HEOMSuperOp(op, opParity::AbstractParity, dims::Int, N::Int, mul_basis::AbstractString; Id_cache = I(N)) =
+    HEOMSuperOp(op, opParity, SVector{1,Int}(dims), N, mul_basis; Id_cache = Id_cache)
+HEOMSuperOp(op, opParity::AbstractParity, dims::Vector{Int}, N::Int, mul_basis::AbstractString; Id_cache = I(N)) =
+    HEOMSuperOp(op, opParity, SVector{length(dims),Int}(dims), N, mul_basis; Id_cache = Id_cache)
+HEOMSuperOp(op, opParity::AbstractParity, dims::Tuple, N::Int, mul_basis::AbstractString; Id_cache = I(N)) =
+    HEOMSuperOp(op, opParity, SVector(dims), N, mul_basis; Id_cache = Id_cache)
+
+function SparseMatrixCSC{T}(M::HEOMSuperOp) where {T}
+    A = M.data
+    if typeof(A) == SparseMatrixCSC{T}
+        return M
+    else
+        return HEOMSuperOp(SparseMatrixCSC{T}(M.data), M.dims, M.N, M.parity)
+    end
+end
+SparseMatrixCSC(M::HEOMSuperOp) = SparseMatrixCSC{ComplexF64}(M)
 
 @doc raw"""
     size(M::HEOMSuperOp)
