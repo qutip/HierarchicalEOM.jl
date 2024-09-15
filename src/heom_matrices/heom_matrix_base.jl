@@ -91,12 +91,6 @@ function HEOMSuperOp(op, opParity::AbstractParity, dims::SVector, N::Int, mul_ba
 
     return HEOMSuperOp(kron(Id_cache, sup_op.data), dims, N, opParity)
 end
-HEOMSuperOp(op, opParity::AbstractParity, dims::Int, N::Int, mul_basis::AbstractString; Id_cache = I(N)) =
-    HEOMSuperOp(op, opParity, SVector{1,Int}(dims), N, mul_basis; Id_cache = Id_cache)
-HEOMSuperOp(op, opParity::AbstractParity, dims::Vector{Int}, N::Int, mul_basis::AbstractString; Id_cache = I(N)) =
-    HEOMSuperOp(op, opParity, SVector{length(dims),Int}(dims), N, mul_basis; Id_cache = Id_cache)
-HEOMSuperOp(op, opParity::AbstractParity, dims::Tuple, N::Int, mul_basis::AbstractString; Id_cache = I(N)) =
-    HEOMSuperOp(op, opParity, SVector(dims), N, mul_basis; Id_cache = Id_cache)
 
 function SparseMatrixCSC{T}(M::HEOMSuperOp) where {T}
     A = M.data

@@ -108,15 +108,9 @@ function HEOMsolve(
     end
 
     # Generate propagator
-    if verbose
-        print("Generating propagator...")
-        flush(stdout)
-    end
+    verbose && print("Generating propagator...")
     exp_Mt = Propagator(M, Δt; threshold = threshold, nonzero_tol = nonzero_tol)
-    if verbose
-        println("[DONE]")
-        flush(stdout)
-    end
+    verbose && println("[DONE]")
 
     # start solving
     if verbose
@@ -137,24 +131,14 @@ function HEOMsolve(
         ρvec = exp_Mt * ρvec
         next!(prog)
     end
-    if verbose
-        println("[DONE]\n")
-        flush(stdout)
-    end
 
     # save ADOs to file
     if filename != ""
-        if verbose
-            print("Saving ADOs to $(FILENAME) ...")
-            flush(stdout)
-        end
+        verbose && print("Saving ADOs to $(FILENAME) ... ")
         jldopen(FILENAME, "w") do file
             return file["ados"] = ADOs_list
         end
-        if verbose
-            println("[DONE]")
-            flush(stdout)
-        end
+        verbose && println("[DONE]\n")
     end
 
     return TimeEvolutionHEOMSol(
@@ -270,26 +254,15 @@ function HEOMsolve(
         flush(stdout)
     end
     sol = solve(prob, solver)
-    if verbose
-        println("[DONE]\n")
-        flush(stdout)
-    end
-
     ADOs_list = map(ρvec -> ADOs(_HandleVectorType(ρvec, false), M.dims, M.N, M.parity), sol.u)
 
     # save ADOs to file
     if filename != ""
-        if verbose
-            print("Saving ADOs to $(FILENAME) ...")
-            flush(stdout)
-        end
+        verbose && print("Saving ADOs to $(FILENAME) ... ")
         jldopen(FILENAME, "w") do file
             return file["ados"] = ADOs_list
         end
-        if verbose
-            println("[DONE]")
-            flush(stdout)
-        end
+        verbose && println("[DONE]\n")
     end
 
     return TimeEvolutionHEOMSol(
