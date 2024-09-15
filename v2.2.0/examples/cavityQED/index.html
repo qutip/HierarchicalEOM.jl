@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Cavity QED system · Documentation | HierarchicalEOM.jl</title><meta name="title" content="Cavity QED system · Documentation | HierarchicalEOM.jl"/><meta property="og:title" content="Cavity QED system · Documentation | HierarchicalEOM.jl"/><meta property="twitter:title" content="Cavity QED system · Documentation | HierarchicalEOM.jl"/><meta name="description" content="Documentation for Documentation | HierarchicalEOM.jl."/><meta property="og:description" content="Documentation for Documentation | HierarchicalEOM.jl."/><meta property="twitter:description" content="Documentation for Documentation | HierarchicalEOM.jl."/><meta property="og:url" content="https://qutip.github.io/HierarchicalEOM.jl/examples/cavityQED/"/><meta property="twitter:url" content="https://qutip.github.io/HierarchicalEOM.jl/examples/cavityQED/"/><link rel="canonical" href="https://qutip.github.io/HierarchicalEOM.jl/examples/cavityQED/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../"><img class="docs-light-only" src="../../assets/logo.png" alt="Documentation | HierarchicalEOM.jl logo"/><img class="docs-dark-only" src="../../assets/logo-dark.png" alt="Documentation | HierarchicalEOM.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../">Documentation | HierarchicalEOM.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><span class="tocitem">Home</span><ul><li><a class="tocitem" href="../../">Introduction</a></li><li><a class="tocitem" href="../../install/">Installation</a></li><li><a class="tocitem" href="../quick_start/">Quick Start</a></li><li><a class="tocitem" href="../../cite/">Cite HierarchicalEOM.jl</a></li></ul></li><li><span class="tocitem">Manual</span><ul><li><input class="collapse-toggle" id="menuitem-2-1" type="checkbox"/><label class="tocitem" for="menuitem-2-1"><span class="docs-label">Bosonic Bath</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../bath_boson/bosonic_bath_intro/">Introduction</a></li><li><a class="tocitem" href="../../bath_boson/Boson_Drude_Lorentz/">Drude-Lorentz Spectral Density</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-2" type="checkbox"/><label class="tocitem" for="menuitem-2-2"><span class="docs-label">Bosonic Bath (RWA)</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../bath_boson_RWA/bosonic_bath_RWA_intro/">Introduction</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-3" type="checkbox"/><label class="tocitem" for="menuitem-2-3"><span class="docs-label">Fermionic Bath</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../bath_fermion/fermionic_bath_intro/">Introduction</a></li><li><a class="tocitem" href="../../bath_fermion/Fermion_Lorentz/">Lorentz Spectral Density</a></li></ul></li><li><a class="tocitem" href="../../ADOs/">Auxiliary Density Operators</a></li><li><input class="collapse-toggle" id="menuitem-2-5" type="checkbox"/><label class="tocitem" for="menuitem-2-5"><span class="docs-label">HEOMLS Matrices</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../heom_matrix/HEOMLS_intro/">Introduction</a></li><li><a class="tocitem" href="../../heom_matrix/schrodinger_eq/">HEOMLS for Schrödinger Equation</a></li><li><a class="tocitem" href="../../heom_matrix/M_Boson/">HEOMLS for Bosonic Bath</a></li><li><a class="tocitem" href="../../heom_matrix/M_Fermion/">HEOMLS for Fermionic Bath</a></li><li><a class="tocitem" href="../../heom_matrix/M_Boson_Fermion/">HEOMLS for Bosonic and Fermionic Bath</a></li><li><a class="tocitem" href="../../heom_matrix/master_eq/">HEOMLS for Master Equation</a></li></ul></li><li><a class="tocitem" href="../../Parity/">Parity Support</a></li><li><a class="tocitem" href="../../hierarchy_dictionary/">Hierarchy Dictionary</a></li><li><a class="tocitem" href="../../time_evolution/">Time Evolution</a></li><li><a class="tocitem" href="../../stationary_state/">Stationary State</a></li><li><a class="tocitem" href="../../spectrum/">Spectrum</a></li><li><input class="collapse-toggle" id="menuitem-2-11" type="checkbox" checked/><label class="tocitem" for="menuitem-2-11"><span class="docs-label">Examples</span><i class="docs-chevron"></i></label><ul class="collapsed"><li class="is-active"><a class="tocitem" href>Cavity QED system</a><ul class="internal"><li><a class="tocitem" href="#Hamiltonian"><span>Hamiltonian</span></a></li><li><a class="tocitem" href="#Construct-bath-objects"><span>Construct bath objects</span></a></li><li><a class="tocitem" href="#Construct-HEOMLS-matrix"><span>Construct HEOMLS matrix</span></a></li><li><a class="tocitem" href="#Solve-time-evolution-of-ADOs"><span>Solve time evolution of ADOs</span></a></li><li><a class="tocitem" href="#Solve-stationary-state-of-ADOs"><span>Solve stationary state of ADOs</span></a></li><li><a class="tocitem" href="#Expectation-values"><span>Expectation values</span></a></li><li><a class="tocitem" href="#Power-spectrum"><span>Power spectrum</span></a></li><li><a class="tocitem" href="#Compare-with-Master-Eq.-approach"><span>Compare with Master Eq. approach</span></a></li></ul></li><li><a class="tocitem" href="../dynamical_decoupling/">Driven Systems and Dynamical Decoupling</a></li><li><a class="tocitem" href="../SIAM/">The single-impurity Anderson model</a></li><li><a class="tocitem" href="../electronic_current/">Electronic Current</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-12" type="checkbox"/><label class="tocitem" for="menuitem-2-12"><span class="docs-label">Solvers Lists</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../ODE_solvers/">DifferentialEquations solvers</a></li><li><a class="tocitem" href="../../LS_solvers/">LinearSolve solvers</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-2-13" type="checkbox"/><label class="tocitem" for="menuitem-2-13"><span class="docs-label">Extensions</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../extensions/CUDA/">CUDA.jl</a></li></ul></li></ul></li><li><a class="tocitem" href="../../libraryAPI/">Library API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Manual</a></li><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Cavity QED system</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Cavity QED system</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/qutip/HierarchicalEOM.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/qutip/HierarchicalEOM.jl/blob/main/examples/cavityQED.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Cavity-QED-system"><a class="docs-heading-anchor" href="#Cavity-QED-system">Cavity QED system</a><a id="Cavity-QED-system-1"></a><a class="docs-heading-anchor-permalink" href="#Cavity-QED-system" title="Permalink"></a></h1><p>Cavity quantum electrodynamics (cavity QED) is an important topic for studying the interaction between atoms (or other particles) and light confined in a reflective cavity, under conditions where the quantum nature of photons is significant.</p><pre><code class="language-julia hljs">import QuantumToolbox
+using HierarchicalEOM
+using LaTeXStrings
+import Plots</code></pre><h2 id="Hamiltonian"><a class="docs-heading-anchor" href="#Hamiltonian">Hamiltonian</a><a id="Hamiltonian-1"></a><a class="docs-heading-anchor-permalink" href="#Hamiltonian" title="Permalink"></a></h2><p>The Jaynes-Cummings model is a standard model in the realm of cavity QED. It illustrates the interaction between a two-level atom (<span>$\textrm{A}$</span>) and a quantized single-mode within a cavity (<span>$\textrm{c}$</span>).</p><p class="math-container">\[\begin{aligned}
+H_{\textrm{s}}&amp;=H_{\textrm{A}}+H_{\textrm{c}}+H_{\textrm{int}},\\
+H_{\textrm{A}}&amp;=\frac{\omega_A}{2}\sigma_z,\\
+H_{\textrm{c}}&amp;=\omega_{\textrm{c}} a^\dagger a,\\
+H_{\textrm{int}}&amp;=g (a^\dagger\sigma^-+a\sigma^+),
+\end{aligned}\]</p><p>where <span>$\sigma^-$</span> (<span>$\sigma^+$</span>) is the annihilation (creation) operator of the atom, and <span>$a$</span> (<span>$a^\dagger$</span>) is the annihilation (creation) operator of the cavity.</p><p>Furthermore, we consider the system is coupled to a bosonic reservoir (<span>$\textrm{b}$</span>). The total Hamiltonian is given by <span>$H_{\textrm{Total}}=H_\textrm{s}+H_\textrm{b}+H_\textrm{sb}$</span>, where <span>$H_\textrm{b}$</span> and <span>$H_\textrm{sb}$</span> takes the form</p><p class="math-container">\[\begin{aligned}
+H_{\textrm{b}}    &amp;=\sum_{k}\omega_{k}b_{k}^{\dagger}b_{k},\\
+H_{\textrm{sb}}   &amp;=(a+a^\dagger)\sum_{k}g_{k}(b_k + b_k^{\dagger}).
+\end{aligned}\]</p><p>Here, <span>$H_{\textrm{b}}$</span> describes a bosonic reservoir where <span>$b_{k}$</span> <span>$(b_{k}^{\dagger})$</span> is the bosonic annihilation (creation) operator associated to the <span>$k$</span>th mode (with frequency <span>$\omega_{k}$</span>). Also, <span>$H_{\textrm{sb}}$</span> illustrates the interaction between the cavity and the bosonic reservoir.</p><p>Now, we need to build the system Hamiltonian and initial state with the package <a href="https://github.com/qutip/QuantumToolbox.jl"><code>QuantumToolbox.jl</code></a> to construct the operators.</p><pre><code class="language-julia hljs">N = 3 ## system cavity Hilbert space cutoff
+ωA = 2
+ωc = 2
+g = 0.1
+
+# operators
+a_c = destroy(N)
+I_c = qeye(N)
+σz_A = sigmaz()
+σm_A = sigmam()
+I_A = qeye(2)
+
+# operators in tensor-space
+a = tensor(a_c, I_A)
+σz = tensor(I_c, σz_A)
+σm = tensor(I_c, σm_A)
+
+# Hamiltonian
+H_A = 0.5 * ωA * σz
+H_c = ωc * a&#39; * a
+H_int = g * (a&#39; * σm + a * σm&#39;)
+
+H_s = H_A + H_c + H_int
+
+# initial state
+ψ0 = tensor(basis(N, 0), basis(2, 0))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Quantum Object:   type=Ket   dims=[3, 2]   size=(6,)
+6-element Vector{ComplexF64}:
+ 1.0 + 0.0im
+ 0.0 + 0.0im
+ 0.0 + 0.0im
+ 0.0 + 0.0im
+ 0.0 + 0.0im
+ 0.0 + 0.0im</code></pre><h2 id="Construct-bath-objects"><a class="docs-heading-anchor" href="#Construct-bath-objects">Construct bath objects</a><a id="Construct-bath-objects-1"></a><a class="docs-heading-anchor-permalink" href="#Construct-bath-objects" title="Permalink"></a></h2><p>We assume the bosonic reservoir to have a <a href="../../bath_boson/Boson_Drude_Lorentz/#Boson-Drude-Lorentz">Drude-Lorentz Spectral Density</a>, and we utilize the Padé decomposition. Furthermore, the spectral densities depend on the following physical parameters:</p><ul><li>the coupling strength <span>$\Gamma$</span> between system and reservoir</li><li>the band-width <span>$W$</span></li><li>the product of the Boltzmann constant <span>$k$</span> and the absolute temperature <span>$T$</span> : <span>$kT$</span></li><li>the total number of exponentials for the reservoir <span>$(N + 1)$</span></li></ul><pre><code class="language-julia hljs">Γ = 0.01
+W = 1
+kT = 0.025
+N = 20
+Bath = Boson_DrudeLorentz_Pade(a + a&#39;, Γ, W, kT, N)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">BosonBath object with 21 exponential-expansion terms
+</code></pre><p>Before incorporating the correlation function into the HEOMLS matrix, it is essential to verify if the total number of exponentials for the reservoir sufficiently describes the practical situation.</p><pre><code class="language-julia hljs">tlist_test = 0:0.1:10;
+
+Bath_test = Boson_DrudeLorentz_Pade(a + a&#39;, Γ, W, kT, 1000);
+Ct = C(Bath, tlist_test);
+Ct2 = C(Bath_test, tlist_test);
+
+Plots.plot(tlist_test, real(Ct), label = &quot;N=20 (real part )&quot;, linestyle = :dash, linewidth = 3)
+Plots.plot!(tlist_test, real(Ct2), label = &quot;N=1000 (real part)&quot;, linestyle = :solid, linewidth = 3)
+Plots.plot!(tlist_test, imag(Ct), label = &quot;N=20 (imag part)&quot;, linestyle = :dash, linewidth = 3)
+Plots.plot!(tlist_test, imag(Ct2), label = &quot;N=1000 (imag part)&quot;, linestyle = :solid, linewidth = 3)
+
+Plots.xaxis!(&quot;t&quot;)
+Plots.yaxis!(&quot;C(t)&quot;)</code></pre><img src="ec993aef.svg" alt="Example block output"/><h2 id="Construct-HEOMLS-matrix"><a class="docs-heading-anchor" href="#Construct-HEOMLS-matrix">Construct HEOMLS matrix</a><a id="Construct-HEOMLS-matrix-1"></a><a class="docs-heading-anchor-permalink" href="#Construct-HEOMLS-matrix" title="Permalink"></a></h2><p>(see also <a href="../../heom_matrix/M_Boson/#doc-M_Boson">HEOMLS Matrix for Bosonic Baths</a>) Here, we consider an incoherent pumping to the atom, which can be described by an Lindblad dissipator (see <a href="../../heom_matrix/master_eq/#doc-Master-Equation">here</a> for more details).</p><p>Furthermore, we set the <a href="../../heom_matrix/HEOMLS_intro/#doc-Importance-Value-and-Threshold">important threshold</a> to be <code>1e-6</code>.</p><pre><code class="language-julia hljs">pump = 0.01
+J_pump = sqrt(pump) * σm&#39;
+
+tier = 2
+M_Heom = M_Boson(H_s, tier, threshold = 1e-6, Bath)
+M_Heom = addBosonDissipator(M_Heom, J_pump)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Boson type HEOMLS matrix acting on even-parity ADOs
+system dims = [3, 2]
+number of ADOs N = 97
+data =
+3492×3492 SparseMatrixCSC{ComplexF64, Int64} with 40314 stored entries:
+⎡⣿⣿⡛⠛⠛⠛⠃⠈⠃⠀⠀⠀⠈⠃⠀⠛⠀⠀⠛⠀⠀⠙⠀⠀⠀⠘⠀⠀⠀⠀⠀⠀⣃⠀⠀⠀⠀⠀⠀⠀⎤
+⎢⣿⠈⠻⢆⡀⠀⠀⠀⠻⢦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠐⢦⡀⠀⠀⠀⠀⠙⠷⣄⠀⠀⠀⠀⠀⎥
+⎢⣿⠀⠀⠈⠻⣦⣶⣄⠀⠀⠻⣦⡀⢤⡀⢠⣄⠀⢠⣀⠀⠰⣦⡀⠀⠀⠀⠙⢦⡀⠀⠀⠀⠀⠙⢷⣄⠀⠀⠀⎥
+⎢⡉⠀⠀⠀⠘⢿⡿⣯⣀⣀⣀⣀⣁⠀⢁⠀⢈⡀⠀⢉⠀⠀⠀⣁⠀⠀⠀⠀⠀⢉⠀⠀⠀⠀⠀⠀⢈⡀⠀⠀⎥
+⎢⠉⠀⠻⣆⠀⠀⠀⢸⡿⣯⡉⠉⠉⠀⠈⠀⠈⠁⠀⠈⠁⠀⠀⠉⠀⠀⠀⠀⠀⠈⠀⠀⠀⠀⠀⠀⠈⠁⠀⠀⎥
+⎢⠀⠀⠀⠈⠻⣦⠀⢸⡇⠈⠻⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⎥
+⎢⠦⠀⠀⠀⠀⣌⠁⠘⠃⠀⠀⠈⢻⣶⡶⠆⠀⠶⠀⠀⠦⠀⠀⠰⠆⠀⠀⠀⠀⠰⠆⠀⠀⠀⠀⠀⠀⠶⠀⠀⎥
+⎢⣤⠀⠀⠀⠀⣈⠁⠐⠂⠀⠀⠀⠸⠏⠱⣦⣤⣤⡄⠀⢠⡀⠀⠀⣤⠀⠀⠀⠀⠀⣤⠀⠀⠀⠀⠀⠀⢠⡄⠀⎥
+⎢⠀⠀⠀⠀⠀⠙⠂⠰⠆⠀⠀⠀⢠⡄⠀⣿⠻⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⎥
+⎢⠛⠀⠀⠀⠀⢲⡄⢀⡀⠀⠀⠀⠀⠀⠀⠉⠀⠈⣿⣿⡛⠃⠀⠀⠘⠃⠀⠀⠀⠀⠘⠃⠀⠀⠀⠀⠀⠀⠛⠀⎥
+⎢⣄⠀⠀⠀⢀⡀⠀⠀⠁⠀⠀⠀⠈⠃⠀⠲⠀⠀⠿⠈⠻⣦⣤⣤⣤⡄⠀⠀⠀⠀⠀⣄⠀⠀⠀⠀⠀⠀⢠⠀⎥
+⎢⠀⠀⠀⠀⠈⠻⠄⢠⡄⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⠀⠀⣿⠻⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⎥
+⎢⣀⠀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠁⠀⠛⠀⠀⠶⠀⠀⠿⠀⠈⠻⢆⣀⣀⣀⣀⣀⣀⡀⠀⠀⠀⠀⠀⢀⡀⎥
+⎢⠀⠀⠈⠳⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠻⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⎥
+⎢⠀⠀⠀⠀⠈⠳⡄⢀⡀⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠈⠻⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⎥
+⎢⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠁⠀⠛⠀⠀⠶⠀⠀⢤⠀⠀⠀⢸⠀⠀⠀⠈⠻⣦⡀⠀⠀⠀⠀⠀⠀⠀⎥
+⎢⠉⠘⢷⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠀⠀⠀⠀⠀⠈⡿⣯⡉⠉⠉⠉⠉⠉⎥
+⎢⠀⠀⠀⠙⢷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠈⠻⣦⡀⠀⠀⠀⎥
+⎢⠀⠀⠀⠀⠀⠙⠂⠰⠆⠀⠀⠀⢠⡄⠀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀⠈⠱⣦⡀⠀⎥
+⎣⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠀⠀⠛⠀⠀⠒⠀⠀⠀⠰⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀⠈⠻⣦⎦</code></pre><h2 id="Solve-time-evolution-of-ADOs"><a class="docs-heading-anchor" href="#Solve-time-evolution-of-ADOs">Solve time evolution of ADOs</a><a id="Solve-time-evolution-of-ADOs-1"></a><a class="docs-heading-anchor-permalink" href="#Solve-time-evolution-of-ADOs" title="Permalink"></a></h2><p>(see also <a href="../../time_evolution/#doc-Time-Evolution">Time Evolution</a>)</p><pre><code class="language-julia hljs">t_list = 0:1:500
+sol_H = HEOMsolve(M_Heom, ψ0, t_list; e_ops = [σz, a&#39; * a])</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Solution of hierarchical EOM
+(return code: Success)
+----------------------------
+Btier = 2
+Ftier = 0
+num_states = 1
+num_expect = 2
+ODE alg.: OrdinaryDiffEqLowOrderRK.DP5{typeof(OrdinaryDiffEqCore.trivial_limiter!), typeof(OrdinaryDiffEqCore.trivial_limiter!), Static.False}(OrdinaryDiffEqCore.trivial_limiter!, OrdinaryDiffEqCore.trivial_limiter!, static(false))
+abstol = 1.0e-8
+reltol = 1.0e-6
+</code></pre><h2 id="Solve-stationary-state-of-ADOs"><a class="docs-heading-anchor" href="#Solve-stationary-state-of-ADOs">Solve stationary state of ADOs</a><a id="Solve-stationary-state-of-ADOs-1"></a><a class="docs-heading-anchor-permalink" href="#Solve-stationary-state-of-ADOs" title="Permalink"></a></h2><p>(see also <a href="../../stationary_state/#doc-Stationary-State">Stationary State</a>)</p><pre><code class="language-julia hljs">steady_H = steadystate(M_Heom);</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Solving steady state for ADOs by linear-solve method...[DONE]</code></pre><h2 id="Expectation-values"><a class="docs-heading-anchor" href="#Expectation-values">Expectation values</a><a id="Expectation-values-1"></a><a class="docs-heading-anchor-permalink" href="#Expectation-values" title="Permalink"></a></h2><p>observable of atom: <span>$\sigma_z$</span></p><pre><code class="language-julia hljs">σz_evo_H = real(sol_H.expect[1, :])
+σz_steady_H = expect(σz, steady_H)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">-0.37311739312829556</code></pre><p>observable of cavity: <span>$a^\dagger a$</span> (average photon number)</p><pre><code class="language-julia hljs">np_evo_H = real(sol_H.expect[2, :])
+np_steady_H = expect(a&#39; * a, steady_H)
+
+p1 = Plots.plot(
+    t_list,
+    [σz_evo_H, ones(length(t_list)) .* σz_steady_H],
+    label = [L&quot;\langle \sigma_z \rangle&quot; L&quot;\langle \sigma_z \rangle ~~(\textrm{steady})&quot;],
+    linewidth = 3,
+    linestyle = [:solid :dash],
+)
+p2 = Plots.plot(
+    t_list,
+    [np_evo_H, ones(length(t_list)) .* np_steady_H],
+    label = [L&quot;\langle a^\dagger a \rangle&quot; L&quot;\langle a^\dagger a \rangle ~~(\textrm{steady})&quot;],
+    linewidth = 3,
+    linestyle = [:solid :dash],
+)
+Plots.plot(p1, p2, layout = [1, 1])
+Plots.xaxis!(&quot;t&quot;)</code></pre><img src="a40f7b02.svg" alt="Example block output"/><h2 id="Power-spectrum"><a class="docs-heading-anchor" href="#Power-spectrum">Power spectrum</a><a id="Power-spectrum-1"></a><a class="docs-heading-anchor-permalink" href="#Power-spectrum" title="Permalink"></a></h2><p>(see also <a href="../../spectrum/#doc-Spectrum">Spectrum</a>)</p><pre><code class="language-julia hljs">ω_list = 1:0.01:3
+psd_H = PowerSpectrum(M_Heom, steady_H, a, ω_list)
+
+Plots.plot(ω_list, psd_H, linewidth = 3)
+Plots.xaxis!(L&quot;\omega&quot;)</code></pre><img src="202e9831.svg" alt="Example block output"/><h2 id="Compare-with-Master-Eq.-approach"><a class="docs-heading-anchor" href="#Compare-with-Master-Eq.-approach">Compare with Master Eq. approach</a><a id="Compare-with-Master-Eq.-approach-1"></a><a class="docs-heading-anchor-permalink" href="#Compare-with-Master-Eq.-approach" title="Permalink"></a></h2><p>(see also <a href="../../heom_matrix/master_eq/#doc-Master-Equation">HEOMLS for Master Equations</a>)</p><p>The Lindblad master equations which describs the cavity couples to an extra bosonic reservoir with <a href="../../bath_boson/Boson_Drude_Lorentz/#Boson-Drude-Lorentz">Drude-Lorentzian spectral density</a> is given by</p><pre><code class="language-julia hljs"># Drude_Lorentzian spectral density
+Drude_Lorentz(ω, Γ, W) = 4 * Γ * W * ω / ((ω)^2 + (W)^2)
+
+# Bose-Einstein distribution
+n_b(ω, kT) = 1 / (exp(ω / kT) - 1)
+
+# build the jump operators
+jump_op =
+    [sqrt(Drude_Lorentz(ωc, Γ, W) * (n_b(ωc, kT) + 1)) * a, sqrt(Drude_Lorentz(ωc, Γ, W) * (n_b(ωc, kT))) * a&#39;, J_pump];
+
+# construct the HEOMLS matrix for master equation
+M_master = M_S(H_s)
+M_master = addBosonDissipator(M_master, jump_op)
+
+# time evolution
+sol_M = HEOMsolve(M_master, ψ0, t_list; e_ops = [σz, a&#39; * a]);
+
+# steady state
+steady_M = steadystate(M_master);
+
+# expectation value of σz
+σz_evo_M = real(sol_M.expect[1, :])
+σz_steady_M = expect(σz, steady_M)
+
+# average photon number
+np_evo_M = real(sol_M.expect[2, :])
+np_steady_M = expect(a&#39; * a, steady_M)
+
+p1 = Plots.plot(
+    t_list,
+    [σz_evo_M, ones(length(t_list)) .* σz_steady_M],
+    label = [L&quot;\langle \sigma_z \rangle&quot; L&quot;\langle \sigma_z \rangle ~~(\textrm{steady})&quot;],
+    linewidth = 3,
+    linestyle = [:solid :dash],
+)
+p2 = Plots.plot(
+    t_list,
+    [np_evo_M, ones(length(t_list)) .* np_steady_M],
+    label = [L&quot;\langle a^\dagger a \rangle&quot; L&quot;\langle a^\dagger a \rangle ~~(\textrm{steady})&quot;],
+    linewidth = 3,
+    linestyle = [:solid :dash],
+)
+Plots.plot(p1, p2, layout = [1, 1])
+Plots.xaxis!(&quot;t&quot;)</code></pre><img src="2710d72f.svg" alt="Example block output"/><p>We can also calculate the power spectrum</p><pre><code class="language-julia hljs">ω_list = 1:0.01:3
+psd_M = PowerSpectrum(M_master, steady_M, a, ω_list)
+
+Plots.plot(ω_list, psd_M, linewidth = 3)
+Plots.xaxis!(L&quot;\omega&quot;)</code></pre><img src="e9014fb4.svg" alt="Example block output"/><p>Due to the weak coupling between the system and an extra bosonic environment, the Master equation&#39;s outcome is expected to be similar to the results obtained from the HEOM method.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../spectrum/">« Spectrum</a><a class="docs-footer-nextpage" href="../dynamical_decoupling/">Driven Systems and Dynamical Decoupling »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.7.0 on <span class="colophon-date" title="Sunday 15 September 2024 05:45">Sunday 15 September 2024</span>. Using Julia version 1.10.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
