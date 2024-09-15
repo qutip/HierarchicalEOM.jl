@@ -9,8 +9,8 @@ const DEFAULT_ODE_SOLVER_OPTIONS = (abstol = 1e-8, reltol = 1e-6, save_everystep
 A structure storing the results and some information from solving time evolution of hierarchical equations of motion (HEOM).
 
 # Fields (Attributes)
-- `Btier` : the tier (cutoff level) for bosonic hierarchy
-- `Ftier` : the tier (cutoff level) for fermionic hierarchy
+- `Btier` : The tier (cutoff level) for bosonic hierarchy
+- `Ftier` : The tier (cutoff level) for fermionic hierarchy
 - `times::AbstractVector`: The time list of the evolution.
 - `ados::Vector{ADOs}`: The list of result ADOs at each time point.
 - `expect::Matrix`: The expectation values corresponding to each time point in `times`.
@@ -58,7 +58,7 @@ Solve the time evolution for auxiliary density operators based on propagator (ge
 - `threshold::Real` : Determines the threshold for the Taylor series. Defaults to `1.0e-6`.
 - `nonzero_tol::Real` : Strips elements smaller than `nonzero_tol` at each computation step to preserve sparsity. Defaults to `1.0e-14`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
-- `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" during the solving process.
+- `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" after the solving process.
 
 # Notes
 - The [`ADOs`](@ref) will be saved depend on the keyword argument `e_ops`.
@@ -96,8 +96,8 @@ function HEOMsolve(
         expvals = Array{ComplexF64}(undef, 0, steps + 1)
         is_empty_e_ops = true
     else
-        expvals = Array{ComplexF64}(undef, length(e_ops), length(steps + 1))
-        tr_op = [_Tr(M) * HEOMSuperOp(op, EVEN, M.dims, M.N, "L").data for op in e_ops]
+        expvals = Array{ComplexF64}(undef, length(e_ops), steps + 1)
+        tr_op = [transpose(_Tr(M)) * HEOMSuperOp(op, EVEN, M.dims, M.N, "L").data for op in e_ops]
         is_empty_e_ops = isempty(e_ops)
     end
 
@@ -183,7 +183,7 @@ Solve the time evolution for auxiliary density operators based on ordinary diffe
 - `H_t::Union{Nothing,Function,TimeDependentOperatorSum}=nothing`: The time-dependent Hamiltonian or Liouvillian. It will be called by `H_t(t, params)`.
 - `params::NamedTuple=NamedTuple()`: The parameters of the time evolution.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
-- `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" during the solving process.
+- `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" after the solving process.
 - `SOLVEROptions` : extra options for solver
 
 # Notes

@@ -11,6 +11,7 @@
     N = 2
     tier = 5
     Q = sigmaz()  # System-bath coupling operator
+    e_ops = [rand_dm(2), rand_dm(2)]
 
     bath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
 
@@ -26,11 +27,15 @@
     end
     # using the method based on propagator
     ados_list = HEOMsolve(L, ψ0, Δt, steps; verbose = false, filename = "evolution_p").ados
+    sol_p = HEOMsolve(L, ψ0, Δt, steps; e_ops = e_ops, verbose = false)
+    expvals_p = sol_p.expect
     ados_wrong1 = ADOs(zeros(8), 2)
     ados_wrong2 = ADOs(zeros(32), 2)
     ados_wrong3 = ADOs((ados_list[1]).data, (ados_list[1]).N, ODD)
     ados_wrong4 = HEOMSuperOp(Q, ODD, ados_list[end]) * ados_list[end]
     ρ_list_p = getRho.(ados_list)
+    @test show(devnull, MIME("text/plain"), sol_p) === nothing
+    @test length(sol_p.ados) == 1
     @test_throws ErrorException evolution(L, ψ0, Δt, steps; verbose = false)
     @test_throws ErrorException HEOMsolve(L, ψ0, Δt, steps; verbose = false, filename = "evolution_p")
     @test_throws ErrorException HEOMsolve(L, ρ_wrong, Δt, steps; verbose = false)
@@ -43,7 +48,10 @@
         rm("evolution_o.jld2")
     end
     # using the method based on ODE solver
-    ρ_list_e = getRho.(HEOMsolve(L, ψ0, tlist; verbose = false, filename = "evolution_o").ados)
+    sol_e = HEOMsolve(L, ψ0, tlist; e_ops = e_ops, saveat = tlist, verbose = false, filename = "evolution_o")
+    ρ_list_e = getRho.(sol_e.ados)
+    expvals_e = sol_e.expect
+    @test show(devnull, MIME("text/plain"), sol_e) === nothing
     @test_throws ErrorException evolution(L, ψ0, tlist; verbose = false)
     @test_throws ErrorException HEOMsolve(L, ψ0, tlist; verbose = false, filename = "evolution_o")
     @test_throws ErrorException HEOMsolve(L, ρ_wrong, tlist; verbose = false)
@@ -52,11 +60,23 @@
     @test_throws ErrorException HEOMsolve(L, ados_wrong3, tlist; verbose = false)
     @test_throws ErrorException HEOMsolve(L, ados_wrong4, tlist; verbose = false)
 
-    for i in 1:(steps+1)
-        @test ρ_list_p[i] ≈ ρ_list_e[i]
-    end
+    @test all(expvals_p .≈ expvals_e)
+    @test all([ρ_list_p[i] ≈ ρ_list_e[i] for i in 1:(steps+1)])
     @test isapprox(ρs, ρ_list_p[end]; atol = 1e-4)
     @test isapprox(ρs, ρ_list_e[end]; atol = 1e-4)
+    @test isapprox(ρs, getRho(sol_p.ados[1]); atol = 1e-4)
+    jldopen("evolution_p.jld2", "r") do file
+        ados_list = file["ados"]
+        @test typeof(ados_list) == Vector{ADOs}
+        @test length(ados_list) == steps + 1
+        @test all([ρ_list_p[i] ≈ getRho(ados_list[i]) for i in 1:(steps+1)])
+    end
+    jldopen("evolution_o.jld2", "r") do file
+        ados_list = file["ados"]
+        @test typeof(ados_list) == Vector{ADOs}
+        @test length(ados_list) == steps + 1
+        @test all([ρ_list_e[i] ≈ getRho(ados_list[i]) for i in 1:(steps+1)])
+    end
 
     # time-dependent Hamiltonian
     σz = sigmaz()
@@ -101,6 +121,11 @@
     fastDD_ados = fastDD_sol.ados
     fastDD1 = real.(fastDD_sol.expect[1, :])
     fastDD2 = expect(P01, fastDD_ados)
+    jldopen("evolution_t.jld2", "r") do file
+        ados_list = file["ados"]
+        @test typeof(ados_list) == Vector{ADOs}
+        @test length(ados_list) == length(tlist)
+    end
     @test_throws ErrorException HEOMsolve(
         L,
         ψ0,
@@ -154,6 +179,7 @@
         0.47479965067847246,
         0.47451220871416044,
     ]
+    @test show(devnull, MIME("text/plain"), fastDD_sol) === nothing
     @test length(fastDD_sol.ados) == length(tlist)
     @test size(fastDD_sol.expect) == (1, length(tlist))
     @test typeof(fastDD1) == typeof(fastDD2) == Vector{Float64}
@@ -219,6 +245,7 @@
         0.14821389956195355,
         0.14240802098404504,
     ]
+    @test show(devnull, MIME("text/plain"), slowDD_sol) === nothing
     @test length(slowDD_sol.ados) == length(tlist)
     @test size(slowDD_sol.expect) == (1, length(tlist))
     @test typeof(slowDD1) == typeof(slowDD2) == Vector{ComplexF64}

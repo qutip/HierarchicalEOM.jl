@@ -62,10 +62,12 @@
         @test dos1[i] ≈ dos3[i] atol = 1.0e-10
         @test dos2[i] ≈ dos3[i] atol = 1.0e-10
     end
+    @test length(readlines("DOS.txt")) == length(ωlist)
 
     mat = Qobj(spzeros(ComplexF64, 2, 2))
     mat2 = Qobj(spzeros(ComplexF64, 3, 3))
     bathb = Boson_DrudeLorentz_Pade(mat, 1, 1, 1, 2)
+    @test_throws ErrorException DensityOfStates(Lo, ados_s, d_up, ωlist; verbose = false, filename = "DOS")
     @test_throws ErrorException DensityOfStates(Lo, ados_s, mat2, ωlist; verbose = false)
     @test_throws ErrorException DensityOfStates(Lo, ADOs(zeros(8), 2), d_up, ωlist; verbose = false)
     @test_throws ErrorException DensityOfStates(Lo, ADOs(zeros(32), 2), d_up, ωlist; verbose = false)
