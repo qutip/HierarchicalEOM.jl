@@ -38,7 +38,7 @@ The fields of the structure [`M_Fermion`](@ref) are as follows:
  - `bath::Vector{FermionBath}` : the vector which stores all [`FermionBath`](@ref doc-Fermionic-Bath) objects
  - `hierarchy::HierarchyDict`: the object which contains all [dictionaries](@ref doc-Hierarchy-Dictionary) for fermion-bath-ADOs hierarchy.
 
-One obtain the value of each fields as follows:
+One can obtain the value of each fields as follows:
 ```julia
 M::M_Fermion
 

@@ -16,7 +16,7 @@ In `HierarchicalEOM.jl`, we express all the auxiliary density operators into a s
 
 [`struct ADOs`](@ref ADOs), 
 
-which is usually obtained after solving the time [evolution](@ref doc-Time-Evolution) or [stationary state](@ref doc-Stationary-State) by a given [HEOM Liouvillian superoperator Matrix](@ref doc-HEOMLS-Matrix).
+which is usually obtained after solving the [time evolution](@ref doc-Time-Evolution) or [stationary state](@ref doc-Stationary-State) by a given [HEOM Liouvillian superoperator Matrix](@ref doc-HEOMLS-Matrix).
 
 ## Fields
 The fields of the structure [`ADOs`](@ref) are as follows:

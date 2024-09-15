@@ -36,7 +36,7 @@ The fields of the structure [`M_S`](@ref) are as follows:
  - `sup_dim` : the dimension of system superoperator
  - `parity::AbstractParity` : the [parity](@ref doc-Parity) label of the operator which HEOMLS is acting on.
 
-One obtain the value of each fields as follows:
+One can obtain the value of each fields as follows:
 ```julia
 M::M_S
 

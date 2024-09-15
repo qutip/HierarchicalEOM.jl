@@ -69,18 +69,18 @@ ados_ss = steadystate(M_even_cpu);
 ```
 
 !!! note "Note"
-    This extension does not support for solving [stationary state](@ref doc-Stationary-State) on GPU since it is not efficient and might get wrong solutions. If you really want to obtain the stationary state with GPU, you can repeatedly solve the [`evolution`](@ref doc-Time-Evolution) until you find it.
+    This extension does not support for solving [stationary state](@ref doc-Stationary-State) on GPU since it is not efficient and might get wrong solutions. If you really want to obtain the stationary state with GPU, you can repeatedly solve the [time evolution](@ref doc-Time-Evolution) until you find it.
 
 ### Solving time evolution with CPU
 
 ```julia
-ados_list_cpu = evolution(M_even_cpu, ρ0, tlist)
+ados_list_cpu = HEOMsolve(M_even_cpu, ρ0, tlist)
 ```
 
 ### Solving time evolution with GPU
 
 ```julia
-ados_list_gpu = evolution(M_even_gpu, ρ0, tlist)
+ados_list_gpu = HEOMsolve(M_even_gpu, ρ0, tlist)
 ```
 
 ### Solving Spectrum with CPU

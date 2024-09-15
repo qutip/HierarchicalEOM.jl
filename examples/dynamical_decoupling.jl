@@ -32,6 +32,9 @@ import Plots
 σx = sigmax()
 H0 = 0.5 * ω0 * σz
 
+## Define the operator that measures the 0, 1 element of density matrix
+ρ01 = Qobj([0 1; 0 0])
+
 ψ0 = (basis(2, 0) + basis(2, 1)) / √2;
 
 # The time-dependent driving term $H_{\textrm{D}}(t)$ has the form
@@ -87,39 +90,33 @@ bath = Boson_DrudeLorentz_Pade(σz, Γ, W, kT, N)
 # ## Construct HEOMLS matrix
 # (see also [HEOMLS Matrix for Bosonic Baths](@ref doc-M_Boson))
 # !!! note "Note"
-#     Only provide the **time-independent** part of system Hamiltonian when constructing HEOMLS matrices (the time-dependent part should be given when solving the time evolution).
+#     Only provide the **time-independent** part of system Hamiltonian when constructing HEOMLS matrices (the time-dependent part `H_t` should be given when solving the time evolution).
 tier = 6
 M = M_Boson(H0, tier, bath)
 
 # ## time evolution with time-independent Hamiltonian
 # (see also [Time Evolution](@ref doc-Time-Evolution))
-noPulseResult = evolution(M, ψ0, tlist);
+noPulseSol = HEOMsolve(M, ψ0, tlist; e_ops = [ρ01]);
 
 # ## Solve time evolution with time-dependent Hamiltonian
 # (see also [Time Evolution](@ref doc-Time-Evolution))
 #   
-# We need to provide a user-defined function (named as `H_D` in this case), which must be in the form `H_D(p::Tuple, t)` and returns the time-dependent part of system Hamiltonian (in `AbstractMatrix` type) at any given time point `t`. The parameter `p` should be a `Tuple` which contains all the extra parameters [`V` (amplitude), `Δ` (delay), and `σx` (operator) in this case] for the function `H_D`:
-function H_D(p::Tuple, t)
-    V, Δ, σx = p
-    return pulse(V, Δ, t) * σx
+# We need to provide a user-defined function (named as `H_D` in this case), which must be in the form `H_D(t, p::NamedTuple)` and returns the time-dependent part of system Hamiltonian (in `QuantumObject` type) at any given time point `t`. The parameter `p` should be a `NamedTuple` which contains all the extra parameters [`V` (amplitude), `Δ` (delay), and `σx` (operator) in this case] for the function `H_D`:
+function H_D(t, p::NamedTuple)
+    return pulse(p.V, p.Δ, t) * p.σx
 end;
 
-# The parameter tuple `p` will be passed to your function `H_D` directly from the **last required** parameter in `evolution`:
-fastTuple = (amp_fast, delay, σx)
-slowTuple = (amp_slow, delay, σx)
+# The parameter `p` will be passed to your function `H_D` directly from the **last required** parameter in `HEOMsolve`:
+fastTuple = (V = amp_fast, Δ = delay, σx = σx)
+slowTuple = (V = amp_slow, Δ = delay, σx = σx)
 
-fastPulseResult = evolution(M, ψ0, tlist, H_D, fastTuple);
-slowPulseResult = evolution(M, ψ0, tlist, H_D, slowTuple);
+fastPulseSol = HEOMsolve(M, ψ0, tlist; e_ops = [ρ01], H_t = H_D, params = fastTuple)
+slowPulseSol = HEOMsolve(M, ψ0, tlist; e_ops = [ρ01], H_t = H_D, params = slowTuple)
 
-# ## Measure the coherence
-# One can use the built-in function [`QuantumToolbox.expect`](@ref) to calculate the expectation value from a given observable and `ADOs`:
-
-## Define the operator that measures the 0, 1 element of density matrix
-ρ01 = Qobj([0 1; 0 0])
-
+# ## Plot the coherence
 Plots.plot(
     tlist,
-    [expect(ρ01, fastPulseResult), expect(ρ01, slowPulseResult), expect(ρ01, noPulseResult)],
+    [real(fastPulseSol.expect[1,:]), real(slowPulseSol.expect[1,:]), real(noPulseSol.expect[1,:])],
     label = ["Fast Pulse" "Slow Pulse" "no Pulse"],
     linestyle = [:solid :dot :dash],
     linewidth = 3,
