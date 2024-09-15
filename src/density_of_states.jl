@@ -84,7 +84,7 @@ Calculate density of states for the fermionic system in frequency domain.
         Iω = i * ω * I_total
 
         if prog.counter[] == 0
-            cache_m = init(LinearProblem(M.data - Iω, b_m), solver, SOLVEROptions...)            
+            cache_m = init(LinearProblem(M.data - Iω, b_m), solver, SOLVEROptions...)
             sol_m = solve!(cache_m)
 
             cache_p = init(LinearProblem(M.data + Iω, b_p), solver, SOLVEROptions...)
@@ -103,7 +103,7 @@ Calculate density of states for the fermionic system in frequency domain.
 
         if SAVE
             open(FILENAME, "a") do file
-                write(file, "$(val),\n")
+                return write(file, "$(val),\n")
             end
         end
         next!(prog)

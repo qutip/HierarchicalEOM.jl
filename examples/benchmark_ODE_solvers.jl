@@ -35,9 +35,7 @@ function pulse(V, Δ, t)
     end
 end
 
-function H_D(t, p::NamedTuple)
-    return pulse(p.V, p.Δ, t) * p.σx
-end
+H_D(t, p::NamedTuple) = pulse(p.V, p.Δ, t) * p.σx
 
 bath = Boson_DrudeLorentz_Pade(σz, Γ, W, kT, N)
 M = M_Boson(H0, tier, bath);
@@ -56,16 +54,56 @@ M = M_Boson(H0, tier, bath);
 
 # ### RK4
 # The canonical Runge-Kutta Order 4 method. Uses a defect control for adaptive stepping using maximum error over the whole interval.
-@benchmark HEOMsolve(M, ψ0, tlist; H_t = H_D, params = params, solver = RK4(), abstol = 1e-12, reltol = 1e-12, verbose = false)
+@benchmark HEOMsolve(
+    M,
+    ψ0,
+    tlist;
+    H_t = H_D,
+    params = params,
+    solver = RK4(),
+    abstol = 1e-12,
+    reltol = 1e-12,
+    verbose = false,
+)
 
 # ### Tsit5
 # Tsitouras 5/4 Runge-Kutta method. (free 4th order interpolant).
-@benchmark HEOMsolve(M, ψ0, tlist; H_t = H_D, params = params, solver = Tsit5(), abstol = 1e-12, reltol = 1e-12, verbose = false)
+@benchmark HEOMsolve(
+    M,
+    ψ0,
+    tlist;
+    H_t = H_D,
+    params = params,
+    solver = Tsit5(),
+    abstol = 1e-12,
+    reltol = 1e-12,
+    verbose = false,
+)
 
 # ### Vern7
 # Verner's “Most Efficient” 7/6 Runge-Kutta method. (lazy 7th order interpolant).
-@benchmark HEOMsolve(M, ψ0, tlist; H_t = H_D, params = params, solver = Vern7(), abstol = 1e-12, reltol = 1e-12, verbose = false)
+@benchmark HEOMsolve(
+    M,
+    ψ0,
+    tlist;
+    H_t = H_D,
+    params = params,
+    solver = Vern7(),
+    abstol = 1e-12,
+    reltol = 1e-12,
+    verbose = false,
+)
 
 # ### Vern9
 # Verner's “Most Efficient” 9/8 Runge-Kutta method. (lazy 9th order interpolant)
-@benchmark HEOMsolve(M, ψ0, tlist; H_t = H_D, params = params, solver = Vern9(), abstol = 1e-12, reltol = 1e-12, verbose = false)
+@benchmark HEOMsolve(
+    M,
+    ψ0,
+    tlist;
+    H_t = H_D,
+    params = params,
+    solver = Vern9(),
+    abstol = 1e-12,
+    reltol = 1e-12,
+    verbose = false,
+)

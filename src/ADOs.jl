@@ -30,7 +30,8 @@ end
 
 # these functions are for forward compatibility
 ADOs(data::SparseVector{ComplexF64,Int64}, dim::Int, N::Int, parity::AbstractParity) = ADOs(data, [dim], N, parity)
-ADOs(data::SparseVector{ComplexF64,Int64}, dims::AbstractVector, N::Int, parity::AbstractParity) = ADOs(data, SVector{length(dims),Int}(dims), N, parity)
+ADOs(data::SparseVector{ComplexF64,Int64}, dims::AbstractVector, N::Int, parity::AbstractParity) =
+    ADOs(data, SVector{length(dims),Int}(dims), N, parity)
 
 @doc raw"""
     ADOs(V, N, parity)

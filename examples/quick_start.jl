@@ -107,8 +107,8 @@ ados_list = sol.ados
 # ### Expectation Value
 # We can now compare the results obtained from `HEOMsolve` and `steadystate`:
 ## for time evolution
-p00_e = real(sol.expect[1,:]) # P00 is the 1st element in e_ops
-p01_e = real(sol.expect[3,:]); # P01 is the 3rd element in e_ops
+p00_e = real(sol.expect[1, :]) # P00 is the 1st element in e_ops
+p01_e = real(sol.expect[3, :]); # P01 is the 3rd element in e_ops
 
 ## for steady state
 p00_s = expect(P00, ados_steady)
@@ -174,9 +174,9 @@ tlist = 0:0.025:5
 sol = HEOMsolve(L, ρ0, tlist; e_ops = [P00, P11, P22])
 
 ## calculate population for each system state:
-p0 = real(sol.expect[1,:])
-p1 = real(sol.expect[2,:])
-p2 = real(sol.expect[3,:])
+p0 = real(sol.expect[1, :])
+p1 = real(sol.expect[2, :])
+p2 = real(sol.expect[3, :])
 
 plot(tlist, p0, linewidth = 3, linecolor = "blue", label = L"P_0", grid = false)
 plot!(tlist, p1, linewidth = 3, linecolor = "orange", label = L"P_1")

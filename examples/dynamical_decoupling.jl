@@ -102,9 +102,7 @@ noPulseSol = HEOMsolve(M, ψ0, tlist; e_ops = [ρ01]);
 # (see also [Time Evolution](@ref doc-Time-Evolution))
 #   
 # We need to provide a user-defined function (named as `H_D` in this case), which must be in the form `H_D(t, p::NamedTuple)` and returns the time-dependent part of system Hamiltonian (in `QuantumObject` type) at any given time point `t`. The parameter `p` should be a `NamedTuple` which contains all the extra parameters [`V` (amplitude), `Δ` (delay), and `σx` (operator) in this case] for the function `H_D`:
-function H_D(t, p::NamedTuple)
-    return pulse(p.V, p.Δ, t) * p.σx
-end;
+H_D(t, p::NamedTuple) = pulse(p.V, p.Δ, t) * p.σx;
 
 # The parameter `p` will be passed to your function `H_D` directly from the **last required** parameter in `HEOMsolve`:
 fastTuple = (V = amp_fast, Δ = delay, σx = σx)
@@ -116,7 +114,7 @@ slowPulseSol = HEOMsolve(M, ψ0, tlist; e_ops = [ρ01], H_t = H_D, params = slow
 # ## Plot the coherence
 Plots.plot(
     tlist,
-    [real(fastPulseSol.expect[1,:]), real(slowPulseSol.expect[1,:]), real(noPulseSol.expect[1,:])],
+    [real(fastPulseSol.expect[1, :]), real(slowPulseSol.expect[1, :]), real(noPulseSol.expect[1, :])],
     label = ["Fast Pulse" "Slow Pulse" "no Pulse"],
     linestyle = [:solid :dot :dash],
     linewidth = 3,

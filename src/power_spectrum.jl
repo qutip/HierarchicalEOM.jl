@@ -147,7 +147,7 @@ remember to set the parameters:
 
         if SAVE
             open(FILENAME, "a") do file
-                write(file, "$(val),\n")
+                return write(file, "$(val),\n")
             end
         end
         next!(prog)
