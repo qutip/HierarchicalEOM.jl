@@ -5,7 +5,7 @@ on:
     branches:
       - 'main'
     paths:
-      - '.github/workflows/Runtests.yml'
+      - '.github/workflows/Runtests-Julia-nightly.yml'
       - 'src/**'
       - 'ext/**'
       - 'test/**'
@@ -14,7 +14,7 @@ on:
     branches:
       - 'main'
     paths:
-      - '.github/workflows/Runtests.yml'
+      - '.github/workflows/Runtests-Julia-nightly.yml'
       - 'src/**'
       - 'ext/**'
       - 'test/**'
@@ -50,7 +50,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
         with:
-          version: ${{ matrix.version }}
+          version: ${{ matrix.julia-version }}
           arch: ${{ matrix.arch }}
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
