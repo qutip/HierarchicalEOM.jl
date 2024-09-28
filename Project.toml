@@ -27,7 +27,7 @@ HierarchicalEOM_CUDAExt = "CUDA"
 
 [compat]
 CUDA = "5"
-DiffEqCallbacks = "2, 3"
+DiffEqCallbacks = "2, 3, 4"
 FastExpm = "1.1"
 JLD2 = "0.4.31 - 0.5"
 LinearAlgebra = "<0.0.1, 1"
