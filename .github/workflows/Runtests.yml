@@ -39,7 +39,7 @@ jobs:
         # for core tests (latest and oldest supported versions)
         julia-version:
           - '1.10'  # oldest
-        #  - '1'    # latest
+          - '1'    # latest
         node:
           - os: 'ubuntu-latest'
             arch: 'x64'
@@ -50,14 +50,7 @@ jobs:
         group:
           - 'Core'
 
-        include:
-          # for code quality tests
-          - julia-version: '1'
-            node: 
-              os: 'ubuntu-latest'
-              arch: 'x64'
-            group: 'Code_Quality'
-
+        # include:
           # for core tests (intermediate versions)
           # - version: '1.x'
           #   node:

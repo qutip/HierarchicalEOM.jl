@@ -5,14 +5,15 @@
 
 | **Release**       | [![Release][release-img]][release-url] [![License][license-img]][license-url] [![arXiv][arxiv-img]][arxiv-url] |
 |:-----------------:|:-------------|
-| **Runtests**      | [![Runtests][runtests-img]][runtests-url] [![Coverage][codecov-img]][codecov-url] [![Aqua QA][aqua-img]][aqua-url] [![JET][jet-img]][jet-url] |
+| **Runtests**      | [![Runtests][runtests-img]][runtests-url] [![Coverage][codecov-img]][codecov-url] |
+| **Code Quality**  | [![Aqua QA][aqua-img]][aqua-url] [![JET][jet-img]][jet-url] |
 | **Documentation** | [![Doc-Stable][docs-stable-img]][docs-stable-url] [![Doc-Dev][docs-develop-img]][docs-develop-url] |
 
 [release-img]: https://img.shields.io/github/release/qutip/HierarchicalEOM.jl.svg
 [release-url]: https://github.com/qutip/HierarchicalEOM.jl/releases
 
-[license-img]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
-[license-url]: https://opensource.org/licenses/Apache-2.0
+[license-img]: https://img.shields.io/badge/license-New%20BSD-blue.svg
+[license-url]: https://opensource.org/licenses/BSD-3-Clause
 
 [arxiv-img]: https://img.shields.io/badge/arXiv-2306.07522-<COLOR>.svg
 [arxiv-url]: https://arxiv.org/abs/2306.07522
@@ -40,7 +41,8 @@
 
 ## Installation
 
-> **_NOTE:_**  `HierarchicalEOM.jl` requires `Julia 1.10+`.
+> [!NOTE]
+> `HierarchicalEOM.jl` requires `Julia 1.10+`.
 
 To install `HierarchicalEOM.jl`, run the following commands inside Julia's interactive session (also known as REPL):
 ```julia
