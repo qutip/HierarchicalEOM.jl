@@ -6,7 +6,7 @@
 | **Release**       | [![Release][release-img]][release-url] [![License][license-img]][license-url] [![arXiv][arxiv-img]][arxiv-url] |
 |:-----------------:|:-------------|
 | **Runtests**      | [![Runtests][runtests-img]][runtests-url] [![Coverage][codecov-img]][codecov-url] |
-| **Code Quality**  | [![Aqua QA][aqua-img]][aqua-url] [![JET][jet-img]][jet-url] |
+| **Code Quality**  | [![Code Quality][code-quality-img]][code-quality-url] [![Aqua QA][aqua-img]][aqua-url] [![JET][jet-img]][jet-url] |
 | **Documentation** | [![Doc-Stable][docs-stable-img]][docs-stable-url] [![Doc-Dev][docs-develop-img]][docs-develop-url] |
 
 [release-img]: https://img.shields.io/github/release/qutip/HierarchicalEOM.jl.svg
@@ -23,6 +23,9 @@
 
 [codecov-img]: https://codecov.io/gh/qutip/HierarchicalEOM.jl/graph/badge.svg?token=ICFVVNuLHW
 [codecov-url]: https://codecov.io/gh/qutip/HierarchicalEOM.jl
+
+[code-quality-img]: https://github.com/qutip/HierarchicalEOM.jl/actions/workflows/Code-Quality.yml/badge.svg 
+[code-quality-url]: https://github.com/qutip/HierarchicalEOM.jl/actions/workflows/Code-Quality.yml
 
 [aqua-img]: https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg
 [aqua-url]: https://github.com/JuliaTesting/Aqua.jl
