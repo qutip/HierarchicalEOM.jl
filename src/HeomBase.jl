@@ -1,5 +1,8 @@
 abstract type AbstractHEOMLSMatrix{T} end
 
+_FType(::AbstractHEOMLSMatrix{<:AbstractArray{T}}) where {T<:Number} = _FType(T)
+_CType(::AbstractHEOMLSMatrix{<:AbstractArray{T}}) where {T<:Number} = _CType(T)
+
 # equal to : sparse(vec(system_identity_matrix))
 function _Tr(dims::SVector, N::Int)
     D = prod(dims)
@@ -29,31 +32,9 @@ HandleMatrixType(M, dims::SVector, MatrixName::String = ""; type::QuantumObjectT
 HandleMatrixType(M, MatrixName::String = ""; type::QuantumObjectType = Operator) =
     error("HierarchicalEOM doesn't support matrix $(MatrixName) with type : $(typeof(M))")
 
-function _HandleFloatType(ElType::Type{T}, V::StepRangeLen) where {T<:Number}
-    if real(ElType) == Float32
-        return StepRangeLen(Float32(V.ref), Float32(V.step), Int32(V.len), Int64(V.offset))
-    else
-        return StepRangeLen(Float64(V.ref), Float64(V.step), Int64(V.len), Int64(V.offset))
-    end
-end
-
-function _HandleFloatType(ElType::Type{T}, V::Any) where {T<:Number}
-    FType = real(ElType)
-    if eltype(V) == FType
-        return V
-    else
-        convert.(FType, V)
-    end
-end
-
-# for changing a `Vector` back to `ADOs`
-_HandleVectorType(V::T, cp::Bool = true) where {T<:Vector} = cp ? Vector{ComplexF64}(V) : V
-
-# for changing the type of `ADOs` to match the type of HEOMLS matrix 
-function _HandleVectorType(MatrixType::Type{TM}, V::SparseVector) where {TM<:AbstractMatrix}
-    TE = eltype(MatrixType)
-    return Vector{TE}(V)
-end
+# change the type of `ADOs` to match the type of HEOMLS matrix
+_HandleVectorType(::AbstractHEOMLSMatrix{<:AbstractSparseMatrix{T}}, V::SparseVector) where {T<:Number} =
+    Vector{_CType(T)}(V)
 
 function _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix, S::Int)
     ElType = eltype(M)
@@ -64,11 +45,6 @@ function _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix, S::Int)
     # sparse(row_idx, col_idx, values, row_dims, col_dims)
     A += sparse(ones(ElType, D), [(n - 1) * (D + 1) + 1 for n in 1:D], ones(ElType, D), S, S)
     return A
-end
-
-function _HandleIdentityType(MatrixType::Type{TM}, S::Int) where {TM<:AbstractMatrix}
-    ElType = eltype(MatrixType)
-    return sparse(one(ElType) * I, S, S)
 end
 
 function _check_sys_dim_and_ADOs_num(A, B)
