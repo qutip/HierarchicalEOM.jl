@@ -193,7 +193,7 @@ end
 function *(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
     _check_sys_dim_and_ADOs_num(Sup1, Sup2)
 
-    return HEOMSuperOp(Sup1.data * Sup2.data, Sup1.dims, Sup1.N, Sup1.parity * Sup2.parity)
+    return HEOMSuperOp(sparse(Sup1.data * Sup2.data), Sup1.dims, Sup1.N, Sup1.parity * Sup2.parity)
 end
 
 *(n::Number, Sup::HEOMSuperOp) = HEOMSuperOp(n * Sup.data, Sup.dims, Sup.N, Sup.parity)
