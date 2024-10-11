@@ -44,7 +44,7 @@ function steadystate(
         flush(stdout)
     end
 
-    return ADOs(Vector(sol.u), M.dims, M.N, M.parity)
+    return ADOs(sparse(Vector(sol.u)), M.dims, M.N, M.parity)
 end
 
 @doc raw"""
