@@ -104,7 +104,7 @@ function steadystate(
         flush(stdout)
     end
 
-    return ADOs(Vector(sol.u[end]), M.dims, M.N, M.parity)
+    return ADOs(sparse(Vector(sol.u[end])), M.dims, M.N, M.parity)
 end
 
 function _ss_condition(integrator, abstol, reltol, min_t)
