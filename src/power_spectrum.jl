@@ -74,7 +74,6 @@ remember to set the parameters:
     filename::String = "",
     SOLVEROptions...,
 )
-    Size = size(M, 1)
 
     # Handle ρ
     if typeof(ρ) == ADOs  # ρ::ADOs
@@ -109,7 +108,7 @@ remember to set the parameters:
         end
         _Q_ados = _Q * ados
     end
-    b = _HandleVectorType(typeof(M.data), _Q_ados.data)
+    b = _HandleVectorType(M, _Q_ados.data)
 
     SAVE::Bool = (filename != "")
     if SAVE
@@ -118,7 +117,7 @@ remember to set the parameters:
     end
 
     ElType = eltype(M)
-    ωList = _HandleFloatType(ElType, ωlist)
+    ωList = convert(Vector{_FType(M)}, ωlist) # Convert it to support GPUs and avoid type instabilities
     Length = length(ωList)
     Sω = Vector{Float64}(undef, Length)
 
@@ -128,7 +127,7 @@ remember to set the parameters:
     end
     prog = ProgressBar(Length; enable = verbose)
     i = reverse ? convert(ElType, 1im) : i = convert(ElType, -1im)
-    I_total = _HandleIdentityType(typeof(M.data), Size)
+    I_total = I(size(M, 1))
     cache = nothing
     for ω in ωList
         Iω = i * ω * I_total

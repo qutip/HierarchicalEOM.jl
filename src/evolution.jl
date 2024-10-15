@@ -90,7 +90,7 @@ function HEOMsolve(
     ados = (T_state <: QuantumObject) ? ADOs(ρ0, M.N, M.parity) : ρ0
     _check_sys_dim_and_ADOs_num(M, ados)
     _check_parity(M, ados)
-    ρvec = _HandleVectorType(typeof(M.data), ados.data)
+    ρvec = _HandleVectorType(M, ados.data)
 
     if e_ops isa Nothing
         expvals = Array{ComplexF64}(undef, 0, steps + 1)
@@ -203,9 +203,9 @@ function HEOMsolve(
     ados = (T_state <: QuantumObject) ? ADOs(ρ0, M.N, M.parity) : ρ0
     _check_sys_dim_and_ADOs_num(M, ados)
     _check_parity(M, ados)
-    u0 = _HandleVectorType(typeof(M.data), ados.data)
+    u0 = _HandleVectorType(M, ados.data)
 
-    t_l = convert(Vector{Float64}, tlist) # Convert it into Float64 to avoid type instabilities for OrdinaryDiffEq.jl
+    t_l = convert(Vector{_FType(M)}, tlist) # Convert it to support GPUs and avoid type instabilities for OrdinaryDiffEq.jl
 
     # handle e_ops
     Id_cache = I(M.N)
@@ -254,7 +254,7 @@ function HEOMsolve(
         flush(stdout)
     end
     sol = solve(prob, solver)
-    ADOs_list = map(ρvec -> ADOs(_HandleVectorType(ρvec, false), M.dims, M.N, M.parity), sol.u)
+    ADOs_list = map(ρvec -> ADOs(Vector{ComplexF64}(ρvec), M.dims, M.N, M.parity), sol.u)
 
     # save ADOs to file
     if filename != ""

@@ -37,14 +37,14 @@ function steadystate(
         print("Solving steady state for ADOs by linear-solve method...")
         flush(stdout)
     end
-    cache = init(LinearProblem(A, _HandleVectorType(typeof(M.data), b)), solver, SOLVEROptions...)
+    cache = init(LinearProblem(A, _HandleVectorType(M, b)), solver, SOLVEROptions...)
     sol = solve!(cache)
     if verbose
         println("[DONE]")
         flush(stdout)
     end
 
-    return ADOs(_HandleVectorType(sol.u, false), M.dims, M.N, M.parity)
+    return ADOs(Vector{ComplexF64}(sol.u), M.dims, M.N, M.parity)
 end
 
 @doc raw"""
@@ -79,7 +79,7 @@ function steadystate(
     ados = (T_state <: QuantumObject) ? ADOs(ρ0, M.N, M.parity) : ρ0
     _check_sys_dim_and_ADOs_num(M, ados)
     _check_parity(M, ados)
-    u0 = _HandleVectorType(typeof(M.data), ados.data)
+    u0 = _HandleVectorType(M, ados.data)
 
     Tspan = (0, tspan)
 
@@ -104,7 +104,7 @@ function steadystate(
         flush(stdout)
     end
 
-    return ADOs(_HandleVectorType(sol.u[end], false), M.dims, M.N, M.parity)
+    return ADOs(Vector{ComplexF64}(sol.u[end]), M.dims, M.N, M.parity)
 end
 
 function _ss_condition(integrator, abstol, reltol, min_t)

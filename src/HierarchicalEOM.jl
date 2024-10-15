@@ -7,19 +7,17 @@ import Reexport: @reexport
 module HeomBase
     import Pkg
     import LinearAlgebra: BLAS, kron, I
-    import SparseArrays: sparse, SparseVector, SparseMatrixCSC
+    import SparseArrays: sparse, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
     import StaticArraysCore: SVector
-    import QuantumToolbox: QuantumObject, QuantumObjectType, Operator, SuperOperator
+    import QuantumToolbox: _FType, _CType, QuantumObject, QuantumObjectType, Operator, SuperOperator
 
     export _Tr,
         AbstractHEOMLSMatrix,
         _check_sys_dim_and_ADOs_num,
         _check_parity,
         HandleMatrixType,
-        _HandleFloatType,
         _HandleVectorType,
-        _HandleSteadyStateMatrix,
-        _HandleIdentityType
+        _HandleSteadyStateMatrix
 
     include("HeomBase.jl")
 end
@@ -89,6 +87,7 @@ module HeomAPI
     import SparseArrays: sparse, sparsevec, spzeros, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
     import StaticArraysCore: SVector
     import QuantumToolbox:
+        _FType,
         QuantumObject,
         Operator,
         SuperOperator,

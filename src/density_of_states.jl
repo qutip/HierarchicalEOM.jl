@@ -32,7 +32,6 @@ Calculate density of states for the fermionic system in frequency domain.
     filename::String = "",
     SOLVEROptions...,
 )
-    Size = size(M, 1)
 
     # check M
     if M.parity == EVEN
@@ -56,8 +55,8 @@ Calculate density of states for the fermionic system in frequency domain.
     Id_cache = I(M.N)
     d_normal = HEOMSuperOp(d_op, ODD, M; Id_cache = Id_cache)
     d_dagger = HEOMSuperOp(d_op', ODD, M; Id_cache = Id_cache)
-    b_m = _HandleVectorType(typeof(M.data), (d_normal * ados).data)
-    b_p = _HandleVectorType(typeof(M.data), (d_dagger * ados).data)
+    b_m = _HandleVectorType(M, (d_normal * ados).data)
+    b_p = _HandleVectorType(M, (d_dagger * ados).data)
     _tr_d_normal = _tr * MType(d_normal).data
     _tr_d_dagger = _tr * MType(d_dagger).data
 
@@ -68,7 +67,7 @@ Calculate density of states for the fermionic system in frequency domain.
     end
 
     ElType = eltype(M)
-    ωList = _HandleFloatType(ElType, ωlist)
+    ωList = convert(Vector{_FType(M)}, ωlist) # Convert it to support GPUs and avoid type instabilities
     Length = length(ωList)
     Aω = Vector{Float64}(undef, Length)
 
@@ -78,7 +77,7 @@ Calculate density of states for the fermionic system in frequency domain.
     end
     prog = ProgressBar(Length; enable = verbose)
     i = convert(ElType, 1im)
-    I_total = _HandleIdentityType(typeof(M.data), Size)
+    I_total = I(size(M, 1))
     cache_m = cache_p = nothing
     for ω in ωList
         Iω = i * ω * I_total
