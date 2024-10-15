@@ -254,7 +254,7 @@ function HEOMsolve(
         flush(stdout)
     end
     sol = solve(prob, solver)
-    ADOs_list = map(ρvec -> ADOs(sparse(Vector(ρvec)), M.dims, M.N, M.parity), sol.u)
+    ADOs_list = map(ρvec -> ADOs(Vector{ComplexF64}(ρvec), M.dims, M.N, M.parity), sol.u)
 
     # save ADOs to file
     if filename != ""
