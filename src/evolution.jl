@@ -164,7 +164,7 @@ Solve the time evolution for auxiliary density operators based on ordinary diffe
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `e_ops::Union{Nothing,AbstractVector}`: List of operators for which to calculate expectation values.
 - `solver::OrdinaryDiffEqAlgorithm` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
-- `H_t::Union{Nothing,Function,TimeDependentOperatorSum}=nothing`: The time-dependent Hamiltonian or Liouvillian. It will be called by `H_t(t, params)`.
+- `H_t::Union{Nothing,Function}=nothing`: The time-dependent Hamiltonian or Liouvillian. It will be called by `H_t(t, params)`.
 - `params::NamedTuple=NamedTuple()`: The parameters of the time evolution.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" after the solving process.
@@ -186,7 +186,7 @@ function HEOMsolve(
     tlist::AbstractVector;
     e_ops::Union{Nothing,AbstractVector} = nothing,
     solver::OrdinaryDiffEqAlgorithm = DP5(),
-    H_t::Union{Nothing,Function,TimeDependentOperatorSum} = nothing,
+    H_t::Union{Nothing,Function} = nothing,
     params::NamedTuple = NamedTuple(),
     verbose::Bool = true,
     filename::String = "",

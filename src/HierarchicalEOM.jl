@@ -91,7 +91,6 @@ module HeomAPI
         QuantumObject,
         Operator,
         SuperOperator,
-        TimeDependentOperatorSum,
         _spre,
         _spost,
         spre,
