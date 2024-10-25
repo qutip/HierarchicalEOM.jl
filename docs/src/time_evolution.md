@@ -83,7 +83,7 @@ The first method is implemented by solving the ordinary differential equation (O
 See the docstring of this method:  
 
 ```@docs
-HEOMsolve(M::AbstractHEOMLSMatrix, ρ0::T_state, tlist::AbstractVector; e_ops::Union{Nothing,AbstractVector} = nothing, solver::OrdinaryDiffEqAlgorithm = DP5(), H_t::Union{Nothing,Function,TimeDependentOperatorSum} = nothing, params::NamedTuple = NamedTuple(), verbose::Bool = true, filename::String = "", SOLVEROptions...,) where {T_state<:Union{QuantumObject,ADOs}}
+HEOMsolve(M::AbstractHEOMLSMatrix, ρ0::T_state, tlist::AbstractVector; e_ops::Union{Nothing,AbstractVector} = nothing, solver::OrdinaryDiffEqAlgorithm = DP5(), H_t::Union{Nothing,Function} = nothing, params::NamedTuple = NamedTuple(), verbose::Bool = true, filename::String = "", SOLVEROptions...,) where {T_state<:Union{QuantumObject,ADOs}}
 ```
 
 ```julia

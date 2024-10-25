@@ -91,7 +91,6 @@ module HeomAPI
         QuantumObject,
         Operator,
         SuperOperator,
-        TimeDependentOperatorSum,
         _spre,
         _spost,
         spre,
@@ -139,8 +138,6 @@ module HeomAPI
         addTerminator,
         TimeEvolutionHEOMSol,
         HEOMsolve,
-        evolution,   # has been deprecated, throws error only
-        SteadyState, # has been deprecated, throws error only
         PowerSpectrum,
         DensityOfStates
 
@@ -161,5 +158,7 @@ module HeomAPI
     include("density_of_states.jl")
 end
 @reexport using .HeomAPI
+
+include("deprecated.jl")
 
 end

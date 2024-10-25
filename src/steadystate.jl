@@ -1,6 +1,3 @@
-SteadyState(M::AbstractHEOMLSMatrix, args...; kwargs...) =
-    error("`SteadyState` has been deprecated, please use `steadystate` instead.")
-
 @doc raw"""
     steadystate(M::AbstractHEOMLSMatrix; solver, verbose, SOLVEROptions...)
 Solve the steady state of the auxiliary density operators based on `LinearSolve.jl` (i.e., solving ``x`` where ``A \times x = b``).
