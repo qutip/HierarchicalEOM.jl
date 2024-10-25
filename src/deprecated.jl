@@ -16,8 +16,6 @@ end
 
 export evolution, SteadyState
 
-SteadyState(args...; kwargs...) =
-    error("`SteadyState` has been deprecated, please use `steadystate` instead.")
+SteadyState(args...; kwargs...) = error("`SteadyState` has been deprecated, please use `steadystate` instead.")
 
-evolution(args...; kwargs...) =
-    error("`evolution` has been deprecated, please use `HEOMsolve` instead.")
+evolution(args...; kwargs...) = error("`evolution` has been deprecated, please use `HEOMsolve` instead.")
