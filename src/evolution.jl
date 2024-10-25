@@ -1,6 +1,3 @@
-evolution(M::AbstractHEOMLSMatrix, args...; kwargs...) =
-    error("`evolution` has been deprecated, please use `HEOMsolve` instead.")
-
 const DEFAULT_ODE_SOLVER_OPTIONS = (abstol = 1e-8, reltol = 1e-6, save_everystep = false, save_end = true)
 
 @doc raw"""
