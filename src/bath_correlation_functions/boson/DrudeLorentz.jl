@@ -1,3 +1,5 @@
+export Boson_DrudeLorentz_Matsubara, Boson_DrudeLorentz_Pade
+
 function _boson_drude_lorentz_approx_discrepancy(
     λ::Real,
     W::Real,

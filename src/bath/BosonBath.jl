@@ -1,145 +1,11 @@
-abstract type AbstractBath end
+export BosonBath, BosonBathRWA
+export AbstractBosonBath, bosonReal, bosonImag, bosonRealImag, bosonAbsorb, bosonEmit
+
 abstract type AbstractBosonBath end
-abstract type AbstractFermionBath end
 
-@doc raw"""
-    struct Exponent
-An object which describes a single exponential-expansion term (naively, an excitation mode) within the decomposition of the bath correlation functions.
-
-The expansion of a bath correlation function can be expressed as : ``C(t) = \sum_i \eta_i \exp(-\gamma_i t)``.
-
-# Fields
-- `op::QuantumObject` : The system coupling operator according to system-bath interaction.
-- `η::Number` : the coefficient ``\eta_i`` in bath correlation function.
-- `γ::Number` : the coefficient ``\gamma_i`` in bath correlation function.
-- `types::String` : The type-tag of the exponent.
-
-The different types of the Exponent:
-- `\"bR\"` : from real part of bosonic correlation function ``C^{u=\textrm{R}}(t)``
-- `\"bI\"` : from imaginary part of bosonic correlation function ``C^{u=\textrm{I}}(t)``
-- `\"bRI\"` : from combined (real and imaginary part) bosonic bath correlation function ``C(t)``
-- `\"bA\"` : from absorption bosonic correlation function ``C^{\nu=+}(t)``
-- `\"bE\"` : from emission bosonic correlation function ``C^{\nu=-}(t)``
-- `\"fA\"` : from absorption fermionic correlation function ``C^{\nu=+}(t)``
-- `\"fE\"` : from emission fermionic correlation function ``C^{\nu=-}(t)``
-"""
-struct Exponent
-    op::QuantumObject
-    η::Number
-    γ::Number
-    types::String
-end
-
-show(io::IO, E::Exponent) = print(io, "Bath Exponent with types = \"$(E.types)\", η = $(E.η), γ = $(E.γ).\n")
-show(io::IO, m::MIME"text/plain", E::Exponent) = show(io, E)
-
-show(io::IO, B::AbstractBath) = print(io, "$(typeof(B)) object with $(B.Nterm) exponential-expansion terms\n")
-show(io::IO, m::MIME"text/plain", B::AbstractBath) = show(io, B)
-
-show(io::IO, B::AbstractBosonBath) = print(io, "$(typeof(B))-type bath with $(B.Nterm) exponential-expansion terms\n")
-show(io::IO, m::MIME"text/plain", B::AbstractBosonBath) = show(io, B)
-
-show(io::IO, B::AbstractFermionBath) = print(io, "$(typeof(B))-type bath with $(B.Nterm) exponential-expansion terms\n")
-show(io::IO, m::MIME"text/plain", B::AbstractFermionBath) = show(io, B)
-
-checkbounds(B::AbstractBath, i::Int) =
-    ((i < 1) || (i > B.Nterm)) ? error("Attempt to access $(B.Nterm)-exponent term Bath at index [$(i)]") : nothing
-
-length(B::AbstractBath) = B.Nterm
-lastindex(B::AbstractBath) = B.Nterm
-
-function getindex(B::AbstractBath, i::Int)
-    checkbounds(B, i)
-
-    count = 0
-    for b in B.bath
-        if i <= (count + b.Nterm)
-            k = i - count
-            b_type = typeof(b)
-            if b_type == bosonRealImag
-                η = b.η_real[k] + 1.0im * b.η_imag[k]
-                types = "bRI"
-                op = B.op
-            else
-                η = b.η[k]
-                if b_type == bosonReal
-                    types = "bR"
-                    op = B.op
-                elseif b_type == bosonImag
-                    types = "bI"
-                    op = B.op
-                elseif b_type == bosonAbsorb
-                    types = "bA"
-                    op = B.op'
-                elseif b_type == bosonEmit
-                    types = "bE"
-                    op = B.op
-                elseif b_type == fermionAbsorb
-                    types = "fA"
-                    op = B.op'
-                elseif b_type == fermionEmit
-                    types = "fE"
-                    op = B.op
-                end
-            end
-            return Exponent(op, η, b.γ[k], types)
-        else
-            count += b.Nterm
-        end
-    end
-end
-
-function getindex(B::AbstractBath, r::UnitRange{Int})
-    checkbounds(B, r[1])
-    checkbounds(B, r[end])
-
-    count = 0
-    exp_list = Exponent[]
-    for b in B.bath
-        for k in 1:b.Nterm
-            count += 1
-            if (r[1] <= count) && (count <= r[end])
-                b_type = typeof(b)
-                if b_type == bosonRealImag
-                    η = b.η_real[k] + 1.0im * b.η_imag[k]
-                    types = "bRI"
-                    op = B.op
-                else
-                    η = b.η[k]
-                    if b_type == bosonReal
-                        types = "bR"
-                        op = B.op
-                    elseif b_type == bosonImag
-                        types = "bI"
-                        op = B.op
-                    elseif b_type == bosonAbsorb
-                        types = "bA"
-                        op = B.op'
-                    elseif b_type == bosonEmit
-                        types = "bE"
-                        op = B.op
-                    elseif b_type == fermionAbsorb
-                        types = "fA"
-                        op = B.op'
-                    elseif b_type == fermionEmit
-                        types = "fE"
-                        op = B.op
-                    end
-                end
-                push!(exp_list, Exponent(op, η, b.γ[k], types))
-            end
-            if count == r[end]
-                return exp_list
-            end
-        end
-    end
-end
-
-getindex(B::AbstractBath, ::Colon) = getindex(B, 1:B.Nterm)
-
-iterate(B::AbstractBath, state::Int = 1) = state > length(B) ? nothing : (B[state], state + 1)
-
-isclose(a::Number, b::Number, rtol = 1e-05, atol = 1e-08) = abs(a - b) <= (atol + rtol * abs(b))
+Base.show(io::IO, B::AbstractBosonBath) =
+    print(io, "$(typeof(B))-type bath with $(B.Nterm) exponential-expansion terms\n")
+Base.show(io::IO, m::MIME"text/plain", B::AbstractBosonBath) = show(io, B)
 
 function _check_bosonic_coupling_operator(op)
     _op = HandleMatrixType(op, "op (coupling operator)")
@@ -151,21 +17,6 @@ end
 
 _check_bosonic_RWA_coupling_operator(op) = HandleMatrixType(op, "op (coupling operator)")
 
-function _check_gamma_absorb_and_emit(γ_absorb, γ_emit)
-    len = length(γ_absorb)
-    if length(γ_emit) == len
-        for k in 1:len
-            if !(γ_absorb[k] ≈ conj(γ_emit[k]))
-                @warn "The elements in \'γ_absorb\' should be complex conjugate of the corresponding elements in \'γ_emit\'."
-            end
-        end
-    else
-        error("The length of \'γ_absorb\' and \'γ_emit\' should be the same.")
-    end
-end
-
-_check_fermionic_coupling_operator(op) = HandleMatrixType(op, "op (coupling operator)")
-
 function _combine_same_gamma(η::Vector{Ti}, γ::Vector{Tj}) where {Ti,Tj<:Number}
     if length(η) != length(γ)
         error("The length of \'η\' and \'γ\' should be the same.")
@@ -176,7 +27,7 @@ function _combine_same_gamma(η::Vector{Ti}, γ::Vector{Tj}) where {Ti,Tj<:Numbe
     for j in 2:length(γ)
         valueDontExist = true
         for k in 1:length(γnew)
-            if isclose(γnew[k], γ[j])
+            if γnew[k] ≈ γ[j]
                 ηnew[k] += η[j]
                 valueDontExist = false
             end
@@ -310,7 +161,7 @@ function BosonBath(
         imag_idx = Int64[]
         for j in 1:NR
             for k in 1:NI
-                if isclose(γR[j], γI[k])
+                if γR[j] ≈ γI[k]
                     # record index
                     push!(real_idx, j)
                     push!(imag_idx, k)
@@ -645,204 +496,6 @@ function bosonEmit(
 end
 
 @doc raw"""
-    struct FermionBath <: AbstractBath
-An object which describes the interaction between system and fermionic bath
-
-# Fields
-- `bath` : the different fermion-bath-type objects which describes the interaction
-- `op` : The system \"emission\" operator according to the system-fermionic-bath interaction.
-- `Nterm` : the number of exponential-expansion term of correlation functions
-- `δ` : The approximation discrepancy which is used for adding the terminator to HEOM matrix (see function: addTerminator)
-
-# Methods
-One can obtain the ``k``-th exponent (exponential-expansion term) from `bath::FermionBath` by calling : `bath[k]`.
-`HierarchicalEOM.jl` also supports the following calls (methods) :
-```julia
-bath[1:k];   # returns a vector which contains the exponents from the `1`-st to the `k`-th term.
-bath[1:end]; # returns a vector which contains all the exponential-expansion terms
-bath[:];     # returns a vector which contains all the exponential-expansion terms
-from b in bath
-    # do something
-end
-```
-"""
-struct FermionBath <: AbstractBath
-    bath::Vector{AbstractFermionBath}
-    op::QuantumObject
-    Nterm::Int
-    δ::Number
-end
-
-@doc raw"""
-    FermionBath(op, η_absorb, γ_absorb, η_emit, γ_emit, δ=0.0)
-Generate FermionBath object
-
-```math
-\begin{aligned}
-C^{\nu=+}(\tau)
-&=\frac{1}{2\pi}\int_{-\infty}^{\infty} d\omega J(\omega) n(\omega) e^{i\omega \tau}\\
-&=\sum_i \eta_i^{\nu=+} \exp(-\gamma_i^{\nu=+} \tau),\\
-C^{\nu=-}(\tau)
-&=\frac{1}{2\pi}\int_{-\infty}^{\infty} d\omega J(\omega) (1-n(\omega)) e^{-i\omega \tau}\\
-&=\sum_i \eta_i^{\nu=-} \exp(-\gamma_i^{\nu=-} \tau),
-\end{aligned}
-```
-where ``\nu=+`` (``\nu=-``) represents absorption (emission) process, ``J(\omega)`` is the spectral density of the bath and ``n(\omega)`` is the Fermi-Dirac distribution.
-
-# Parameters
-- `op::QuantumObject` : The system annihilation operator according to the system-fermionic-bath interaction.
-- `η_absorb::Vector{Ti<:Number}` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}(\tau)``.
-- `γ_absorb::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` of absorption bath correlation function ``C^{\nu=+}(\tau)``.
-- `η_emit::Vector{Tk<:Number}` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}(\tau)``.
-- `γ_emit::Vector{Tl<:Number}` : the coefficients ``\gamma_i`` of emission bath correlation function ``C^{\nu=-}(\tau)``.
-- `δ::Number` : The approximation discrepancy (Defaults to `0.0`) which is used for adding the terminator to HEOMLS matrix (see function: addTerminator)
-"""
-function FermionBath(
-    op::QuantumObject,
-    η_absorb::Vector{Ti},
-    γ_absorb::Vector{Tj},
-    η_emit::Vector{Tk},
-    γ_emit::Vector{Tl},
-    δ::Tm = 0.0,
-) where {Ti,Tj,Tk,Tl,Tm<:Number}
-    _check_gamma_absorb_and_emit(γ_absorb, γ_emit)
-
-    _op = HandleMatrixType(op, "op (coupling operator)")
-    fA = fermionAbsorb(adjoint(_op), η_absorb, γ_absorb, η_emit)
-    fE = fermionEmit(_op, η_emit, γ_emit, η_absorb)
-    return FermionBath(AbstractFermionBath[fA, fE], _op, fA.Nterm + fE.Nterm, δ)
-end
-
-@doc raw"""
-    struct fermionAbsorb <: AbstractFermionBath
-An bath object which describes the absorption process of the fermionic system by a correlation function ``C^{\nu=+}``
-
-# Fields
-- `spre`   : the super-operator (left side operator multiplication) for the coupling operator.
-- `spost`  : the super-operator (right side operator multiplication) for the coupling operator.
-- `spreD`  : the super-operator (left side operator multiplication) for the adjoint of the coupling operator.
-- `spostD` : the super-operator (right side operator multiplication) for the adjoint of the coupling operator.
-- `dims` : the dimension list of the coupling operator (should be equal to the system dims).
-- `η` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
-- `γ` : the coefficients ``\gamma_i`` of absorption bath correlation function ``C^{\nu=+}``.
-- `η_emit` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
-- `Nterm` : the number of exponential-expansion term of correlation function
-"""
-struct fermionAbsorb <: AbstractFermionBath
-    spre::SparseMatrixCSC{ComplexF64,Int64}
-    spost::SparseMatrixCSC{ComplexF64,Int64}
-    spreD::SparseMatrixCSC{ComplexF64,Int64}
-    spostD::SparseMatrixCSC{ComplexF64,Int64}
-    dims::SVector
-    η::AbstractVector
-    γ::AbstractVector
-    η_emit::AbstractVector
-    Nterm::Int
-end
-
-@doc raw"""
-    fermionAbsorb(op, η_absorb, γ_absorb, η_emit)
-Generate fermionic bath which describes the absorption process of the fermionic system by a correlation function ``C^{\nu=+}``
-
-# Parameters
-- `op::QuantumObject` : The system creation operator according to the system-fermionic-bath interaction.
-- `η_absorb::Vector{Ti<:Number}` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
-- `γ_absorb::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` of absorption bath correlation function ``C^{\nu=+}``.
-- `η_emit::Vector{Tk<:Number}` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
-"""
-function fermionAbsorb(
-    op::QuantumObject,
-    η_absorb::Vector{Ti},
-    γ_absorb::Vector{Tj},
-    η_emit::Vector{Tk},
-) where {Ti,Tj,Tk<:Number}
-    _op = _check_fermionic_coupling_operator(op)
-
-    # check if the length of coefficients are valid
-    N_exp_term = length(η_absorb)
-    if (N_exp_term != length(γ_absorb)) || (N_exp_term != length(η_emit))
-        error("The length of \'η_absorb\', \'γ_absorb\' and \'η_emit\' should all be the same.")
-    end
-    Id_cache = I(size(_op, 1))
-    return fermionAbsorb(
-        _spre(_op.data, Id_cache),
-        _spost(_op.data, Id_cache),
-        _spre(adjoint(_op).data, Id_cache),
-        _spost(adjoint(_op).data, Id_cache),
-        _op.dims,
-        η_absorb,
-        γ_absorb,
-        η_emit,
-        N_exp_term,
-    )
-end
-
-@doc raw"""
-    struct fermionEmit <: AbstractFermionBath
-An bath object which describes the emission process of the fermionic system by a correlation function ``C^{\nu=-}``
-
-# Fields
-- `spre`   : the super-operator (left side operator multiplication) for the coupling operator.
-- `spost`  : the super-operator (right side operator multiplication) for the coupling operator.
-- `spreD`  : the super-operator (left side operator multiplication) for the adjoint of the coupling operator.
-- `spostD` : the super-operator (right side operator multiplication) for the adjoint of the coupling operator.
-- `dims` : the dimension list of the coupling operator (should be equal to the system dims).
-- `η` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
-- `γ` : the coefficients ``\gamma_i`` of emission bath correlation function ``C^{\nu=-}``.
-- `η_absorb` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
-- `Nterm` : the number of exponential-expansion term of correlation function
-"""
-struct fermionEmit <: AbstractFermionBath
-    spre::SparseMatrixCSC{ComplexF64,Int64}
-    spost::SparseMatrixCSC{ComplexF64,Int64}
-    spreD::SparseMatrixCSC{ComplexF64,Int64}
-    spostD::SparseMatrixCSC{ComplexF64,Int64}
-    dims::SVector
-    η::AbstractVector
-    γ::AbstractVector
-    η_absorb::AbstractVector
-    Nterm::Int
-end
-
-@doc raw"""
-    fermionEmit(op, η_emit, γ_emit, η_absorb)
-Generate fermionic bath which describes the emission process of the fermionic system by a correlation function ``C^{\nu=-}``
-
-# Parameters
-- `op::QuantumObject` : The system annihilation operator according to the system-fermionic-bath interaction.
-- `η_emit::Vector{Ti<:Number}` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
-- `γ_emit::Vector{Ti<:Number}` : the coefficients ``\gamma_i`` of emission bath correlation function ``C^{\nu=-}``.
-- `η_absorb::Vector{Ti<:Number}` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
-"""
-function fermionEmit(
-    op::QuantumObject,
-    η_emit::Vector{Ti},
-    γ_emit::Vector{Tj},
-    η_absorb::Vector{Tk},
-) where {Ti,Tj,Tk<:Number}
-    _op = _check_fermionic_coupling_operator(op)
-
-    # check if the length of coefficients are valid
-    N_exp_term = length(η_emit)
-    if (N_exp_term != length(γ_emit)) || (N_exp_term != length(η_absorb))
-        error("The length of \'η_emit\', \'γ_emit\' and \'η_absorb\' should all be the same.")
-    end
-
-    Id_cache = I(size(_op, 1))
-    return fermionEmit(
-        _spre(_op.data, Id_cache),
-        _spost(_op.data, Id_cache),
-        _spre(adjoint(_op).data, Id_cache),
-        _spost(adjoint(_op).data, Id_cache),
-        _op.dims,
-        η_emit,
-        γ_emit,
-        η_absorb,
-        N_exp_term,
-    )
-end
-
-@doc raw"""
     C(bath, tlist)
 Calculate the correlation function ``C(t)`` for a given bosonic bath and time list.
 
@@ -907,37 +560,4 @@ function C(bath::BosonBath, tlist::AbstractVector)
         end
         return cplist, cmlist
     end
-end
-
-@doc raw"""
-    C(bath, tlist)
-Calculate the correlation function ``C^{\nu=+}(t)`` and ``C^{\nu=-}(t)`` for a given fermionic bath and time list.
-Here, ``\nu=+`` represents the absorption process and ``\nu=-`` represents the emmision process.
-
-```math
-C^{\nu=\pm}(t)=\sum_i \eta_i^\nu e^{-\gamma_i^\nu t}
-```
-
-# Parameters
-- `bath::FermionBath` : The bath object which describes a certain fermionic bath.
-- `tlist::AbstractVector`: The specific time.
-
-# Returns
-- `cplist::Vector{ComplexF64}` : a list of the value of the absorption (``\nu=+``) correlation function according to the given time list.
-- `cmlist::Vector{ComplexF64}` : a list of the value of the emission (``\nu=-``) correlation function according to the given time list.
-"""
-function C(bath::FermionBath, tlist::AbstractVector)
-    cplist = zeros(ComplexF64, length(tlist))
-    cmlist = zeros(ComplexF64, length(tlist))
-    for (i, t) in enumerate(tlist)
-        for e in bath
-            if e.types == "fA"
-                cplist[i] += e.η * exp(-e.γ * t)
-            else
-                cmlist[i] += e.η * exp(-e.γ * t)
-            end
-        end
-    end
-
-    return cplist, cmlist
 end

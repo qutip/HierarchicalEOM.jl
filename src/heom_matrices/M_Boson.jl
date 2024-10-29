@@ -1,3 +1,5 @@
+export M_Boson
+
 @doc raw"""
     struct M_Boson <: AbstractHEOMLSMatrix
 HEOM Liouvillian superoperator matrix for bosonic bath

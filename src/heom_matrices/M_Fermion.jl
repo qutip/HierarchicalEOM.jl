@@ -1,3 +1,5 @@
+export M_Fermion
+
 @doc raw"""
     struct M_Fermion <: AbstractHEOMLSMatrix
 HEOM Liouvillian superoperator matrix for fermionic bath

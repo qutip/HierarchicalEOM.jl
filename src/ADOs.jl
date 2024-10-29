@@ -1,3 +1,6 @@
+export ADOs
+export getRho, getADO
+
 @doc raw"""
     struct ADOs
 The Auxiliary Density Operators for HEOM model.
@@ -69,24 +72,24 @@ end
 ADOs(ρ, N::Int = 1, parity::AbstractParity = EVEN) =
     error("HierarchicalEOM doesn't support input `ρ` with type : $(typeof(ρ))")
 
-checkbounds(A::ADOs, i::Int) =
+Base.checkbounds(A::ADOs, i::Int) =
     ((i > A.N) || (i < 1)) ? error("Attempt to access $(A.N)-element ADOs at index [$(i)]") : nothing
 
 @doc raw"""
     length(A::ADOs)
 Returns the total number of the Auxiliary Density Operators (ADOs)
 """
-length(A::ADOs) = A.N
+Base.length(A::ADOs) = A.N
 
 @doc raw"""
     eltype(A::ADOs)
 Returns the elements' type of the Auxiliary Density Operators (ADOs)
 """
-eltype(A::ADOs) = eltype(A.data)
+Base.eltype(A::ADOs) = eltype(A.data)
 
-lastindex(A::ADOs) = length(A)
+Base.lastindex(A::ADOs) = length(A)
 
-function getindex(A::ADOs, i::Int)
+function Base.getindex(A::ADOs, i::Int)
     checkbounds(A, i)
 
     D = prod(A.dims)
@@ -95,7 +98,7 @@ function getindex(A::ADOs, i::Int)
     return QuantumObject(reshape(A.data[(back-sup_dim+1):back], D, D), Operator, A.dims)
 end
 
-function getindex(A::ADOs, r::UnitRange{Int})
+function Base.getindex(A::ADOs, r::UnitRange{Int})
     checkbounds(A, r[1])
     checkbounds(A, r[end])
 
@@ -108,12 +111,13 @@ function getindex(A::ADOs, r::UnitRange{Int})
     end
     return result
 end
-getindex(A::ADOs, ::Colon) = getindex(A, 1:lastindex(A))
+Base.getindex(A::ADOs, ::Colon) = getindex(A, 1:lastindex(A))
 
-iterate(A::ADOs, state::Int = 1) = state > length(A) ? nothing : (A[state], state + 1)
+Base.iterate(A::ADOs, state::Int = 1) = state > length(A) ? nothing : (A[state], state + 1)
 
-show(io::IO, A::ADOs) = print(io, "$(A.N) Auxiliary Density Operators with $(A.parity) and (system) dims = $(A.dims)\n")
-show(io::IO, m::MIME"text/plain", A::ADOs) = show(io, A)
+Base.show(io::IO, A::ADOs) =
+    print(io, "$(A.N) Auxiliary Density Operators with $(A.parity) and (system) dims = $(A.dims)\n")
+Base.show(io::IO, m::MIME"text/plain", A::ADOs) = show(io, A)
 
 @doc raw"""
     getRho(ados)
@@ -161,7 +165,7 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in the 
 # Returns
 - `exp_val` : The expectation value
 """
-function expect(op, ados::ADOs; take_real::Bool = true)
+function QuantumToolbox.expect(op, ados::ADOs; take_real::Bool = true)
     if typeof(op) <: HEOMSuperOp
         _check_sys_dim_and_ADOs_num(op, ados)
         exp_val = dot(transpose(_Tr(ados.dims, ados.N)), (SparseMatrixCSC(op) * ados).data)
@@ -193,7 +197,7 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in one 
 # Returns
 - `exp_val` : The expectation value
 """
-function expect(op, ados_list::Vector{ADOs}; take_real::Bool = true)
+function QuantumToolbox.expect(op, ados_list::Vector{ADOs}; take_real::Bool = true)
     dims = ados_list[1].dims
     N = ados_list[1].N
     for i in 2:length(ados_list)

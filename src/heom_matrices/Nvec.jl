@@ -1,3 +1,5 @@
+export Nvec
+
 @doc raw"""
     struct Nvec
 An object which describes the repetition number of each multi-index ensembles in auxiliary density operators.
@@ -38,22 +40,22 @@ end
 Nvec(V::Vector{Int}) = Nvec(sparsevec(V), sum(V))
 Nvec(V::SparseVector{Int,Int}) = Nvec(copy(V), sum(V))
 
-length(nvec::Nvec) = length(nvec.data)
-lastindex(nvec::Nvec) = length(nvec)
+Base.length(nvec::Nvec) = length(nvec.data)
+Base.lastindex(nvec::Nvec) = length(nvec)
 
-getindex(nvec::Nvec, i::T) where {T<:Any} = nvec.data[i]
+Base.getindex(nvec::Nvec, i::T) where {T<:Any} = nvec.data[i]
 
-keys(nvec::Nvec) = keys(nvec.data)
+Base.keys(nvec::Nvec) = keys(nvec.data)
 
-iterate(nvec::Nvec, state::Int = 1) = state > length(nvec) ? nothing : (nvec[state], state + 1)
+Base.iterate(nvec::Nvec, state::Int = 1) = state > length(nvec) ? nothing : (nvec[state], state + 1)
 
-show(io::IO, nvec::Nvec) = print(io, "Nvec($(nvec[:]))")
-show(io::IO, m::MIME"text/plain", nvec::Nvec) = show(io, nvec)
+Base.show(io::IO, nvec::Nvec) = print(io, "Nvec($(nvec[:]))")
+Base.show(io::IO, m::MIME"text/plain", nvec::Nvec) = show(io, nvec)
 
-hash(nvec::Nvec, h::UInt) = hash(nvec.data, h)
-(==)(nvec1::Nvec, nvec2::Nvec) = hash(nvec1) == hash(nvec2)
+Base.hash(nvec::Nvec, h::UInt) = hash(nvec.data, h)
+Base.:(==)(nvec1::Nvec, nvec2::Nvec) = hash(nvec1) == hash(nvec2)
 
-copy(nvec::Nvec) = Nvec(copy(nvec.data), nvec.level)
+Base.copy(nvec::Nvec) = Nvec(copy(nvec.data), nvec.level)
 
 function Nvec_plus!(nvec::Nvec, idx::Int)
     nvec.data[idx] += 1

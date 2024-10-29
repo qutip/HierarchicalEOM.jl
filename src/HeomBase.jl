@@ -1,7 +1,9 @@
+export AbstractHEOMLSMatrix
+
 abstract type AbstractHEOMLSMatrix{T} end
 
-_FType(::AbstractHEOMLSMatrix{<:AbstractArray{T}}) where {T<:Number} = _FType(T)
-_CType(::AbstractHEOMLSMatrix{<:AbstractArray{T}}) where {T<:Number} = _CType(T)
+QuantumToolbox._FType(::AbstractHEOMLSMatrix{<:AbstractArray{T}}) where {T<:Number} = _FType(T)
+QuantumToolbox._CType(::AbstractHEOMLSMatrix{<:AbstractArray{T}}) where {T<:Number} = _CType(T)
 
 # equal to : sparse(vec(system_identity_matrix))
 function _Tr(dims::SVector, N::Int)
