@@ -124,6 +124,7 @@ DensityOfStates
 ## Misc.
 ```@docs
 HierarchicalEOM.versioninfo()
+HierarchicalEOM.about()
 ```
 The outputs will be something like the following:
 ```@example

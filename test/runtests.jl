@@ -30,12 +30,12 @@ core_tests = [
 if (GROUP == "All") || (GROUP == "Code_Quality")
     Pkg.add(["Aqua", "JET"])
 
-    HierarchicalEOM.versioninfo()
+    HierarchicalEOM.about()
     include(joinpath(testdir, "code_quality.jl"))
 end
 
 if (GROUP == "All") || (GROUP == "Core")
-    GROUP == "All" ? nothing : HierarchicalEOM.versioninfo()
+    GROUP == "All" ? nothing : HierarchicalEOM.about()
     for test in core_tests
         include(joinpath(testdir, test))
     end
@@ -44,6 +44,6 @@ end
 if (GROUP == "CUDA_Ext")# || (GROUP == "All")
     Pkg.add("CUDA")
 
-    HierarchicalEOM.versioninfo()
+    HierarchicalEOM.about()
     include(joinpath(testdir, "CUDAExt.jl"))
 end

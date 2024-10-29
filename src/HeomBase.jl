@@ -131,7 +131,7 @@ end
 """
     HierarchicalEOM.versioninfo(io::IO=stdout)
 
-Command line output of information on HierarchicalEOM, dependencies, and system informations.
+Command line output of information on HierarchicalEOM, dependencies, and system information.
 """
 function versioninfo(io::IO = stdout)
     cpu = Sys.cpu_info()
@@ -179,3 +179,10 @@ function versioninfo(io::IO = stdout)
     println(io, """Threads  : $(Threads.nthreads()) (on $(Sys.CPU_THREADS) virtual cores)""")
     return print(io, "\n")
 end
+
+"""
+    QuantumToolbox.about(io::IO=stdout)
+
+Command line output of information on HierarchicalEOM, dependencies, and system information, same as [`HierarchicalEOM.versioninfo`](@ref).
+"""
+about(io::IO = stdout) = versioninfo(io)

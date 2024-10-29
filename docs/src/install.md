@@ -14,10 +14,11 @@ More information about `Julia`'s package manager can be found at [`Pkg.jl`](http
 !!! note "Julia 1.10"
     `HierarchicalEOM.jl` requires Julia 1.10 or higher (we dropped Julia 1.9 since ver.2.1.0)
 
-To load the package and check the version information, use the command:
+To load the package and check the version information, use either [`HierarchicalEOM.versioninfo()`](@ref) or [`HierarchicalEOM.about()`](@ref), namely
 ```julia
-julia> using HierarchicalEOM
-julia> HierarchicalEOM.versioninfo()
+using HierarchicalEOM
+HierarchicalEOM.versioninfo()
+HierarchicalEOM.about()
 ```
 
 ## [QuantumToolbox.jl](https://github.com/qutip/QuantumToolbox.jl)
