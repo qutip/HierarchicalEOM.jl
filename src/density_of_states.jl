@@ -1,3 +1,5 @@
+export DensityOfStates
+
 @doc raw"""
     DensityOfStates(M, ρ, d_op, ωlist; solver, verbose, filename, SOLVEROptions...)
 Calculate density of states for the fermionic system in frequency domain.

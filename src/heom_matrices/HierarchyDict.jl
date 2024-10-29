@@ -1,3 +1,6 @@
+export AbstractHierarchyDict, HierarchyDict, MixHierarchyDict
+export getIndexEnsemble
+
 abstract type AbstractHierarchyDict end
 
 @doc raw"""

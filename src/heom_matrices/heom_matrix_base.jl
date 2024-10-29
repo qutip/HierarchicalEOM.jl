@@ -1,3 +1,7 @@
+export HEOMSuperOp
+export Propagator
+export addBosonDissipator, addFermionDissipator, addTerminator
+
 @doc raw"""
     struct HEOMSuperOp
 General HEOM superoperator matrix.  
@@ -98,7 +102,7 @@ HEOMSuperOp(op, opParity::AbstractParity, dims::Vector{Int}, N::Int, mul_basis::
 HEOMSuperOp(op, opParity::AbstractParity, dims::Tuple, N::Int, mul_basis::AbstractString; Id_cache = I(N)) =
     HEOMSuperOp(op, opParity, SVector(dims), N, mul_basis; Id_cache = Id_cache)
 
-function SparseMatrixCSC{T}(M::HEOMSuperOp) where {T}
+function SparseArrays.SparseMatrixCSC{T}(M::HEOMSuperOp) where {T}
     A = M.data
     if typeof(A) == SparseMatrixCSC{T}
         return M
@@ -106,48 +110,48 @@ function SparseMatrixCSC{T}(M::HEOMSuperOp) where {T}
         return HEOMSuperOp(SparseMatrixCSC{T}(M.data), M.dims, M.N, M.parity)
     end
 end
-SparseMatrixCSC(M::HEOMSuperOp) = SparseMatrixCSC{ComplexF64}(M)
+SparseArrays.SparseMatrixCSC(M::HEOMSuperOp) = SparseMatrixCSC{ComplexF64}(M)
 
 @doc raw"""
     size(M::HEOMSuperOp)
 Returns the size of the HEOM superoperator matrix
 """
-size(M::HEOMSuperOp) = size(M.data)
+Base.size(M::HEOMSuperOp) = size(M.data)
 
 @doc raw"""
     size(M::HEOMSuperOp, dim::Int)
 Returns the specified dimension of the HEOM superoperator matrix
 """
-size(M::HEOMSuperOp, dim::Int) = size(M.data, dim)
+Base.size(M::HEOMSuperOp, dim::Int) = size(M.data, dim)
 
 @doc raw"""
     size(M::AbstractHEOMLSMatrix)
 Returns the size of the HEOM Liouvillian superoperator matrix
 """
-size(M::AbstractHEOMLSMatrix) = size(M.data)
+Base.size(M::AbstractHEOMLSMatrix) = size(M.data)
 
 @doc raw"""
     size(M::AbstractHEOMLSMatrix, dim::Int)
 Returns the specified dimension of the HEOM Liouvillian superoperator matrix
 """
-size(M::AbstractHEOMLSMatrix, dim::Int) = size(M.data, dim)
+Base.size(M::AbstractHEOMLSMatrix, dim::Int) = size(M.data, dim)
 
 @doc raw"""
     eltype(M::HEOMSuperOp)
 Returns the elements' type of the HEOM superoperator matrix
 """
-eltype(M::HEOMSuperOp) = eltype(M.data)
+Base.eltype(M::HEOMSuperOp) = eltype(M.data)
 
 @doc raw"""
     eltype(M::AbstractHEOMLSMatrix)
 Returns the elements' type of the HEOM Liouvillian superoperator matrix
 """
-eltype(M::AbstractHEOMLSMatrix) = eltype(M.data)
+Base.eltype(M::AbstractHEOMLSMatrix) = eltype(M.data)
 
-getindex(M::HEOMSuperOp, i::Ti, j::Tj) where {Ti,Tj<:Any} = M.data[i, j]
-getindex(M::AbstractHEOMLSMatrix, i::Ti, j::Tj) where {Ti,Tj<:Any} = M.data[i, j]
+Base.getindex(M::HEOMSuperOp, i::Ti, j::Tj) where {Ti,Tj<:Any} = M.data[i, j]
+Base.getindex(M::AbstractHEOMLSMatrix, i::Ti, j::Tj) where {Ti,Tj<:Any} = M.data[i, j]
 
-function show(io::IO, M::HEOMSuperOp)
+function Base.show(io::IO, M::HEOMSuperOp)
     print(
         io,
         "$(M.parity) HEOM superoperator matrix acting on arbitrary-parity-ADOs\n",
@@ -158,7 +162,7 @@ function show(io::IO, M::HEOMSuperOp)
     return show(io, MIME("text/plain"), M.data)
 end
 
-function show(io::IO, M::AbstractHEOMLSMatrix)
+function Base.show(io::IO, M::AbstractHEOMLSMatrix)
     T = typeof(M)
     if T <: M_S
         type = "Schrodinger Eq."
@@ -181,46 +185,46 @@ function show(io::IO, M::AbstractHEOMLSMatrix)
     return show(io, MIME("text/plain"), M.data)
 end
 
-show(io::IO, m::MIME"text/plain", M::HEOMSuperOp) = show(io, M)
-show(io::IO, m::MIME"text/plain", M::AbstractHEOMLSMatrix) = show(io, M)
+Base.show(io::IO, m::MIME"text/plain", M::HEOMSuperOp) = show(io, M)
+Base.show(io::IO, m::MIME"text/plain", M::AbstractHEOMLSMatrix) = show(io, M)
 
-function *(Sup::HEOMSuperOp, ados::ADOs)
+function Base.:(*)(Sup::HEOMSuperOp, ados::ADOs)
     _check_sys_dim_and_ADOs_num(Sup, ados)
 
     return ADOs(Sup.data * ados.data, ados.dims, ados.N, Sup.parity * ados.parity)
 end
 
-function *(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
+function Base.:(*)(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
     _check_sys_dim_and_ADOs_num(Sup1, Sup2)
 
     return HEOMSuperOp(Sup1.data * Sup2.data, Sup1.dims, Sup1.N, Sup1.parity * Sup2.parity)
 end
 
-*(n::Number, Sup::HEOMSuperOp) = HEOMSuperOp(n * Sup.data, Sup.dims, Sup.N, Sup.parity)
-*(Sup::HEOMSuperOp, n::Number) = n * Sup
+Base.:(*)(n::Number, Sup::HEOMSuperOp) = HEOMSuperOp(n * Sup.data, Sup.dims, Sup.N, Sup.parity)
+Base.:(*)(Sup::HEOMSuperOp, n::Number) = n * Sup
 
-function +(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
+function Base.:(+)(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
     _check_sys_dim_and_ADOs_num(Sup1, Sup2)
     _check_parity(Sup1, Sup2)
 
     return HEOMSuperOp(Sup1.data + Sup2.data, Sup1.dims, Sup1.N, Sup1.parity)
 end
 
-function +(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
+function Base.:(+)(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
     _check_sys_dim_and_ADOs_num(M, Sup)
     _check_parity(M, Sup)
 
     return _reset_HEOMLS_data(M, M.data + Sup.data)
 end
 
-function -(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
+function Base.:(-)(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
     _check_sys_dim_and_ADOs_num(Sup1, Sup2)
     _check_parity(Sup1, Sup2)
 
     return HEOMSuperOp(Sup1.data - Sup2.data, Sup1.dims, Sup1.N, Sup1.parity)
 end
 
-function -(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
+function Base.:(-)(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
     _check_sys_dim_and_ADOs_num(M, Sup)
     _check_parity(M, Sup)
 

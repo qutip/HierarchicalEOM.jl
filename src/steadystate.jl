@@ -14,7 +14,7 @@ Solve the steady state of the auxiliary density operators based on `LinearSolve.
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
 """
-function steadystate(
+function QuantumToolbox.steadystate(
     M::AbstractHEOMLSMatrix;
     solver::SciMLLinearSolveAlgorithm = UMFPACKFactorization(),
     verbose::Bool = true,
@@ -63,7 +63,7 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
 """
-function steadystate(
+function QuantumToolbox.steadystate(
     M::AbstractHEOMLSMatrix,
     ρ0::T_state,
     tspan::Number = Inf;

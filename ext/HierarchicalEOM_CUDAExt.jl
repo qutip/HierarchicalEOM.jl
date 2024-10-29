@@ -1,7 +1,7 @@
 module HierarchicalEOM_CUDAExt
 
 using HierarchicalEOM
-import HierarchicalEOM.HeomBase: AbstractHEOMLSMatrix, _Tr, _HandleVectorType
+import HierarchicalEOM: _Tr, _HandleVectorType
 import QuantumToolbox: _CType
 import CUDA
 import CUDA: cu, CuArray
@@ -77,18 +77,5 @@ end
 # change the type of `ADOs` to match the type of HEOMLS matrix
 _HandleVectorType(::AbstractHEOMLSMatrix{<:CuSparseMatrixCSC{T}}, V::SparseVector) where {T<:Number} =
     CuArray{_CType(T)}(V)
-
-##### We first remove this part because there are errors when solveing steady states using GPU
-# function _HandleSteadyStateMatrix(MatrixType::Type{TM}, M::AbstractHEOMLSMatrix, S::Int) where TM <: CuSparseMatrixCSC
-#     colptr = Vector{Int32}(M.data.colPtr)
-#     rowval = Vector{Int32}(M.data.rowVal)
-#     nzval  = Vector{ComplexF32}(M.data.nzVal)
-#     A = SparseMatrixCSC{ComplexF32, Int32}(S, S, colptr, rowval, nzval)
-#     A[1,1:S] .= 0f0
-#     
-#     # sparse(row_idx, col_idx, values, row_dims, col_dims)
-#     A += sparse(ones(Int32, M.dim), [Int32((n - 1) * (M.dim + 1) + 1) for n in 1:(M.dim)], ones(ComplexF32, M.dim), S, S)
-#     return CuSparseMatrixCSC(A)
-# end
 
 end

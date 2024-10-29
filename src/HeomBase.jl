@@ -1,7 +1,9 @@
+export AbstractHEOMLSMatrix
+
 abstract type AbstractHEOMLSMatrix{T} end
 
-_FType(::AbstractHEOMLSMatrix{<:AbstractArray{T}}) where {T<:Number} = _FType(T)
-_CType(::AbstractHEOMLSMatrix{<:AbstractArray{T}}) where {T<:Number} = _CType(T)
+QuantumToolbox._FType(::AbstractHEOMLSMatrix{<:AbstractArray{T}}) where {T<:Number} = _FType(T)
+QuantumToolbox._CType(::AbstractHEOMLSMatrix{<:AbstractArray{T}}) where {T<:Number} = _CType(T)
 
 # equal to : sparse(vec(system_identity_matrix))
 function _Tr(dims::SVector, N::Int)
@@ -131,7 +133,7 @@ end
 """
     HierarchicalEOM.versioninfo(io::IO=stdout)
 
-Command line output of information on HierarchicalEOM, dependencies, and system informations.
+Command line output of information on HierarchicalEOM, dependencies, and system information.
 """
 function versioninfo(io::IO = stdout)
     cpu = Sys.cpu_info()
@@ -162,6 +164,7 @@ function versioninfo(io::IO = stdout)
         "Julia              Ver. $(VERSION)\n",
         "HierarchicalEOM    Ver. $(_get_pkg_version("HierarchicalEOM"))\n",
         "QuantumToolbox     Ver. $(_get_pkg_version("QuantumToolbox"))\n",
+        "SciMLOperators     Ver. $(_get_pkg_version("SciMLOperators"))\n",
         "LinearSolve        Ver. $(_get_pkg_version("LinearSolve"))\n",
         "OrdinaryDiffEqCore Ver. $(_get_pkg_version("OrdinaryDiffEqCore"))\n",
     )
@@ -179,3 +182,10 @@ function versioninfo(io::IO = stdout)
     println(io, """Threads  : $(Threads.nthreads()) (on $(Sys.CPU_THREADS) virtual cores)""")
     return print(io, "\n")
 end
+
+"""
+    QuantumToolbox.about(io::IO=stdout)
+
+Command line output of information on HierarchicalEOM, dependencies, and system information, same as [`HierarchicalEOM.versioninfo`](@ref).
+"""
+about(io::IO = stdout) = versioninfo(io)

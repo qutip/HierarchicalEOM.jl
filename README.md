@@ -58,10 +58,11 @@ Alternatively, this can also be done in Julia's [Pkg REPL](https://julialang.git
 ```
 More information about `Julia`'s package manager can be found at [`Pkg.jl`](https://julialang.github.io/Pkg.jl/v1/).  
 
-To load the package and check the version information, use the command:
+To load the package and check the version information, use either `HierarchicalEOM.versioninfo()` or `HierarchicalEOM.about()`, namely
 ```julia
-julia> using HierarchicalEOM
-julia> HierarchicalEOM.versioninfo()
+using HierarchicalEOM
+HierarchicalEOM.versioninfo()
+HierarchicalEOM.about()
 ```
 
 ## Documentation

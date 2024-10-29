@@ -1,3 +1,5 @@
+export M_Boson_Fermion
+
 @doc raw"""
     struct M_Boson_Fermion <: AbstractHEOMLSMatrix
 HEOM Liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath 

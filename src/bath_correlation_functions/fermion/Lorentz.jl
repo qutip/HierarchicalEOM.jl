@@ -1,3 +1,5 @@
+export Fermion_Lorentz_Matsubara, Fermion_Lorentz_Pade
+
 function _fermion_lorentz_matsubara_param(σ::Real, λ::Real, μ::Real, W::Real, kT::Real, N::Int)
     β = 1.0 / kT
     ϵ = matsubara(N, fermion = true)

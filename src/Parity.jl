@@ -1,3 +1,7 @@
+export AbstractParity
+export OddParity, ODD
+export EvenParity, EVEN
+
 abstract type AbstractParity end
 
 @doc raw"""
@@ -13,13 +17,13 @@ struct EvenParity <: AbstractParity end
 value(p::OddParity) = 1
 value(p::EvenParity) = 0
 
-!(p::OddParity) = EVEN
-!(p::EvenParity) = ODD
-*(p1::TP1, p2::TP2) where {TP1,TP2<:AbstractParity} = TP1 == TP2 ? EVEN : ODD
+Base.:(!)(p::OddParity) = EVEN
+Base.:(!)(p::EvenParity) = ODD
+Base.:(*)(p1::TP1, p2::TP2) where {TP1,TP2<:AbstractParity} = TP1 == TP2 ? EVEN : ODD
 
-show(io::IO, p::OddParity) = print(io, "odd-parity")
+Base.show(io::IO, p::OddParity) = print(io, "odd-parity")
 
-show(io::IO, p::EvenParity) = print(io, "even-parity")
+Base.show(io::IO, p::EvenParity) = print(io, "even-parity")
 
 # Parity label
 @doc raw"""

@@ -1,3 +1,5 @@
+export M_S
+
 @doc raw"""
     struct M_S <: AbstractHEOMLSMatrix
 HEOM Liouvillian superoperator matrix with cutoff level of the hierarchy equals to `0`.  

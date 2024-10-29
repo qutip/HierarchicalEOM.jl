@@ -1,164 +1,55 @@
 module HierarchicalEOM
 
+# Re-export QuantumToolbox
 import Reexport: @reexport
 @reexport using QuantumToolbox
 
-# sub-module HeomBase for HierarchicalEOM
-module HeomBase
-    import Pkg
-    import LinearAlgebra: BLAS, kron, I
-    import SparseArrays: sparse, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
-    import StaticArraysCore: SVector
-    import QuantumToolbox: _FType, _CType, QuantumObject, QuantumObjectType, Operator, SuperOperator
+# intrinsic QuantumToolbox functions
+import QuantumToolbox: _FType, _CType, _spre, _spost
 
-    export _Tr,
-        AbstractHEOMLSMatrix,
-        _check_sys_dim_and_ADOs_num,
-        _check_parity,
-        HandleMatrixType,
-        _HandleVectorType,
-        _HandleSteadyStateMatrix
+# SciML packages (for OrdinaryDiffEq and LinearSolve)
+import SciMLBase: init, solve, solve!, u_modified!, ODEProblem, FullSpecialize, CallbackSet
+import SciMLOperators: MatrixOperator
+import OrdinaryDiffEqCore: OrdinaryDiffEqAlgorithm
+import OrdinaryDiffEqLowOrderRK: DP5
+import DiffEqCallbacks: PresetTimeCallback, TerminateSteadyState
+import LinearSolve: LinearProblem, SciMLLinearSolveAlgorithm, UMFPACKFactorization
 
-    include("HeomBase.jl")
-end
-import .HeomBase.versioninfo as versioninfo
-import .HeomBase.print_logo as print_logo
-@reexport import .HeomBase: AbstractHEOMLSMatrix
+# other dependencies (in alphabetical order)
+import Base.Threads: @threads, threadid, nthreads, lock, unlock, SpinLock
+import FastExpm: fastExpm
+import JLD2: jldopen
+import Pkg
 
-# sub-module Bath for HierarchicalEOM
-module Bath
-    using ..HeomBase
-    import Base: show, length, getindex, lastindex, iterate, checkbounds
-    import LinearAlgebra: ishermitian, eigvals, I
-    import SparseArrays: SparseMatrixCSC
-    import StaticArraysCore: SVector
-    import QuantumToolbox: QuantumObject, _spre, _spost
+# Basic functions
+include("HeomBase.jl")
 
-    export AbstractBath,
-        BosonBath,
-        BosonBathRWA,
-        FermionBath,
-        Exponent,
-        C,
-        AbstractBosonBath,
-        bosonReal,
-        bosonImag,
-        bosonRealImag,
-        bosonAbsorb,
-        bosonEmit,
-        AbstractFermionBath,
-        fermionAbsorb,
-        fermionEmit,
-        Boson_DrudeLorentz_Matsubara,
-        Boson_DrudeLorentz_Pade,
-        Fermion_Lorentz_Matsubara,
-        Fermion_Lorentz_Pade
+# Bath
+include("bath/BathBase.jl")
+include("bath/BosonBath.jl")
+include("bath/FermionBath.jl")
+include("bath_correlation_functions/bath_correlation_func.jl")
 
-    include("Bath.jl")
-    include("bath_correlation_functions/bath_correlation_func.jl")
-end
-@reexport using .Bath
+# Parity and ADOs
+include("Parity.jl")
+include("ADOs.jl")
 
-# sub-module HeomAPI for HierarchicalEOM
-module HeomAPI
-    import Reexport: @reexport
-    using ..HeomBase
-    using ..Bath
-    import Base:
-        ==,
-        !,
-        +,
-        -,
-        *,
-        show,
-        length,
-        size,
-        getindex,
-        keys,
-        setindex!,
-        lastindex,
-        iterate,
-        checkbounds,
-        hash,
-        copy,
-        eltype
-    import Base.Threads: @threads, threadid, nthreads, lock, unlock, SpinLock
-    import LinearAlgebra: I, kron, tr, norm, dot, mul!
-    import SparseArrays: sparse, sparsevec, spzeros, SparseVector, SparseMatrixCSC, AbstractSparseMatrix
-    import StaticArraysCore: SVector
-    import QuantumToolbox:
-        _FType,
-        QuantumObject,
-        Operator,
-        SuperOperator,
-        _spre,
-        _spost,
-        spre,
-        spost,
-        sprepost,
-        expect,
-        ket2dm,
-        liouvillian,
-        lindblad_dissipator,
-        steadystate,
-        ProgressBar,
-        next!
+# HEOM Liouvillian superoperator (HEOMLS) matrices
+include("heom_matrices/heom_matrix_base.jl")
+include("heom_matrices/Nvec.jl")
+include("heom_matrices/HierarchyDict.jl")
+include("heom_matrices/M_S.jl")
+include("heom_matrices/M_Boson.jl")
+include("heom_matrices/M_Fermion.jl")
+include("heom_matrices/M_Boson_Fermion.jl")
 
-    import FastExpm: fastExpm
-    import SciMLBase: init, solve, solve!, u_modified!, ODEProblem, FullSpecialize, CallbackSet
-    import SciMLOperators: MatrixOperator
-    import OrdinaryDiffEqCore: OrdinaryDiffEqAlgorithm
-    import OrdinaryDiffEqLowOrderRK: DP5
-    import DiffEqCallbacks: PresetTimeCallback, TerminateSteadyState
-    import LinearSolve: LinearProblem, SciMLLinearSolveAlgorithm, UMFPACKFactorization
-    import JLD2: jldopen
+# Solvers
+include("evolution.jl")
+include("steadystate.jl")
+include("power_spectrum.jl")
+include("density_of_states.jl")
 
-    export AbstractParity,
-        OddParity,
-        EvenParity,
-        value,
-        ODD,
-        EVEN,
-        ADOs,
-        getRho,
-        getADO,
-        Nvec,
-        AbstractHierarchyDict,
-        HierarchyDict,
-        MixHierarchyDict,
-        getIndexEnsemble,
-        HEOMSuperOp,
-        M_S,
-        M_Boson,
-        M_Fermion,
-        M_Boson_Fermion,
-        Propagator,
-        addBosonDissipator,
-        addFermionDissipator,
-        addTerminator,
-        TimeEvolutionHEOMSol,
-        HEOMsolve,
-        PowerSpectrum,
-        DensityOfStates
-
-    include("Parity.jl")
-    include("ADOs.jl")
-
-    include("heom_matrices/heom_matrix_base.jl")
-    include("heom_matrices/Nvec.jl")
-    include("heom_matrices/HierarchyDict.jl")
-    include("heom_matrices/M_S.jl")
-    include("heom_matrices/M_Boson.jl")
-    include("heom_matrices/M_Fermion.jl")
-    include("heom_matrices/M_Boson_Fermion.jl")
-
-    include("evolution.jl")
-    include("steadystate.jl")
-    include("power_spectrum.jl")
-    include("density_of_states.jl")
-end
-@reexport using .HeomAPI
-
+# deprecated functions
 include("deprecated.jl")
 
 end
