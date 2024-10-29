@@ -162,6 +162,7 @@ function versioninfo(io::IO = stdout)
         "Julia              Ver. $(VERSION)\n",
         "HierarchicalEOM    Ver. $(_get_pkg_version("HierarchicalEOM"))\n",
         "QuantumToolbox     Ver. $(_get_pkg_version("QuantumToolbox"))\n",
+        "SciMLOperators     Ver. $(_get_pkg_version("SciMLOperators"))\n",
         "LinearSolve        Ver. $(_get_pkg_version("LinearSolve"))\n",
         "OrdinaryDiffEqCore Ver. $(_get_pkg_version("OrdinaryDiffEqCore"))\n",
     )
