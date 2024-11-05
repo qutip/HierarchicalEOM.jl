@@ -144,7 +144,7 @@ Plots.xaxis!(L"\omega")
 # ## Compare with Master Eq. approach
 # (see also [HEOMLS for Master Equations](@ref doc-Master-Equation))
 #   
-# The Lindblad master equations which describs the cavity couples to an extra bosonic reservoir with [Drude-Lorentzian spectral density](@ref Boson-Drude-Lorentz) is given by
+# The Lindblad master equations which describes the cavity couples to an extra bosonic reservoir with [Drude-Lorentzian spectral density](@ref Boson-Drude-Lorentz) is given by
 
 ## Drude_Lorentzian spectral density
 Drude_Lorentz(ω, Γ, W) = 4 * Γ * W * ω / ((ω)^2 + (W)^2)

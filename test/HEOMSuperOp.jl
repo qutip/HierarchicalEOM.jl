@@ -92,7 +92,7 @@
         @test WTD_heom[i] ≈ WTD_ans[i] atol = 1e-5
     end
 
-    ## test for ERRORs
+    ## test for error
     J_wrong1 = HEOMSuperOp(γ_eR * d, ODD, M_me, "L")
     J_wrong2 = HEOMSuperOp(γ_eR * d, EVEN, M_heom, "L")
     @test_throws ErrorException HEOMSuperOp(d, EVEN, M_heom, "LR")

@@ -210,7 +210,7 @@ end
 @doc raw"""
     C(bath, tlist)
 Calculate the correlation function ``C^{\nu=+}(t)`` and ``C^{\nu=-}(t)`` for a given fermionic bath and time list.
-Here, ``\nu=+`` represents the absorption process and ``\nu=-`` represents the emmision process.
+Here, ``\nu=+`` represents the absorption process and ``\nu=-`` represents the emission process.
 
 ```math
 C^{\nu=\pm}(t)=\sum_i \eta_i^\nu e^{-\gamma_i^\nu t}

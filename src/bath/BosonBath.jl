@@ -282,7 +282,7 @@ function bosonImag(op::QuantumObject, η_imag::Vector{Ti}, γ_imag::Vector{Tj}) 
 end
 
 @doc raw"""
-    sturct bosonRealImag <: AbstractBosonBath
+    struct bosonRealImag <: AbstractBosonBath
 A bosonic bath which the real part and imaginary part of the bath correlation function are combined 
 
 # Fields

@@ -51,7 +51,7 @@ cp_list, cm_list = C(bath, tlist)
 Here, `cp_list` and `cm_list` are the lists which contain the value of ``C^{\nu=+}(t)`` and ``C^{\nu=-}(t)`` correspond to the given time series `tlist`, respectively.
 
 ## Exponent
-`HierarchicalEOM.jl` also supports users to access the specific exponential term with brakets `[]`. This returns an [`Exponent`](@ref) object, which contains the corresponding value of ``\eta_i^\nu`` and ``\gamma_i^\nu``:
+`HierarchicalEOM.jl` also supports users to access the specific exponential term with brackets `[]`. This returns an [`Exponent`](@ref) object, which contains the corresponding value of ``\eta_i^\nu`` and ``\gamma_i^\nu``:
 ```julia
 e = bath[2] # the 2nd-term
 print(e)
