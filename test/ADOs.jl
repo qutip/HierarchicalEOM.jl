@@ -13,7 +13,7 @@
         @test ρ_b[i] == ado
     end
 
-    # expections for expect
+    # exceptions for expect
     ados_wrong = ADOs(spzeros(Int64, 18), 2)
     @test_throws ErrorException expect(Qobj([0 0 0; 0 0 0; 0 0 0]), ados_f)
     @test_throws ErrorException expect(Qobj([0 0; 0 0]), [ados_b, ados_wrong])

@@ -38,7 +38,7 @@ ADOs(data::SparseVector{ComplexF64,Int64}, dims::AbstractVector, N::Int, parity:
 
 @doc raw"""
     ADOs(V, N, parity)
-Gernerate the object of auxiliary density operators for HEOM model.
+Generate the object of auxiliary density operators for HEOM model.
 
 # Parameters
 - `V::AbstractVector` : the vectorized auxiliary density operators
@@ -58,7 +58,7 @@ end
 
 @doc raw"""
     ADOs(ρ, N, parity)
-Gernerate the object of auxiliary density operators for HEOM model.
+Generate the object of auxiliary density operators for HEOM model.
 
 # Parameters
 - `ρ` : the reduced density operator
