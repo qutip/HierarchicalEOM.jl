@@ -1,4 +1,4 @@
-function _is_Matrix_approx(M1::QuantumObject, M2; atol = 1.0e-6)
+function _is_Matrix_approx(M1, M2; atol = 1.0e-6)
     s1 = size(M1)
     s2 = size(M2)
     if s1 == s2
