@@ -1,6 +1,6 @@
 # [Cite HierarchicalEOM.jl](@id doc-Cite)
 
-### BibTex for [Commun. Phys. 6, 313 (2023)](https://doi.org/10.1038/s42005-023-01427-2)
+### BibTex for [Communications Physics 6, 313 (2023)](https://doi.org/10.1038/s42005-023-01427-2)
 ```bib
 @article{HierarchicalEOM-jl2023,
   doi = {10.1038/s42005-023-01427-2},
