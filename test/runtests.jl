@@ -1,13 +1,9 @@
 using Pkg
 using Test
-using HierarchicalEOM
-import JLD2: jldopen
 
 const GROUP = get(ENV, "GROUP", "All")
 
 const testdir = dirname(@__FILE__)
-
-include("test_utils.jl")
 
 # Put Core tests in alphabetical order
 core_tests = [
@@ -28,22 +24,37 @@ core_tests = [
 ]
 
 if (GROUP == "All") || (GROUP == "Code_Quality")
-    Pkg.add(["Aqua", "JET"])
+    using HierarchicalEOM
+    using Aqua, JET
 
-    HierarchicalEOM.about()
     include(joinpath(testdir, "code_quality.jl"))
 end
 
 if (GROUP == "All") || (GROUP == "Core")
-    GROUP == "All" ? nothing : HierarchicalEOM.about()
+    using HierarchicalEOM
+    import JLD2: jldopen
+
+    HierarchicalEOM.about()
+
+    include(joinpath(testdir, "test_utils.jl"))
+
     for test in core_tests
         include(joinpath(testdir, test))
     end
 end
 
 if (GROUP == "CUDA_Ext")# || (GROUP == "All")
-    Pkg.add("CUDA")
+    Pkg.activate("gpu")
+    Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
+    Pkg.instantiate()
+
+    using HierarchicalEOM
+    using CUDA, LinearSolve
+    CUDA.allowscalar(false) # Avoid unexpected scalar indexing
 
     HierarchicalEOM.about()
-    include(joinpath(testdir, "CUDAExt.jl"))
+    CUDA.versioninfo()
+
+    include(joinpath(testdir, "test_utils.jl"))
+    include(joinpath(testdir, "gpu", "CUDAExt.jl"))
 end

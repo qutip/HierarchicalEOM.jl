@@ -1,9 +1,3 @@
-using LinearSolve
-using CUDA
-CUDA.allowscalar(false) # Avoid unexpected scalar indexing
-
-CUDA.versioninfo()
-
 CUDA.@time @testset "CUDA Extension" begin
 
     # re-define the bath (make the matrix smaller)

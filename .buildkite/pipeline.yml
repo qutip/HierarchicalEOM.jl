@@ -9,7 +9,7 @@ steps:
             - "src/**"
             - "ext/HierarchicalEOM_CUDAExt.jl"
             - "test/runtests.jl"
-            - "test/CUDAExt.jl"
+            - "test/gpu/**"
             - "Project.toml"
           target: ".buildkite/CUDA_Ext.yml"
     agents:
