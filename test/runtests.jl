@@ -5,8 +5,6 @@ const GROUP = get(ENV, "GROUP", "All")
 
 const testdir = dirname(@__FILE__)
 
-include("test_utils.jl")
-
 # Put Core tests in alphabetical order
 core_tests = [
     "ADOs.jl",
@@ -38,6 +36,8 @@ if (GROUP == "All") || (GROUP == "Core")
 
     HierarchicalEOM.about()
 
+    include(joinpath(testdir, "test_utils.jl"))
+
     for test in core_tests
         include(joinpath(testdir, test))
     end
@@ -55,5 +55,6 @@ if (GROUP == "CUDA_Ext")# || (GROUP == "All")
     HierarchicalEOM.about()
     CUDA.versioninfo()
 
+    include(joinpath(testdir, "test_utils.jl"))
     include(joinpath(testdir, "gpu", "CUDAExt.jl"))
 end
