@@ -25,7 +25,7 @@ Calculate density of states for the fermionic system in frequency domain.
 - `dos::AbstractVector` : the list of density of states corresponds to the specified `ωlist`
 """
 @noinline function DensityOfStates(
-    M::AbstractHEOMLSMatrix,
+    M::AbstractHEOMLSMatrix{<:MatrixOperator},
     ρ::Union{QuantumObject,ADOs},
     d_op::QuantumObject,
     ωlist::AbstractVector;
@@ -86,16 +86,16 @@ Calculate density of states for the fermionic system in frequency domain.
         Iω = i * ω * I_total
 
         if prog.counter[] == 0
-            cache_m = init(LinearProblem(M.data - Iω, b_m), solver, SOLVEROptions...)
+            cache_m = init(LinearProblem(M.data.A - Iω, b_m), solver, SOLVEROptions...)
             sol_m = solve!(cache_m)
 
-            cache_p = init(LinearProblem(M.data + Iω, b_p), solver, SOLVEROptions...)
+            cache_p = init(LinearProblem(M.data.A + Iω, b_p), solver, SOLVEROptions...)
             sol_p = solve!(cache_p)
         else
-            cache_m.A = M.data - Iω
+            cache_m.A = M.data.A - Iω
             sol_m = solve!(cache_m)
 
-            cache_p.A = M.data + Iω
+            cache_p.A = M.data.A + Iω
             sol_p = solve!(cache_p)
         end
 

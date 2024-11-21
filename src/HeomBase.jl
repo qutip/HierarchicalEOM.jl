@@ -42,10 +42,11 @@ HandleMatrixType(M, MatrixName::String = ""; type::QuantumObjectType = Operator)
 _HandleVectorType(M::AbstractHEOMLSMatrix, V::SparseVector) = _HandleVectorType(_get_SciML_matrix_wrapper(M), V)
 _HandleVectorType(M::Type{<:SparseMatrixCSC}, V::SparseVector) = Vector{_CType(eltype(M))}(V)
 
-function _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix, S::Int)
+function _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator})
+    S = size(M, 1)
     ElType = eltype(M)
     D = prod(M.dims)
-    A = copy(M.data)
+    A = copy(M.data.A)
     A[1, 1:S] .= 0
 
     # sparse(row_idx, col_idx, values, row_dims, col_dims)
