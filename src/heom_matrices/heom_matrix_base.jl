@@ -7,12 +7,12 @@ export addBosonDissipator, addFermionDissipator, addTerminator
 General HEOM superoperator matrix.  
 
 # Fields
-- `data<:Union{AbstractSparseMatrix,AbstractSciMLOperator}` : the HEOM superoperator matrix
+- `data<:Union{AbstractSparseMatrix}` : the HEOM superoperator matrix
 - `dims` : the dimension list of the coupling operator (should be equal to the system dims).
 - `N` : the number of auxiliary density operators
 - `parity`: the parity label (`EVEN` or `ODD`).
 """
-struct HEOMSuperOp{DT<:Union{AbstractSparseMatrix,AbstractSciMLOperator}}
+struct HEOMSuperOp{DT<:AbstractSparseMatrix}
     data::DT
     dims::SVector
     N::Int
@@ -183,7 +183,7 @@ function Base.:(+)(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
     return HEOMSuperOp(Sup1.data + Sup2.data, Sup1.dims, Sup1.N, Sup1.parity)
 end
 
-Base.:(+)(M::MatrixOperator, Sup::HEOMSuperOp) = HEOMSuperOp(MatrixOperator(M.A + Sup.data), Sup.dims, Sup.N, Sup.parity)
+Base.:(+)(M::MatrixOperator, Sup::HEOMSuperOp) = MatrixOperator(M.A + Sup.data)
 Base.:(+)(M::AbstractSciMLOperator, Sup::HEOMSuperOp) = M + Sup.data
 
 function Base.:(+)(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
@@ -200,7 +200,7 @@ function Base.:(-)(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
     return HEOMSuperOp(Sup1.data - Sup2.data, Sup1.dims, Sup1.N, Sup1.parity)
 end
 
-Base.:(-)(M::MatrixOperator, Sup::HEOMSuperOp) = HEOMSuperOp(MatrixOperator(M.A - Sup.data), Sup.dims, Sup.N, Sup.parity)
+Base.:(-)(M::MatrixOperator, Sup::HEOMSuperOp) = MatrixOperator(M.A - Sup.data)
 Base.:(-)(M::AbstractSciMLOperator, Sup::HEOMSuperOp) = M - Sup.data
 
 function Base.:(-)(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
