@@ -5,11 +5,11 @@ import Reexport: @reexport
 @reexport using QuantumToolbox
 
 # intrinsic QuantumToolbox functions
-import QuantumToolbox: _FType, _CType, _spre, _spost
+import QuantumToolbox: _FType, _CType, _spre, _spost, _sprepost, _liouvillian
 
 # SciML packages (for OrdinaryDiffEq and LinearSolve)
-import SciMLBase: init, solve, solve!, u_modified!, ODEProblem, FullSpecialize, CallbackSet
-import SciMLOperators: MatrixOperator
+import SciMLBase: init, solve, solve!, u_modified!, ODEProblem, FullSpecialize, CallbackSet, NullParameters
+import SciMLOperators: AbstractSciMLOperator, MatrixOperator, ScaledOperator, AddedOperator
 import OrdinaryDiffEqCore: OrdinaryDiffEqAlgorithm
 import OrdinaryDiffEqLowOrderRK: DP5
 import DiffEqCallbacks: PresetTimeCallback, TerminateSteadyState

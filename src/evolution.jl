@@ -95,8 +95,10 @@ function HEOMsolve(
         expvals = Array{ComplexF64}(undef, 0, steps + 1)
         is_empty_e_ops = true
     else
+        Id_sys = I(prod(M.dims))
+        Id_HEOM = I(M.N)
         expvals = Array{ComplexF64}(undef, length(e_ops), steps + 1)
-        tr_op = [transpose(_Tr(M)) * HEOMSuperOp(op, EVEN, M.dims, M.N, "L").data for op in e_ops]
+        tr_e_ops = _generate_Eops(M, e_ops, Id_sys, Id_HEOM)
         is_empty_e_ops = isempty(e_ops)
     end
 
@@ -121,7 +123,7 @@ function HEOMsolve(
         # calculate expectation values
         if !is_empty_e_ops
             _expect = op -> dot(op, ρvec)
-            @. expvals[:, prog.counter[]+1] = _expect(tr_op)
+            @. expvals[:, prog.counter[]+1] = _expect(tr_e_ops)
             n == steps ? ADOs_list[1] = ADOs(ρvec, M.dims, M.N, M.parity) : nothing
         else
             ADOs_list[n+1] = ADOs(ρvec, M.dims, M.N, M.parity)
@@ -154,7 +156,7 @@ function HEOMsolve(
 end
 
 @doc raw"""
-    HEOMsolve(M, ρ0, tlist; e_ops, solver, H_t, params, verbose, filename, SOLVEROptions...)
+    HEOMsolve(M, ρ0, tlist; e_ops, solver, Ht, params, verbose, filename, SOLVEROptions...)
 Solve the time evolution for auxiliary density operators based on ordinary differential equations.
 
 # Parameters
@@ -163,8 +165,8 @@ Solve the time evolution for auxiliary density operators based on ordinary diffe
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `e_ops::Union{Nothing,AbstractVector}`: List of operators for which to calculate expectation values.
 - `solver::OrdinaryDiffEqAlgorithm` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
-- `H_t::Union{Nothing,Function}=nothing`: The time-dependent Hamiltonian or Liouvillian. It will be called by `H_t(t, params)`.
-- `params::NamedTuple=NamedTuple()`: The parameters of the time evolution.
+- `Ht::Union{Nothing,QuantumObjectEvolution}`: The time-dependent system Hamiltonian or Liouvillian. Default to `nothing`.
+- `params`: Parameters to pass to the solver. This argument is usually expressed as a `NamedTuple` or `AbstractVector` of parameters. For more advanced usage, any custom struct can be used.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" after the solving process.
 - `SOLVEROptions` : extra options for solver
@@ -185,8 +187,8 @@ function HEOMsolve(
     tlist::AbstractVector;
     e_ops::Union{Nothing,AbstractVector} = nothing,
     solver::OrdinaryDiffEqAlgorithm = DP5(),
-    H_t::Union{Nothing,Function} = nothing,
-    params::NamedTuple = NamedTuple(),
+    Ht::Union{Nothing,QuantumObjectEvolution} = nothing,
+    params = NullParameters(),
     verbose::Bool = true,
     filename::String = "",
     SOLVEROptions...,
@@ -207,14 +209,15 @@ function HEOMsolve(
     t_l = convert(Vector{_FType(M)}, tlist) # Convert it to support GPUs and avoid type instabilities for OrdinaryDiffEq.jl
 
     # handle e_ops
-    Id_cache = I(M.N)
     if e_ops isa Nothing
         expvals = Array{ComplexF64}(undef, 0, length(t_l))
         tr_e_ops = typeof(M.data)[]
         is_empty_e_ops = true
     else
+        Id_sys = I(prod(M.dims))
+        Id_HEOM = I(M.N)
         expvals = Array{ComplexF64}(undef, length(e_ops), length(t_l))
-        tr_e_ops = _generate_Eops(M, e_ops, Id_cache)
+        tr_e_ops = _generate_Eops(M, e_ops, Id_sys, Id_HEOM)
         is_empty_e_ops = isempty(e_ops)
     end
 
@@ -230,22 +233,16 @@ function HEOMsolve(
         merge(kwargs, (callback = cb,))
 
     p = (
-        L = M.data,
-        dims = M.dims,
-        N = M.N,
-        parity = M.parity,
-        H_t = H_t,
-        Id_cache = Id_cache,
-        params = params,
         is_empty_e_ops = is_empty_e_ops,
         tr_e_ops = tr_e_ops,
         expvals = expvals,
         prog = ProgressBar(length(t_l), enable = verbose),
+        params...
     )
 
     # define ODE problem
-    _dudt! = (H_t isa Nothing) ? _ti_dudt! : _td_dudt!
-    prob = ODEProblem{true,FullSpecialize}(_dudt!, u0, (t_l[1], t_l[end]), p; kwargs2...)
+    L = (Ht isa Nothing) ? M.data : _make_L(M, Ht)
+    prob = ODEProblem{true,FullSpecialize}(L, u0, (t_l[1], t_l[end]), p; kwargs2...)
 
     # start solving ode
     if verbose
@@ -277,10 +274,10 @@ function HEOMsolve(
     )
 end
 
-function _generate_Eops(M::AbstractHEOMLSMatrix, e_ops, Id_cache)
-    MType = Base.typename(typeof(M.data)).wrapper{eltype(M)}
+function _generate_Eops(M::AbstractHEOMLSMatrix, e_ops, Id_sys, Id_HEOM)
+    MType = _get_SciML_matrix_wrapper(M)
     tr_e_ops =
-        [transpose(_Tr(M)) * MType(HEOMSuperOp(op, EVEN, M.dims, M.N, "L"; Id_cache = Id_cache)).data for op in e_ops]
+        [transpose(_Tr(M)) * MType(HEOMSuperOp(spre(op, Id_sys), EVEN, M.dims, M.N; Id_cache = Id_HEOM)).data for op in e_ops]
     return tr_e_ops
 end
 
@@ -298,13 +295,6 @@ function _HEOM_evolution_callback(integrator)
     return u_modified!(integrator, false)
 end
 
-_ti_dudt!(du, u, p, t) = mul!(du, p.L, u) # du/dt = L * u(t)
-function _td_dudt!(du, u, p, t)
-    # check system dimension of H_t
-    _Ht = HandleMatrixType(liouvillian(p.H_t(t, p.params)), p.dims, "H_t at t=$(t)"; type = SuperOperator)
-    L_t = HEOMSuperOp(_Ht, p.parity, p.dims, p.N, "LR"; Id_cache = p.Id_cache).data
-
-    # du/dt = [L + L(t)] * u(t)
-    mul!(du, p.L, u)
-    return mul!(du, L_t, u, 1, 1)
+function _make_L(M::AbstractHEOMLSMatrix, Ht::QuantumObjectEvolution)
+    return M.data
 end

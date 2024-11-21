@@ -69,13 +69,9 @@ function CuSparseMatrixCSC{ComplexF32}(M::HEOMSuperOp)
     end
 end
 
-function _Tr(M::AbstractHEOMLSMatrix{T}) where {T<:CuSparseMatrixCSC}
-    D = prod(M.dims)
-    return CuSparseVector(SparseVector(M.N * D^2, [1 + n * (D + 1) for n in 0:(D-1)], ones(eltype(M), D)))
-end
+_Tr(M::Type{<:CuSparseMatrixCSC}, dims::SVector, N::Int) = CuSparseVector(_Tr(eltype(M), dims, N))
 
 # change the type of `ADOs` to match the type of HEOMLS matrix
-_HandleVectorType(::AbstractHEOMLSMatrix{<:CuSparseMatrixCSC{T}}, V::SparseVector) where {T<:Number} =
-    CuArray{_CType(T)}(V)
+_HandleVectorType(M::Type{<:CuSparseMatrixCSC}, V::SparseVector) = CuArray{_CType(eltype(M))}(V)
 
 end
