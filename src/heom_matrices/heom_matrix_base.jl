@@ -226,8 +226,8 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
 # Returns
 - `::SparseMatrixCSC{ComplexF64, Int64}` : the propagator matrix
 """
-@noinline function Propagator(M::AbstractHEOMLSMatrix, Δt::Real; threshold = 1.0e-6, nonzero_tol = 1.0e-14)
-    return fastExpm(M.data * Δt; threshold = threshold, nonzero_tol = nonzero_tol)
+@noinline function Propagator(M::AbstractHEOMLSMatrix{<:MatrixOperator}, Δt::Real; threshold = 1.0e-6, nonzero_tol = 1.0e-14)
+    return fastExpm(M.data.A * Δt; threshold = threshold, nonzero_tol = nonzero_tol)
 end
 
 function _reset_HEOMLS_data(M::T, new_data::AbstractSciMLOperator) where {T<:AbstractHEOMLSMatrix}

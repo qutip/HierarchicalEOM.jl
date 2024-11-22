@@ -2,6 +2,26 @@ export AbstractHEOMLSMatrix
 
 abstract type AbstractHEOMLSMatrix{T} end
 
+@doc raw"""
+    (M::AbstractHEOMLSMatrix)(p, t)
+
+Calculate the time-dependent AbstractHEOMLSMatrix at time `t` with parameters `p`.
+
+# Arguments
+- `p`: The parameters of the time-dependent coefficients.
+- `t`: The time at which the coefficients are evaluated.
+
+# Returns
+- The output HEOMLS matrix.
+"""
+function (M::AbstractHEOMLSMatrix)(p, t)
+    # We put 0 in the place of `u` because the time-dependence doesn't depend on the state
+    update_coefficients!(M.data, 0, p, t)
+    return concretize(M.data)
+end
+
+(M::AbstractHEOMLSMatrix)(t) = M(nothing, t)
+
 QuantumToolbox._FType(M::AbstractHEOMLSMatrix) = _FType(eltype(M))
 QuantumToolbox._CType(M::AbstractHEOMLSMatrix) = _CType(eltype(M))
 

@@ -30,9 +30,9 @@
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (2220, 2220)
     @test L.N == 555
-    @test nnz(L.data) == 43368
+    @test nnz(L.data.A) == nnz(L(0)) == 43368
     L = addBosonDissipator(L, J)
-    @test nnz(L.data) == 45590
+    @test nnz(L.data.A) == nnz(L(0)) == 45590
     ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N
@@ -48,9 +48,9 @@
     L = M_Boson_Fermion(Hsys, tierb, tierf, [Bbath, Bbath], Fbath; verbose = false)
     @test size(L) == (6660, 6660)
     @test L.N == 1665
-    @test nnz(L.data) == 139210
+    @test nnz(L.data.A) == nnz(L(0)) == 139210
     L = addFermionDissipator(L, J)
-    @test nnz(L.data) == 145872
+    @test nnz(L.data.A) == nnz(L(0)) == 145872
     ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N
@@ -65,9 +65,9 @@
     L = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, [Fbath, Fbath]; verbose = false)
     @test size(L) == (8220, 8220)
     @test L.N == 2055
-    @test nnz(L.data) == 167108
+    @test nnz(L.data.A) == nnz(L(0)) == 167108
     L = addBosonDissipator(L, J)
-    @test nnz(L.data) == 175330
+    @test nnz(L.data.A) == nnz(L(0)) == 175330
     ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N

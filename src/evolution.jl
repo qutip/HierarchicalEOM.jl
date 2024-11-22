@@ -118,19 +118,19 @@ function HEOMsolve(
         print("Solving time evolution for ADOs by propagator method...\n")
         flush(stdout)
     end
-    prog = ProgressBar(steps + 1, enable = verbose)
+    progr = ProgressBar(steps + 1, enable = verbose)
     for n in 0:steps
         # calculate expectation values
         if !is_empty_e_ops
             _expect = op -> dot(op, ρvec)
-            @. expvals[:, prog.counter[]+1] = _expect(tr_e_ops)
+            @. expvals[:, progr.counter[]+1] = _expect(tr_e_ops)
             n == steps ? ADOs_list[1] = ADOs(ρvec, M.dims, M.N, M.parity) : nothing
         else
             ADOs_list[n+1] = ADOs(ρvec, M.dims, M.N, M.parity)
         end
 
         ρvec = exp_Mt * ρvec
-        next!(prog)
+        next!(progr)
     end
 
     # save ADOs to file
@@ -221,28 +221,23 @@ function HEOMsolve(
         is_empty_e_ops = isempty(e_ops)
     end
 
+    # handle callback
+    save_result! = HEOMsolveCallback(t_l, is_empty_e_ops, tr_e_ops, expvals, ProgressBar(length(t_l), enable = verbose))
+    cb = PresetTimeCallback(t_l, save_result!, save_positions = (false, false))
+
     # handle kwargs
     haskey(SOLVEROptions, :save_idxs) &&
         throw(ArgumentError("The keyword argument \"save_idxs\" is not supported in HierarchicalEOM.jl."))
     saveat = is_empty_e_ops ? t_l : [t_l[end]]
     default_values = (DEFAULT_ODE_SOLVER_OPTIONS..., saveat = saveat)
     kwargs = merge(default_values, SOLVEROptions)
-    cb = PresetTimeCallback(t_l, _HEOM_evolution_callback, save_positions = (false, false))
     kwargs2 =
         haskey(kwargs, :callback) ? merge(kwargs, (callback = CallbackSet(kwargs.callback, cb),)) :
         merge(kwargs, (callback = cb,))
 
-    p = (
-        is_empty_e_ops = is_empty_e_ops,
-        tr_e_ops = tr_e_ops,
-        expvals = expvals,
-        prog = ProgressBar(length(t_l), enable = verbose),
-        params...
-    )
-
-    # define ODE problem
+    # define ODE problem (L should be an AbstractSciMLOperator)
     L = (Ht isa Nothing) ? M.data : _make_L(M, Ht)
-    prob = ODEProblem{true,FullSpecialize}(L, u0, (t_l[1], t_l[end]), p; kwargs2...)
+    prob = ODEProblem{true,FullSpecialize}(L, u0, (t_l[1], t_l[end]), params; kwargs2...)
 
     # start solving ode
     if verbose
@@ -264,9 +259,9 @@ function HEOMsolve(
     return TimeEvolutionHEOMSol(
         _getBtier(M),
         _getFtier(M),
-        sol.t,
+        save_result!.times,
         ADOs_list,
-        sol.prob.p.expvals,
+        save_result!.expvals,
         sol.retcode,
         sol.alg,
         sol.prob.kwargs[:abstol],
@@ -281,17 +276,22 @@ function _generate_Eops(M::AbstractHEOMLSMatrix, e_ops, Id_sys, Id_HEOM)
     return tr_e_ops
 end
 
-function _HEOM_evolution_callback(integrator)
-    p = integrator.p
-    prog = p.prog
-    expvals = p.expvals
-    tr_e_ops = p.tr_e_ops
+struct HEOMsolveCallback{TT,TE,TEXPV<:AbstractMatrix}
+    times::TT
+    is_empty_e_ops::Bool
+    tr_e_ops::TE
+    expvals::TEXPV
+    progr::ProgressBar
+end
 
-    if !p.is_empty_e_ops
+(f::HEOMsolveCallback)(integrator) = _HEOMsolve_callback(integrator, f.is_empty_e_ops, f.tr_e_ops, f.progr, f.expvals)
+
+function _HEOMsolve_callback(integrator, is_empty_e_ops, tr_e_ops, progr, expvals)
+    if !is_empty_e_ops
         _expect = op -> dot(op, integrator.u)
-        @. expvals[:, prog.counter[]+1] = _expect(tr_e_ops)
+        @. expvals[:, progr.counter[]+1] = _expect(tr_e_ops)
     end
-    next!(prog)
+    next!(progr)
     return u_modified!(integrator, false)
 end
 
