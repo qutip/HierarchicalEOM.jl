@@ -214,23 +214,14 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         print("Constructing matrix...")
         flush(stdout)
     end
-    L_he = MatrixOperator(sparse(reduce(vcat, L_row), reduce(vcat, L_col), reduce(vcat, L_val), Nado * sup_dim, Nado * sup_dim))
+    L_he = MatrixOperator(
+        sparse(reduce(vcat, L_row), reduce(vcat, L_col), reduce(vcat, L_val), Nado * sup_dim, Nado * sup_dim),
+    )
     if verbose
         println("[DONE]")
         flush(stdout)
     end
-    return M_Boson_Fermion(
-        L_he,
-        Btier,
-        Ftier,
-        copy(_Hsys.dims),
-        Nado,
-        sup_dim,
-        parity,
-        Bbath,
-        Fbath,
-        hierarchy,
-    )
+    return M_Boson_Fermion(L_he, Btier, Ftier, copy(_Hsys.dims), Nado, sup_dim, parity, Bbath, Fbath, hierarchy)
 end
 
 _getBtier(M::M_Boson_Fermion) = M.Btier

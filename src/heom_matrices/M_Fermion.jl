@@ -142,21 +142,14 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         print("Constructing matrix...")
         flush(stdout)
     end
-    L_he = MatrixOperator(sparse(reduce(vcat, L_row), reduce(vcat, L_col), reduce(vcat, L_val), Nado * sup_dim, Nado * sup_dim))
+    L_he = MatrixOperator(
+        sparse(reduce(vcat, L_row), reduce(vcat, L_col), reduce(vcat, L_val), Nado * sup_dim, Nado * sup_dim),
+    )
     if verbose
         println("[DONE]")
         flush(stdout)
     end
-    return M_Fermion(
-        L_he,
-        tier,
-        copy(_Hsys.dims),
-        Nado,
-        sup_dim,
-        parity,
-        Bath,
-        hierarchy,
-    )
+    return M_Fermion(L_he, tier, copy(_Hsys.dims), Nado, sup_dim, parity, Bath, hierarchy)
 end
 
 _getBtier(M::M_Fermion) = 0

@@ -271,8 +271,10 @@ end
 
 function _generate_Eops(M::AbstractHEOMLSMatrix, e_ops, Id_sys, Id_HEOM)
     MType = _get_SciML_matrix_wrapper(M)
-    tr_e_ops =
-        [transpose(_Tr(M)) * MType(HEOMSuperOp(spre(op, Id_sys), EVEN, M.dims, M.N; Id_cache = Id_HEOM)).data for op in e_ops]
+    tr_e_ops = [
+        transpose(_Tr(M)) * MType(HEOMSuperOp(spre(op, Id_sys), EVEN, M.dims, M.N; Id_cache = Id_HEOM)).data for
+        op in e_ops
+    ]
     return tr_e_ops
 end
 
@@ -304,6 +306,9 @@ function _make_L(M::AbstractHEOMLSMatrix, H_t::QuantumObjectEvolution)
     return M.data + _L_t_to_HEOMSuperOp(MType, L_t.data, Id_HEOM)
 end
 
-_L_t_to_HEOMSuperOp(MType::Type{<:AbstractSparseMatrix}, M::MatrixOperator, Id::Diagonal) = MatrixOperator(MType(kron(Id, M.A)))
-_L_t_to_HEOMSuperOp(MType::Type{<:AbstractSparseMatrix}, M::ScaledOperator, Id::Diagonal) = ScaledOperator(M.λ, _L_t_to_HEOMSuperOp(MType, M.L, Id))
-_L_t_to_HEOMSuperOp(MType::Type{<:AbstractSparseMatrix}, M::AddedOperator, Id::Diagonal) = AddedOperator(map(op -> _L_t_to_HEOMSuperOp(MType, op, Id), M.ops))
+_L_t_to_HEOMSuperOp(MType::Type{<:AbstractSparseMatrix}, M::MatrixOperator, Id::Diagonal) =
+    MatrixOperator(MType(kron(Id, M.A)))
+_L_t_to_HEOMSuperOp(MType::Type{<:AbstractSparseMatrix}, M::ScaledOperator, Id::Diagonal) =
+    ScaledOperator(M.λ, _L_t_to_HEOMSuperOp(MType, M.L, Id))
+_L_t_to_HEOMSuperOp(MType::Type{<:AbstractSparseMatrix}, M::AddedOperator, Id::Diagonal) =
+    AddedOperator(map(op -> _L_t_to_HEOMSuperOp(MType, op, Id), M.ops))

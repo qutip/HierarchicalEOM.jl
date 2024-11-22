@@ -20,9 +20,12 @@ SteadyState(args...; kwargs...) = error("`SteadyState` has been deprecated, plea
 
 evolution(args...; kwargs...) = error("`evolution` has been deprecated, please use `HEOMsolve` instead.")
 
-_HEOMSuperOp_deprecated_method_error() = error("Specifying `mul_basis = \"L\", \"R\", or \"LR\"` to `HEOMSuperOp` has been deprecated, try to construct system SuperOperator manually by using `spre`, `spost`, or `sprepost`.")
+_HEOMSuperOp_deprecated_method_error() = error(
+    "Specifying `mul_basis = \"L\", \"R\", or \"LR\"` to `HEOMSuperOp` has been deprecated, try to construct system SuperOperator manually by using `spre`, `spost`, or `sprepost`.",
+)
 
-HEOMSuperOp(op, opParity::AbstractParity, dims::SVector, N::Int, mul_basis::AbstractString; Id_cache = I(N)) = _HEOMSuperOp_deprecated_method_error()
+HEOMSuperOp(op, opParity::AbstractParity, dims::SVector, N::Int, mul_basis::AbstractString; Id_cache = I(N)) =
+    _HEOMSuperOp_deprecated_method_error()
 HEOMSuperOp(
     op,
     opParity::AbstractParity,

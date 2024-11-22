@@ -30,12 +30,8 @@ During the multiplication on all the `ADOs`, the parity of the output `ADOs` mig
 - `opParity::AbstractParity` : the parity label of the given operator (`op`), should be `EVEN` or `ODD`.
 - `refHEOMLS::AbstractHEOMLSMatrix` : copy the system `dims` and number of `ADOs` (`N`) from this reference HEOMLS matrix
 """
-HEOMSuperOp(
-    op,
-    opParity::AbstractParity,
-    refHEOMLS::AbstractHEOMLSMatrix;
-    Id_cache = I(refHEOMLS.N),
-) = HEOMSuperOp(op, opParity, refHEOMLS.dims, refHEOMLS.N; Id_cache = Id_cache)
+HEOMSuperOp(op, opParity::AbstractParity, refHEOMLS::AbstractHEOMLSMatrix; Id_cache = I(refHEOMLS.N)) =
+    HEOMSuperOp(op, opParity, refHEOMLS.dims, refHEOMLS.N; Id_cache = Id_cache)
 
 @doc raw"""
     HEOMSuperOp(op, opParity, refADOs; Id_cache=I(refADOs.N))
@@ -226,7 +222,12 @@ For more details, please refer to [`FastExpm.jl`](https://github.com/fmentink/Fa
 # Returns
 - `::SparseMatrixCSC{ComplexF64, Int64}` : the propagator matrix
 """
-@noinline function Propagator(M::AbstractHEOMLSMatrix{<:MatrixOperator}, Δt::Real; threshold = 1.0e-6, nonzero_tol = 1.0e-14)
+@noinline function Propagator(
+    M::AbstractHEOMLSMatrix{<:MatrixOperator},
+    Δt::Real;
+    threshold = 1.0e-6,
+    nonzero_tol = 1.0e-14,
+)
     return fastExpm(M.data.A * Δt; threshold = threshold, nonzero_tol = nonzero_tol)
 end
 
@@ -320,7 +321,11 @@ function addFermionDissipator(M::AbstractHEOMLSMatrix, jumpOP::Vector{T} = Quant
 end
 addFermionDissipator(M::AbstractHEOMLSMatrix, jumpOP::QuantumObject) = addFermionDissipator(M, [jumpOP])
 
-function _fermion_lindblad_dissipator(J::QuantumObject{DT,OperatorQuantumObject}, parity::AbstractParity, Id_cache = I(size(J, 1))) where {DT}
+function _fermion_lindblad_dissipator(
+    J::QuantumObject{DT,OperatorQuantumObject},
+    parity::AbstractParity,
+    Id_cache = I(size(J, 1)),
+) where {DT}
     _J = J.data
     Jd_J = _J' * _J
     return (-1)^(value(parity)) * _sprepost(_J, _J') - (_spre(Jd_J, Id_cache) + _spost(Jd_J, Id_cache)) / 2

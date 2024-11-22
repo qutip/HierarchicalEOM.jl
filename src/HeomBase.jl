@@ -46,7 +46,12 @@ function HandleMatrixType(M::AbstractQuantumObject, MatrixName::String = ""; typ
         error("The matrix $(MatrixName) should be an $(type).")
     end
 end
-function HandleMatrixType(M::AbstractQuantumObject, dims::SVector, MatrixName::String = ""; type::QuantumObjectType = Operator)
+function HandleMatrixType(
+    M::AbstractQuantumObject,
+    dims::SVector,
+    MatrixName::String = "";
+    type::QuantumObjectType = Operator,
+)
     if M.dims == dims
         return HandleMatrixType(M, MatrixName; type = type)
     else
