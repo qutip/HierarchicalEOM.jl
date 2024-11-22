@@ -32,7 +32,7 @@
     ados_wrong1 = ADOs(zeros(8), 2)
     ados_wrong2 = ADOs(zeros(32), 2)
     ados_wrong3 = ADOs((ados_list[1]).data, (ados_list[1]).N, ODD)
-    ados_wrong4 = HEOMSuperOp(Q, ODD, ados_list[end]) * ados_list[end]
+    ados_wrong4 = HEOMSuperOp(spre(Q), ODD, ados_list[end]) * ados_list[end]
     ρ_list_p = getRho.(ados_list)
     @test show(devnull, MIME("text/plain"), sol_p) === nothing
     @test length(sol_p.ados) == 1

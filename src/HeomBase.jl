@@ -2,8 +2,8 @@ export AbstractHEOMLSMatrix
 
 abstract type AbstractHEOMLSMatrix{T} end
 
-QuantumToolbox._FType(::AbstractHEOMLSMatrix{<:AbstractArray{T}}) where {T<:Number} = _FType(T)
-QuantumToolbox._CType(::AbstractHEOMLSMatrix{<:AbstractArray{T}}) where {T<:Number} = _CType(T)
+QuantumToolbox._FType(M::AbstractHEOMLSMatrix) = _FType(eltype(M))
+QuantumToolbox._CType(M::AbstractHEOMLSMatrix) = _CType(eltype(M))
 
 _get_SciML_matrix_wrapper(M::AbstractArray) = QuantumToolbox.get_typename_wrapper(M){eltype(M)}
 _get_SciML_matrix_wrapper(M::MatrixOperator) = _get_SciML_matrix_wrapper(M.A)

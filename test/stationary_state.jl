@@ -37,5 +37,5 @@
     @test_throws ErrorException steadystate(L, mat2)
     @test_throws ErrorException steadystate(L, ADOs(zeros(8), 2))
     @test_throws ErrorException steadystate(L, ADOs(ados.data, ados.N, ODD))
-    @test_throws ErrorException steadystate(L, HEOMSuperOp(d, ODD, L) * ados)
+    @test_throws ErrorException steadystate(L, HEOMSuperOp(spre(d), ODD, L) * ados)
 end

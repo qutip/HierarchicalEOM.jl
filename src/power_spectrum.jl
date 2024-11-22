@@ -85,7 +85,6 @@ remember to set the parameters:
     end
     _check_sys_dim_and_ADOs_num(M, ados)
 
-    Id_sys = I(prod(M.dims))
     Id_HEOM = I(M.N)
 
     # Handle P_op
@@ -93,7 +92,7 @@ remember to set the parameters:
         _check_sys_dim_and_ADOs_num(M, P_op)
         _P = P_op
     else
-        _P = HEOMSuperOp(spre(P_op, Id_sys), EVEN, M; Id_cache = Id_HEOM)
+        _P = HEOMSuperOp(spre(P_op), EVEN, M; Id_cache = Id_HEOM)
     end
     MType = _get_SciML_matrix_wrapper(M)
     _tr_P = transpose(_Tr(M)) * MType(_P).data
@@ -109,7 +108,7 @@ remember to set the parameters:
         else
             new_parity = !ados.parity
         end
-        _Q_ados = HEOMSuperOp(spre(Q_op, Id_sys), new_parity, M; Id_cache = Id_HEOM) * ados
+        _Q_ados = HEOMSuperOp(spre(Q_op), new_parity, M; Id_cache = Id_HEOM) * ados
     end
     b = _HandleVectorType(M, _Q_ados.data)
 

@@ -45,7 +45,7 @@
     M_me = addFermionDissipator(M_me, jumpOPs)
 
     # create quantum jump superoperator (only the emission part)
-    J_me = HEOMSuperOp(γ_eR * d, ODD, M_me, "L") * HEOMSuperOp(γ_eR * d', ODD, M_me, "R")
+    J_me = HEOMSuperOp(γ_eR * spre(d), ODD, M_me) * HEOMSuperOp(γ_eR * spost(d'), ODD, M_me)
     @test size(M_me) == size(J_me)
     @test size(M_me, 1) == size(J_me, 1)
     @test eltype(M_me) == eltype(J_me)
@@ -53,7 +53,7 @@
     @test J_me[4, 1] ≈ 0.0044570891355200214
     @test J_me.data * 2 ≈ (J_me - (-1) * J_me).data
     @test J_me.data * 2 ≈
-          (HEOMSuperOp(√(2) * γ_eR * d, ODD, M_me, "L") * HEOMSuperOp(√(2) * γ_eR * d', ODD, M_me, "R")).data
+          (HEOMSuperOp(√(2) * γ_eR * spre(d), ODD, M_me) * HEOMSuperOp(√(2) * γ_eR * spost(d'), ODD, M_me)).data
     @test show(devnull, MIME("text/plain"), J_me) == nothing
 
     # create HEOM Liouvuillian superoperator without quantum jump
@@ -77,7 +77,7 @@
     M_heom = addFermionDissipator(M_heom, jumpOPs)
 
     # create quantum jump superoperator (only the emission part)
-    J_heom = HEOMSuperOp(γ_eR * d, ODD, M_heom, "L") * HEOMSuperOp(γ_eR * d', ODD, M_heom, "R")
+    J_heom = HEOMSuperOp(γ_eR * spre(d), ODD, M_heom) * HEOMSuperOp(γ_eR * spost(d'), ODD, M_heom)
 
     # create HEOM Liouvuillian superoperator without quantum jump
     M1 = M_heom - J_heom
@@ -93,9 +93,9 @@
     end
 
     ## test for error
-    J_wrong1 = HEOMSuperOp(γ_eR * d, ODD, M_me, "L")
-    J_wrong2 = HEOMSuperOp(γ_eR * d, EVEN, M_heom, "L")
-    @test_throws ErrorException HEOMSuperOp(d, EVEN, M_heom, "LR")
+    J_wrong1 = HEOMSuperOp(γ_eR * spre(d), ODD, M_me)
+    J_wrong2 = HEOMSuperOp(γ_eR * spre(d), EVEN, M_heom)
+    @test_throws ErrorException HEOMSuperOp(sprepost(d), EVEN, M_heom)
     @test_throws ErrorException J_me * J_wrong2
     @test_throws ErrorException J_me + J_wrong1
     @test_throws ErrorException J_me + J_wrong2
@@ -105,4 +105,6 @@
     @test_throws ErrorException J_me - J_wrong2
     @test_throws ErrorException M_me - J_wrong1
     @test_throws ErrorException M_me - J_wrong2
+    @test_throws ErrorException HEOMSuperOp(d, ODD, M_heom, "L")
+    @test_throws ErrorException HEOMSuperOp(d, ODD, ados_s1, "L")
 end

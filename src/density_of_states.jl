@@ -54,7 +54,7 @@ Calculate density of states for the fermionic system in frequency domain.
     # Handle d_op
     MType = _get_SciML_matrix_wrapper(M)
     _tr = transpose(_Tr(M))
-    Id_sys = I(prod(M.dims))
+    Id_sys = I(prod(d_op.dims))
     Id_HEOM = I(M.N)
     d_normal = HEOMSuperOp(spre(d_op, Id_sys), ODD, M; Id_cache = Id_HEOM)
     d_dagger = HEOMSuperOp(spre(d_op', Id_sys), ODD, M; Id_cache = Id_HEOM)
