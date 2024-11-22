@@ -39,14 +39,14 @@ end
 _Tr(M::AbstractHEOMLSMatrix) = _Tr(_get_SciML_matrix_wrapper(M), M.dims, M.N)
 _Tr(M::Type{<:SparseMatrixCSC}, dims::SVector, N::Int) = _Tr(eltype(M), dims, N)
 
-function HandleMatrixType(M::QuantumObject, MatrixName::String = ""; type::QuantumObjectType = Operator)
+function HandleMatrixType(M::AbstractQuantumObject, MatrixName::String = ""; type::QuantumObjectType = Operator)
     if M.type == type
         return M
     else
         error("The matrix $(MatrixName) should be an $(type).")
     end
 end
-function HandleMatrixType(M::QuantumObject, dims::SVector, MatrixName::String = ""; type::QuantumObjectType = Operator)
+function HandleMatrixType(M::AbstractQuantumObject, dims::SVector, MatrixName::String = ""; type::QuantumObjectType = Operator)
     if M.dims == dims
         return HandleMatrixType(M, MatrixName; type = type)
     else

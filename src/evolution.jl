@@ -156,7 +156,7 @@ function HEOMsolve(
 end
 
 @doc raw"""
-    HEOMsolve(M, ρ0, tlist; e_ops, solver, Ht, params, verbose, filename, SOLVEROptions...)
+    HEOMsolve(M, ρ0, tlist; e_ops, solver, H_t, params, verbose, filename, SOLVEROptions...)
 Solve the time evolution for auxiliary density operators based on ordinary differential equations.
 
 # Parameters
@@ -165,7 +165,7 @@ Solve the time evolution for auxiliary density operators based on ordinary diffe
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `e_ops::Union{Nothing,AbstractVector}`: List of operators for which to calculate expectation values.
 - `solver::OrdinaryDiffEqAlgorithm` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
-- `Ht::Union{Nothing,QuantumObjectEvolution}`: The time-dependent system Hamiltonian or Liouvillian. Default to `nothing`.
+- `H_t::Union{Nothing,QuantumObjectEvolution}`: The time-dependent system Hamiltonian or Liouvillian. Default to `nothing`.
 - `params`: Parameters to pass to the solver. This argument is usually expressed as a `NamedTuple` or `AbstractVector` of parameters. For more advanced usage, any custom struct can be used.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" after the solving process.
@@ -187,7 +187,7 @@ function HEOMsolve(
     tlist::AbstractVector;
     e_ops::Union{Nothing,AbstractVector} = nothing,
     solver::OrdinaryDiffEqAlgorithm = DP5(),
-    Ht::Union{Nothing,QuantumObjectEvolution} = nothing,
+    H_t::Union{Nothing,QuantumObjectEvolution} = nothing,
     params = NullParameters(),
     verbose::Bool = true,
     filename::String = "",
@@ -236,7 +236,7 @@ function HEOMsolve(
         merge(kwargs, (callback = cb,))
 
     # define ODE problem (L should be an AbstractSciMLOperator)
-    L = (Ht isa Nothing) ? M.data : _make_L(M, Ht)
+    L = _make_L(M, H_t)
     prob = ODEProblem{true,FullSpecialize}(L, u0, (t_l[1], t_l[end]), params; kwargs2...)
 
     # start solving ode
@@ -295,6 +295,15 @@ function _HEOMsolve_callback(integrator, is_empty_e_ops, tr_e_ops, progr, expval
     return u_modified!(integrator, false)
 end
 
-function _make_L(M::AbstractHEOMLSMatrix, Ht::QuantumObjectEvolution)
-    return M.data
+_make_L(M::AbstractHEOMLSMatrix, H_t::Nothing) = M.data
+function _make_L(M::AbstractHEOMLSMatrix, H_t::QuantumObjectEvolution)
+    Id_HEOM = I(M.N)
+    MType = _get_SciML_matrix_wrapper(M)
+    L_t = HandleMatrixType(liouvillian(H_t), M.dims, "H_t"; type = SuperOperator)
+
+    return M.data + _L_t_to_HEOMSuperOp(MType, L_t.data, Id_HEOM)
 end
+
+_L_t_to_HEOMSuperOp(MType::Type{<:AbstractSparseMatrix}, M::MatrixOperator, Id::Diagonal) = MatrixOperator(MType(kron(Id, M.A)))
+_L_t_to_HEOMSuperOp(MType::Type{<:AbstractSparseMatrix}, M::ScaledOperator, Id::Diagonal) = ScaledOperator(M.λ, _L_t_to_HEOMSuperOp(MType, M.L, Id))
+_L_t_to_HEOMSuperOp(MType::Type{<:AbstractSparseMatrix}, M::AddedOperator, Id::Diagonal) = AddedOperator(map(op -> _L_t_to_HEOMSuperOp(MType, op, Id), M.ops))

@@ -88,17 +88,18 @@
     bath = Boson_DrudeLorentz_Pade(σz, 0.0005, 0.005, 0.05, 3)
     L = M_Boson(H_sys, 6, bath; verbose = false)
 
-    function Ht(t, p)
+    function coef(p, t)
         duration = p.integral / p.amplitude
         period = duration + p.delay
 
         t = t % period
         if t < duration
-            return p.amplitude * sigmax()
+            return p.amplitude
         else
-            return Qobj([0 0; 0 0])
+            return 0.0
         end
     end
+    Ht = QobjEvo(sigmax(), coef)
 
     tlist = 0:10:400
     if isfile("evolution_t.jld2")
@@ -252,13 +253,11 @@
     @test all(isapprox.(slowDD1, slowBoFiN; atol = 1.0e-6))
     @test all(isapprox.(slowDD2, slowBoFiN; atol = 1.0e-6))
 
-    H_wrong1(t, p) = Qobj(zeros(3, 3))
-    H_wrong2(t, p) = t == 0 ? Qobj(zeros(2, 2)) : Qobj(zeros(3, 3))
+    H_wrong = QobjEvo(Qobj(zeros(3, 3)), coef)
     ados_wrong1 = ADOs(zeros(8), 2)
     ados_wrong2 = ADOs(zeros(32), 2)
     ados_wrong3 = ADOs((slowDD_ados[1]).data, (slowDD_ados[1]).N, ODD)
-    @test_throws ErrorException HEOMsolve(L, ψ0, tlist; H_t = H_wrong1, verbose = false)
-    @test_throws ErrorException HEOMsolve(L, ψ0, tlist; H_t = H_wrong2, verbose = false)
+    @test_throws ErrorException HEOMsolve(L, ψ0, tlist; H_t = H_wrong, verbose = false)
     @test_throws ErrorException HEOMsolve(L, ados_wrong1, tlist; H_t = Ht, verbose = false)
     @test_throws ErrorException HEOMsolve(L, ados_wrong2, tlist; H_t = Ht, verbose = false)
     @test_throws ErrorException HEOMsolve(L, ados_wrong3, tlist; H_t = Ht, verbose = false)
