@@ -63,7 +63,7 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 - `::ADOs` : The steady state of auxiliary density operators.
 """
 function QuantumToolbox.steadystate(
-    M::AbstractHEOMLSMatrix,
+    M::AbstractHEOMLSMatrix{<:MatrixOperator},
     ρ0::T_state,
     tspan::Number = Inf;
     solver::OrdinaryDiffEqAlgorithm = DP5(),

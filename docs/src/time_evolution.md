@@ -116,15 +116,15 @@ M = M_Fermion(H0, ...)
 M = M_BosonFermion(H0, ...)
 ```
 
-To solve the dynamics characterized by ``\hat{\mathcal{M}}`` together with the time-dependent part of system Hamiltonian ``H_1(t)``, you can specify keyword arguments `H_t` and `params` while calling [`HEOMsolve`](@ref). Here, the definition of user-defined function `H_1` must be in the form `H_1(t, params::NamedTuple)` and returns the time-dependent part of system Hamiltonian or Liouvillian (in `QuantumObject` type) at any given time point `t`. The parameters `params` should be a `NamedTuple` which contains all the extra parameters you need for the function `H_1`. For example:
+To solve the dynamics characterized by ``\hat{\mathcal{M}}`` together with the time-dependent part of system Hamiltonian ``H_1(t)``, you can specify keyword arguments `H_t` and `params` while calling [`HEOMsolve`](@ref). Here, `H_t` must be specified as a `QuantumToolbox.QuantumObjectEvolution` (or `QobjEvo`), and `params` should contain all the extra parameters you need for `QobjEvo`, for example:
 ```julia
-# in this case, p should be passed in as a NamedTuple: (p0 = p0, p1 = p1, p2 = p2)
-function H_1(t, p::NamedTuple)  
-    σx = [0 1; 1 0] # Pauli-X matrix
-    return (sin(p.p0 * t) + sin(p.p1 * t) + sin(p.p2 * t)) * σx
-end
+# in this case, p will be passed in as a NamedTuple: (p0 = p0, p1 = p1, p2 = p2)
+coef(p::NamedTuple, t) = sin(p.p0 * t) + sin(p.p1 * t) + sin(p.p2 * t)
+
+σx = sigmax() # Pauli-X matrix
+H_1 = QobjEvo(σx, coef)
 ```
-The `p` will be passed to your function `H_1` directly from the keyword argument in [`HEOMsolve`](@ref) called `params`:
+The `p` can be passed to `H_1` directly from the keyword argument in [`HEOMsolve`](@ref) called `params`:
 ```julia
 M::AbstractHEOMLSMatrix
 ρ0::QuantumObject
@@ -133,24 +133,6 @@ p = (p0 = 0.1, p1 = 1, p2 = 10)
 
 sol = HEOMsolve(M, ρ0, tlist; H_t = H_1, params = p)
 ```
-
-!!! warning "Warning"
-    If you don't need any extra `param` in your case, you still need to put a redundant one in the definition of `H_1`, for example:
-
-```julia
-function H_1(t, p::NamedTuple)
-    σx = [0 1; 1 0] # Pauli-X matrix
-    return sin(0.1 * t) * σx
-end
-
-M::AbstractHEOMLSMatrix
-ρ0::QuantumObject
-tlist = 0:0.1:10
-
-sol = HEOMsolve(M, ρ0, tlist; H_t = H_1)
-```
-!!! note "Note"
-    The default value for `params` in `HEOMsolve` is an empty `NamedTuple()`.
 
 ## Propagator Method
 The second method is implemented by directly construct the propagator of a given [HEOMLS matrix](@ref doc-HEOMLS-Matrix) ``\hat{\mathcal{M}}``. Because ``\hat{\mathcal{M}}`` is time-independent, the equation above can be solved analytically as

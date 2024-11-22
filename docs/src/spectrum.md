@@ -71,10 +71,7 @@ Finially, one can obtain the value of the power spectrum for specific ``\omega``
 !!! note "Odd-Parity for Power Spectrum"
     When ``Q`` is an operator acting on fermionic systems and has `ODD`-parity, the HEOMLS matrix ``\hat{\mathcal{M}}`` is acting on the `ODD`-parity space because ``\textbf{b}=Q\rho^{(m,n,+)}_{\textbf{j} \vert \textbf{q}}``. Therefore, remember to construct ``\hat{\mathcal{M}}`` with `ODD` [parity](@ref doc-Parity) in this kind of cases.
 
-See also the docstring : 
-```@docs
-PowerSpectrum(M::AbstractHEOMLSMatrix, ρ::Union{QuantumObject,ADOs}, P_op::Union{QuantumObject,HEOMSuperOp}, Q_op::Union{QuantumObject,HEOMSuperOp}, ωlist::AbstractVector, reverse::Bool = false; solver = UMFPACKFactorization(), verbose::Bool = true, filename::String = "", SOLVEROptions...)
-```
+See also the docstring [`PowerSpectrum`](@ref).
 
 ```julia
 M::AbstractHEOMLSMatrix
@@ -121,10 +118,7 @@ Finially, one can obtain the density of states for specific ``\omega``, namely
 !!! note "Odd-Parity for Density of States"
     As shown above, the HEOMLS matrix ``\hat{\mathcal{M}}`` acts on the `ODD`-parity space, compatibly with the parity of both the operators ``\textbf{b}_-=d\rho^{(m,n,+)}_{\textbf{j} \vert \textbf{q}}`` and ``\textbf{b}_+=d^\dagger\rho^{(m,n,+)}_{\textbf{j} \vert \textbf{q}}``. Therefore, remember to construct ``\hat{\mathcal{M}}`` with `ODD` [parity](@ref doc-Parity) for solving spectrum of fermionic systems.
 
-See also the docstring : 
-```@docs
-DensityOfStates(M::AbstractHEOMLSMatrix, ρ::QuantumObject, d_op::QuantumObject, ωlist::AbstractVector; solver=UMFPACKFactorization(), verbose::Bool = true, filename::String = "", SOLVEROptions...)
-```
+See also the docstring [`DensityOfStates`](@ref).
 
 ```julia
 Hs::QuantumObject  # system Hamiltonian
