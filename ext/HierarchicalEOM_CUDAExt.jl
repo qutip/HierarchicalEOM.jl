@@ -32,6 +32,8 @@ function CuSparseMatrixCSC(M::T) where {T<:AbstractHEOMLSMatrix}
     end
 end
 
+CuSparseMatrixCSC{ComplexF32}(M::HEOMSuperOp) = HEOMSuperOp(_convert_to_gpu_matrix(M.data), M.dims, M.N, M.parity)
+
 function _convert_to_gpu_matrix(A::AbstractSparseMatrix)
     if A isa CuSparseMatrixCSC{ComplexF32,Int32}
         return A
