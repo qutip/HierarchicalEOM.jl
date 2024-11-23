@@ -20,12 +20,12 @@ H0 = 0.5 * ω0 * σz
   V &amp; \textrm{if}~~(n-1)\tau + n\Delta \leq t \leq n (\tau + \Delta),\\
   0 &amp; \textrm{otherwise}.
   \end{cases}\]</p><p>Here, we set the period of the pulses to be <span>$\tau V = \pi/2$</span>. Therefore, we consider two scenarios with fast and slow pulses:</p><pre><code class="language-julia hljs"># a function which returns the amplitude of the pulse at time t
-function pulse(V, Δ, t)
-    τ = 0.5 * π / V
-    period = τ + Δ
+function pulse(p, t)
+    τ = 0.5 * π / p.V
+    period = τ + p.Δ
 
     if (t % period) &lt; τ
-        return V
+        return p.V
     else
         return 0
     end
@@ -36,12 +36,15 @@ amp_fast = 0.50
 amp_slow = 0.01
 delay = 20
 
+fastTuple = (V = amp_fast, Δ = delay)
+slowTuple = (V = amp_slow, Δ = delay)
+
 Plots.plot(
     tlist,
-    [[pulse(amp_fast, delay, t) for t in tlist], [pulse(amp_slow, delay, t) for t in tlist]],
+    [[pulse(fastTuple, t) for t in tlist], [pulse(slowTuple, t) for t in tlist]],
     label = [&quot;Fast Pulse&quot; &quot;Slow Pulse&quot;],
     linestyle = [:solid :dash],
-)</code></pre><img src="79977a1c.svg" alt="Example block output"/><h2 id="Construct-bath-objects"><a class="docs-heading-anchor" href="#Construct-bath-objects">Construct bath objects</a><a id="Construct-bath-objects-1"></a><a class="docs-heading-anchor-permalink" href="#Construct-bath-objects" title="Permalink"></a></h2><p>We assume the bosonic reservoir to have a <a href="../../bath_boson/Boson_Drude_Lorentz/#Boson-Drude-Lorentz">Drude-Lorentz Spectral Density</a>, and we utilize the Padé decomposition. Furthermore, the spectral densities depend on the following physical parameters:</p><ul><li>the coupling strength <span>$\Gamma$</span> between system and reservoir</li><li>the band-width <span>$W$</span></li><li>the product of the Boltzmann constant <span>$k$</span> and the absolute temperature <span>$T$</span> : <span>$kT$</span></li><li>the total number of exponentials for the reservoir <span>$(N + 1)$</span></li></ul><pre><code class="language-julia hljs">Γ = 0.0005
+)</code></pre><img src="f06babf6.svg" alt="Example block output"/><h2 id="Construct-bath-objects"><a class="docs-heading-anchor" href="#Construct-bath-objects">Construct bath objects</a><a id="Construct-bath-objects-1"></a><a class="docs-heading-anchor-permalink" href="#Construct-bath-objects" title="Permalink"></a></h2><p>We assume the bosonic reservoir to have a <a href="../../bath_boson/Boson_Drude_Lorentz/#Boson-Drude-Lorentz">Drude-Lorentz Spectral Density</a>, and we utilize the Padé decomposition. Furthermore, the spectral densities depend on the following physical parameters:</p><ul><li>the coupling strength <span>$\Gamma$</span> between system and reservoir</li><li>the band-width <span>$W$</span></li><li>the product of the Boltzmann constant <span>$k$</span> and the absolute temperature <span>$T$</span> : <span>$kT$</span></li><li>the total number of exponentials for the reservoir <span>$(N + 1)$</span></li></ul><pre><code class="language-julia hljs">Γ = 0.0005
 W = 0.005
 kT = 0.05
 N = 3
@@ -51,31 +54,9 @@ M = M_Boson(H0, tier, bath)</code></pre><pre class="documenter-example-output"><
 system dims = [2]
 number of ADOs N = 210
 data =
-840×840 SparseMatrixCSC{ComplexF64, Int64} with 3104 stored entries:
-⎡⣻⢞⣦⡀⠀⠘⢦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠳⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⎤
-⎢⠈⠻⣿⣿⣄⠀⠀⠙⣄⠀⠀⠀⠀⠀⠀⠀⠀⠈⢣⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⎥
-⎢⣀⠀⠀⠙⠿⢇⣀⡀⠈⢇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⎥
-⎢⠈⠳⣄⠀⠀⠸⣿⣿⣄⠀⠳⡄⠀⠀⠀⠀⠀⠀⠀⠀⠈⢦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⎥
-⎢⠀⠀⠀⠙⠦⢄⠀⠙⠿⢇⣀⠘⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⢱⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⎥
-⎢⠀⠀⠀⠀⠀⠀⠙⠦⣀⠘⢿⣷⡌⠳⡀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⎥
-⎢⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢦⡉⢿⣷⡳⡄⠀⠀⠀⠀⠀⠀⠀⠀⠘⢦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⎥
-⎢⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠮⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⎥
-⎢⠙⢦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣆⠀⠓⣄⠀⠀⠀⠀⠈⢣⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⎥
-⎢⠀⠀⠉⠳⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⢿⣷⠀⠈⢣⠀⠀⠀⠀⠀⠙⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⎥
-⎢⠀⠀⠀⠀⠀⠈⠲⣄⠀⠀⠀⠀⠀⠀⠀⠀⠙⢤⡀⠀⢟⣵⣌⠳⡄⠀⠀⠀⠀⠉⢦⠀⠀⠀⠀⠀⠀⠀⠀⠀⎥
-⎢⠀⠀⠀⠀⠀⠀⠀⠈⠙⠲⣄⠀⠀⠀⠀⠀⠀⠀⠉⠒⢦⡙⢻⣶⡽⣄⠀⠀⠀⠀⠀⢣⡀⠀⠀⠀⠀⠀⠀⠀⎥
-⎢⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠲⣄⡀⠀⠀⠀⠀⠀⠀⠉⠓⢯⣻⣾⣆⠀⠀⠀⠀⠀⠳⡀⠀⠀⠀⠀⠀⠀⎥
-⎢⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠃⢦⣀⠀⠀⠀⠀⠀⠀⠈⠙⢱⣶⣄⠲⣄⠀⠀⠢⡀⠀⠀⠀⠀⠀⎥
-⎢⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠓⠤⣄⠀⠀⠀⠀⠀⢠⡙⠻⣦⣜⣆⠀⠀⠙⣄⠀⠀⠀⠀⎥
-⎢⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠓⠤⣀⠀⠀⠀⠙⠲⢽⡿⣯⣧⠀⠀⠈⣆⠀⠀⠀⎥
-⎢⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠢⢤⣀⠀⠀⠉⠛⠿⣧⡄⢄⠘⡄⠀⠀⎥
-⎢⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠓⢤⣀⠀⠀⢍⡛⣬⣦⠘⢆⠀⎥
-⎢⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠒⢦⣈⠛⠛⣤⣬⡄⎥
-⎣⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠒⠿⣿⢟⎦</code></pre><h2 id="time-evolution-with-time-independent-Hamiltonian"><a class="docs-heading-anchor" href="#time-evolution-with-time-independent-Hamiltonian">time evolution with time-independent Hamiltonian</a><a id="time-evolution-with-time-independent-Hamiltonian-1"></a><a class="docs-heading-anchor-permalink" href="#time-evolution-with-time-independent-Hamiltonian" title="Permalink"></a></h2><p>(see also <a href="../../time_evolution/#doc-Time-Evolution">Time Evolution</a>)</p><pre><code class="language-julia hljs">noPulseSol = HEOMsolve(M, ψ0, tlist; e_ops = [ρ01]);</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Solving time evolution for ADOs by Ordinary Differential Equations method...
-Progress: [                              ]   0.1% --- Elapsed Time: 0h 00m 01s (ETA: 0h 16m 40s)Progress: [==============================] 100.0% --- Elapsed Time: 0h 00m 01s (ETA: 0h 00m 00s)</code></pre><h2 id="Solve-time-evolution-with-time-dependent-Hamiltonian"><a class="docs-heading-anchor" href="#Solve-time-evolution-with-time-dependent-Hamiltonian">Solve time evolution with time-dependent Hamiltonian</a><a id="Solve-time-evolution-with-time-dependent-Hamiltonian-1"></a><a class="docs-heading-anchor-permalink" href="#Solve-time-evolution-with-time-dependent-Hamiltonian" title="Permalink"></a></h2><p>(see also <a href="../../time_evolution/#doc-Time-Evolution">Time Evolution</a>)</p><p>We need to provide a user-defined function (named as <code>H_D</code> in this case), which must be in the form <code>H_D(t, p::NamedTuple)</code> and returns the time-dependent part of system Hamiltonian (in <code>QuantumObject</code> type) at any given time point <code>t</code>. The parameter <code>p</code> should be a <code>NamedTuple</code> which contains all the extra parameters [<code>V</code> (amplitude), <code>Δ</code> (delay), and <code>σx</code> (operator) in this case] for the function <code>H_D</code>:</p><pre><code class="language-julia hljs">H_D(t, p::NamedTuple) = pulse(p.V, p.Δ, t) * p.σx;</code></pre><p>The parameter <code>p</code> will be passed to your function <code>H_D</code> directly from the <strong>last required</strong> parameter in <code>HEOMsolve</code>:</p><pre><code class="language-julia hljs">fastTuple = (V = amp_fast, Δ = delay, σx = σx)
-slowTuple = (V = amp_slow, Δ = delay, σx = σx)
-
-fastPulseSol = HEOMsolve(M, ψ0, tlist; e_ops = [ρ01], H_t = H_D, params = fastTuple)
+MatrixOperator(840 × 840)</code></pre><h2 id="time-evolution-with-time-independent-Hamiltonian"><a class="docs-heading-anchor" href="#time-evolution-with-time-independent-Hamiltonian">time evolution with time-independent Hamiltonian</a><a id="time-evolution-with-time-independent-Hamiltonian-1"></a><a class="docs-heading-anchor-permalink" href="#time-evolution-with-time-independent-Hamiltonian" title="Permalink"></a></h2><p>(see also <a href="../../time_evolution/#doc-Time-Evolution">Time Evolution</a>)</p><pre><code class="language-julia hljs">noPulseSol = HEOMsolve(M, ψ0, tlist; e_ops = [ρ01]);</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Solving time evolution for ADOs by Ordinary Differential Equations method...
+Progress: [==============================] 100.0% --- Elapsed Time: 0h 00m 00s (ETA: 0h 00m 00s)</code></pre><h2 id="Solve-time-evolution-with-time-dependent-Hamiltonian"><a class="docs-heading-anchor" href="#Solve-time-evolution-with-time-dependent-Hamiltonian">Solve time evolution with time-dependent Hamiltonian</a><a id="Solve-time-evolution-with-time-dependent-Hamiltonian-1"></a><a class="docs-heading-anchor-permalink" href="#Solve-time-evolution-with-time-dependent-Hamiltonian" title="Permalink"></a></h2><p>(see also <a href="../../time_evolution/#doc-Time-Evolution">Time Evolution</a>)</p><p>We need to provide a <code>QuantumToolbox.QuantumObjectEvolution</code> (named as <code>H_D</code> in this case)</p><pre><code class="language-julia hljs">H_D = QobjEvo(σx, pulse)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Quantum Object Evo.:   type=Operator   dims=[2]   size=(2, 2)   ishermitian=true   isconstant=false
+ScalarOperator(0.0 + 0.0im) * MatrixOperator(2 × 2)</code></pre><p>The keyword argument <code>params</code> in <code>HEOMsolve</code> will be passed to the argument <code>p</code> in user-defined function (<code>pulse</code> in this case) directly:</p><pre><code class="language-julia hljs">fastPulseSol = HEOMsolve(M, ψ0, tlist; e_ops = [ρ01], H_t = H_D, params = fastTuple)
 slowPulseSol = HEOMsolve(M, ψ0, tlist; e_ops = [ρ01], H_t = H_D, params = slowTuple)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Solution of hierarchical EOM
 (return code: Success)
 ----------------------------
@@ -95,4 +76,4 @@ reltol = 1.0e-6
     xlabel = L&quot;t&quot;,
     ylabel = L&quot;\rho_{01}&quot;,
     grid = false,
-)</code></pre><img src="0f5bc160.svg" alt="Example block output"/><p>This example is from QuTiP-BoFiN paper : <a href="https://link.aps.org/doi/10.1103/PhysRevResearch.5.013181">Phys. Rev. Research 5, 013181 (2023)</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../cavityQED/">« Cavity QED system</a><a class="docs-footer-nextpage" href="../SIAM/">The single-impurity Anderson model »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.8.0 on <span class="colophon-date" title="Friday 22 November 2024 09:40">Friday 22 November 2024</span>. Using Julia version 1.11.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+)</code></pre><img src="37f9c728.svg" alt="Example block output"/><p>This example is from QuTiP-BoFiN paper : <a href="https://link.aps.org/doi/10.1103/PhysRevResearch.5.013181">Phys. Rev. Research 5, 013181 (2023)</a>.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../cavityQED/">« Cavity QED system</a><a class="docs-footer-nextpage" href="../SIAM/">The single-impurity Anderson model »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.8.0 on <span class="colophon-date" title="Saturday 23 November 2024 01:35">Saturday 23 November 2024</span>. Using Julia version 1.11.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
