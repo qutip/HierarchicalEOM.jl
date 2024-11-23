@@ -28,9 +28,9 @@
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (336, 336)
     @test L.N == 84
-    @test nnz(L.data) == 4422
+    @test nnz(L.data.A) == nnz(L(0)) == 4422
     L = addBosonDissipator(L, J)
-    @test nnz(L.data) == 4760
+    @test nnz(L.data.A) == nnz(L(0)) == 4760
     ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N
@@ -46,9 +46,9 @@
     L = M_Boson(Hsys, tier, [Bbath, Bbath]; verbose = false)
     @test size(L) == (1820, 1820)
     @test L.N == 455
-    @test nnz(L.data) == 27662
+    @test nnz(L.data.A) == nnz(L(0)) == 27662
     L = addBosonDissipator(L, J)
-    @test nnz(L.data) == 29484
+    @test nnz(L.data.A) == nnz(L(0)) == 29484
     ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N
@@ -62,7 +62,7 @@
 
     ## check exceptions
     @test_throws BoundsError L[1, 1821]
-    @test_throws BoundsError L[1:1821, 336]
+    @test_throws BoundsError L[1821, 336]
     @test_throws ErrorException ados[L.N+1]
     @test_throws ErrorException M_Boson(Qobj([0, 0]), tier, Bbath; verbose = false)
 end

@@ -2,27 +2,56 @@ export AbstractHEOMLSMatrix
 
 abstract type AbstractHEOMLSMatrix{T} end
 
-QuantumToolbox._FType(::AbstractHEOMLSMatrix{<:AbstractArray{T}}) where {T<:Number} = _FType(T)
-QuantumToolbox._CType(::AbstractHEOMLSMatrix{<:AbstractArray{T}}) where {T<:Number} = _CType(T)
+@doc raw"""
+    (M::AbstractHEOMLSMatrix)(p, t)
+
+Calculate the time-dependent AbstractHEOMLSMatrix at time `t` with parameters `p`.
+
+# Arguments
+- `p`: The parameters of the time-dependent coefficients.
+- `t`: The time at which the coefficients are evaluated.
+
+# Returns
+- The output HEOMLS matrix.
+"""
+function (M::AbstractHEOMLSMatrix)(p, t)
+    # We put 0 in the place of `u` because the time-dependence doesn't depend on the state
+    update_coefficients!(M.data, 0, p, t)
+    return concretize(M.data)
+end
+
+(M::AbstractHEOMLSMatrix)(t) = M(nothing, t)
+
+QuantumToolbox._FType(M::AbstractHEOMLSMatrix) = _FType(eltype(M))
+QuantumToolbox._CType(M::AbstractHEOMLSMatrix) = _CType(eltype(M))
+
+_get_SciML_matrix_wrapper(M::AbstractArray) = QuantumToolbox.get_typename_wrapper(M){eltype(M)}
+_get_SciML_matrix_wrapper(M::MatrixOperator) = _get_SciML_matrix_wrapper(M.A)
+_get_SciML_matrix_wrapper(M::ScaledOperator) = _get_SciML_matrix_wrapper(M.L)
+_get_SciML_matrix_wrapper(M::AddedOperator) = _get_SciML_matrix_wrapper(M.ops[1])
+_get_SciML_matrix_wrapper(M::AbstractHEOMLSMatrix) = _get_SciML_matrix_wrapper(M.data)
 
 # equal to : sparse(vec(system_identity_matrix))
-function _Tr(dims::SVector, N::Int)
+function _Tr(T::Type{<:Number}, dims::SVector, N::Int)
     D = prod(dims)
-    return SparseVector(N * D^2, [1 + n * (D + 1) for n in 0:(D-1)], ones(ComplexF64, D))
+    return SparseVector(N * D^2, [1 + n * (D + 1) for n in 0:(D-1)], ones(T, D))
 end
-function _Tr(M::AbstractHEOMLSMatrix{T}) where {T<:SparseMatrixCSC}
-    D = prod(M.dims)
-    return SparseVector(M.N * D^2, [1 + n * (D + 1) for n in 0:(D-1)], ones(eltype(M), D))
-end
+_Tr(M::AbstractHEOMLSMatrix) = _Tr(_get_SciML_matrix_wrapper(M), M.dims, M.N)
+_Tr(M::Type{<:SparseMatrixCSC}, dims::SVector, N::Int) = _Tr(eltype(M), dims, N)
 
-function HandleMatrixType(M::QuantumObject, MatrixName::String = ""; type::QuantumObjectType = Operator)
+function HandleMatrixType(M::AbstractQuantumObject, MatrixName::String = ""; type::QuantumObjectType = Operator)
     if M.type == type
         return M
     else
         error("The matrix $(MatrixName) should be an $(type).")
     end
 end
-function HandleMatrixType(M::QuantumObject, dims::SVector, MatrixName::String = ""; type::QuantumObjectType = Operator)
+function HandleMatrixType(
+    M::AbstractQuantumObject,
+    dims::SVector,
+    MatrixName::String = "";
+    type::QuantumObjectType = Operator,
+)
     if M.dims == dims
         return HandleMatrixType(M, MatrixName; type = type)
     else
@@ -35,13 +64,14 @@ HandleMatrixType(M, MatrixName::String = ""; type::QuantumObjectType = Operator)
     error("HierarchicalEOM doesn't support matrix $(MatrixName) with type : $(typeof(M))")
 
 # change the type of `ADOs` to match the type of HEOMLS matrix
-_HandleVectorType(::AbstractHEOMLSMatrix{<:AbstractSparseMatrix{T}}, V::SparseVector) where {T<:Number} =
-    Vector{_CType(T)}(V)
+_HandleVectorType(M::AbstractHEOMLSMatrix, V::SparseVector) = _HandleVectorType(_get_SciML_matrix_wrapper(M), V)
+_HandleVectorType(M::Type{<:SparseMatrixCSC}, V::SparseVector) = Vector{_CType(eltype(M))}(V)
 
-function _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix, S::Int)
+function _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator})
+    S = size(M, 1)
     ElType = eltype(M)
     D = prod(M.dims)
-    A = copy(M.data)
+    A = copy(M.data.A)
     A[1, 1:S] .= 0
 
     # sparse(row_idx, col_idx, values, row_dims, col_dims)

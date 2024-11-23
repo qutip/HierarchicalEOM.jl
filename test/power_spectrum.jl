@@ -51,8 +51,8 @@
 
     mat = Qobj(spzeros(ComplexF64, 2, 2))
     mat2 = Qobj(spzeros(ComplexF64, 3, 3))
-    a_even = HEOMSuperOp(a, EVEN, L)
-    a_odd = HEOMSuperOp(a, ODD, L)
+    a_even = HEOMSuperOp(spre(a), EVEN, L)
+    a_odd = HEOMSuperOp(spre(a), ODD, L)
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
     @test_throws ErrorException PowerSpectrum(L, ados_s, a, ωlist; verbose = false, filename = "PSD")
     @test_throws ErrorException PowerSpectrum(L, ados_s, a_even, a_odd, ωlist; verbose = false)

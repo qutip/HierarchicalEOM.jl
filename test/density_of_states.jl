@@ -30,7 +30,7 @@
     if isfile("DOS.txt")
         rm("DOS.txt")
     end
-    d_up_normal = HEOMSuperOp(d_up, ODD, Le)
+    d_up_normal = HEOMSuperOp(spre(d_up), ODD, Le)
     dos1 = DensityOfStates(Lo, ados_s, d_up, ωlist; verbose = false, filename = "DOS")
     dos2 =
         PowerSpectrum(Lo, ados_s, d_up_normal, d_up', ωlist, true; verbose = false) .+

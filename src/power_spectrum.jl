@@ -8,7 +8,7 @@ This function is equivalent to:
 `PowerSpectrum(M, ρ, Q_op', Q_op, ωlist, reverse; solver, verbose, filename, SOLVEROptions...)`
 """
 PowerSpectrum(
-    M::AbstractHEOMLSMatrix,
+    M::AbstractHEOMLSMatrix{<:MatrixOperator},
     ρ::Union{QuantumObject,ADOs},
     Q_op::QuantumObject,
     ωlist::AbstractVector,
@@ -65,10 +65,10 @@ remember to set the parameters:
 - `spec::AbstractVector` : the spectrum list corresponds to the specified `ωlist`
 """
 @noinline function PowerSpectrum(
-    M::AbstractHEOMLSMatrix,
+    M::AbstractHEOMLSMatrix{<:MatrixOperator},
     ρ::Union{QuantumObject,ADOs},
-    P_op::Union{QuantumObject,HEOMSuperOp},
-    Q_op::Union{QuantumObject,HEOMSuperOp},
+    P_op,
+    Q_op,
     ωlist::AbstractVector,
     reverse::Bool = false;
     solver::SciMLLinearSolveAlgorithm = UMFPACKFactorization(),
@@ -78,37 +78,37 @@ remember to set the parameters:
 )
 
     # Handle ρ
-    if typeof(ρ) == ADOs  # ρ::ADOs
+    if ρ isa ADOs
         ados = ρ
     else
         ados = ADOs(ρ, M.N)
     end
     _check_sys_dim_and_ADOs_num(M, ados)
 
-    Id_cache = I(M.N)
+    Id_HEOM = I(M.N)
 
     # Handle P_op
-    if typeof(P_op) <: HEOMSuperOp
+    if P_op isa HEOMSuperOp
         _check_sys_dim_and_ADOs_num(M, P_op)
         _P = P_op
     else
-        _P = HEOMSuperOp(P_op, EVEN, M; Id_cache = Id_cache)
+        _P = HEOMSuperOp(spre(P_op), EVEN, M; Id_cache = Id_HEOM)
     end
-    MType = Base.typename(typeof(M.data)).wrapper{eltype(M)}
+    MType = _get_SciML_matrix_wrapper(M)
     _tr_P = transpose(_Tr(M)) * MType(_P).data
 
     # Handle Q_op
-    if typeof(Q_op) <: HEOMSuperOp
+    if Q_op isa HEOMSuperOp
         _check_sys_dim_and_ADOs_num(M, Q_op)
         _Q_ados = Q_op * ados
         _check_parity(M, _Q_ados)
     else
         if M.parity == EVEN
-            _Q = HEOMSuperOp(Q_op, ados.parity, M; Id_cache = Id_cache)
+            new_parity = ados.parity
         else
-            _Q = HEOMSuperOp(Q_op, !ados.parity, M; Id_cache = Id_cache)
+            new_parity = !ados.parity
         end
-        _Q_ados = _Q * ados
+        _Q_ados = HEOMSuperOp(spre(Q_op), new_parity, M; Id_cache = Id_HEOM) * ados
     end
     b = _HandleVectorType(M, _Q_ados.data)
 
@@ -135,10 +135,10 @@ remember to set the parameters:
         Iω = i * ω * I_total
 
         if prog.counter[] == 0
-            cache = init(LinearProblem(M.data + Iω, b), solver, SOLVEROptions...)
+            cache = init(LinearProblem(M.data.A + Iω, b), solver, SOLVEROptions...)
             sol = solve!(cache)
         else
-            cache.A = M.data + Iω
+            cache.A = M.data.A + Iω
             sol = solve!(cache)
         end
 

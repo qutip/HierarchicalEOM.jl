@@ -5,7 +5,7 @@ export M_Boson_Fermion
 HEOM Liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath 
 
 # Fields
-- `data<:AbstractSparseMatrix` : the sparse matrix of HEOM Liouvillian superoperator
+- `data<:AbstractSciMLOperator` : the matrix of HEOM Liouvillian superoperator
 - `Btier` : the tier (cutoff level) for bosonic hierarchy
 - `Ftier` : the tier (cutoff level) for fermionic hierarchy
 - `dims` : the dimension list of the coupling operator (should be equal to the system dims).
@@ -16,7 +16,7 @@ HEOM Liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath
 - `Fbath::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
 - `hierarchy::MixHierarchyDict`: the object which contains all dictionaries for mixed-bath-ADOs hierarchy.
 """
-struct M_Boson_Fermion{T<:AbstractSparseMatrix} <: AbstractHEOMLSMatrix{T}
+struct M_Boson_Fermion{T<:AbstractSciMLOperator} <: AbstractHEOMLSMatrix{T}
     data::T
     Btier::Int
     Ftier::Int
@@ -214,23 +214,14 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         print("Constructing matrix...")
         flush(stdout)
     end
-    L_he = sparse(reduce(vcat, L_row), reduce(vcat, L_col), reduce(vcat, L_val), Nado * sup_dim, Nado * sup_dim)
+    L_he = MatrixOperator(
+        sparse(reduce(vcat, L_row), reduce(vcat, L_col), reduce(vcat, L_val), Nado * sup_dim, Nado * sup_dim),
+    )
     if verbose
         println("[DONE]")
         flush(stdout)
     end
-    return M_Boson_Fermion{SparseMatrixCSC{ComplexF64,Int64}}(
-        L_he,
-        Btier,
-        Ftier,
-        copy(_Hsys.dims),
-        Nado,
-        sup_dim,
-        parity,
-        Bbath,
-        Fbath,
-        hierarchy,
-    )
+    return M_Boson_Fermion(L_he, Btier, Ftier, copy(_Hsys.dims), Nado, sup_dim, parity, Bbath, Fbath, hierarchy)
 end
 
 _getBtier(M::M_Boson_Fermion) = M.Btier

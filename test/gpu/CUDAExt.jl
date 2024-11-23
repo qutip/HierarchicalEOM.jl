@@ -9,7 +9,7 @@ CUDA.@time @testset "CUDA Extension" begin
     tier = 3
 
     # System Hamiltonian
-    Hsys = Qobj([0 0; 0 0])
+    Hsys = Qobj(zeros(ComplexF64, 2, 2))
 
     # system-bath coupling operator
     Qb = sigmax()

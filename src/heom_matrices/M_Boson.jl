@@ -5,7 +5,7 @@ export M_Boson
 HEOM Liouvillian superoperator matrix for bosonic bath
 
 # Fields
-- `data<:AbstractSparseMatrix` : the sparse matrix of HEOM Liouvillian superoperator
+- `data<:AbstractSciMLOperator` : the matrix of HEOM Liouvillian superoperator
 - `tier` : the tier (cutoff level) for the bosonic hierarchy
 - `dims` : the dimension list of the coupling operator (should be equal to the system dims).
 - `N` : the number of total ADOs
@@ -14,7 +14,7 @@ HEOM Liouvillian superoperator matrix for bosonic bath
 - `bath::Vector{BosonBath}` : the vector which stores all `BosonBath` objects
 - `hierarchy::HierarchyDict`: the object which contains all dictionaries for boson-bath-ADOs hierarchy.
 """
-struct M_Boson{T<:AbstractSparseMatrix} <: AbstractHEOMLSMatrix{T}
+struct M_Boson{T<:AbstractSciMLOperator} <: AbstractHEOMLSMatrix{T}
     data::T
     tier::Int
     dims::SVector
@@ -145,21 +145,14 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         print("Constructing matrix...")
         flush(stdout)
     end
-    L_he = sparse(reduce(vcat, L_row), reduce(vcat, L_col), reduce(vcat, L_val), Nado * sup_dim, Nado * sup_dim)
+    L_he = MatrixOperator(
+        sparse(reduce(vcat, L_row), reduce(vcat, L_col), reduce(vcat, L_val), Nado * sup_dim, Nado * sup_dim),
+    )
     if verbose
         println("[DONE]")
         flush(stdout)
     end
-    return M_Boson{SparseMatrixCSC{ComplexF64,Int64}}(
-        L_he,
-        tier,
-        copy(_Hsys.dims),
-        Nado,
-        sup_dim,
-        parity,
-        Bath,
-        hierarchy,
-    )
+    return M_Boson(L_he, tier, copy(_Hsys.dims), Nado, sup_dim, parity, Bath, hierarchy)
 end
 
 _getBtier(M::M_Boson) = M.tier

@@ -11,12 +11,6 @@ The first method is implemented by solving the linear problem
 
 `HierarchicalEOM.jl` wraps some of the functions in [LinearSolve.jl](http://linearsolve.sciml.ai/stable/), which is a very rich numerical library for solving the linear problems and provides many solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to [LinearSolve solvers](@ref LS-solvers) and also the documentation of [LinearSolve.jl](http://linearsolve.sciml.ai/stable/).
 
-See the docstring of this method:  
-
-```@docs
-steadystate(M::AbstractHEOMLSMatrix; solver=UMFPACKFactorization(), verbose::Bool=true, SOLVEROptions...)
-```
-
 ```julia
 # the HEOMLS matrix
 M::AbstractHEOMLSMatrix  
@@ -34,13 +28,7 @@ until finding a stationary solution.
 
 `HierarchicalEOM.jl` wraps some of the functions in [DifferentialEquations.jl](https://diffeq.sciml.ai/stable/), which is a very rich numerical library for solving the differential equations and provides many ODE solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to the documentation of [DifferentialEquations.jl](https://diffeq.sciml.ai/stable/).
 
-
 ### Given the initial state as Density Operator (`QuantumObject` type)
-See the docstring of this method:  
-
-```@docs
-steadystate(M::AbstractHEOMLSMatrix, ρ0::QuantumObject, tspan::Number = Inf; solver = DP5(), termination_condition = NormTerminationMode(), verbose::Bool = true, SOLVEROptions...)
-```
 
 ```julia
 # the HEOMLS matrix
@@ -53,10 +41,6 @@ ados_steady = steadystate(M, ρ0)
 ```
 
 ### Given the initial state as Auxiliary Density Operators
-See the docstring of this method:  
-```@docs
-steadystate(M::AbstractHEOMLSMatrix, ados::ADOs, tspan::Number = Inf; solver = DP5(), termination_condition = NormTerminationMode(), verbose::Bool = true, SOLVEROptions...)
-```
 
 ```julia
 # the HEOMLS matrix

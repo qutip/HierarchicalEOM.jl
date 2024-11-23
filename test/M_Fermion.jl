@@ -29,9 +29,9 @@
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (1196, 1196)
     @test L.N == 299
-    @test nnz(L.data) == 21318
+    @test nnz(L.data.A) == nnz(L(0)) == 21318
     L = addFermionDissipator(L, J)
-    @test nnz(L.data) == 22516
+    @test nnz(L.data.A) == nnz(L(0)) == 22516
     ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N
@@ -48,7 +48,7 @@
     L = addFermionDissipator(L, J)
     @test size(L) == (148, 148)
     @test L.N == 37
-    @test nnz(L.data) == 2054
+    @test nnz(L.data.A) == nnz(L(0)) == 2054
     ados = steadystate(L; verbose = false)
     ρ2 = ados[1]
     @test _is_Matrix_approx(ρ2, ρ0.data)
@@ -56,9 +56,9 @@
     L = M_Fermion(Hsys, tier, [Fbath, Fbath]; verbose = false)
     @test size(L) == (9300, 9300)
     @test L.N == 2325
-    @test nnz(L.data) == 174338
+    @test nnz(L.data.A) == nnz(L(0)) == 174338
     L = addFermionDissipator(L, J)
-    @test nnz(L.data) == 183640
+    @test nnz(L.data.A) == nnz(L(0)) == 183640
     ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N
@@ -72,7 +72,7 @@
 
     ## check exceptions
     @test_throws BoundsError L[1, 9301]
-    @test_throws BoundsError L[1:9301, 9300]
+    @test_throws BoundsError L[9301, 9300]
     @test_throws ErrorException ados[L.N+1]
     @test_throws ErrorException M_Fermion(Qobj([0, 0]), tier, Fbath; verbose = false)
 end

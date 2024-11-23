@@ -15,7 +15,7 @@ Solve the steady state of the auxiliary density operators based on `LinearSolve.
 - `::ADOs` : The steady state of auxiliary density operators.
 """
 function QuantumToolbox.steadystate(
-    M::AbstractHEOMLSMatrix;
+    M::AbstractHEOMLSMatrix{<:MatrixOperator};
     solver::SciMLLinearSolveAlgorithm = UMFPACKFactorization(),
     verbose::Bool = true,
     SOLVEROptions...,
@@ -25,9 +25,8 @@ function QuantumToolbox.steadystate(
         error("The parity of M should be \"EVEN\".")
     end
 
-    S = size(M, 1)
-    A = _HandleSteadyStateMatrix(M, S)
-    b = sparsevec([1], [1.0 + 0.0im], S)
+    A = _HandleSteadyStateMatrix(M)
+    b = sparsevec([1], [1.0 + 0.0im], size(M, 1))
 
     # solving x where A * x = b
     if verbose
@@ -64,7 +63,7 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 - `::ADOs` : The steady state of auxiliary density operators.
 """
 function QuantumToolbox.steadystate(
-    M::AbstractHEOMLSMatrix,
+    M::AbstractHEOMLSMatrix{<:MatrixOperator},
     ρ0::T_state,
     tspan::Number = Inf;
     solver::OrdinaryDiffEqAlgorithm = DP5(),
@@ -87,7 +86,7 @@ function QuantumToolbox.steadystate(
         merge(kwargs, (callback = cb,))
 
     # define ODE problem
-    prob = ODEProblem{true,FullSpecialize}(MatrixOperator(M.data), u0, Tspan; kwargs2...)
+    prob = ODEProblem{true,FullSpecialize}(M.data, u0, Tspan; kwargs2...)
 
     # solving steady state of the ODE problem
     if verbose

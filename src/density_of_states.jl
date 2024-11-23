@@ -25,7 +25,7 @@ Calculate density of states for the fermionic system in frequency domain.
 - `dos::AbstractVector` : the list of density of states corresponds to the specified `ωlist`
 """
 @noinline function DensityOfStates(
-    M::AbstractHEOMLSMatrix,
+    M::AbstractHEOMLSMatrix{<:MatrixOperator},
     ρ::Union{QuantumObject,ADOs},
     d_op::QuantumObject,
     ωlist::AbstractVector;
@@ -52,11 +52,12 @@ Calculate density of states for the fermionic system in frequency domain.
     _check_sys_dim_and_ADOs_num(M, ados)
 
     # Handle d_op
-    MType = Base.typename(typeof(M.data)).wrapper{eltype(M)}
+    MType = _get_SciML_matrix_wrapper(M)
     _tr = transpose(_Tr(M))
-    Id_cache = I(M.N)
-    d_normal = HEOMSuperOp(d_op, ODD, M; Id_cache = Id_cache)
-    d_dagger = HEOMSuperOp(d_op', ODD, M; Id_cache = Id_cache)
+    Id_sys = I(prod(d_op.dims))
+    Id_HEOM = I(M.N)
+    d_normal = HEOMSuperOp(spre(d_op, Id_sys), ODD, M; Id_cache = Id_HEOM)
+    d_dagger = HEOMSuperOp(spre(d_op', Id_sys), ODD, M; Id_cache = Id_HEOM)
     b_m = _HandleVectorType(M, (d_normal * ados).data)
     b_p = _HandleVectorType(M, (d_dagger * ados).data)
     _tr_d_normal = _tr * MType(d_normal).data
@@ -85,16 +86,16 @@ Calculate density of states for the fermionic system in frequency domain.
         Iω = i * ω * I_total
 
         if prog.counter[] == 0
-            cache_m = init(LinearProblem(M.data - Iω, b_m), solver, SOLVEROptions...)
+            cache_m = init(LinearProblem(M.data.A - Iω, b_m), solver, SOLVEROptions...)
             sol_m = solve!(cache_m)
 
-            cache_p = init(LinearProblem(M.data + Iω, b_p), solver, SOLVEROptions...)
+            cache_p = init(LinearProblem(M.data.A + Iω, b_p), solver, SOLVEROptions...)
             sol_p = solve!(cache_p)
         else
-            cache_m.A = M.data - Iω
+            cache_m.A = M.data.A - Iω
             sol_m = solve!(cache_m)
 
-            cache_p.A = M.data + Iω
+            cache_p.A = M.data.A + Iω
             sol_p = solve!(cache_p)
         end
 

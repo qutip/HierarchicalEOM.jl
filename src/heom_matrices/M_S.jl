@@ -10,14 +10,14 @@ M[\cdot]=-i \left[H_{sys}, \cdot \right]_-,
 where ``[\cdot, \cdot]_-`` stands for commutator.
 
 # Fields
-- `data<:AbstractSparseMatrix` : the sparse matrix of HEOM Liouvillian superoperator
+- `data<:AbstractSciMLOperator` : the matrix of HEOM Liouvillian superoperator
 - `tier` : the tier (cutoff level) for the hierarchy, which equals to `0` in this case
 - `dims` : the dimension list of the coupling operator (should be equal to the system dims).
 - `N` : the number of total ADOs, which equals to `1` (only the reduced density operator) in this case
 - `sup_dim` : the dimension of system superoperator
 - `parity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
 """
-struct M_S{T<:AbstractSparseMatrix} <: AbstractHEOMLSMatrix{T}
+struct M_S{T<:AbstractSciMLOperator} <: AbstractHEOMLSMatrix{T}
     data::T
     tier::Int
     dims::SVector
@@ -53,12 +53,12 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         println("Constructing Liouville-von Neumann superoperator...")
         flush(stdout)
     end
-    Lsys = minus_i_L_op(_Hsys)
+    Lsys = MatrixOperator(minus_i_L_op(_Hsys))
     if verbose
         println("[DONE]")
         flush(stdout)
     end
-    return M_S{SparseMatrixCSC{ComplexF64,Int64}}(Lsys, 0, copy(_Hsys.dims), 1, sup_dim, parity)
+    return M_S(Lsys, 0, copy(_Hsys.dims), 1, sup_dim, parity)
 end
 
 _getBtier(M::M_S) = 0

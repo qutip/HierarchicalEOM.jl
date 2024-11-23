@@ -52,12 +52,12 @@ H0 = 0.5 * ω0 * σz
 # Here, we set the period of the pulses to be $\tau V = \pi/2$. Therefore, we consider two scenarios with fast and slow pulses:
 
 ## a function which returns the amplitude of the pulse at time t
-function pulse(V, Δ, t)
-    τ = 0.5 * π / V
-    period = τ + Δ
+function pulse(p, t)
+    τ = 0.5 * π / p.V
+    period = τ + p.Δ
 
     if (t % period) < τ
-        return V
+        return p.V
     else
         return 0
     end
@@ -68,9 +68,12 @@ amp_fast = 0.50
 amp_slow = 0.01
 delay = 20
 
+fastTuple = (V = amp_fast, Δ = delay)
+slowTuple = (V = amp_slow, Δ = delay)
+
 Plots.plot(
     tlist,
-    [[pulse(amp_fast, delay, t) for t in tlist], [pulse(amp_slow, delay, t) for t in tlist]],
+    [[pulse(fastTuple, t) for t in tlist], [pulse(slowTuple, t) for t in tlist]],
     label = ["Fast Pulse" "Slow Pulse"],
     linestyle = [:solid :dash],
 )
@@ -101,13 +104,10 @@ noPulseSol = HEOMsolve(M, ψ0, tlist; e_ops = [ρ01]);
 # ## Solve time evolution with time-dependent Hamiltonian
 # (see also [Time Evolution](@ref doc-Time-Evolution))
 #   
-# We need to provide a user-defined function (named as `H_D` in this case), which must be in the form `H_D(t, p::NamedTuple)` and returns the time-dependent part of system Hamiltonian (in `QuantumObject` type) at any given time point `t`. The parameter `p` should be a `NamedTuple` which contains all the extra parameters [`V` (amplitude), `Δ` (delay), and `σx` (operator) in this case] for the function `H_D`:
-H_D(t, p::NamedTuple) = pulse(p.V, p.Δ, t) * p.σx;
+# We need to provide a `QuantumToolbox.QuantumObjectEvolution` (named as `H_D` in this case)
+H_D = QobjEvo(σx, pulse)
 
-# The parameter `p` will be passed to your function `H_D` directly from the **last required** parameter in `HEOMsolve`:
-fastTuple = (V = amp_fast, Δ = delay, σx = σx)
-slowTuple = (V = amp_slow, Δ = delay, σx = σx)
-
+# The keyword argument `params` in `HEOMsolve` will be passed to the argument `p` in user-defined function (`pulse` in this case) directly:
 fastPulseSol = HEOMsolve(M, ψ0, tlist; e_ops = [ρ01], H_t = H_D, params = fastTuple)
 slowPulseSol = HEOMsolve(M, ψ0, tlist; e_ops = [ρ01], H_t = H_D, params = slowTuple)
 

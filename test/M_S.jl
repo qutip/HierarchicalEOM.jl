@@ -8,7 +8,7 @@
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (4, 4)
     @test L.N == 1
-    @test nnz(L.data) == 8
+    @test nnz(L.data.A) == nnz(L(0)) == 8
     ados_list = HEOMsolve(L, ψ0, 0:1:t; reltol = 1e-8, abstol = 1e-10, verbose = false).ados
     ados = ados_list[end]
     @test ados.dims == L.dims
@@ -24,7 +24,7 @@
 
     L = addBosonDissipator(L, √(0.01) * sigmaz())
     L = addFermionDissipator(L, √(0.01) * sigmaz())
-    @test nnz(L.data) == 10
+    @test nnz(L.data.A) == nnz(L(0)) == 10
     ados_list = HEOMsolve(L, ψ0, 0:0.5:t; reltol = 1e-8, abstol = 1e-10, verbose = false).ados
     ados = ados_list[end]
     ρ3 = ados[1]
@@ -37,7 +37,7 @@
 
     ## check exceptions
     @test_throws BoundsError L[1, 5]
-    @test_throws BoundsError L[1:5, 2]
+    @test_throws BoundsError L[5, 2]
     @test_throws ErrorException ados[L.N+1]
     @test_throws ErrorException M_S(Qobj([0, 0]); verbose = false)
 end
