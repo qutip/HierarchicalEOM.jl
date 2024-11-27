@@ -45,6 +45,7 @@ fermionEmit(op::QuantumObject, η_emit::Vector{Ti}, γ_emit::Vector{Tj}, η_abso
 ```@docs
 Boson_DrudeLorentz_Matsubara
 Boson_DrudeLorentz_Pade
+Boson_Underdamped_Matsubara
 Fermion_Lorentz_Matsubara
 Fermion_Lorentz_Pade
 ```
