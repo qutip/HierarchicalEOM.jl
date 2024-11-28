@@ -16,17 +16,17 @@ Construct an underdamped bosonic bath with Matsubara expansion
 - `bath::BosonBath` : a bosonic bath object with describes the interaction between system and bosonic bath
 """
 function Boson_Underdamped_Matsubara(op, λ::Real, Γ::Real, ω0::Real, kT::Real, N::Int)
-    Ω = sqrt(ω0^2 - (Γ/2)^2)
-    ν = 2π*kT*(1:N)
+    Ω = sqrt(ω0^2 - (Γ / 2)^2)
+    ν = 2π * kT * (1:N)
 
-    η_real = ComplexF64[(λ^2/(4*Ω))*coth((Ω + im*Γ/2)/(2*kT)), (λ^2/(4*Ω))*coth((Ω - im*Γ/2)/(2*kT))]
-    γ_real = ComplexF64[Γ/2 - im*Ω, Γ/2 + im*Ω]
-    η_imag = ComplexF64[(λ^2/(4*Ω))*im, -(λ^2/(4*Ω))*im]
-    γ_imag = ComplexF64[Γ/2 - im*Ω, Γ/2 + im*Ω]
+    η_real = ComplexF64[(λ^2/(4*Ω))*coth((Ω + im * Γ / 2) / (2 * kT)), (λ^2/(4*Ω))*coth((Ω - im * Γ / 2) / (2 * kT))]
+    γ_real = ComplexF64[Γ/2-im*Ω, Γ/2+im*Ω]
+    η_imag = ComplexF64[(λ^2/(4*Ω))*im, -(λ^2 / (4 * Ω))*im]
+    γ_imag = ComplexF64[Γ/2-im*Ω, Γ/2+im*Ω]
 
     if N > 0
         for l in 1:N
-            append!(η_real, -2*λ^2*Γ*kT*ν[l]/(((Ω + im*Γ/2)^2 + ν[l]^2)*((Ω - im*Γ/2)^2 + ν[l]^2)))
+            append!(η_real, -2 * λ^2 * Γ * kT * ν[l] / (((Ω + im * Γ / 2)^2 + ν[l]^2) * ((Ω - im * Γ / 2)^2 + ν[l]^2)))
             append!(γ_real, ν[l])
         end
     end

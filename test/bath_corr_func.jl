@@ -68,14 +68,7 @@
         0.3232 - 0.8171018602353075im,
         0.3232 + 0.8171018602353075im,
     ]
-    types = [
-        "bR",
-        "bR",
-        "bR",
-        "bR",
-        "bRI",
-        "bRI",
-    ]
+    types = ["bR", "bR", "bR", "bR", "bRI", "bRI"]
     @test length(b) == 6
     for (i, e) in enumerate(b)
         @test e.η ≈ η[i] atol = 1.0e-10
