@@ -1,6 +1,6 @@
 # [Lorentz Spectral Density](@id doc-Fermion-Lorentz)
 ```math
-J(\omega)=\frac{\Gamma W^2}{(\omega-\mu)^2+W^2}
+J(\omega) = 2 \pi \sum_k |g_k|^2 \delta(\omega-\omega_k) = \frac{\Gamma W^2}{(\omega-\mu)^2+W^2}
 ```
 Here, ``\Gamma`` represents the coupling strength between system and the fermionic environment with chemical potential ``\mu`` and band-width ``W``.
 

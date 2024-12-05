@@ -21,8 +21,8 @@
     @test length(b) == 4
 
     ## check for η and γ list, and coupling operator
-    η = []
-    γ = []
+    η = ComplexF64[]
+    γ = ComplexF64[]
     for e in b
         push!(η, e.η)
         push!(γ, e.γ)
@@ -41,16 +41,16 @@
     @test C(b, [0.183183])[1] ≈ C(bs, [0.183183])[1]
 
     ## check for η and γ list, and coupling operator
-    η = []
-    γ = []
+    η = ComplexF64[]
+    γ = ComplexF64[]
     for e in b
         push!(η, e.η)
         push!(γ, e.γ)
         @test e.op == op
         @test (e.types == "bR") || (e.types == "bI") || (e.types == "bRI")
     end
-    @test η == [10.0 + 0.0im, 9.0 + 0.0im, 4.0 + 0.0im, 8.0 + 0.0im, 10.0 + 0.0im, 1.0 + 2.0im, 5.0 + 6.0im]
-    @test γ == [0.3 + 0.0im, 0.7 + 0.0im, 0.2 + 0.0im, 0.6 + 0.0im, 0.9 + 0.0im, 0.1 + 0.0im, 0.5 + 0.0im]
+    @test η == [1.0 + 2.0im, 5.0 + 6.0im, 10.0 + 0.0im, 9.0 + 0.0im, 4.0 + 0.0im, 8.0 + 0.0im, 10.0 + 0.0im]
+    @test γ == [0.1 + 0.0im, 0.5 + 0.0im, 0.3 + 0.0im, 0.7 + 0.0im, 0.2 + 0.0im, 0.6 + 0.0im, 0.9 + 0.0im]
     @test show(devnull, MIME("text/plain"), b) === nothing
 
     ## check for exponents
@@ -81,8 +81,8 @@
     @test cm[1] ≈ 26.994911851482776 - 0.799138487523946im
 
     ## check for η and γ list, and coupling operator
-    η = []
-    γ = []
+    η = ComplexF64[]
+    γ = ComplexF64[]
     for e in b
         push!(η, e.η)
         push!(γ, e.γ)
