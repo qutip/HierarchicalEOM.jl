@@ -180,15 +180,15 @@ function BosonBath(
         deleteat!(ηI, imag_idx)
         deleteat!(γI, imag_idx)
 
+        bRI = bosonRealImag(_op, ηRI_real, ηRI_imag, γRI)
         bR = bosonReal(_op, ηR, γR)
         bI = bosonImag(_op, ηI, γI)
-        bRI = bosonRealImag(_op, ηRI_real, ηRI_imag, γRI)
-        Nterm_new = bR.Nterm + bI.Nterm + bRI.Nterm
+        Nterm_new = bRI.Nterm + bR.Nterm + bI.Nterm
         if Nterm != (Nterm_new + bRI.Nterm)
             error("Conflicts occur in combining real and imaginary parts of bath correlation function.")
         end
 
-        return BosonBath(AbstractBosonBath[bR, bI, bRI], _op, Nterm_new, δ)
+        return BosonBath(AbstractBosonBath[bRI, bR, bI], _op, Nterm_new, δ)
 
     else
         bR = bosonReal(_op, η_real, γ_real)

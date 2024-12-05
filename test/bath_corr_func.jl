@@ -22,10 +22,12 @@
         13.975060760228835 + 0.0im,
         18.63341434697178 + 0.0im,
     ]
+    types = ["bRI", "bRI", "bRI", "bRI", "bRI"]
     @test length(b) == 5
     for (i, e) in enumerate(b)
         @test e.η ≈ η[i] atol = 1.0e-10
         @test e.γ ≈ γ[i] atol = 1.0e-10
+        @test e.types == types[i]
     end
 
     # Boson DrudeLorentz Pade
@@ -44,31 +46,33 @@
         15.245109836566387 + 0.0im,
         42.84397872069647 + 0.0im,
     ]
+    types = ["bRI", "bRI", "bRI", "bRI", "bRI"]
     @test length(b) == 5
     for (i, e) in enumerate(b)
         @test e.η ≈ η[i] atol = 1.0e-10
         @test e.γ ≈ γ[i] atol = 1.0e-10
+        @test e.types == types[i]
     end
 
     # Boson Underdamped Matsubara
     b = Boson_Underdamped_Matsubara(op, λ, W, μ, kT, N)
     η = [
+        0.004830164921597723 - 0.0035513512668150157im,
+        0.017695757954237043 + 0.0035513512668150157im,
         -0.00018928791202842962 + 0.0im,
         -2.459796602810069e-5 + 0.0im,
         -7.340987667241645e-6 + 0.0im,
         -3.1048013140938362e-6 + 0.0im,
-        0.004830164921597723 - 0.0035513512668150157im,
-        0.017695757954237043 + 0.0035513512668150157im,
     ]
     γ = [
+        0.3232 - 0.8171018602353075im,
+        0.3232 + 0.8171018602353075im,
         4.658353586742945 + 0.0im,
         9.31670717348589 + 0.0im,
         13.975060760228835 + 0.0im,
         18.63341434697178 + 0.0im,
-        0.3232 - 0.8171018602353075im,
-        0.3232 + 0.8171018602353075im,
     ]
-    types = ["bR", "bR", "bR", "bR", "bRI", "bRI"]
+    types = ["bRI", "bRI", "bR", "bR", "bR", "bR"]
     @test length(b) == 6
     for (i, e) in enumerate(b)
         @test e.η ≈ η[i] atol = 1.0e-10
@@ -102,10 +106,12 @@
         11.645883966857362 + 0.8787im,
         16.304237553600306 + 0.8787im,
     ]
+    types = ["fA", "fA", "fA", "fA", "fA", "fE", "fE", "fE", "fE", "fE"]
     @test length(b) == 10
     for (i, e) in enumerate(b)
         @test e.η ≈ η[i] atol = 1.0e-10
         @test e.γ ≈ γ[i] atol = 1.0e-10
+        @test e.types == types[i]
     end
 
     # Fermion Lorentz Pade
@@ -134,9 +140,11 @@
         12.311922289624265 + 0.8787im,
         34.341283736701214 + 0.8787im,
     ]
+    types = ["fA", "fA", "fA", "fA", "fA", "fE", "fE", "fE", "fE", "fE"]
     @test length(b) == 10
     for (i, e) in enumerate(b)
         @test e.η ≈ η[i] atol = 1.0e-10
         @test e.γ ≈ γ[i] atol = 1.0e-10
+        @test e.types == types[i]
     end
 end

@@ -90,3 +90,9 @@ If you like `HierarchicalEOM.jl`, we would appreciate it if you starred the repo
 
 ## License
 `HierarchicalEOM.jl` is released under the [BSD 3-Clause License](./LICENSE.md).
+
+## Contributing to HierarchicalEOM.jl
+
+You are most welcome to contribute to `HierarchicalEOM.jl` development by forking this repository and sending pull requests (PRs), or filing bug reports at the issues page. You can also help out with users' questions, or discuss proposed changes in the [QuTiP discussion group](https://groups.google.com/g/qutip).
+
+For more information about contribution, including technical advice, please see the [Contributing to QuantumToolbox.jl](https://qutip.org/QuantumToolbox.jl/stable/resources/contributing) section of the `QuantumToolbox.jl` documentation.

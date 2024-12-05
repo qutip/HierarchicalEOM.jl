@@ -18,15 +18,17 @@
 
     ## check for combine
     b = BosonBath(op, η1, γ1)
+    types = ["bRI", "bRI", "bRI", "bRI"]
     @test length(b) == 4
 
     ## check for η and γ list, and coupling operator
-    η = []
-    γ = []
-    for e in b
-        push!(η, e.η)
-        push!(γ, e.γ)
+    η = Vector{ComplexF64}(undef, length(b))
+    γ = Vector{ComplexF64}(undef, length(b))
+    for (i, e) in enumerate(b)
+        η[i] = e.η
+        γ[i] = e.γ
         @test e.op == op
+        @test e.types == types[i]
     end
     @test η == [1.0 + 0.0im, 10.0 + 0.0im, 5.0 + 0.0im, 9.0 + 0.0im]
     @test γ == [0.1 + 0.0im, 0.3 + 0.0im, 0.5 + 0.0im, 0.7 + 0.0im]
@@ -37,20 +39,21 @@
 
     ## check for combine
     b = BosonBath(op, η1, γ1, η2, γ2)
+    types = ["bRI", "bRI", "bR", "bR", "bI", "bI", "bI"]
     @test length(b) == 7
     @test C(b, [0.183183])[1] ≈ C(bs, [0.183183])[1]
 
     ## check for η and γ list, and coupling operator
-    η = []
-    γ = []
-    for e in b
-        push!(η, e.η)
-        push!(γ, e.γ)
+    η = Vector{ComplexF64}(undef, length(b))
+    γ = Vector{ComplexF64}(undef, length(b))
+    for (i, e) in enumerate(b)
+        η[i] = e.η
+        γ[i] = e.γ
         @test e.op == op
-        @test (e.types == "bR") || (e.types == "bI") || (e.types == "bRI")
+        @test e.types == types[i]
     end
-    @test η == [10.0 + 0.0im, 9.0 + 0.0im, 4.0 + 0.0im, 8.0 + 0.0im, 10.0 + 0.0im, 1.0 + 2.0im, 5.0 + 6.0im]
-    @test γ == [0.3 + 0.0im, 0.7 + 0.0im, 0.2 + 0.0im, 0.6 + 0.0im, 0.9 + 0.0im, 0.1 + 0.0im, 0.5 + 0.0im]
+    @test η == [1.0 + 2.0im, 5.0 + 6.0im, 10.0 + 0.0im, 9.0 + 0.0im, 4.0 + 0.0im, 8.0 + 0.0im, 10.0 + 0.0im]
+    @test γ == [0.1 + 0.0im, 0.5 + 0.0im, 0.3 + 0.0im, 0.7 + 0.0im, 0.2 + 0.0im, 0.6 + 0.0im, 0.9 + 0.0im]
     @test show(devnull, MIME("text/plain"), b) === nothing
 
     ## check for exponents
@@ -75,19 +78,20 @@
     ################################################
     # Boson bath (RWA)
     b = BosonBathRWA(op, η1, γ3, η2, γ4)
+    types = ["bA", "bA", "bA", "bA", "bA", "bE", "bE", "bE", "bE", "bE"]
     @test length(bs) == 10
     cp, cm = C(b, [0.183183])
     @test cp[1] ≈ 22.384506765987076 + 0.7399082821797519im
     @test cm[1] ≈ 26.994911851482776 - 0.799138487523946im
 
     ## check for η and γ list, and coupling operator
-    η = []
-    γ = []
-    for e in b
-        push!(η, e.η)
-        push!(γ, e.γ)
+    η = Vector{ComplexF64}(undef, length(b))
+    γ = Vector{ComplexF64}(undef, length(b))
+    for (i, e) in enumerate(b)
+        η[i] = e.η
+        γ[i] = e.γ
         @test e.op == op
-        @test (e.types == "bA") || (e.types == "bE")
+        @test e.types == types[i]
     end
     @test η == [1, 3, 5, 7, 9, 2, 4, 6, 8, 10]
     @test γ == [
@@ -127,13 +131,14 @@
     ################################################
     # Fermion bath
     b = FermionBath(op, η1, γ3, η2, γ4)
+    types = ["fA", "fA", "fA", "fA", "fA", "fE", "fE", "fE", "fE", "fE"]
     @test length(b) == 10
     cp, cm = C(b, [0.183183])
     @test cp[1] ≈ 22.384506765987076 + 0.7399082821797519im
     @test cm[1] ≈ 26.994911851482776 - 0.799138487523946im
-    for e in b
+    for (i, e) in enumerate(b)
         @test e.op == op
-        @test (e.types == "fA") || (e.types == "fE")
+        @test e.types == types[i]
     end
     @test show(devnull, MIME("text/plain"), b) === nothing
 

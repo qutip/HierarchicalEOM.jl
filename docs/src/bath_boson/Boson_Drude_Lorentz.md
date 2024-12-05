@@ -1,6 +1,6 @@
 # [Drude-Lorentz Spectral Density](@id Boson-Drude-Lorentz)
 ```math
-J(\omega)=\frac{4\Delta W\omega}{\omega^2+W^2}
+J(\omega) = 2 \pi \sum_k |g_k|^2 \delta(\omega-\omega_k) = \frac{4\Delta W\omega}{\omega^2+W^2}
 ```
 Here, ``\Delta`` represents the coupling strength between system and the bosonic environment with band-width ``W``.
 
