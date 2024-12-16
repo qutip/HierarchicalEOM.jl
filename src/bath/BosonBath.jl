@@ -8,14 +8,14 @@ Base.show(io::IO, B::AbstractBosonBath) =
 Base.show(io::IO, m::MIME"text/plain", B::AbstractBosonBath) = show(io, B)
 
 function _check_bosonic_coupling_operator(op)
-    _op = HandleMatrixType(op, "op (coupling operator)")
+    _op = HandleMatrixType(op, "op (coupling operator)", type = Operator)
     if !ishermitian(_op)
         @warn "The system-bosonic-bath coupling operator \"op\" should be Hermitian Operator."
     end
     return _op
 end
 
-_check_bosonic_RWA_coupling_operator(op) = HandleMatrixType(op, "op (coupling operator)")
+_check_bosonic_RWA_coupling_operator(op) = HandleMatrixType(op, "op (coupling operator)", type = Operator)
 
 function _combine_same_gamma(η::Vector{Ti}, γ::Vector{Tj}) where {Ti,Tj<:Number}
     if length(η) != length(γ)
@@ -96,7 +96,7 @@ function BosonBath(
     δ::Number = 0.0;
     combine::Bool = true,
 ) where {Ti,Tj<:Number}
-    _op = HandleMatrixType(op, "op (coupling operator)")
+    _op = HandleMatrixType(op, "op (coupling operator)", type = Operator)
     if combine
         ηnew, γnew = _combine_same_gamma(η, γ)
         bRI = bosonRealImag(_op, real.(ηnew), imag.(ηnew), γnew)
@@ -144,7 +144,7 @@ function BosonBath(
     δ::Tm = 0.0;
     combine::Bool = true,
 ) where {Ti,Tj,Tk,Tl,Tm<:Number}
-    _op = HandleMatrixType(op, "op (coupling operator)")
+    _op = HandleMatrixType(op, "op (coupling operator)", type = Operator)
 
     if combine
         ηR, γR = _combine_same_gamma(η_real, γ_real)
@@ -366,7 +366,7 @@ function BosonBathRWA(
     δ::Tm = 0.0,
 ) where {Ti,Tj,Tk,Tl,Tm<:Number}
     _check_gamma_absorb_and_emit(γ_absorb, γ_emit)
-    _op = HandleMatrixType(op, "op (coupling operator)")
+    _op = HandleMatrixType(op, "op (coupling operator)", type = Operator)
 
     bA = bosonAbsorb(adjoint(_op), η_absorb, γ_absorb, η_emit)
     bE = bosonEmit(_op, η_emit, γ_emit, η_absorb)

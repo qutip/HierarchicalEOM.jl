@@ -7,7 +7,7 @@ Base.show(io::IO, B::AbstractFermionBath) =
     print(io, "$(typeof(B))-type bath with $(B.Nterm) exponential-expansion terms\n")
 Base.show(io::IO, m::MIME"text/plain", B::AbstractFermionBath) = show(io, B)
 
-_check_fermionic_coupling_operator(op) = HandleMatrixType(op, "op (coupling operator)")
+_check_fermionic_coupling_operator(op) = HandleMatrixType(op, "op (coupling operator)", type = Operator)
 
 @doc raw"""
     struct FermionBath <: AbstractBath
@@ -72,7 +72,7 @@ function FermionBath(
 ) where {Ti,Tj,Tk,Tl,Tm<:Number}
     _check_gamma_absorb_and_emit(γ_absorb, γ_emit)
 
-    _op = HandleMatrixType(op, "op (coupling operator)")
+    _op = HandleMatrixType(op, "op (coupling operator)", type = Operator)
     fA = fermionAbsorb(adjoint(_op), η_absorb, γ_absorb, η_emit)
     fE = fermionEmit(_op, η_emit, γ_emit, η_absorb)
     return FermionBath(AbstractFermionBath[fA, fE], _op, fA.Nterm + fE.Nterm, δ)

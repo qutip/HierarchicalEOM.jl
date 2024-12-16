@@ -41,7 +41,7 @@ end
 Generate the boson-type HEOM Liouvillian superoperator matrix
 
 # Parameters
-- `Hsys` : The time-independent system Hamiltonian
+- `Hsys` : The time-independent system Hamiltonian or Liouvillian
 - `tier::Int` : the tier (cutoff level) for the bosonic bath
 - `Bath::Vector{BosonBath}` : objects for different bosonic baths
 - `parity::AbstractParity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
@@ -62,7 +62,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 )
 
     # check for system dimension
-    _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian)")
+    _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)")
     sup_dim = prod(_Hsys.dims)^2
     I_sup = sparse(one(ComplexF64) * I, sup_dim, sup_dim)
 

@@ -442,7 +442,7 @@ function bath_sum_γ(nvec, baths::Vector{T}) where {T<:Union{AbstractBosonBath,A
 end
 
 # commutator of system Hamiltonian
-minus_i_L_op(Hsys::QuantumObject, Id = I(size(Hsys, 1))) = _liouvillian(Hsys.data, Id)
+minus_i_L_op(Hsys::QuantumObject, Id = I(size(Hsys, 1))) = liouvillian(Hsys, Id).data
 
 # connect to bosonic (n-1)th-level for "Real & Imag combined operator"
 minus_i_D_op(bath::bosonRealImag, k, n_k) = n_k * (-1.0im * bath.η_real[k] * bath.Comm + bath.η_imag[k] * bath.anComm)
