@@ -36,7 +36,7 @@ M[\cdot]=-i \left[H_{sys}, \cdot \right]_-,
 where ``[\cdot, \cdot]_-`` stands for commutator.
 
 # Parameters
-- `Hsys` : The time-independent system Hamiltonian
+- `Hsys` : The time-independent system Hamiltonian or Liouvillian
 - `parity::AbstractParity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
 - `verbose::Bool` : To display verbose output during the process or not. Defaults to `true`.
 
@@ -45,7 +45,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 @noinline function M_S(Hsys::QuantumObject, parity::AbstractParity = EVEN; verbose::Bool = true)
 
     # check for system dimension
-    _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian)")
+    _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)")
     sup_dim = prod(_Hsys.dims)^2
 
     # the Liouvillian operator for free Hamiltonian
