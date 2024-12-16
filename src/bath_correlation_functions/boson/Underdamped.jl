@@ -34,5 +34,7 @@ function Boson_Underdamped_Matsubara(op, λ::Real, W::Real, ω0::Real, kT::Real,
         end
     end
 
-    return BosonBath(op, η_real, γ_real, η_imag, γ_imag)
+    δ = kT*W*λ^2/ω0^4 - sum(η_real./γ_real)
+
+    return BosonBath(op, η_real, γ_real, η_imag, γ_imag, δ)
 end
