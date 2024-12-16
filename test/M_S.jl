@@ -4,11 +4,13 @@
     t = 10
     Hsys = sigmax()
     L = M_S(Hsys; verbose = false)
+    L_super = M_S(liouvillian(Hsys); verbose = false) # test if input is already Liouvillian
     ψ0 = basis(2, 0)
     @test show(devnull, MIME("text/plain"), L) === nothing
-    @test size(L) == (4, 4)
-    @test L.N == 1
-    @test nnz(L.data.A) == nnz(L(0)) == 8
+    @test size(L) == size(L_super) == (4, 4)
+    @test L.N == L_super.N == 1
+    @test nnz(L.data.A) == nnz(L_super.data.A) == nnz(L(0)) == nnz(L_super(0)) == 8
+    @test L.data == L_super.data
     ados_list = HEOMsolve(L, ψ0, 0:1:t; reltol = 1e-8, abstol = 1e-10, verbose = false).ados
     ados = ados_list[end]
     @test ados.dims == L.dims

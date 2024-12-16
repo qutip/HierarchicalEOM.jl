@@ -39,28 +39,44 @@ end
 _Tr(M::AbstractHEOMLSMatrix) = _Tr(_get_SciML_matrix_wrapper(M), M.dims, M.N)
 _Tr(M::Type{<:SparseMatrixCSC}, dims::SVector, N::Int) = _Tr(eltype(M), dims, N)
 
-function HandleMatrixType(M::AbstractQuantumObject, MatrixName::String = ""; type::QuantumObjectType = Operator)
-    if M.type == type
-        return M
-    else
+function HandleMatrixType(
+    M::AbstractQuantumObject,
+    MatrixName::String = "";
+    type::T = nothing,
+) where {T<:Union{Nothing,OperatorQuantumObject,SuperOperatorQuantumObject}}
+    if (type isa Nothing)
+        (M.type isa OperatorQuantumObject) ||
+            (M.type isa SuperOperatorQuantumObject) ||
+            error("The matrix $(MatrixName) should be either an Operator or a SuperOperator.")
+    elseif M.type != type
         error("The matrix $(MatrixName) should be an $(type).")
     end
+    return M
 end
 function HandleMatrixType(
     M::AbstractQuantumObject,
     dims::SVector,
     MatrixName::String = "";
-    type::QuantumObjectType = Operator,
-)
+    type::T = nothing,
+) where {T<:Union{Nothing,OperatorQuantumObject,SuperOperatorQuantumObject}}
     if M.dims == dims
         return HandleMatrixType(M, MatrixName; type = type)
     else
         error("The dims of $(MatrixName) should be: $(dims)")
     end
 end
-HandleMatrixType(M, dims::SVector, MatrixName::String = ""; type::QuantumObjectType = Operator) =
+HandleMatrixType(
+    M,
+    dims::SVector,
+    MatrixName::String = "";
+    type::T = nothing,
+) where {T<:Union{Nothing,OperatorQuantumObject,SuperOperatorQuantumObject}} =
     HandleMatrixType(M, MatrixName; type = type)
-HandleMatrixType(M, MatrixName::String = ""; type::QuantumObjectType = Operator) =
+HandleMatrixType(
+    M,
+    MatrixName::String = "";
+    type::T = nothing,
+) where {T<:Union{Nothing,OperatorQuantumObject,SuperOperatorQuantumObject}} =
     error("HierarchicalEOM doesn't support matrix $(MatrixName) with type : $(typeof(M))")
 
 # change the type of `ADOs` to match the type of HEOMLS matrix
