@@ -496,7 +496,7 @@ function bosonEmit(
 end
 
 @doc raw"""
-    C(bath, tlist)
+    correlation_function(bath, tlist)
 Calculate the correlation function ``C(t)`` for a given bosonic bath and time list.
 
 ## if the input bosonic bath did not apply rotating wave approximation (RWA)
@@ -524,7 +524,7 @@ C^{\nu=\pm}(t)=\sum_i \eta_i^\nu e^{-\gamma_i^\nu t}
 - `cplist::Vector{ComplexF64}` : a list of the value of the absorption (``\nu=+``) correlation function according to the given time list.
 - `cmlist::Vector{ComplexF64}` : a list of the value of the emission (``\nu=-``) correlation function according to the given time list.
 """
-function C(bath::BosonBath, tlist::AbstractVector)
+function correlation_function(bath::BosonBath, tlist::AbstractVector)
     T = (bath[1]).types
 
     # without RWA
@@ -543,8 +543,7 @@ function C(bath::BosonBath, tlist::AbstractVector)
         end
         return clist
 
-        # with RWA
-    else
+    else # with RWA
         cplist = zeros(ComplexF64, length(tlist))
         cmlist = zeros(ComplexF64, length(tlist))
         for (i, t) in enumerate(tlist)

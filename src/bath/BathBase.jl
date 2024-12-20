@@ -1,4 +1,4 @@
-export AbstractBath, Exponent, C
+export AbstractBath, Exponent, correlation_function
 
 abstract type AbstractBath end
 
@@ -145,3 +145,5 @@ function _check_gamma_absorb_and_emit(γ_absorb, γ_emit)
         error("The length of \'γ_absorb\' and \'γ_emit\' should be the same.")
     end
 end
+
+correlation_function(bath::AbstractBath, t::Real) = correlation_function(bath, [t])
