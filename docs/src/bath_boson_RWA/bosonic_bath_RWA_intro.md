@@ -41,9 +41,9 @@ BosonBath object with 4 exponential-expansion terms
 Note that [`BosonBath`](@ref) under RWA always have even number of exponential terms (half for ``C^{\nu=+}`` and half for ``C^{\nu=-}``)
 
 ## Calculate the correlation function
-To check whether the exponential terms in the [`FermionBath`](@ref) is correct or not, one can call [`C(bath::BosonBath, tlist::AbstractVector)`](@ref) to calculate the correlation function ``C(t)``, where ``t=t_1-t_2``:
+To check whether the exponential terms in the [`FermionBath`](@ref) is correct or not, one can call [`correlation_function`](@ref) to calculate the correlation function ``C(t)``, where ``t=t_1-t_2``:
 ```julia
-cp_list, cm_list = C(bath, tlist)
+cp_list, cm_list = correlation_function(bath, tlist)
 ```
 Here, `cp_list` and `cm_list` are the lists which contain the value of ``C^{\nu=+}(t)`` and ``C^{\nu=-}(t)`` correspond to the given time series `tlist`, respectively.
 

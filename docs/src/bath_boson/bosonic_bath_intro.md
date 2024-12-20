@@ -56,9 +56,9 @@ BosonBath object with 4 exponential-expansion terms
 ```
 
 ## Calculate the correlation function
-To check whether the exponential terms in the [`BosonBath`](@ref) is correct or not, one can call [`C(bath::BosonBath, tlist::AbstractVector)`](@ref) to calculate the correlation function ``C(t)``, where ``t=t_1-t_2``:
+To check whether the exponential terms in the [`BosonBath`](@ref) is correct or not, one can call [`correlation_function`](@ref) to calculate the correlation function ``C(t)``, where ``t=t_1-t_2``:
 ```julia
-c_list = C(bath, tlist)
+c_list = correlation_function(bath, tlist)
 ```
 Here, `c_list` is a list which contains the value of ``C(t)`` corresponds to the given time series `tlist`.
 

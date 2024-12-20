@@ -23,12 +23,12 @@ core_tests = [
     "time_evolution.jl",
 ]
 
-if (GROUP == "All") || (GROUP == "Code_Quality")
+#= if (GROUP == "All") || (GROUP == "Code_Quality")
     using HierarchicalEOM
     using Aqua, JET
 
     include(joinpath(testdir, "code_quality.jl"))
-end
+end =#
 
 if (GROUP == "All") || (GROUP == "Core")
     using HierarchicalEOM

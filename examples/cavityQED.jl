@@ -70,13 +70,13 @@ kT = 0.025
 N = 20
 Bath = Boson_DrudeLorentz_Pade(a + a', Γ, W, kT, N)
 
-# Before incorporating the correlation function into the HEOMLS matrix, it is essential to verify if the total number of exponentials for the reservoir sufficiently describes the practical situation.
+# Before incorporating the correlation function into the HEOMLS matrix, it is essential to verify (by using [`correlation_function`](@ref)) if the total number of exponentials for the reservoir sufficiently describes the practical situation.
 
 tlist_test = 0:0.1:10;
 
 Bath_test = Boson_DrudeLorentz_Pade(a + a', Γ, W, kT, 1000);
-Ct = C(Bath, tlist_test);
-Ct2 = C(Bath_test, tlist_test);
+Ct = correlation_function(Bath, tlist_test);
+Ct2 = correlation_function(Bath_test, tlist_test);
 
 Plots.plot(tlist_test, real(Ct), label = "N=20 (real part )", linestyle = :dash, linewidth = 3)
 Plots.plot!(tlist_test, real(Ct2), label = "N=1000 (real part)", linestyle = :solid, linewidth = 3)

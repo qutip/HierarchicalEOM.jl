@@ -15,8 +15,7 @@ Pages = ["libraryAPI.md"]
 ## [Bath Module](@id lib-Bath)
 
 ```@docs
-C(bath::BosonBath, tlist::AbstractVector)
-C(bath::FermionBath, tlist::AbstractVector)
+correlation_function
 Exponent
 BosonBath
 BosonBath(op::QuantumObject, η::Vector{Ti}, γ::Vector{Tj}, δ::Number=0.0; combine::Bool=true) where {Ti, Tj <: Number}
