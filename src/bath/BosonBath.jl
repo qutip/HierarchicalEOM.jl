@@ -543,8 +543,7 @@ function correlation_function(bath::BosonBath, tlist::AbstractVector)
         end
         return clist
 
-    # with RWA
-    else
+    else # with RWA
         cplist = zeros(ComplexF64, length(tlist))
         cmlist = zeros(ComplexF64, length(tlist))
         for (i, t) in enumerate(tlist)
