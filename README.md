@@ -3,7 +3,7 @@
 
 # HierarchicalEOM.jl
 
-| **Release**       | [![Release][release-img]][release-url] [![License][license-img]][license-url] [![arXiv][arxiv-img]][arxiv-url] |
+| **Release**       | [![Release][release-img]][release-url] [![License][license-img]][license-url] [![Article][article-img]][article-url] |
 |:-----------------:|:-------------|
 | **Runtests**      | [![Runtests][runtests-img]][runtests-url] [![Coverage][codecov-img]][codecov-url] |
 | **Code Quality**  | [![Code Quality][code-quality-img]][code-quality-url] [![Aqua QA][aqua-img]][aqua-url] [![JET][jet-img]][jet-url] |
@@ -15,8 +15,8 @@
 [license-img]: https://img.shields.io/badge/license-New%20BSD-blue.svg
 [license-url]: https://opensource.org/licenses/BSD-3-Clause
 
-[arxiv-img]: https://img.shields.io/badge/arXiv-2306.07522-<COLOR>.svg
-[arxiv-url]: https://arxiv.org/abs/2306.07522
+[article-img]: https://img.shields.io/badge/Cite-Commun._Phys._6%2C_313_(2023)-blue
+[article-url]: https://doi.org/10.1038/s42005-023-01427-2
 
 [runtests-img]: https://github.com/qutip/HierarchicalEOM.jl/actions/workflows/Runtests.yml/badge.svg
 [runtests-url]: https://github.com/qutip/HierarchicalEOM.jl/actions/workflows/Runtests.yml
