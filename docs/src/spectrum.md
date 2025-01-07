@@ -63,7 +63,7 @@ This function solves the linear problem ``\textbf{A x}=\textbf{b}`` at a fixed f
  - ``\textbf{b}=Q\rho^{(m,n,+)}_{\textbf{j} \vert \textbf{q}}`` 
 using the package [LinearSolve.jl](http://linearsolve.sciml.ai/stable/).
 
-Finially, one can obtain the value of the power spectrum for specific ``\omega``, namely
+Finally, one can obtain the value of the power spectrum for specific ``\omega``, namely
 ```math
 \pi S(\omega) = -\textrm{Re}\left\{\textrm{Tr}\left[ P \textbf{x}\right]\right\}.
 ```
@@ -110,7 +110,7 @@ This functionsolves two linear problems ``\textbf{A}_+ \textbf{x}_+=\textbf{b}_+
  - ``\textbf{b}_-=d\rho^{(m,n,+)}_{\textbf{j} \vert \textbf{q}}`` 
 using the package [LinearSolve.jl](http://linearsolve.sciml.ai/stable/).
 
-Finially, one can obtain the density of states for specific ``\omega``, namely
+Finally, one can obtain the density of states for specific ``\omega``, namely
 ```math
 \pi A(\omega) = -\textrm{Re}\left\{\textrm{Tr}\left[ d \textbf{x}_+\right]+\textrm{Tr}\left[ d^\dagger \textbf{x}_-\right]\right\}.
 ```
