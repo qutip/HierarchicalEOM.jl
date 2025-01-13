@@ -62,7 +62,7 @@ ODD
 HEOMSuperOp
 HEOMSuperOp(op, opParity::AbstractParity, refHEOMLS::AbstractHEOMLSMatrix)
 HEOMSuperOp(op, opParity::AbstractParity, refADOs::ADOs)
-HEOMSuperOp(op, opParity::AbstractParity, dims::SVector, N::Int)
+HEOMSuperOp(op, opParity::AbstractParity, dims, N::Int)
 AbstractHEOMLSMatrix
 M_S
 M_S(Hsys::QuantumObject, parity::AbstractParity=EVEN; verbose::Bool=true)

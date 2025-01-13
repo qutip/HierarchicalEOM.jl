@@ -40,7 +40,7 @@ function QuantumToolbox.steadystate(
         flush(stdout)
     end
 
-    return ADOs(Vector{ComplexF64}(sol.u), M.dims, M.N, M.parity)
+    return ADOs(Vector{ComplexF64}(sol.u), M.dimensions, M.N, M.parity)
 end
 
 @doc raw"""
@@ -100,7 +100,7 @@ function QuantumToolbox.steadystate(
         flush(stdout)
     end
 
-    return ADOs(Vector{ComplexF64}(sol.u[end]), M.dims, M.N, M.parity)
+    return ADOs(Vector{ComplexF64}(sol.u[end]), M.dimensions, M.N, M.parity)
 end
 
 function _ss_condition(integrator, abstol, reltol, min_t)

@@ -7,9 +7,12 @@ The Auxiliary Density Operators for HEOM model.
 
 # Fields
 - `data` : the vectorized auxiliary density operators
-- `dims` : the dimension list of the coupling operator (should be equal to the system dims).
+- `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
 - `N` : the number of auxiliary density operators
 - `parity`: the parity label (`EVEN` or `ODD`).
+
+!!! note "`dims` property"
+    For a given `ados::ADOs`, `ados.dims` or `getproperty(ados, :dims)` returns its `dimensions` in the type of integer-vector.
 
 # Methods
 One can obtain the density matrix for specific index (`idx`) by calling : `ados[idx]`.
@@ -26,15 +29,17 @@ end
 """
 struct ADOs
     data::SparseVector{ComplexF64,Int64}
-    dims::SVector
+    dimensions::Dimensions
     N::Int
     parity::AbstractParity
-end
 
-# these functions are for forward compatibility
-ADOs(data::SparseVector{ComplexF64,Int64}, dim::Int, N::Int, parity::AbstractParity) = ADOs(data, [dim], N, parity)
-ADOs(data::SparseVector{ComplexF64,Int64}, dims::AbstractVector, N::Int, parity::AbstractParity) =
-    ADOs(data, SVector{length(dims),Int}(dims), N, parity)
+    function ADOs(data::SparseVector{ComplexF64,Int64}, dims, N::Int, parity::AbstractParity)
+        dimensions = _gen_dimensions(dims)
+        Vsize = size(data, 1)
+        ((Vsize / N) == prod(dimensions)^2) || error("The `dimensions` is not consistent with the ADOs number `N`.")
+        return new(data, dimensions, N, parity)
+    end
+end
 
 @doc raw"""
     ADOs(V, N, parity)
@@ -45,16 +50,7 @@ Generate the object of auxiliary density operators for HEOM model.
 - `N::Int` : the number of auxiliary density operators.
 - `parity::AbstractParity` : the parity label (`EVEN` or `ODD`). Default to `EVEN`.
 """
-function ADOs(V::AbstractVector, N::Int, parity::AbstractParity = EVEN)
-    # check the dimension of V
-    d = size(V, 1)
-    dim = √(d / N)
-    if isinteger(dim)
-        return ADOs(sparsevec(V), SVector{1,Int}(Int(dim)), N, parity)
-    else
-        error("The dimension of vector is not consistent with the ADOs number \"N\".")
-    end
-end
+ADOs(V::AbstractVector, N::Int, parity::AbstractParity = EVEN) = ADOs(sparsevec(V), √(size(V, 1) / N), N, parity)
 
 @doc raw"""
     ADOs(ρ, N, parity)
@@ -67,10 +63,19 @@ Generate the object of auxiliary density operators for HEOM model.
 """
 function ADOs(ρ::QuantumObject, N::Int = 1, parity::AbstractParity = EVEN)
     _ρ = sparsevec(ket2dm(ρ).data)
-    return ADOs(sparsevec(_ρ.nzind, _ρ.nzval, N * length(_ρ)), ρ.dims, N, parity)
+    return ADOs(sparsevec(_ρ.nzind, _ρ.nzval, N * length(_ρ)), ρ.dimensions, N, parity)
 end
 ADOs(ρ, N::Int = 1, parity::AbstractParity = EVEN) =
     error("HierarchicalEOM doesn't support input `ρ` with type : $(typeof(ρ))")
+
+function Base.getproperty(ados::ADOs, key::Symbol)
+    # a comment here to avoid bad render by JuliaFormatter
+    if key === :dims
+        return dimensions_to_dims(getfield(ados, :dimensions))
+    else
+        return getfield(ados, key)
+    end
+end
 
 Base.checkbounds(A::ADOs, i::Int) =
     ((i > A.N) || (i < 1)) ? error("Attempt to access $(A.N)-element ADOs at index [$(i)]") : nothing
@@ -92,10 +97,10 @@ Base.lastindex(A::ADOs) = length(A)
 function Base.getindex(A::ADOs, i::Int)
     checkbounds(A, i)
 
-    D = prod(A.dims)
+    D = prod(A.dimensions)
     sup_dim = D^2
     back = sup_dim * i
-    return QuantumObject(reshape(A.data[(back-sup_dim+1):back], D, D), Operator, A.dims)
+    return QuantumObject(reshape(A.data[(back-sup_dim+1):back], D, D), Operator, A.dimensions)
 end
 
 function Base.getindex(A::ADOs, r::UnitRange{Int})
@@ -103,11 +108,11 @@ function Base.getindex(A::ADOs, r::UnitRange{Int})
     checkbounds(A, r[end])
 
     result = []
-    D = prod(A.dims)
+    D = prod(A.dimensions)
     sup_dim = D^2
     for i in r
         back = sup_dim * i
-        push!(result, QuantumObject(reshape(A.data[(back-sup_dim+1):back], D, D), Operator, A.dims))
+        push!(result, QuantumObject(reshape(A.data[(back-sup_dim+1):back], D, D), Operator, A.dimensions))
     end
     return result
 end
@@ -115,8 +120,10 @@ Base.getindex(A::ADOs, ::Colon) = getindex(A, 1:lastindex(A))
 
 Base.iterate(A::ADOs, state::Int = 1) = state > length(A) ? nothing : (A[state], state + 1)
 
-Base.show(io::IO, A::ADOs) =
-    print(io, "$(A.N) Auxiliary Density Operators with $(A.parity) and (system) dims = $(A.dims)\n")
+Base.show(io::IO, A::ADOs) = print(
+    io,
+    "$(A.N) Auxiliary Density Operators with $(A.parity) and (system) dims = $(_get_dims_string(A.dimensions))\n",
+)
 Base.show(io::IO, m::MIME"text/plain", A::ADOs) = show(io, A)
 
 @doc raw"""
@@ -130,8 +137,8 @@ Return the density matrix of the reduced state (system) from a given auxiliary d
 - `ρ::QuantumObject` : The density matrix of the reduced state
 """
 function getRho(ados::ADOs)
-    D = prod(ados.dims)
-    return QuantumObject(reshape(ados.data[1:(D^2)], D, D), Operator, ados.dims)
+    D = prod(ados.dimensions)
+    return QuantumObject(reshape(ados.data[1:(D^2)], D, D), Operator, ados.dimensions)
 end
 
 @doc raw"""
@@ -168,9 +175,9 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in the 
 function QuantumToolbox.expect(op, ados::ADOs; take_real::Bool = true)
     if op isa HEOMSuperOp
         _check_sys_dim_and_ADOs_num(op, ados)
-        exp_val = dot(transpose(_Tr(eltype(ados), ados.dims, ados.N)), (SparseMatrixCSC(op) * ados).data)
+        exp_val = dot(transpose(_Tr(eltype(ados), ados.dimensions, ados.N)), (SparseMatrixCSC(op) * ados).data)
     else
-        _op = HandleMatrixType(op, ados.dims, "op (observable)"; type = Operator)
+        _op = HandleMatrixType(op, ados.dimensions, "op (observable)"; type = Operator)
         exp_val = tr(_op.data * getRho(ados).data)
     end
 
@@ -198,7 +205,7 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in one 
 - `exp_val` : The expectation value
 """
 function QuantumToolbox.expect(op, ados_list::Vector{ADOs}; take_real::Bool = true)
-    dims = ados_list[1].dims
+    dimensions = ados_list[1].dimensions
     N = ados_list[1].N
     for i in 2:length(ados_list)
         _check_sys_dim_and_ADOs_num(ados_list[1], ados_list[i])
@@ -208,9 +215,9 @@ function QuantumToolbox.expect(op, ados_list::Vector{ADOs}; take_real::Bool = tr
         _check_sys_dim_and_ADOs_num(op, ados_list[1])
         _op = op
     else
-        _op = HEOMSuperOp(spre(op), EVEN, dims, N)
+        _op = HEOMSuperOp(spre(op), EVEN, dimensions, N)
     end
-    tr_op = transpose(_Tr(eltype(op), dims, N)) * SparseMatrixCSC(_op).data
+    tr_op = transpose(_Tr(eltype(op), dimensions, N)) * SparseMatrixCSC(_op).data
 
     exp_val = [dot(tr_op, ados.data) for ados in ados_list]
 

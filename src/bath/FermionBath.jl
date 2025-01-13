@@ -87,18 +87,21 @@ An bath object which describes the absorption process of the fermionic system by
 - `spost`  : the super-operator (right side operator multiplication) for the coupling operator.
 - `spreD`  : the super-operator (left side operator multiplication) for the adjoint of the coupling operator.
 - `spostD` : the super-operator (right side operator multiplication) for the adjoint of the coupling operator.
-- `dims` : the dimension list of the coupling operator (should be equal to the system dims).
+- `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
 - `η` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
 - `γ` : the coefficients ``\gamma_i`` of absorption bath correlation function ``C^{\nu=+}``.
 - `η_emit` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
 - `Nterm` : the number of exponential-expansion term of correlation function
+
+!!! note "`dims` property"
+    For a given `b::fermionAbsorb`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.
 """
 struct fermionAbsorb <: AbstractFermionBath
     spre::SparseMatrixCSC{ComplexF64,Int64}
     spost::SparseMatrixCSC{ComplexF64,Int64}
     spreD::SparseMatrixCSC{ComplexF64,Int64}
     spostD::SparseMatrixCSC{ComplexF64,Int64}
-    dims::SVector
+    dimensions::Dimensions
     η::AbstractVector
     γ::AbstractVector
     η_emit::AbstractVector
@@ -134,7 +137,7 @@ function fermionAbsorb(
         _spost(_op.data, Id_cache),
         _spre(adjoint(_op).data, Id_cache),
         _spost(adjoint(_op).data, Id_cache),
-        _op.dims,
+        _op.dimensions,
         η_absorb,
         γ_absorb,
         η_emit,
@@ -151,18 +154,21 @@ An bath object which describes the emission process of the fermionic system by a
 - `spost`  : the super-operator (right side operator multiplication) for the coupling operator.
 - `spreD`  : the super-operator (left side operator multiplication) for the adjoint of the coupling operator.
 - `spostD` : the super-operator (right side operator multiplication) for the adjoint of the coupling operator.
-- `dims` : the dimension list of the coupling operator (should be equal to the system dims).
+- `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
 - `η` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
 - `γ` : the coefficients ``\gamma_i`` of emission bath correlation function ``C^{\nu=-}``.
 - `η_absorb` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
 - `Nterm` : the number of exponential-expansion term of correlation function
+
+!!! note "`dims` property"
+    For a given `b::fermionEmit`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.
 """
 struct fermionEmit <: AbstractFermionBath
     spre::SparseMatrixCSC{ComplexF64,Int64}
     spost::SparseMatrixCSC{ComplexF64,Int64}
     spreD::SparseMatrixCSC{ComplexF64,Int64}
     spostD::SparseMatrixCSC{ComplexF64,Int64}
-    dims::SVector
+    dimensions::Dimensions
     η::AbstractVector
     γ::AbstractVector
     η_absorb::AbstractVector
@@ -199,12 +205,21 @@ function fermionEmit(
         _spost(_op.data, Id_cache),
         _spre(adjoint(_op).data, Id_cache),
         _spost(adjoint(_op).data, Id_cache),
-        _op.dims,
+        _op.dimensions,
         η_emit,
         γ_emit,
         η_absorb,
         N_exp_term,
     )
+end
+
+function Base.getproperty(b::BType, key::Symbol) where {B<:Union{fermionAbsorb,fermionEmit}}
+    # a comment here to avoid bad render by JuliaFormatter
+    if key === :dims
+        return dimensions_to_dims(getfield(b, :dimensions))
+    else
+        return getfield(b, key)
+    end
 end
 
 @doc raw"""

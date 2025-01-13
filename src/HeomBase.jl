@@ -2,6 +2,15 @@ export AbstractHEOMLSMatrix
 
 abstract type AbstractHEOMLSMatrix{T} end
 
+function Base.getproperty(M::AbstractHEOMLSMatrix, key::Symbol)
+    # a comment here to avoid bad render by JuliaFormatter
+    if key === :dims
+        return dimensions_to_dims(getfield(M, :dimensions))
+    else
+        return getfield(M, key)
+    end
+end
+
 @doc raw"""
     (M::AbstractHEOMLSMatrix)(p, t)
 
@@ -32,12 +41,12 @@ _get_SciML_matrix_wrapper(M::AddedOperator) = _get_SciML_matrix_wrapper(M.ops[1]
 _get_SciML_matrix_wrapper(M::AbstractHEOMLSMatrix) = _get_SciML_matrix_wrapper(M.data)
 
 # equal to : sparse(vec(system_identity_matrix))
-function _Tr(T::Type{<:Number}, dims::SVector, N::Int)
-    D = prod(dims)
+function _Tr(T::Type{<:Number}, dimensions::Dimensions, N::Int)
+    D = prod(dimensions)
     return SparseVector(N * D^2, [1 + n * (D + 1) for n in 0:(D-1)], ones(T, D))
 end
-_Tr(M::AbstractHEOMLSMatrix) = _Tr(_get_SciML_matrix_wrapper(M), M.dims, M.N)
-_Tr(M::Type{<:SparseMatrixCSC}, dims::SVector, N::Int) = _Tr(eltype(M), dims, N)
+_Tr(M::AbstractHEOMLSMatrix) = _Tr(_get_SciML_matrix_wrapper(M), M.dimensions, M.N)
+_Tr(M::Type{<:SparseMatrixCSC}, dimensions::Dimensions, N::Int) = _Tr(eltype(M), dimensions, N)
 
 function HandleMatrixType(
     M::AbstractQuantumObject,
@@ -55,19 +64,19 @@ function HandleMatrixType(
 end
 function HandleMatrixType(
     M::AbstractQuantumObject,
-    dims::SVector,
+    dimensions::Dimensions,
     MatrixName::String = "";
     type::T = nothing,
 ) where {T<:Union{Nothing,OperatorQuantumObject,SuperOperatorQuantumObject}}
-    if M.dims == dims
+    if M.dimensions == dimensions
         return HandleMatrixType(M, MatrixName; type = type)
     else
-        error("The dims of $(MatrixName) should be: $(dims)")
+        error("The dimensions of $(MatrixName) should be: $(_get_dims_string(dimensions))")
     end
 end
 HandleMatrixType(
     M,
-    dims::SVector,
+    dimensions::Dimensions,
     MatrixName::String = "";
     type::T = nothing,
 ) where {T<:Union{Nothing,OperatorQuantumObject,SuperOperatorQuantumObject}} =
@@ -86,7 +95,7 @@ _HandleVectorType(M::Type{<:SparseMatrixCSC}, V::SparseVector) = Vector{_CType(e
 function _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator})
     S = size(M, 1)
     ElType = eltype(M)
-    D = prod(M.dims)
+    D = prod(M.dimensions)
     A = copy(M.data.A)
     A[1, 1:S] .= 0
 
@@ -96,8 +105,8 @@ function _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator})
 end
 
 function _check_sys_dim_and_ADOs_num(A, B)
-    if (A.dims != B.dims)
-        error("Inconsistent system dimension (\"dims\").")
+    if (A.dimensions != B.dimensions)
+        error("Inconsistent system dimensions.")
     end
 
     if (A.N != B.N)
