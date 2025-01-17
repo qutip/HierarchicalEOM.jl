@@ -29,7 +29,7 @@ CUDA.allowscalar(false) # Avoid unexpected scalar indexing
 
 ### Setup
 
-Here, we demonstrate this extension by using the example of [the single-impurity Anderson model](@ref exp-SIAM). 
+Here, we demonstrate this extension by using the example of [the single-impurity Anderson model](https://qutip.org/qutip-julia-tutorials/HierarchicalEOM.jl/SIAM.html).
 
 ```julia
 ϵ  = -5
