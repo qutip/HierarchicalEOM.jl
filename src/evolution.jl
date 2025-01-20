@@ -95,7 +95,7 @@ function HEOMsolve(
         expvals = Array{ComplexF64}(undef, 0, steps + 1)
         is_empty_e_ops = true
     else
-        Id_sys = I(prod(M.dims))
+        Id_sys = I(prod(M.dimensions))
         Id_HEOM = I(M.N)
         expvals = Array{ComplexF64}(undef, length(e_ops), steps + 1)
         tr_e_ops = _generate_Eops(M, e_ops, Id_sys, Id_HEOM)
@@ -124,9 +124,9 @@ function HEOMsolve(
         if !is_empty_e_ops
             _expect = op -> dot(op, ρvec)
             @. expvals[:, progr.counter[]+1] = _expect(tr_e_ops)
-            n == steps ? ADOs_list[1] = ADOs(ρvec, M.dims, M.N, M.parity) : nothing
+            n == steps ? ADOs_list[1] = ADOs(ρvec, M.dimensions, M.N, M.parity) : nothing
         else
-            ADOs_list[n+1] = ADOs(ρvec, M.dims, M.N, M.parity)
+            ADOs_list[n+1] = ADOs(ρvec, M.dimensions, M.N, M.parity)
         end
 
         ρvec = exp_Mt * ρvec
@@ -214,7 +214,7 @@ function HEOMsolve(
         tr_e_ops = typeof(M.data)[]
         is_empty_e_ops = true
     else
-        Id_sys = I(prod(M.dims))
+        Id_sys = I(prod(M.dimensions))
         Id_HEOM = I(M.N)
         expvals = Array{ComplexF64}(undef, length(e_ops), length(t_l))
         tr_e_ops = _generate_Eops(M, e_ops, Id_sys, Id_HEOM)
@@ -245,7 +245,7 @@ function HEOMsolve(
         flush(stdout)
     end
     sol = solve(prob, solver)
-    ADOs_list = map(ρvec -> ADOs(Vector{ComplexF64}(ρvec), M.dims, M.N, M.parity), sol.u)
+    ADOs_list = map(ρvec -> ADOs(Vector{ComplexF64}(ρvec), M.dimensions, M.N, M.parity), sol.u)
 
     # save ADOs to file
     if filename != ""
@@ -272,8 +272,8 @@ end
 function _generate_Eops(M::AbstractHEOMLSMatrix, e_ops, Id_sys, Id_HEOM)
     MType = _get_SciML_matrix_wrapper(M)
     tr_e_ops = [
-        transpose(_Tr(M)) * MType(HEOMSuperOp(spre(op, Id_sys), EVEN, M.dims, M.N; Id_cache = Id_HEOM)).data for
-        op in e_ops
+        transpose(_Tr(M)) * MType(HEOMSuperOp(spre(op, Id_sys), EVEN, M.dimensions, M.N; Id_cache = Id_HEOM)).data
+        for op in e_ops
     ]
     return tr_e_ops
 end
@@ -301,7 +301,7 @@ _make_L(M::AbstractHEOMLSMatrix, H_t::Nothing) = M.data
 function _make_L(M::AbstractHEOMLSMatrix, H_t::QuantumObjectEvolution)
     Id_HEOM = I(M.N)
     MType = _get_SciML_matrix_wrapper(M)
-    L_t = HandleMatrixType(liouvillian(H_t), M.dims, "H_t"; type = SuperOperator)
+    L_t = HandleMatrixType(liouvillian(H_t), M.dimensions, "H_t"; type = SuperOperator)
 
     return M.data + _L_t_to_HEOMSuperOp(MType, L_t.data, Id_HEOM)
 end

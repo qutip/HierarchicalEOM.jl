@@ -203,14 +203,17 @@ A bosonic bath for the real part of bath correlation function ``C^{u=\textrm{R}}
 
 # Fields
 - `Comm`  : the super-operator (commutator) for the coupling operator.
-- `dims` : the dimension list of the coupling operator (should be equal to the system dims).
+- `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
 - `η` : the coefficients ``\eta_i`` in real part of bath correlation function ``C^{u=\textrm{R}}``.
 - `γ` : the coefficients ``\gamma_i`` in real part of bath correlation function ``C^{u=\textrm{R}}``.
 - `Nterm` : the number of exponential-expansion term of correlation function
+
+!!! note "`dims` property"
+    For a given `b::bosonReal`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.
 """
 struct bosonReal <: AbstractBosonBath
     Comm::SparseMatrixCSC{ComplexF64,Int64}
-    dims::SVector
+    dimensions::Dimensions
     η::AbstractVector
     γ::AbstractVector
     Nterm::Int
@@ -234,7 +237,7 @@ function bosonReal(op::QuantumObject, η_real::Vector{Ti}, γ_real::Vector{Tj}) 
         error("The length of \'η_real\' and \'γ_real\' should be the same.")
     end
     Id_cache = I(size(_op, 1))
-    return bosonReal(_spre(_op.data, Id_cache) - _spost(_op.data, Id_cache), _op.dims, η_real, γ_real, N_exp_term)
+    return bosonReal(_spre(_op.data, Id_cache) - _spost(_op.data, Id_cache), _op.dimensions, η_real, γ_real, N_exp_term)
 end
 
 @doc raw"""
@@ -244,15 +247,18 @@ A bosonic bath for the imaginary part of bath correlation function ``C^{u=\textr
 # Fields
 - `Comm`  : the super-operator (commutator) for the coupling operator.
 - `anComm`  : the super-operator (anti-commutator) for the coupling operator.
-- `dims` : the dimension list of the coupling operator (should be equal to the system dims).
+- `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
 - `η` : the coefficients ``\eta_i`` in imaginary part of bath correlation function ``C^{u=\textrm{I}}``.
 - `γ` : the coefficients ``\gamma_i`` in imaginary part of bath correlation function ``C^{u=\textrm{I}}``.
 - `Nterm` : the number of exponential-expansion term of correlation function
+
+!!! note "`dims` property"
+    For a given `b::bosonImag`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.
 """
 struct bosonImag <: AbstractBosonBath
     Comm::SparseMatrixCSC{ComplexF64,Int64}
     anComm::SparseMatrixCSC{ComplexF64,Int64}
-    dims::SVector
+    dimensions::Dimensions
     η::AbstractVector
     γ::AbstractVector
     Nterm::Int
@@ -278,7 +284,7 @@ function bosonImag(op::QuantumObject, η_imag::Vector{Ti}, γ_imag::Vector{Tj}) 
     Id_cache = I(size(_op, 1))
     spreQ = _spre(_op.data, Id_cache)
     spostQ = _spost(_op.data, Id_cache)
-    return bosonImag(spreQ - spostQ, spreQ + spostQ, _op.dims, η_imag, γ_imag, N_exp_term)
+    return bosonImag(spreQ - spostQ, spreQ + spostQ, _op.dimensions, η_imag, γ_imag, N_exp_term)
 end
 
 @doc raw"""
@@ -288,16 +294,19 @@ A bosonic bath which the real part and imaginary part of the bath correlation fu
 # Fields
 - `Comm`  : the super-operator (commutator) for the coupling operator.
 - `anComm`  : the super-operator (anti-commutator) for the coupling operator.
-- `dims` : the dimension list of the coupling operator (should be equal to the system dims).
+- `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
 - `η_real` : the real part of coefficients ``\eta_i`` in bath correlation function ``\sum_i \eta_i \exp(-\gamma_i t)``.
 - `η_imag` : the imaginary part of coefficients ``\eta_i`` in bath correlation function ``\sum_i \eta_i \exp(-\gamma_i t)``.
 - `γ` : the coefficients ``\gamma_i`` in bath correlation function ``\sum_i \eta_i \exp(-\gamma_i t)``.
 - `Nterm` : the number of exponential-expansion term of correlation function
+
+!!! note "`dims` property"
+    For a given `b::bosonRealImag`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.
 """
 struct bosonRealImag <: AbstractBosonBath
     Comm::SparseMatrixCSC{ComplexF64,Int64}
     anComm::SparseMatrixCSC{ComplexF64,Int64}
-    dims::SVector
+    dimensions::Dimensions
     η_real::AbstractVector
     η_imag::AbstractVector
     γ::AbstractVector
@@ -330,7 +339,7 @@ function bosonRealImag(
     Id_cache = I(size(_op, 1))
     spreQ = _spre(_op.data, Id_cache)
     spostQ = _spost(_op.data, Id_cache)
-    return bosonRealImag(spreQ - spostQ, spreQ + spostQ, _op.dims, η_real, η_imag, γ, N_exp_term)
+    return bosonRealImag(spreQ - spostQ, spreQ + spostQ, _op.dimensions, η_real, η_imag, γ, N_exp_term)
 end
 
 @doc raw"""
@@ -381,17 +390,20 @@ An bath object which describes the absorption process of the bosonic system by a
 - `spre`   : the super-operator (left side operator multiplication) for the coupling operator.
 - `spost`  : the super-operator (right side operator multiplication) for the coupling operator.
 - `CommD`  : the super-operator (commutator) for the adjoint of the coupling operator.
-- `dims` : the dimension list of the coupling operator (should be equal to the system dims).
+- `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
 - `η` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
 - `γ` : the coefficients ``\gamma_i`` of absorption bath correlation function ``C^{\nu=+}``.
 - `η_emit` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
 - `Nterm` : the number of exponential-expansion term of correlation function
+
+!!! note "`dims` property"
+    For a given `b::bosonAbsorb`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.
 """
 struct bosonAbsorb <: AbstractBosonBath
     spre::SparseMatrixCSC{ComplexF64,Int64}
     spost::SparseMatrixCSC{ComplexF64,Int64}
     CommD::SparseMatrixCSC{ComplexF64,Int64}
-    dims::SVector
+    dimensions::Dimensions
     η::AbstractVector
     γ::AbstractVector
     η_emit::AbstractVector
@@ -426,7 +438,7 @@ function bosonAbsorb(
         _spre(_op.data, Id_cache),
         _spost(_op.data, Id_cache),
         _spre(adjoint(_op).data, Id_cache) - _spost(adjoint(_op).data, Id_cache),
-        _op.dims,
+        _op.dimensions,
         η_absorb,
         γ_absorb,
         η_emit,
@@ -442,17 +454,20 @@ An bath object which describes the emission process of the bosonic system by a c
 - `spre`   : the super-operator (left side operator multiplication) for the coupling operator.
 - `spost`  : the super-operator (right side operator multiplication) for the coupling operator.
 - `CommD`  : the super-operator (commutator) for the adjoint of the coupling operator.
-- `dims` : the dimension list of the coupling operator (should be equal to the system dims).
+- `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
 - `η` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
 - `γ` : the coefficients ``\gamma_i`` of emission bath correlation function ``C^{\nu=-}``.
 - `η_absorb` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
 - `Nterm` : the number of exponential-expansion term of correlation function
+
+!!! note "`dims` property"
+    For a given `b::bosonEmit`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.
 """
 struct bosonEmit <: AbstractBosonBath
     spre::SparseMatrixCSC{ComplexF64,Int64}
     spost::SparseMatrixCSC{ComplexF64,Int64}
     CommD::SparseMatrixCSC{ComplexF64,Int64}
-    dims::SVector
+    dimensions::Dimensions
     η::AbstractVector
     γ::AbstractVector
     η_absorb::AbstractVector
@@ -487,12 +502,24 @@ function bosonEmit(
         _spre(_op.data, Id_cache),
         _spost(_op.data, Id_cache),
         _spre(adjoint(_op).data, Id_cache) - _spost(adjoint(_op).data, Id_cache),
-        _op.dims,
+        _op.dimensions,
         η_emit,
         γ_emit,
         η_absorb,
         N_exp_term,
     )
+end
+
+function Base.getproperty(
+    b::BType,
+    key::Symbol,
+) where {BType<:Union{bosonReal,bosonImag,bosonRealImag,bosonAbsorb,bosonEmit}}
+    # a comment here to avoid bad render by JuliaFormatter
+    if key === :dims
+        return dimensions_to_dims(getfield(b, :dimensions))
+    else
+        return getfield(b, key)
+    end
 end
 
 @doc raw"""

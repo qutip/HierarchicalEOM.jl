@@ -21,7 +21,7 @@ which is usually obtained after solving the [time evolution](@ref doc-Time-Evolu
 ## Fields
 The fields of the structure [`ADOs`](@ref) are as follows:
  - `data` : the vectorized auxiliary density operators
- - `dims` : the dimension list of the coupling operator (should be equal to the system dims).
+ - `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
  - `N` : the number of auxiliary density operators
 - `parity`: the [parity](@ref doc-Parity) label
 
@@ -31,6 +31,7 @@ One obtain the value of each fields as follows:
 ados::ADOs
 
 ados.data
+ados.dimensions
 ados.dims
 ados.N
 ados.parity

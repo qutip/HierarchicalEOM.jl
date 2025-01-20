@@ -7,17 +7,20 @@ HEOM Liouvillian superoperator matrix for fermionic bath
 # Fields
 - `data<:AbstractSciMLOperator` : the matrix of HEOM Liouvillian superoperator
 - `tier` : the tier (cutoff level) for the fermionic hierarchy
-- `dims` : the dimension list of the coupling operator (should be equal to the system dims).
+- `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
 - `N` : the number of total ADOs
 - `sup_dim` : the dimension of system superoperator
 - `parity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
 - `bath::Vector{FermionBath}` : the vector which stores all `FermionBath` objects
 - `hierarchy::HierarchyDict`: the object which contains all dictionaries for fermion-bath-ADOs hierarchy.
+
+!!! note "`dims` property"
+    For a given `M::M_Fermion`, `M.dims` or `getproperty(M, :dims)` returns its `dimensions` in the type of integer-vector.
 """
 struct M_Fermion{T<:AbstractSciMLOperator} <: AbstractHEOMLSMatrix{T}
     data::T
     tier::Int
-    dims::SVector
+    dimensions::Dimensions
     N::Int
     sup_dim::Int
     parity::AbstractParity
@@ -61,7 +64,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
 
     # check for system dimension
     _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)")
-    sup_dim = prod(_Hsys.dims)^2
+    sup_dim = prod(_Hsys.dimensions)^2
     I_sup = sparse(one(ComplexF64) * I, sup_dim, sup_dim)
 
     # the Liouvillian operator for free Hamiltonian term
@@ -72,7 +75,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         print("Checking the importance value for each ADOs...")
         flush(stdout)
     end
-    Nado, baths, hierarchy = genBathHierarchy(Bath, tier, _Hsys.dims, threshold = threshold)
+    Nado, baths, hierarchy = genBathHierarchy(Bath, tier, _Hsys.dimensions, threshold = threshold)
     idx2nvec = hierarchy.idx2nvec
     nvec2idx = hierarchy.nvec2idx
     if verbose && (threshold > 0.0)
@@ -149,7 +152,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         println("[DONE]")
         flush(stdout)
     end
-    return M_Fermion(L_he, tier, copy(_Hsys.dims), Nado, sup_dim, parity, Bath, hierarchy)
+    return M_Fermion(L_he, tier, _Hsys.dimensions, Nado, sup_dim, parity, Bath, hierarchy)
 end
 
 _getBtier(M::M_Fermion) = 0

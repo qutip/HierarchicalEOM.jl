@@ -36,7 +36,7 @@ The fields of the structure [`M_Boson_Fermion`](@ref) are as follows:
  - `data` : the sparse matrix of HEOM Liouvillian superoperator
  - `Btier` : the tier (cutoff level) for bosonic hierarchy
  - `Ftier` : the tier (cutoff level) for fermionic hierarchy
- - `dims` : the dimension list of the coupling operator (should be equal to the system dims).
+ - `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
  - `N` : the number of total [ADOs](@ref doc-ADOs)
  - `sup_dim` : the dimension of system superoperator
  - `parity` : the [parity](@ref doc-Parity) label of the operator which HEOMLS is acting on. 
@@ -51,6 +51,7 @@ M::M_Boson_Fermion
 M.data
 M.Btier
 M.Ftier
+M.dimensions
 M.dims
 M.N
 M.sup_dim

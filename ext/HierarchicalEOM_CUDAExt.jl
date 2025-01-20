@@ -22,17 +22,28 @@ Return a new HEOMLS-matrix-type object with `M.data` is in the type of `CuSparse
 function CuSparseMatrixCSC(M::T) where {T<:AbstractHEOMLSMatrix}
     A_gpu = _convert_to_gpu_matrix(M.data)
     if T <: M_S
-        return M_S(A_gpu, M.tier, M.dims, M.N, M.sup_dim, M.parity)
+        return M_S(A_gpu, M.tier, M.dimensions, M.N, M.sup_dim, M.parity)
     elseif T <: M_Boson
-        return M_Boson(A_gpu, M.tier, M.dims, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+        return M_Boson(A_gpu, M.tier, M.dimensions, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
     elseif T <: M_Fermion
-        return M_Fermion(A_gpu, M.tier, M.dims, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+        return M_Fermion(A_gpu, M.tier, M.dimensions, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
     else
-        return M_Boson_Fermion(A_gpu, M.Btier, M.Ftier, M.dims, M.N, M.sup_dim, M.parity, M.Bbath, M.Fbath, M.hierarchy)
+        return M_Boson_Fermion(
+            A_gpu,
+            M.Btier,
+            M.Ftier,
+            M.dimensions,
+            M.N,
+            M.sup_dim,
+            M.parity,
+            M.Bbath,
+            M.Fbath,
+            M.hierarchy,
+        )
     end
 end
 
-CuSparseMatrixCSC{ComplexF32}(M::HEOMSuperOp) = HEOMSuperOp(_convert_to_gpu_matrix(M.data), M.dims, M.N, M.parity)
+CuSparseMatrixCSC{ComplexF32}(M::HEOMSuperOp) = HEOMSuperOp(_convert_to_gpu_matrix(M.data), M.dimensions, M.N, M.parity)
 
 function _convert_to_gpu_matrix(A::AbstractSparseMatrix)
     if A isa CuSparseMatrixCSC{ComplexF32,Int32}
@@ -53,7 +64,7 @@ _convert_to_gpu_matrix(A::MatrixOperator) = MatrixOperator(_convert_to_gpu_matri
 _convert_to_gpu_matrix(A::ScaledOperator) = ScaledOperator(A.λ, _convert_to_gpu_matrix(A.L))
 _convert_to_gpu_matrix(A::AddedOperator) = AddedOperator(map(op -> _convert_to_gpu_matrix(op), A.ops))
 
-_Tr(M::Type{<:CuSparseMatrixCSC}, dims::SVector, N::Int) = CuSparseVector(_Tr(eltype(M), dims, N))
+_Tr(M::Type{<:CuSparseMatrixCSC}, dimensions::Dimensions, N::Int) = CuSparseVector(_Tr(eltype(M), dimensions, N))
 
 # change the type of `ADOs` to match the type of HEOMLS matrix
 _HandleVectorType(M::Type{<:CuSparseMatrixCSC}, V::SparseVector) = CuArray{_CType(eltype(M))}(V)
