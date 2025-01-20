@@ -33,11 +33,11 @@ struct ADOs
     N::Int
     parity::AbstractParity
 
-    function ADOs(data::SparseVector{ComplexF64,Int64}, dims, N::Int, parity::AbstractParity)
+    function ADOs(data::AbstractVector, dims, N::Int, parity::AbstractParity)
         dimensions = _gen_dimensions(dims)
         Vsize = size(data, 1)
         ((Vsize / N) == prod(dimensions)^2) || error("The `dimensions` is not consistent with the ADOs number `N`.")
-        return new(data, dimensions, N, parity)
+        return new(sparsevec(data), dimensions, N, parity)
     end
 end
 
@@ -50,7 +50,7 @@ Generate the object of auxiliary density operators for HEOM model.
 - `N::Int` : the number of auxiliary density operators.
 - `parity::AbstractParity` : the parity label (`EVEN` or `ODD`). Default to `EVEN`.
 """
-ADOs(V::AbstractVector, N::Int, parity::AbstractParity = EVEN) = ADOs(sparsevec(V), √(size(V, 1) / N), N, parity)
+ADOs(V::AbstractVector, N::Int, parity::AbstractParity = EVEN) = ADOs(V, isqrt(Int(size(V, 1) / N)), N, parity)
 
 @doc raw"""
     ADOs(ρ, N, parity)

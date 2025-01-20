@@ -513,7 +513,7 @@ end
 function Base.getproperty(
     b::BType,
     key::Symbol,
-) where {B<:Union{bosonReal,bosonImage,bosonRealImag,bosonAbsorb,bosonEmit}}
+) where {BType<:Union{bosonReal,bosonImag,bosonRealImag,bosonAbsorb,bosonEmit}}
     # a comment here to avoid bad render by JuliaFormatter
     if key === :dims
         return dimensions_to_dims(getfield(b, :dimensions))

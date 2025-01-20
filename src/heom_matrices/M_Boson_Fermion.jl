@@ -225,7 +225,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         println("[DONE]")
         flush(stdout)
     end
-    return M_Boson_Fermion(L_he, Btier, Ftier, copy(_Hsys.dimensions), Nado, sup_dim, parity, Bbath, Fbath, hierarchy)
+    return M_Boson_Fermion(L_he, Btier, Ftier, _Hsys.dimensions, Nado, sup_dim, parity, Bbath, Fbath, hierarchy)
 end
 
 _getBtier(M::M_Boson_Fermion) = M.Btier

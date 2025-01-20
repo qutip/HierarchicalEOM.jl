@@ -152,7 +152,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         println("[DONE]")
         flush(stdout)
     end
-    return M_Fermion(L_he, tier, copy(_Hsys.dimensions), Nado, sup_dim, parity, Bath, hierarchy)
+    return M_Fermion(L_he, tier, _Hsys.dimensions, Nado, sup_dim, parity, Bath, hierarchy)
 end
 
 _getBtier(M::M_Fermion) = 0

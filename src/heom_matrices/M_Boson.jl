@@ -155,7 +155,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         println("[DONE]")
         flush(stdout)
     end
-    return M_Boson(L_he, tier, copy(_Hsys.dimensions), Nado, sup_dim, parity, Bath, hierarchy)
+    return M_Boson(L_he, tier, _Hsys.dimensions, Nado, sup_dim, parity, Bath, hierarchy)
 end
 
 _getBtier(M::M_Boson) = M.tier

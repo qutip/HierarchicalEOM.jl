@@ -213,7 +213,7 @@ function fermionEmit(
     )
 end
 
-function Base.getproperty(b::BType, key::Symbol) where {B<:Union{fermionAbsorb,fermionEmit}}
+function Base.getproperty(b::BType, key::Symbol) where {BType<:Union{fermionAbsorb,fermionEmit}}
     # a comment here to avoid bad render by JuliaFormatter
     if key === :dims
         return dimensions_to_dims(getfield(b, :dimensions))

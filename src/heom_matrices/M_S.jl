@@ -61,7 +61,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         println("[DONE]")
         flush(stdout)
     end
-    return M_S(Lsys, 0, copy(_Hsys.dimensions), 1, sup_dim, parity)
+    return M_S(Lsys, 0, _Hsys.dimensions, 1, sup_dim, parity)
 end
 
 _getBtier(M::M_S) = 0
