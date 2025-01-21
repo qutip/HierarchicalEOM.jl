@@ -88,6 +88,16 @@ function _Importance(B::Vector{T}, bathPtr::AbstractVector, nvec::Nvec) where {T
     return abs(value)
 end
 
+# Generate the maximum value of Nvec, the excitation number must be less than (but not equal to) these values
+function _gen_n_max(baths::Vector{AbstractBosonBath}, tier::Int, ::Int)
+    n_max = Int[]
+    for b in baths
+        append!(n_max, fill(tier + 1, b.Nterm))
+    end
+    return n_max
+end
+_gen_n_max(::Vector{AbstractFermionBath}, tier::Int, Nterm::Int) = (tier == 0) ? fill(1, Nterm) : fill(2, Nterm)
+
 # for pure hierarchy dictionary
 @noinline function genBathHierarchy(
     B::Vector{T},
@@ -110,7 +120,7 @@ end
             end
             Nterm += b.Nterm
         end
-        n_max = fill((tier + 1), Nterm)
+        n_max = _gen_n_max(baths, tier, Nterm)
 
     elseif T == FermionBath
         baths = AbstractFermionBath[]
@@ -124,11 +134,7 @@ end
             end
             Nterm += b.Nterm
         end
-        if tier == 0
-            n_max = fill(1, Nterm)
-        elseif tier >= 1
-            n_max = fill(2, Nterm)
-        end
+        n_max = _gen_n_max(baths, tier, Nterm)
     end
 
     # create idx2nvec and remove nvec when its value of importance is below threshold
@@ -194,7 +200,7 @@ end
         end
         Nterm_b += b.Nterm
     end
-    n_max_b = fill((tier_b + 1), Nterm_b)
+    n_max_b = _gen_n_max(baths_b, tier_b, Nterm_b)
     idx2nvec_b = _Idx2Nvec(n_max_b, tier_b)
 
     # deal with fermion bath
@@ -211,11 +217,7 @@ end
         end
         Nterm_f += b.Nterm
     end
-    if tier_f == 0
-        n_max_f = fill(1, Nterm_f)
-    elseif tier_f >= 1
-        n_max_f = fill(2, Nterm_f)
-    end
+    n_max_f = _gen_n_max(baths_f, tier_f, Nterm_f)
     idx2nvec_f = _Idx2Nvec(n_max_f, tier_f)
 
     # only store nvec tuple when its value of importance is above threshold
