@@ -3,8 +3,7 @@ export AbstractBosonBath, bosonReal, bosonImag, bosonRealImag, bosonAbsorb, boso
 
 abstract type AbstractBosonBath end
 
-Base.show(io::IO, B::AbstractBosonBath) =
-    print(io, "$(typeof(B))-type bath with $(B.Nterm) exponential-expansion terms\n")
+Base.show(io::IO, B::AbstractBosonBath) = print(io, "$(typeof(B))-type bath with $(B.Nterm) terms\n")
 Base.show(io::IO, m::MIME"text/plain", B::AbstractBosonBath) = show(io, B)
 
 function _check_bosonic_coupling_operator(op)
@@ -47,16 +46,16 @@ An object which describes the interaction between system and bosonic bath
 # Fields
 - `bath` : the different boson-bath-type objects which describes the interaction between system and bosonic bath
 - `op` : The system coupling operator, must be Hermitian and, for fermionic systems, even-parity to be compatible with charge conservation.
-- `Nterm` : the number of exponential-expansion term of correlation functions
+- `Nterm` : the total number of different bath terms.
 - `δ` : The approximation discrepancy which is used for adding the terminator to HEOM matrix (see function: addTerminator)
 
 # Methods
-One can obtain the ``k``-th exponent (exponential-expansion term) from `bath::BosonBath` by calling : `bath[k]`.
+One can obtain the ``k``-th term from `bath::BosonBath` by calling : `bath[k]`.
 `HierarchicalEOM.jl` also supports the following calls (methods) :
 ```julia
-bath[1:k];   # returns a vector which contains the exponents from the `1`-st to the `k`-th term.
-bath[1:end]; # returns a vector which contains all the exponential-expansion terms
-bath[:];     # returns a vector which contains all the exponential-expansion terms
+bath[1:k];   # returns a vector which contains the `1`-st to the `k`-th term.
+bath[1:end]; # returns a vector which contains all terms
+bath[:];     # returns a vector which contains all terms
 from b in bath
     # do something
 end
@@ -67,6 +66,11 @@ struct BosonBath <: AbstractBath
     op::QuantumObject
     Nterm::Int
     δ::Number
+
+    function BosonBath(bath::Vector{AbstractBosonBath}, op::QuantumObject, Nterm::Int, δ::Number)
+        (Nterm == sum(getfield.(bath, :Nterm))) || error("Invalid `Nterm` in BosonBath.")
+        return new(bath, op, Nterm, δ)
+    end
 end
 
 @doc raw"""
@@ -206,7 +210,7 @@ A bosonic bath for the real part of bath correlation function ``C^{u=\textrm{R}}
 - `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
 - `η` : the coefficients ``\eta_i`` in real part of bath correlation function ``C^{u=\textrm{R}}``.
 - `γ` : the coefficients ``\gamma_i`` in real part of bath correlation function ``C^{u=\textrm{R}}``.
-- `Nterm` : the number of exponential-expansion term of correlation function
+- `Nterm` : the number of exponential-expansion term of correlation function.
 
 !!! note "`dims` property"
     For a given `b::bosonReal`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.
@@ -250,7 +254,7 @@ A bosonic bath for the imaginary part of bath correlation function ``C^{u=\textr
 - `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
 - `η` : the coefficients ``\eta_i`` in imaginary part of bath correlation function ``C^{u=\textrm{I}}``.
 - `γ` : the coefficients ``\gamma_i`` in imaginary part of bath correlation function ``C^{u=\textrm{I}}``.
-- `Nterm` : the number of exponential-expansion term of correlation function
+- `Nterm` : the number of exponential-expansion term of correlation function.
 
 !!! note "`dims` property"
     For a given `b::bosonImag`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.
@@ -298,7 +302,7 @@ A bosonic bath which the real part and imaginary part of the bath correlation fu
 - `η_real` : the real part of coefficients ``\eta_i`` in bath correlation function ``\sum_i \eta_i \exp(-\gamma_i t)``.
 - `η_imag` : the imaginary part of coefficients ``\eta_i`` in bath correlation function ``\sum_i \eta_i \exp(-\gamma_i t)``.
 - `γ` : the coefficients ``\gamma_i`` in bath correlation function ``\sum_i \eta_i \exp(-\gamma_i t)``.
-- `Nterm` : the number of exponential-expansion term of correlation function
+- `Nterm` : the number of exponential-expansion term of correlation function.
 
 !!! note "`dims` property"
     For a given `b::bosonRealImag`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.
@@ -394,7 +398,7 @@ An bath object which describes the absorption process of the bosonic system by a
 - `η` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
 - `γ` : the coefficients ``\gamma_i`` of absorption bath correlation function ``C^{\nu=+}``.
 - `η_emit` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
-- `Nterm` : the number of exponential-expansion term of correlation function
+- `Nterm` : the number of exponential-expansion term of correlation function.
 
 !!! note "`dims` property"
     For a given `b::bosonAbsorb`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.
@@ -458,7 +462,7 @@ An bath object which describes the emission process of the bosonic system by a c
 - `η` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
 - `γ` : the coefficients ``\gamma_i`` of emission bath correlation function ``C^{\nu=-}``.
 - `η_absorb` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
-- `Nterm` : the number of exponential-expansion term of correlation function
+- `Nterm` : the number of exponential-expansion term of correlation function.
 
 !!! note "`dims` property"
     For a given `b::bosonEmit`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.

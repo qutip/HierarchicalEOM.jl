@@ -1,9 +1,12 @@
-export AbstractBath, Exponent, correlation_function
+export AbstractBath
+export BathTerm, Exponent
+export correlation_function
 
 abstract type AbstractBath end
+abstract type BathTerm end
 
 @doc raw"""
-    struct Exponent
+    struct Exponent <: BathTerm
 An object which describes a single exponential-expansion term (naively, an excitation mode) within the decomposition of the bath correlation functions.
 
 The expansion of a bath correlation function can be expressed as : ``C(t) = \sum_i \eta_i \exp(-\gamma_i t)``.
@@ -23,7 +26,7 @@ The different types of the Exponent:
 - `\"fA\"` : from absorption fermionic correlation function ``C^{\nu=+}(t)``
 - `\"fE\"` : from emission fermionic correlation function ``C^{\nu=-}(t)``
 """
-struct Exponent
+struct Exponent <: BathTerm
     op::QuantumObject
     η::Number
     γ::Number
@@ -33,11 +36,11 @@ end
 Base.show(io::IO, E::Exponent) = print(io, "Bath Exponent with types = \"$(E.types)\", η = $(E.η), γ = $(E.γ).\n")
 Base.show(io::IO, m::MIME"text/plain", E::Exponent) = show(io, E)
 
-Base.show(io::IO, B::AbstractBath) = print(io, "$(typeof(B)) object with $(B.Nterm) exponential-expansion terms\n")
+Base.show(io::IO, B::AbstractBath) = print(io, "$(typeof(B)) object with $(B.Nterm) terms.\n")
 Base.show(io::IO, m::MIME"text/plain", B::AbstractBath) = show(io, B)
 
 Base.checkbounds(B::AbstractBath, i::Int) =
-    ((i < 1) || (i > B.Nterm)) ? error("Attempt to access $(B.Nterm)-exponent term Bath at index [$(i)]") : nothing
+    ((i < 1) || (i > B.Nterm)) ? error("Attempt to access $(B.Nterm)-term Bath at index [$(i)]") : nothing
 
 Base.length(B::AbstractBath) = B.Nterm
 Base.lastindex(B::AbstractBath) = B.Nterm
@@ -88,7 +91,7 @@ function Base.getindex(B::AbstractBath, r::UnitRange{Int})
     checkbounds(B, r[end])
 
     count = 0
-    exp_list = Exponent[]
+    list = BathTerm[]
     for b in B.bath
         for k in 1:b.Nterm
             count += 1
@@ -120,10 +123,10 @@ function Base.getindex(B::AbstractBath, r::UnitRange{Int})
                         op = B.op
                     end
                 end
-                push!(exp_list, Exponent(op, η, b.γ[k], types))
+                push!(list, Exponent(op, η, b.γ[k], types))
             end
             if count == r[end]
-                return exp_list
+                return list
             end
         end
     end

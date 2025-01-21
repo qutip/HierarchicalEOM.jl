@@ -16,16 +16,16 @@ An object which describes the interaction between system and fermionic bath
 # Fields
 - `bath` : the different fermion-bath-type objects which describes the interaction
 - `op` : The system \"emission\" operator according to the system-fermionic-bath interaction.
-- `Nterm` : the number of exponential-expansion term of correlation functions
+- `Nterm` : the total number of different bath terms.
 - `δ` : The approximation discrepancy which is used for adding the terminator to HEOM matrix (see function: addTerminator)
 
 # Methods
-One can obtain the ``k``-th exponent (exponential-expansion term) from `bath::FermionBath` by calling : `bath[k]`.
+One can obtain the ``k``-th term from `bath::FermionBath` by calling : `bath[k]`.
 `HierarchicalEOM.jl` also supports the following calls (methods) :
 ```julia
-bath[1:k];   # returns a vector which contains the exponents from the `1`-st to the `k`-th term.
-bath[1:end]; # returns a vector which contains all the exponential-expansion terms
-bath[:];     # returns a vector which contains all the exponential-expansion terms
+bath[1:k];   # returns a vector which contains the `1`-st to the `k`-th term.
+bath[1:end]; # returns a vector which contains all terms
+bath[:];     # returns a vector which contains all terms
 from b in bath
     # do something
 end
@@ -36,6 +36,11 @@ struct FermionBath <: AbstractBath
     op::QuantumObject
     Nterm::Int
     δ::Number
+
+    function FermionBath(bath::Vector{AbstractFermionBath}, op::QuantumObject, Nterm::Int, δ::Number)
+        (Nterm == sum(getfield.(bath, :Nterm))) || error("Invalid `Nterm` in FermionBath.")
+        return new(bath, op, Nterm, δ)
+    end
 end
 
 @doc raw"""
@@ -91,7 +96,7 @@ An bath object which describes the absorption process of the fermionic system by
 - `η` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
 - `γ` : the coefficients ``\gamma_i`` of absorption bath correlation function ``C^{\nu=+}``.
 - `η_emit` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
-- `Nterm` : the number of exponential-expansion term of correlation function
+- `Nterm` : the number of exponential-expansion term of correlation function.
 
 !!! note "`dims` property"
     For a given `b::fermionAbsorb`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.
@@ -158,7 +163,7 @@ An bath object which describes the emission process of the fermionic system by a
 - `η` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
 - `γ` : the coefficients ``\gamma_i`` of emission bath correlation function ``C^{\nu=-}``.
 - `η_absorb` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
-- `Nterm` : the number of exponential-expansion term of correlation function
+- `Nterm` : the number of exponential-expansion term of correlation function.
 
 !!! note "`dims` property"
     For a given `b::fermionEmit`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.
