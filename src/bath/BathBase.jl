@@ -55,7 +55,7 @@ The different types of the DynamicalField:
 """
 struct DynamicalField <: BathTerm
     op::QuantumObject
-    η::Union{Number,Function}
+    η::Union{Number,ScalarOperator}
     γ::Number
     types::String
 end
@@ -81,17 +81,17 @@ function Base.getindex(B::AbstractBath, i::Int)
         if i <= (count + b.Nterm)
             k = i - count
             b_type = typeof(b)
-            if b_type isa AbstractBosonDynamicalField
-                if b_type == bosonInput
-                    types == "bInFn"
+            if b_type <: AbstractBosonDynamicalField
+                if b_type == bosonInputFunction
+                    types = "bInFn"
                 elseif b_type == bosonOutputFunctionLeft
-                    types == "bOutFnL"
+                    types = "bOutFnL"
                 elseif b_type == bosonOutputFunctionRight
-                    types == "bOutFnR"
+                    types = "bOutFnR"
                 elseif b_type == bosonOutputLeft
-                    types == "bOutL"
+                    types = "bOutL"
                 elseif b_type == bosonOutputRight
-                    types == "bOutR"
+                    types = "bOutR"
                 end
                 return DynamicalField(B.op, b.η[k], b.γ[k], types)
             else
@@ -140,17 +140,17 @@ function Base.getindex(B::AbstractBath, r::UnitRange{Int})
             count += 1
             if (r[1] <= count) && (count <= r[end])
                 b_type = typeof(b)
-                if b_type isa AbstractBosonDynamicalField
-                    if b_type == bosonInput
-                        types == "bInFn"
+                if b_type <: AbstractBosonDynamicalField
+                    if b_type == bosonInputFunction
+                        types = "bInFn"
                     elseif b_type == bosonOutputFunctionLeft
-                        types == "bOutFnL"
+                        types = "bOutFnL"
                     elseif b_type == bosonOutputFunctionRight
-                        types == "bOutFnR"
+                        types = "bOutFnR"
                     elseif b_type == bosonOutputLeft
-                        types == "bOutL"
+                        types = "bOutL"
                     elseif b_type == bosonOutputRight
-                        types == "bOutR"
+                        types = "bOutR"
                     end
                     push!(list, DynamicalField(B.op, b.η[k], b.γ[k], types))
                 else

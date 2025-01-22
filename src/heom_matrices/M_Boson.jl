@@ -94,9 +94,9 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 
     # start to construct the matrix
     Nthread = nthreads()
-    L_row = [Dict(scalar_ops .=> [Int[] for _ in 1:Nscalar]) for _ in 1:Nthread]
-    L_col = [Dict(scalar_ops .=> [Int[] for _ in 1:Nscalar]) for _ in 1:Nthread]
-    L_val = [Dict(scalar_ops .=> [ComplexF64[] for _ in 1:Nscalar]) for _ in 1:Nthread]
+    L_row = Dict(scalar_ops .=> [[Int[] for _ in 1:Nthread] for _ in 1:Nscalar])
+    L_col = Dict(scalar_ops .=> [[Int[] for _ in 1:Nthread] for _ in 1:Nscalar])
+    L_val = Dict(scalar_ops .=> [[ComplexF64[] for _ in 1:Nthread] for _ in 1:Nscalar])
 
     if verbose
         println("Preparing block matrices for HEOM Liouvillian superoperator (using $(Nthread) threads)...")
@@ -114,7 +114,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         else
             op = Lsys
         end
-        add_operator!(op, L_row[tID][λ0], L_col[tID][λ0], L_val[tID][λ0], Nado, idx, idx)
+        add_operator!(op, L_row[λ0][tID], L_col[λ0][tID], L_val[λ0][tID], Nado, idx, idx)
 
         # connect to bosonic (n+1)th- & (n-1)th- level superoperator
         mode = 0
@@ -127,7 +127,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                 # connect to bosonic (n-1)th-level superoperator
                 if n_k > 0
                     Nvec_minus!(nvec_neigh, mode)
-                    if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
+                    if haskey(nvec2idx, nvec_neigh)
                         idx_neigh = nvec2idx[nvec_neigh]
                         op = minus_i_D_op(bB, k, n_k)
                         if bB isa Union{bosonInputFunction,bosonOutputFunctionLeft,bosonOutputFunctionRight}
@@ -135,7 +135,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                         else
                             λ = λ0
                         end
-                        add_operator!(op, L_row[tID][λ], L_col[tID][λ], L_val[tID][λ], Nado, idx, idx_neigh)
+                        add_operator!(op, L_row[λ][tID], L_col[λ][tID], L_val[λ][tID], Nado, idx, idx_neigh)
                     end
                     Nvec_plus!(nvec_neigh, mode)
                 end
@@ -143,10 +143,10 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                 # connect to bosonic (n+1)th-level superoperator
                 if nvec.level < tier
                     Nvec_plus!(nvec_neigh, mode)
-                    if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
+                    if haskey(nvec2idx, nvec_neigh)
                         idx_neigh = nvec2idx[nvec_neigh]
                         op = minus_i_B_op(bB)
-                        add_operator!(op, L_row[tID][λ0], L_col[tID][λ0], L_val[tID][λ0], Nado, idx, idx_neigh)
+                        add_operator!(op, L_row[λ0][tID], L_col[λ0][tID], L_val[λ0][tID], Nado, idx, idx_neigh)
                     end
                     Nvec_minus!(nvec_neigh, mode)
                 end
@@ -157,10 +157,6 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         end
     end
 
-    L_row = reduce(mergewith!(append!), L_row)
-    L_col = reduce(mergewith!(append!), L_col)
-    L_val = reduce(mergewith!(append!), L_val)
-
     if verbose
         print("Constructing matrix...")
         flush(stdout)
@@ -168,12 +164,23 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 
     # conventional HEOMLS (time independent)
     λ = scalar_ops[1]
-    L_he = MatrixOperator(sparse(L_row[λ], L_col[λ], L_val[λ], Nado * sup_dim, Nado * sup_dim))
+    L_he = MatrixOperator(
+        sparse(reduce(vcat, L_row[λ]), reduce(vcat, L_col[λ]), reduce(vcat, L_val[λ]), Nado * sup_dim, Nado * sup_dim),
+    )
 
     # Input/Output HEOMLS (time dependent)
     for i in 2:Nscalar
         λ = scalar_ops[i]
-        L_he += λ * MatrixOperator(sparse(L_row[λ], L_col[λ], L_val[λ], Nado * sup_dim, Nado * sup_dim))
+        L_he +=
+            λ * MatrixOperator(
+                sparse(
+                    reduce(vcat, L_row[λ]),
+                    reduce(vcat, L_col[λ]),
+                    reduce(vcat, L_val[λ]),
+                    Nado * sup_dim,
+                    Nado * sup_dim,
+                ),
+            )
     end
 
     if verbose
