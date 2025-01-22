@@ -85,18 +85,24 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         flush(stdout)
     end
 
-    λ0 = ScalarOperator(0)
-    scalar_ops = ScalarOperator[λ0]
+    # time dependent scalar operators
+    td_scalars = ScalarOperator[]
+    FunctionFieldType = Union{bosonInputFunction,bosonOutputFunctionLeft,bosonOutputFunctionRight}
     for b in baths
-        (b isa Union{bosonInputFunction,bosonOutputFunctionLeft,bosonOutputFunctionRight}) && append!(scalar_ops, b.η)
+        (b isa FunctionFieldType) && append!(td_scalars, b.η)
     end
-    Nscalar = length(scalar_ops)
 
     # start to construct the matrix
     Nthread = nthreads()
-    L_row = Dict(scalar_ops .=> [[Int[] for _ in 1:Nthread] for _ in 1:Nscalar])
-    L_col = Dict(scalar_ops .=> [[Int[] for _ in 1:Nthread] for _ in 1:Nscalar])
-    L_val = Dict(scalar_ops .=> [[ComplexF64[] for _ in 1:Nthread] for _ in 1:Nscalar])
+    λ0 = ScalarOperator(0) # this is just a key for conventional (time-independent) HEOMLS
+    L_row = Dict(λ0 => Vector{Int}[Int[] for _ in 1:Nthread])
+    L_col = Dict(λ0 => Vector{Int}[Int[] for _ in 1:Nthread])
+    L_val = Dict(λ0 => Vector{ComplexF64}[ComplexF64[] for _ in 1:Nthread])
+    for λ in td_scalars
+        L_row[λ] = Vector{Int}[Int[] for _ in 1:Nthread]
+        L_col[λ] = Vector{Int}[Int[] for _ in 1:Nthread]
+        L_val[λ] = Vector{ComplexF64}[ComplexF64[] for _ in 1:Nthread]
+    end
 
     if verbose
         println("Preparing block matrices for HEOM Liouvillian superoperator (using $(Nthread) threads)...")
@@ -130,7 +136,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                     if haskey(nvec2idx, nvec_neigh)
                         idx_neigh = nvec2idx[nvec_neigh]
                         op = minus_i_D_op(bB, k, n_k)
-                        if bB isa Union{bosonInputFunction,bosonOutputFunctionLeft,bosonOutputFunctionRight}
+                        if bB isa FunctionFieldType
                             λ = bB.η[k]
                         else
                             λ = λ0
@@ -163,24 +169,32 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
     end
 
     # conventional HEOMLS (time independent)
-    λ = scalar_ops[1]
     L_he = MatrixOperator(
-        sparse(reduce(vcat, L_row[λ]), reduce(vcat, L_col[λ]), reduce(vcat, L_val[λ]), Nado * sup_dim, Nado * sup_dim),
+        sparse(
+            reduce(vcat, L_row[λ0]),
+            reduce(vcat, L_col[λ0]),
+            reduce(vcat, L_val[λ0]),
+            Nado * sup_dim,
+            Nado * sup_dim,
+        ),
     )
 
     # Input/Output HEOMLS (time dependent)
-    for i in 2:Nscalar
-        λ = scalar_ops[i]
-        L_he +=
-            λ * MatrixOperator(
-                sparse(
-                    reduce(vcat, L_row[λ]),
-                    reduce(vcat, L_col[λ]),
-                    reduce(vcat, L_val[λ]),
-                    Nado * sup_dim,
-                    Nado * sup_dim,
+    if !isempty(td_scalars)
+        L_he += mapreduce(
+            λ ->
+                λ * MatrixOperator(
+                    sparse(
+                        reduce(vcat, L_row[λ]),
+                        reduce(vcat, L_col[λ]),
+                        reduce(vcat, L_val[λ]),
+                        Nado * sup_dim,
+                        Nado * sup_dim,
+                    ),
                 ),
-            )
+            +,
+            td_scalars,
+        )
     end
 
     if verbose
