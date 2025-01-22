@@ -6,7 +6,7 @@ format:
 	${JULIA} -e 'using JuliaFormatter; format(".")'
 
 test:
-	${JULIA} --project -e 'using Pkg; Pkg.resolve(); Pkg.test()'
+	${JULIA} -t 4 --project -e 'using Pkg; Pkg.resolve(); Pkg.test()'
 
 docs:
 	${JULIA} --project=docs -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
