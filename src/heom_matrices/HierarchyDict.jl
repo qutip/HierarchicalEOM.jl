@@ -92,7 +92,11 @@ end
 function _gen_n_max(baths::Vector{AbstractBosonBath}, tier::Int, ::Int)
     n_max = Int[]
     for b in baths
-        append!(n_max, fill(tier + 1, b.Nterm))
+        if b isa AbstractBosonDynamicalField
+            append!(n_max, fill(2, b.Nterm))
+        else
+            append!(n_max, fill(tier + 1, b.Nterm))
+        end
     end
     return n_max
 end

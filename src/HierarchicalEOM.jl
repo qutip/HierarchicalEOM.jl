@@ -11,7 +11,13 @@ import QuantumToolbox:
 # SciML packages (for OrdinaryDiffEq and LinearSolve)
 import SciMLBase: init, solve, solve!, u_modified!, ODEProblem, FullSpecialize, CallbackSet, NullParameters
 import SciMLOperators:
-    AbstractSciMLOperator, MatrixOperator, ScaledOperator, AddedOperator, update_coefficients!, concretize
+    AbstractSciMLOperator,
+    ScalarOperator,
+    MatrixOperator,
+    ScaledOperator,
+    AddedOperator,
+    update_coefficients!,
+    concretize
 import OrdinaryDiffEqCore: OrdinaryDiffEqAlgorithm
 import OrdinaryDiffEqLowOrderRK: DP5
 import DiffEqCallbacks: PresetTimeCallback, TerminateSteadyState
@@ -30,6 +36,7 @@ include("HeomBase.jl")
 include("bath/BathBase.jl")
 include("bath/BosonBath.jl")
 include("bath/FermionBath.jl")
+include("bath/BosonDynamicalField.jl")
 include("bath_correlation_functions/bath_correlation_func.jl")
 
 # Parity and ADOs

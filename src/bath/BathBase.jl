@@ -1,5 +1,5 @@
 export AbstractBath
-export BathTerm, Exponent
+export BathTerm, Exponent, DynamicalField
 export correlation_function
 
 abstract type AbstractBath end
@@ -36,6 +36,34 @@ end
 Base.show(io::IO, E::Exponent) = print(io, "Bath Exponent with types = \"$(E.types)\", η = $(E.η), γ = $(E.γ).\n")
 Base.show(io::IO, m::MIME"text/plain", E::Exponent) = show(io, E)
 
+@doc raw"""
+    struct DynamicalField <: BathTerm
+An object which describes a single dynamical field term, which is a correlation function between the system-bath coupling operator and a desired bath operator.
+
+# Fields
+- `op::QuantumObject` : The system coupling operator according to system-bath interaction.
+- `η::Union{Number,Function}` : the coefficient ``\eta_i``. If `η(p, t)` is a `Function`, it must depends on the parameters `p` and time `t`
+- `γ::Number` : the coefficient ``\gamma_i``.
+- `types::String` : The type-tag of the dynamical field.
+
+The different types of the DynamicalField:
+- `\"bInFn\"`
+- `\"bOutFnL\"`
+- `\"bOutFnR\"`
+- `\"bOutL\"`
+- `\"bOutR\"`
+"""
+struct DynamicalField <: BathTerm
+    op::QuantumObject
+    η::Union{Number,Function}
+    γ::Number
+    types::String
+end
+
+Base.show(io::IO, F::DynamicalField) =
+    print(io, "Dynamical Field with types = \"$(F.types)\", η = $(F.η), γ = $(F.γ).\n")
+Base.show(io::IO, m::MIME"text/plain", F::DynamicalField) = show(io, F)
+
 Base.show(io::IO, B::AbstractBath) = print(io, "$(typeof(B)) object with $(B.Nterm) terms.\n")
 Base.show(io::IO, m::MIME"text/plain", B::AbstractBath) = show(io, B)
 
@@ -53,50 +81,20 @@ function Base.getindex(B::AbstractBath, i::Int)
         if i <= (count + b.Nterm)
             k = i - count
             b_type = typeof(b)
-            if b_type == bosonRealImag
-                η = b.η_real[k] + 1.0im * b.η_imag[k]
-                types = "bRI"
-                op = B.op
-            else
-                η = b.η[k]
-                if b_type == bosonReal
-                    types = "bR"
-                    op = B.op
-                elseif b_type == bosonImag
-                    types = "bI"
-                    op = B.op
-                elseif b_type == bosonAbsorb
-                    types = "bA"
-                    op = B.op'
-                elseif b_type == bosonEmit
-                    types = "bE"
-                    op = B.op
-                elseif b_type == fermionAbsorb
-                    types = "fA"
-                    op = B.op'
-                elseif b_type == fermionEmit
-                    types = "fE"
-                    op = B.op
+            if b_type isa AbstractBosonDynamicalField
+                if b_type == bosonInput
+                    types == "bInFn"
+                elseif b_type == bosonOutputFunctionLeft
+                    types == "bOutFnL"
+                elseif b_type == bosonOutputFunctionRight
+                    types == "bOutFnR"
+                elseif b_type == bosonOutputLeft
+                    types == "bOutL"
+                elseif b_type == bosonOutputRight
+                    types == "bOutR"
                 end
-            end
-            return Exponent(op, η, b.γ[k], types)
-        else
-            count += b.Nterm
-        end
-    end
-end
-
-function Base.getindex(B::AbstractBath, r::UnitRange{Int})
-    checkbounds(B, r[1])
-    checkbounds(B, r[end])
-
-    count = 0
-    list = BathTerm[]
-    for b in B.bath
-        for k in 1:b.Nterm
-            count += 1
-            if (r[1] <= count) && (count <= r[end])
-                b_type = typeof(b)
+                return DynamicalField(B.op, b.η[k], b.γ[k], types)
+            else
                 if b_type == bosonRealImag
                     η = b.η_real[k] + 1.0im * b.η_imag[k]
                     types = "bRI"
@@ -123,7 +121,67 @@ function Base.getindex(B::AbstractBath, r::UnitRange{Int})
                         op = B.op
                     end
                 end
-                push!(list, Exponent(op, η, b.γ[k], types))
+                return Exponent(op, η, b.γ[k], types)
+            end
+        else
+            count += b.Nterm
+        end
+    end
+end
+
+function Base.getindex(B::AbstractBath, r::UnitRange{Int})
+    checkbounds(B, r[1])
+    checkbounds(B, r[end])
+
+    count = 0
+    list = BathTerm[]
+    for b in B.bath
+        for k in 1:b.Nterm
+            count += 1
+            if (r[1] <= count) && (count <= r[end])
+                b_type = typeof(b)
+                if b_type isa AbstractBosonDynamicalField
+                    if b_type == bosonInput
+                        types == "bInFn"
+                    elseif b_type == bosonOutputFunctionLeft
+                        types == "bOutFnL"
+                    elseif b_type == bosonOutputFunctionRight
+                        types == "bOutFnR"
+                    elseif b_type == bosonOutputLeft
+                        types == "bOutL"
+                    elseif b_type == bosonOutputRight
+                        types == "bOutR"
+                    end
+                    push!(list, DynamicalField(B.op, b.η[k], b.γ[k], types))
+                else
+                    if b_type == bosonRealImag
+                        η = b.η_real[k] + 1.0im * b.η_imag[k]
+                        types = "bRI"
+                        op = B.op
+                    else
+                        η = b.η[k]
+                        if b_type == bosonReal
+                            types = "bR"
+                            op = B.op
+                        elseif b_type == bosonImag
+                            types = "bI"
+                            op = B.op
+                        elseif b_type == bosonAbsorb
+                            types = "bA"
+                            op = B.op'
+                        elseif b_type == bosonEmit
+                            types = "bE"
+                            op = B.op
+                        elseif b_type == fermionAbsorb
+                            types = "fA"
+                            op = B.op'
+                        elseif b_type == fermionEmit
+                            types = "fE"
+                            op = B.op
+                        end
+                    end
+                    push!(list, Exponent(op, η, b.γ[k], types))
+                end
             end
             if count == r[end]
                 return list

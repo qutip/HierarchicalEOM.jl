@@ -426,7 +426,8 @@ function pad_coo(
     return Inew, Jnew, V
 end
 
-function add_operator!(op, I, J, V, N_he, row_idx, col_idx)
+add_operator!(op::Nothing, I, J, V, N_he, row_idx, col_idx) = nothing
+function add_operator!(op::SparseMatrixCSC{ComplexF64,Int64}, I, J, V, N_he, row_idx, col_idx)
     row, col, val = pad_coo(op, N_he, N_he, row_idx, col_idx)
     append!(I, row)
     append!(J, col)
@@ -454,7 +455,7 @@ minus_i_L_op(Hsys::QuantumObject, Id = I(size(Hsys, 1))) = liouvillian(Hsys, Id)
 # connect to bosonic (n-1)th-level for "Real & Imag combined operator"
 minus_i_D_op(bath::bosonRealImag, k, n_k) = n_k * (-1.0im * bath.η_real[k] * bath.Comm + bath.η_imag[k] * bath.anComm)
 
-# connect to bosonic (n-1)th-level for (Real & Imag combined) operator "Real operator"
+# connect to bosonic (n-1)th-level for (Real & Imag combined) "Real operator"
 minus_i_D_op(bath::bosonReal, k, n_k) = -1.0im * n_k * bath.η[k] * bath.Comm
 
 # connect to bosonic (n-1)th-level for "Imag operator"
@@ -465,6 +466,13 @@ minus_i_D_op(bath::bosonAbsorb, k, n_k) = -1.0im * n_k * (bath.η[k] * bath.spre
 
 # connect to bosonic (n-1)th-level for "Emission operator"
 minus_i_D_op(bath::bosonEmit, k, n_k) = -1.0im * n_k * (bath.η[k] * bath.spre - conj(bath.η_absorb[k]) * bath.spost)
+
+# connect to bosonic (n-1)th-level dynamical field
+minus_i_D_op(bath::bosonInputFunction, k, n_k) = n_k * bath.Comm         # omit η[k] here, the ScalarOperator will be multiplied at the end
+minus_i_D_op(bath::bosonOutputFunctionLeft, k, n_k) = n_k * bath.spre    # omit η[k] here, the ScalarOperator will be multiplied at the end
+minus_i_D_op(bath::bosonOutputFunctionRight, k, n_k) = -n_k * bath.spost # omit η[k] here, the ScalarOperator will be multiplied at the end
+minus_i_D_op(bath::bosonOutputLeft, k, n_k) = n_k * bath.η[k] * bath.spre
+minus_i_D_op(bath::bosonOutputRight, k, n_k) = -n_k * bath.η[k] * bath.spost
 
 # connect to fermionic (n-1)th-level for "absorption operator"
 function minus_i_C_op(bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
@@ -485,6 +493,9 @@ minus_i_B_op(bath::T) where {T<:Union{bosonReal,bosonImag,bosonRealImag}} = -1.0
 
 # connect to bosonic (n+1)th-level for absorption-and-emission-type bosonic bath
 minus_i_B_op(bath::T) where {T<:Union{bosonAbsorb,bosonEmit}} = -1.0im * bath.CommD
+
+# connect to bosonic (n+1)th-level dynamical field
+minus_i_B_op(bath::AbstractBosonDynamicalField) = nothing
 
 # connect to fermionic (n+1)th-level
 function minus_i_A_op(bath::T, n_exc, n_exc_before, parity) where {T<:AbstractFermionBath}
