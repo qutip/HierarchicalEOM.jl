@@ -69,6 +69,8 @@ jobs:
       - uses: julia-actions/julia-runtest@v1
         env:
           GROUP: ${{ matrix.group }}
+        with:
+          test_args: '-t 4'
       - uses: julia-actions/julia-processcoverage@v1
         with:
           directories: src,ext
