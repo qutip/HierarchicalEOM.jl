@@ -94,9 +94,9 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 
     # start to construct the matrix
     Nthread = nthreads()
-    L_row = fill(Dict(scalar_ops .=> fill(Int[], Nscalar)), Nthread)
-    L_col = fill(Dict(scalar_ops .=> fill(Int[], Nscalar)), Nthread)
-    L_val = fill(Dict(scalar_ops .=> fill(ComplexF64[], Nscalar)), Nthread)
+    L_row = [Dict(scalar_ops .=> [Int[] for _ in 1:Nscalar]) for _ in 1:Nthread]
+    L_col = [Dict(scalar_ops .=> [Int[] for _ in 1:Nscalar]) for _ in 1:Nthread]
+    L_val = [Dict(scalar_ops .=> [ComplexF64[] for _ in 1:Nscalar]) for _ in 1:Nthread]
 
     if verbose
         println("Preparing block matrices for HEOM Liouvillian superoperator (using $(Nthread) threads)...")
