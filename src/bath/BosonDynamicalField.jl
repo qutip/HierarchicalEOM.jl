@@ -1,7 +1,8 @@
-export AbstractBosonDynamicalField,
+export AbstractBosonDynamicalField, AbstractBosonFunctionField,
     bosonInputFunction, bosonOutputLeft, bosonOutputRight, bosonOutputFunctionLeft, bosonOutputFunctionRight
 
 abstract type AbstractBosonDynamicalField <: AbstractBosonBath end
+abstract type AbstractBosonFunctionField <: AbstractBosonDynamicalField end
 
 function _check_dynamical_field_function(ηlist::Vector{Function})
     Nterm = length(ηlist)
@@ -17,7 +18,7 @@ function _check_dynamical_field_function(ηlist::Vector{Function})
     return ηnew
 end
 
-struct bosonInputFunction <: AbstractBosonDynamicalField
+struct bosonInputFunction <: AbstractBosonFunctionField
     Comm::SparseMatrixCSC{ComplexF64,Int64}
     dimensions::Dimensions
     η::Vector{ScalarOperator}
@@ -71,7 +72,7 @@ struct bosonOutputRight <: AbstractBosonDynamicalField
     end
 end
 
-struct bosonOutputFunctionLeft <: AbstractBosonDynamicalField
+struct bosonOutputFunctionLeft <: AbstractBosonFunctionField
     spre::SparseMatrixCSC{ComplexF64,Int64}
     dimensions::Dimensions
     η::Vector{ScalarOperator}
@@ -89,7 +90,7 @@ struct bosonOutputFunctionLeft <: AbstractBosonDynamicalField
     end
 end
 
-struct bosonOutputFunctionRight <: AbstractBosonDynamicalField
+struct bosonOutputFunctionRight <: AbstractBosonFunctionField
     spost::SparseMatrixCSC{ComplexF64,Int64}
     dimensions::Dimensions
     η::Vector{ScalarOperator}

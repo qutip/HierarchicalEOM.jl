@@ -87,17 +87,16 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 
     # time dependent scalar operators
     td_scalars = ScalarOperator[]
-    FunctionFieldType = Union{bosonInputFunction,bosonOutputFunctionLeft,bosonOutputFunctionRight}
     for b in baths
-        (b isa FunctionFieldType) && append!(td_scalars, b.η)
+        (b isa AbstractBosonFunctionField) && append!(td_scalars, b.η)
     end
 
     # start to construct the matrix
     Nthread = nthreads()
     λ0 = ScalarOperator(0) # this is just a key for conventional (time-independent) HEOMLS
-    L_row = Dict(λ0 => Vector{Int}[Int[] for _ in 1:Nthread])
-    L_col = Dict(λ0 => Vector{Int}[Int[] for _ in 1:Nthread])
-    L_val = Dict(λ0 => Vector{ComplexF64}[ComplexF64[] for _ in 1:Nthread])
+    L_row = Dict{ScalarOperator,Vector{Vector{Int}}}(λ0 => Vector{Int}[Int[] for _ in 1:Nthread])
+    L_col = Dict{ScalarOperator,Vector{Vector{Int}}}(λ0 => Vector{Int}[Int[] for _ in 1:Nthread])
+    L_val = Dict{ScalarOperator,Vector{Vector{ComplexF64}}}(λ0 => Vector{ComplexF64}[ComplexF64[] for _ in 1:Nthread])
     for λ in td_scalars
         L_row[λ] = Vector{Int}[Int[] for _ in 1:Nthread]
         L_col[λ] = Vector{Int}[Int[] for _ in 1:Nthread]
@@ -136,7 +135,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                     if haskey(nvec2idx, nvec_neigh)
                         idx_neigh = nvec2idx[nvec_neigh]
                         op = minus_i_D_op(bB, k, n_k)
-                        if bB isa FunctionFieldType
+                        if bB isa AbstractBosonFunctionField
                             λ = bB.η[k]
                         else
                             λ = λ0
