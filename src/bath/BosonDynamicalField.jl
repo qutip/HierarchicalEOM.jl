@@ -1,3 +1,4 @@
+export BosonDynamicalField
 export AbstractBosonDynamicalField, AbstractBosonFunctionField,
     bosonInputFunction, bosonOutputLeft, bosonOutputRight, bosonOutputFunctionLeft, bosonOutputFunctionRight
 
@@ -18,6 +19,42 @@ function _check_dynamical_field_function(ηlist::Vector{Function})
     return ηnew
 end
 
+function BosonDynamicalField(
+    op::QuantumObject;
+    η_in = nothing,
+    η_out_L = [],
+    γ_out_L = [],
+    η_out_R = [],
+    γ_out_R = [],
+    η_out_fn_L = nothing,
+    η_out_fn_R = nothing,
+    δ::Number = 0.0,
+)
+    bath_list = AbstractBosonBath[]
+
+    (η_in isa Nothing) || push!(bath_list, bosonInputFunction(op, η_in))
+
+    N_out_L = length(η_out_L)
+    if N_out_L == length(γ_out_L)
+        (N_out_L != 0) && push!(bath_list, bosonOutputLeft(op, η_out_L, γ_out_L))
+    else
+        error("The length of \'η_out_L\' and \'γ_out_L\' should be the same.")
+    end
+
+    N_out_R = length(η_out_R)
+    if N_out_R == length(γ_out_R)
+        (N_out_R != 0) && push!(bath_list, bosonOutputRight(op, η_out_R, γ_out_R))
+    else
+        error("The length of \'η_out_R\' and \'γ_out_R\' should be the same.")
+    end
+
+    (η_out_fn_L isa Nothing) || push!(bath_list, bosonOutputFunctionLeft(op, η_out_fn_L))
+    (η_out_fn_R isa Nothing) || push!(bath_list, bosonOutputFunctionRight(op, η_out_fn_R))
+
+    Nterm = (length(bath_list) == 0) ? 0 : sum(getfield.(bath_list, :Nterm))
+    return BosonBath(bath_list, op, Nterm, δ)
+end
+
 struct bosonInputFunction <: AbstractBosonFunctionField
     Comm::SparseMatrixCSC{ComplexF64,Int64}
     dimensions::Dimensions
@@ -35,6 +72,7 @@ struct bosonInputFunction <: AbstractBosonFunctionField
         return new(_spre(_op.data, Id_cache) - _spost(_op.data, Id_cache), _op.dimensions, _η, γ, Nterm)
     end
 end
+bosonInputFunction(op::QuantumObject, η::Function) = bosonInputFunction(op, Function[η])
 
 struct bosonOutputLeft <: AbstractBosonDynamicalField
     spre::SparseMatrixCSC{ComplexF64,Int64}
@@ -89,6 +127,7 @@ struct bosonOutputFunctionLeft <: AbstractBosonFunctionField
         return new(_spre(_op.data, Id_cache), _op.dimensions, _η, γ, Nterm)
     end
 end
+bosonOutputFunctionLeft(op::QuantumObject, η::Function) = bosonOutputFunctionLeft(op, Function[η])
 
 struct bosonOutputFunctionRight <: AbstractBosonFunctionField
     spost::SparseMatrixCSC{ComplexF64,Int64}
@@ -107,6 +146,7 @@ struct bosonOutputFunctionRight <: AbstractBosonFunctionField
         return new(_spost(_op.data, Id_cache), _op.dimensions, _η, γ, Nterm)
     end
 end
+bosonOutputFunctionRight(op::QuantumObject, η::Function) = bosonOutputFunctionRight(op, Function[η])
 
 function Base.getproperty(b::BType, key::Symbol) where {BType<:AbstractBosonDynamicalField}
     # a comment here to avoid bad render by JuliaFormatter
