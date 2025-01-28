@@ -21,6 +21,7 @@ core_tests = [
     "power_spectrum.jl",
     "stationary_state.jl",
     "time_evolution.jl",
+    "input_output.jl",
 ]
 
 if (GROUP == "All") || (GROUP == "Code_Quality")

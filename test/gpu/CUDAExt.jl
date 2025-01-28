@@ -108,4 +108,67 @@ CUDA.@time @testset "CUDA Extension" begin
     for (i, ω) in enumerate(ωlist)
         @test dos_cpu[i] ≈ dos_gpu[i] atol = 1e-6
     end
+
+    ## I/O-HEOM functionality
+    tier = 12
+    Δ = 2 * π
+    Γ = 0.1 * Δ
+    λ = 0.1 * Δ
+    ω0 = 0.2 * Δ
+    Z = sigmaz()
+    X = sigmax()
+    Hsys = 0.5 * Δ * Z
+    ρ0 = ket2dm(basis(2, 0))
+    bath = BosonBath(
+        X,
+        [0.5 * λ^2, 0.5 * λ^2],
+        [-1.0im * ω0 + Γ, 1.0im * ω0 + Γ],
+        [0.5im * λ^2, -0.5im * λ^2],
+        [-1.0im * ω0 + Γ, 1.0im * ω0 + Γ],
+    )
+
+    # compare result with mesolve
+    a = qeye(2) ⊗ destroy(tier)
+    H = Hsys ⊗ qeye(tier) + λ * tensor(X, qeye(tier)) * (a + a') + ω0 * a' * a
+    tlist = LinRange(0, 20 / Δ, 100)
+    sol_me = mesolve(H, ρ0 ⊗ ket2dm(basis(tier, 0)), tlist, [sqrt(Γ * 2) * a], e_ops = [a' * a])
+
+    # dynamical field
+    input1(p, t) = λ * exp(-1.0im * ω0 * t - Γ * t)
+    bath_input1 = BosonDynamicalField(X, η_in = input1)
+
+    input2(p, t) = λ * exp(1.0im * ω0 * t - Γ * t)
+    bath_input2 = BosonDynamicalField(X, η_in = input2)
+
+    output1R(p, t) = λ * exp(1.0im * ω0 * (p.tout - t) - Γ * (p.tout - t))
+    bath_output_1R = BosonDynamicalField(X, η_out_fn_R = output1R)
+
+    output2L(p, t) = λ * exp(-1.0im * ω0 * (p.tout - t) - Γ * (p.tout - t))
+    bath_output_2L = BosonDynamicalField(X, η_out_fn_L = output2L)
+
+    baths = [bath, bath_output_1R, bath_output_2L, bath_input1, bath_input2]
+
+    M = cu(M_Boson(Hsys, tier, baths))
+    HDict = M.hierarchy
+    e_ops = [
+        Tr_ADO(M, 1),
+        Tr_ADO(M, HDict.nvec2idx[Nvec([0, 0, 0, 1, 1, 0])]),
+        Tr_ADO(M, HDict.nvec2idx[Nvec([0, 0, 1, 0, 0, 1])]),
+        Tr_ADO(M, HDict.nvec2idx[Nvec([0, 0, 1, 1, 0, 0])]),
+        Tr_ADO(M, HDict.nvec2idx[Nvec([0, 0, 1, 1, 1, 1])]),
+    ]
+
+    result = ComplexF64[]
+    for tout in tlist
+        p = (tout = tout,)
+        sol_heom = HEOMsolve(M, ρ0, [0, tout], params = p, e_ops = e_ops, verbose = false)
+        exp_vals = sol_heom.expect[:, end]
+        push!(
+            result,
+            exp(-2 * Γ * tout) * exp_vals[1] - exp(1im * ω0 * tout - Γ * tout) * exp_vals[2] -
+            exp(-1im * ω0 * tout - Γ * tout) * exp_vals[3] - exp_vals[4] + exp_vals[5],
+        )
+    end
+
+    @test all(isapprox.(result, sol_me.expect[1, :]), atol = 1e-6)
 end
