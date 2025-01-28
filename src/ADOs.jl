@@ -1,5 +1,5 @@
 export ADOs
-export getRho, getADO
+export getRho, getADO, Tr_ADO
 
 @doc raw"""
     struct ADOs
@@ -120,6 +120,18 @@ Base.getindex(A::ADOs, ::Colon) = getindex(A, 1:lastindex(A))
 
 Base.iterate(A::ADOs, state::Int = 1) = state > length(A) ? nothing : (A[state], state + 1)
 
+for op in (:(+), :(-))
+    @eval begin
+        Base.$op(ados::ADOs) = ADOs($op(ados.data), ados.dimensions, ados.N, ados.parity)
+
+        function Base.$op(ados1::ADOs, ados2::ADOs)
+            _check_sys_dim_and_ADOs_num(ados1, ados2)
+            _check_parity(ados1, ados2)
+            return ADOs($op(ados1.data, ados2.data), ados1.dimensions, ados1.N, ados1.parity)
+        end
+    end
+end
+
 Base.show(io::IO, A::ADOs) = print(
     io,
     "$(A.N) Auxiliary Density Operators with $(A.parity) and (system) dims = $(_get_dims_string(A.dimensions))\n",
@@ -155,6 +167,15 @@ This function equals to calling : `ados[idx]`.
 - `ρ_idx::QuantumObject` : The auxiliary density operator
 """
 getADO(ados::ADOs, idx::Int) = ados[idx]
+
+@doc raw"""
+    Tr_ADO(M::AbstractHEOMLSMatrix, idx::Int = 1)
+
+Generate the equivalent trace operation on the specified index (idx) auxiliary density operator in the enlarged vectorized [`ADOs`](@ref) space.
+"""
+Tr_ADO(M::AbstractHEOMLSMatrix, idx::Int = 1) = ADOs(_Tr(M, idx), M.dimensions, M.N, EVEN)
+
+_Tr(::Type{<:SparseMatrixCSC}, ados::ADOs) = ados.data
 
 @doc raw"""
     expect(op, ados; take_real=true)

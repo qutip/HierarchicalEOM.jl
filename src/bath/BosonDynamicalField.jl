@@ -1,6 +1,11 @@
 export BosonDynamicalField
-export AbstractBosonDynamicalField, AbstractBosonFunctionField,
-    bosonInputFunction, bosonOutputLeft, bosonOutputRight, bosonOutputFunctionLeft, bosonOutputFunctionRight
+export AbstractBosonDynamicalField,
+    AbstractBosonFunctionField,
+    bosonInputFunction,
+    bosonOutputLeft,
+    bosonOutputRight,
+    bosonOutputFunctionLeft,
+    bosonOutputFunctionRight
 
 abstract type AbstractBosonDynamicalField <: AbstractBosonBath end
 abstract type AbstractBosonFunctionField <: AbstractBosonDynamicalField end

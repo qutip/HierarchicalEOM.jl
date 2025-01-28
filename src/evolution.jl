@@ -269,13 +269,18 @@ function HEOMsolve(
     )
 end
 
-function _generate_Eops(M::AbstractHEOMLSMatrix, e_ops, Id_sys, Id_HEOM)
+function _generate_Eops(M::AbstractHEOMLSMatrix, e_ops::AbstractVector{T}, Id_sys, Id_HEOM) where {T<:QuantumObject}
     MType = _get_SciML_matrix_wrapper(M)
     tr_e_ops = [
         transpose(_Tr(M)) * MType(HEOMSuperOp(spre(op, Id_sys), EVEN, M.dimensions, M.N; Id_cache = Id_HEOM)).data
         for op in e_ops
     ]
     return tr_e_ops
+end
+
+function _generate_Eops(M::AbstractHEOMLSMatrix, e_ops::AbstractVector{T}, Id_sys, Id_HEOM) where {T<:ADOs}
+    MType = _get_SciML_matrix_wrapper(M)
+    return [transpose(_Tr(MType, ados)) for ados in e_ops]
 end
 
 struct HEOMsolveCallback{TT,TE,TEXPV<:AbstractMatrix}
