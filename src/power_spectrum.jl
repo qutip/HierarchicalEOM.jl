@@ -94,8 +94,7 @@ remember to set the parameters:
     else
         _P = HEOMSuperOp(spre(P_op), EVEN, M; Id_cache = Id_HEOM)
     end
-    MType = _get_SciML_matrix_wrapper(M)
-    _tr_P = transpose(_Tr(M)) * MType(_P).data
+    _tr_P = _HandleTraceVectorType(M, adjoint(_P.data) * _Tr(M)) # another adjoint will be applied in dot function later
 
     # Handle Q_op
     if Q_op isa HEOMSuperOp

@@ -1,7 +1,7 @@
 module HierarchicalEOM_CUDAExt
 
 using HierarchicalEOM
-import HierarchicalEOM: _Tr, _HandleVectorType
+import HierarchicalEOM: _HandleVectorType, _HandleTraceVectorType
 import QuantumToolbox: _CType
 import CUDA
 import CUDA: cu, CuArray
@@ -64,9 +64,8 @@ _convert_to_gpu_matrix(A::MatrixOperator) = MatrixOperator(_convert_to_gpu_matri
 _convert_to_gpu_matrix(A::ScaledOperator) = ScaledOperator(A.λ, _convert_to_gpu_matrix(A.L))
 _convert_to_gpu_matrix(A::AddedOperator) = AddedOperator(map(op -> _convert_to_gpu_matrix(op), A.ops))
 
-_Tr(M::Type{<:CuSparseMatrixCSC}, dimensions::Dimensions, N::Int) = CuSparseVector(_Tr(eltype(M), dimensions, N))
-
 # change the type of `ADOs` to match the type of HEOMLS matrix
 _HandleVectorType(M::Type{<:CuSparseMatrixCSC}, V::SparseVector) = CuArray{_CType(eltype(M))}(V)
 
+_HandleTraceVectorType(M::Type{<:CuSparseMatrixCSC}, V::SparseVector) = CuSparseVector{_CType(eltype(M))}(V)
 end

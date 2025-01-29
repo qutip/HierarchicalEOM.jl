@@ -11,7 +11,7 @@
     N = 2
     tier = 5
     Q = sigmaz()  # System-bath coupling operator
-    e_ops = [rand_dm(2), rand_dm(2)]
+    e_ops = [Qobj(rand(ComplexF64, 2, 2)), Qobj(rand(ComplexF64, 2, 2))]
 
     bath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
 
@@ -60,7 +60,13 @@
     @test_throws ErrorException HEOMsolve(L, ados_wrong3, tlist; verbose = false)
     @test_throws ErrorException HEOMsolve(L, ados_wrong4, tlist; verbose = false)
 
-    @test all(expvals_p .≈ expvals_e)
+    expvals = Matrix{ComplexF64}(undef, length(e_ops), length(tlist))
+    for i in 1:length(e_ops)
+        for j in 1:length(tlist)
+            expvals[i, j] = expect(e_ops[i], getRho(sol_e.ados[j]))
+        end
+    end
+    @test all(expvals .≈ expvals_p .≈ expvals_e)
     @test all([ρ_list_p[i] ≈ ρ_list_e[i] for i in 1:(steps+1)])
     @test isapprox(ρs, ρ_list_p[end]; atol = 1e-4)
     @test isapprox(ρs, ρ_list_e[end]; atol = 1e-4)

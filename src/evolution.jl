@@ -270,10 +270,12 @@ function HEOMsolve(
 end
 
 function _generate_Eops(M::AbstractHEOMLSMatrix, e_ops, Id_sys, Id_HEOM)
-    MType = _get_SciML_matrix_wrapper(M)
     tr_e_ops = [
-        transpose(_Tr(M)) * MType(HEOMSuperOp(spre(op, Id_sys), EVEN, M.dimensions, M.N; Id_cache = Id_HEOM)).data
-        for op in e_ops
+        # another adjoint will be applied in dot function in the HEOMsolveCallback
+        _HandleTraceVectorType(
+            M,
+            adjoint(HEOMSuperOp(spre(op, Id_sys), EVEN, M.dimensions, M.N; Id_cache = Id_HEOM).data) * _Tr(M),
+        ) for op in e_ops
     ]
     return tr_e_ops
 end

@@ -52,16 +52,15 @@ Calculate density of states for the fermionic system in frequency domain.
     _check_sys_dim_and_ADOs_num(M, ados)
 
     # Handle d_op
-    MType = _get_SciML_matrix_wrapper(M)
-    _tr = transpose(_Tr(M))
+    _tr = _Tr(M)
     Id_sys = I(prod(d_op.dimensions))
     Id_HEOM = I(M.N)
     d_normal = HEOMSuperOp(spre(d_op, Id_sys), ODD, M; Id_cache = Id_HEOM)
     d_dagger = HEOMSuperOp(spre(d_op', Id_sys), ODD, M; Id_cache = Id_HEOM)
     b_m = _HandleVectorType(M, (d_normal * ados).data)
     b_p = _HandleVectorType(M, (d_dagger * ados).data)
-    _tr_d_normal = _tr * MType(d_normal).data
-    _tr_d_dagger = _tr * MType(d_dagger).data
+    _tr_d_normal = _HandleTraceVectorType(M, adjoint(d_normal.data) * _tr) # another adjoint will be applied in dot function later
+    _tr_d_dagger = _HandleTraceVectorType(M, adjoint(d_dagger.data) * _tr) # another adjoint will be applied in dot function later
 
     SAVE::Bool = (filename != "")
     if SAVE

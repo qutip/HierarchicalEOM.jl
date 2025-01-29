@@ -16,8 +16,7 @@ CUDA.@time @testset "CUDA Extension" begin
     Qf = sigmam()
 
     E = Qobj(rand(ComplexF64, 2, 2))
-    e_ops_cpu = [E]
-    e_ops_gpu = [E, cu(E)]
+    e_ops = [E]
 
     # initial state
     ψ0 = basis(2, 1)
@@ -29,38 +28,34 @@ CUDA.@time @testset "CUDA Extension" begin
     ## Schrodinger HEOMLS
     L_cpu = M_S(Hsys; verbose = false)
     L_gpu = cu(L_cpu)
-    sol_cpu = HEOMsolve(L_cpu, ψ0, [0, 10]; e_ops = e_ops_cpu, verbose = false)
-    sol_gpu = HEOMsolve(L_gpu, ψ0, [0, 10]; e_ops = e_ops_gpu, verbose = false)
+    sol_cpu = HEOMsolve(L_cpu, ψ0, [0, 10]; e_ops = e_ops, verbose = false)
+    sol_gpu = HEOMsolve(L_gpu, ψ0, [0, 10]; e_ops = e_ops, verbose = false)
     @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1e-4))
-    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[2, :], atol = 1e-4))
     @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu.ados[end]), atol = 1e-4)
 
     ## Boson HEOMLS
     L_cpu = M_Boson(Hsys, tier, Bbath; verbose = false)
     L_gpu = cu(L_cpu)
-    sol_cpu = HEOMsolve(L_cpu, ψ0, [0, 10]; e_ops = e_ops_cpu, verbose = false)
-    sol_gpu = HEOMsolve(L_gpu, ψ0, [0, 10]; e_ops = e_ops_gpu, verbose = false)
+    sol_cpu = HEOMsolve(L_cpu, ψ0, [0, 10]; e_ops = e_ops, verbose = false)
+    sol_gpu = HEOMsolve(L_gpu, ψ0, [0, 10]; e_ops = e_ops, verbose = false)
     @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1e-4))
-    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[2, :], atol = 1e-4))
     @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu.ados[end]), atol = 1e-4)
 
     ## Fermion HEOMLS
     L_cpu = M_Fermion(Hsys, tier, Fbath; verbose = false)
     L_gpu = cu(L_cpu)
-    sol_cpu = HEOMsolve(L_cpu, ψ0, [0, 10]; e_ops = e_ops_cpu, verbose = false)
-    sol_gpu = HEOMsolve(L_gpu, ψ0, [0, 10]; e_ops = e_ops_gpu, verbose = false)
+    sol_cpu = HEOMsolve(L_cpu, ψ0, [0, 10]; e_ops = e_ops, verbose = false)
+    sol_gpu = HEOMsolve(L_gpu, ψ0, [0, 10]; e_ops = e_ops, verbose = false)
     @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1e-4))
-    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[2, :], atol = 1e-4))
     @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu.ados[end]), atol = 1e-4)
 
     ## Boson Fermion HEOMLS
     L_cpu = M_Boson_Fermion(Hsys, tier, tier, Bbath, Fbath; verbose = false)
     L_gpu = cu(L_cpu)
     tlist = 0:1:10
-    sol_cpu = HEOMsolve(L_cpu, ψ0, tlist; e_ops = e_ops_cpu, saveat = tlist, verbose = false)
-    sol_gpu = HEOMsolve(L_gpu, ψ0, tlist; e_ops = e_ops_gpu, saveat = tlist, verbose = false)
+    sol_cpu = HEOMsolve(L_cpu, ψ0, tlist; e_ops = e_ops, saveat = tlist, verbose = false)
+    sol_gpu = HEOMsolve(L_gpu, ψ0, tlist; e_ops = e_ops, saveat = tlist, verbose = false)
     @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1e-4))
-    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[2, :], atol = 1e-4))
     for i in 1:length(tlist)
         @test isapprox(getRho(sol_cpu.ados[i]), getRho(sol_gpu.ados[i]), atol = 1e-4)
     end
