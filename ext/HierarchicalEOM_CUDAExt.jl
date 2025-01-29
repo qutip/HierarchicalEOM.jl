@@ -7,7 +7,7 @@ import CUDA
 import CUDA: cu, CuArray
 import CUDA.CUSPARSE: CuSparseVector, CuSparseMatrixCSC
 import SparseArrays: sparse, SparseVector, SparseMatrixCSC
-import SciMLOperators: MatrixOperator, ScaledOperator, AddedOperator
+import SciMLOperators: ScalarOperator, MatrixOperator, ScaledOperator, AddedOperator
 
 @doc raw"""
     cu(M::AbstractHEOMLSMatrix)
