@@ -45,8 +45,7 @@ function _Tr(T::Type{<:Number}, dimensions::Dimensions, N::Int)
     D = prod(dimensions)
     return SparseVector(N * D^2, [1 + n * (D + 1) for n in 0:(D-1)], ones(T, D))
 end
-_Tr(M::AbstractHEOMLSMatrix) = _Tr(_get_SciML_matrix_wrapper(M), M.dimensions, M.N)
-_Tr(M::Type{<:SparseMatrixCSC}, dimensions::Dimensions, N::Int) = _Tr(eltype(M), dimensions, N)
+_Tr(M::AbstractHEOMLSMatrix) = _Tr(eltype(M), M.dimensions, M.N)
 
 function HandleMatrixType(
     M::AbstractQuantumObject,
@@ -91,6 +90,9 @@ HandleMatrixType(
 # change the type of `ADOs` to match the type of HEOMLS matrix
 _HandleVectorType(M::AbstractHEOMLSMatrix, V::SparseVector) = _HandleVectorType(_get_SciML_matrix_wrapper(M), V)
 _HandleVectorType(M::Type{<:SparseMatrixCSC}, V::SparseVector) = Vector{_CType(eltype(M))}(V)
+
+_HandleTraceVectorType(M::AbstractHEOMLSMatrix, V::SparseVector) = _HandleTraceVectorType(_get_SciML_matrix_wrapper(M), V)
+_HandleTraceVectorType(M::Type{<:SparseMatrixCSC}, V::SparseVector) = V
 
 function _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator})
     S = size(M, 1)

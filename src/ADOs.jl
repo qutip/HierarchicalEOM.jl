@@ -175,7 +175,7 @@ where ``O`` is the operator and ``\rho`` is the reduced density operator in the 
 function QuantumToolbox.expect(op, ados::ADOs; take_real::Bool = true)
     if op isa HEOMSuperOp
         _check_sys_dim_and_ADOs_num(op, ados)
-        exp_val = dot(transpose(_Tr(eltype(ados), ados.dimensions, ados.N)), (SparseMatrixCSC(op) * ados).data)
+        exp_val = dot(_Tr(eltype(ados), ados.dimensions, ados.N), (op * ados).data)
     else
         _op = HandleMatrixType(op, ados.dimensions, "op (observable)"; type = Operator)
         exp_val = tr(_op.data * getRho(ados).data)
@@ -217,9 +217,9 @@ function QuantumToolbox.expect(op, ados_list::Vector{ADOs}; take_real::Bool = tr
     else
         _op = HEOMSuperOp(spre(op), EVEN, dimensions, N)
     end
-    tr_op = transpose(_Tr(eltype(op), dimensions, N)) * SparseMatrixCSC(_op).data
+    tr_op = transpose(_Tr(eltype(op), dimensions, N)) * _op.data
 
-    exp_val = [dot(tr_op, ados.data) for ados in ados_list]
+    exp_val = [tr_op * ados.data for ados in ados_list]
 
     if take_real
         return real.(exp_val)

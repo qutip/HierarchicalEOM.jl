@@ -7,7 +7,7 @@ export addBosonDissipator, addFermionDissipator, addTerminator
 General HEOM superoperator matrix.  
 
 # Fields
-- `data<:Union{AbstractSparseMatrix}` : the HEOM superoperator matrix
+- `data` : the HEOM superoperator matrix
 - `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
 - `N` : the number of auxiliary density operators
 - `parity`: the parity label (`EVEN` or `ODD`).
@@ -15,8 +15,8 @@ General HEOM superoperator matrix.
 !!! note "`dims` property"
     For a given `M::HEOMSuperOp`, `M.dims` or `getproperty(M, :dims)` returns its `dimensions` in the type of integer-vector.
 """
-struct HEOMSuperOp{DT<:AbstractSparseMatrix}
-    data::DT
+struct HEOMSuperOp
+    data::SparseMatrixCSC{ComplexF64,Int64}
     dimensions::Dimensions
     N::Int
     parity::AbstractParity
@@ -77,16 +77,6 @@ function HEOMSuperOp(op, opParity::AbstractParity, dims, N::Int; Id_cache = I(N)
 
     return HEOMSuperOp(kron(Id_cache, sup_op.data), dimensions, N, opParity)
 end
-
-function SparseArrays.SparseMatrixCSC{T}(M::HEOMSuperOp) where {T}
-    A = M.data
-    if typeof(A) == SparseMatrixCSC{T}
-        return M
-    else
-        return HEOMSuperOp(SparseMatrixCSC{T}(M.data), M.dimensions, M.N, M.parity)
-    end
-end
-SparseArrays.SparseMatrixCSC(M::HEOMSuperOp) = SparseMatrixCSC{ComplexF64}(M)
 
 @doc raw"""
     size(M::HEOMSuperOp)
