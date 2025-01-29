@@ -60,12 +60,13 @@ function _convert_to_gpu_matrix(A::AbstractSparseMatrix)
         return CuSparseMatrixCSC{ComplexF32,Int32}(colptr, rowval, nzval, size(A))
     end
 end
+_convert_to_gpu_matrix(A::ScalarOperator) = ScalarOperator(ComplexF32(A.val), A.update_func)
 _convert_to_gpu_matrix(A::MatrixOperator) = MatrixOperator(_convert_to_gpu_matrix(A.A))
-_convert_to_gpu_matrix(A::ScaledOperator) = ScaledOperator(A.λ, _convert_to_gpu_matrix(A.L))
+_convert_to_gpu_matrix(A::ScaledOperator) = ScaledOperator(_convert_to_gpu_matrix(A.λ), _convert_to_gpu_matrix(A.L))
 _convert_to_gpu_matrix(A::AddedOperator) = AddedOperator(map(op -> _convert_to_gpu_matrix(op), A.ops))
 
-_Tr(MType::Type{<:CuSparseMatrixCSC}, dimensions::Dimensions, N::Int) =
-    CuSparseVector(_Tr(eltype(MType), dimensions, N))
+_Tr(MType::Type{<:CuSparseMatrixCSC}, dimensions::Dimensions, N::Int, idx::Int = 1) =
+    CuSparseVector(_Tr(eltype(MType), dimensions, N, idx))
 _Tr(MType::Type{<:CuSparseMatrixCSC}, ados::ADOs) = CuSparseVector{eltype(MType)}(ados.data)
 
 # change the type of `ADOs` to match the type of HEOMLS matrix
