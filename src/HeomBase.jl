@@ -91,7 +91,8 @@ HandleMatrixType(
 _HandleVectorType(M::AbstractHEOMLSMatrix, V::SparseVector) = _HandleVectorType(_get_SciML_matrix_wrapper(M), V)
 _HandleVectorType(M::Type{<:SparseMatrixCSC}, V::SparseVector) = Vector{_CType(eltype(M))}(V)
 
-_HandleTraceVectorType(M::AbstractHEOMLSMatrix, V::SparseVector) = _HandleTraceVectorType(_get_SciML_matrix_wrapper(M), V)
+_HandleTraceVectorType(M::AbstractHEOMLSMatrix, V::SparseVector) =
+    _HandleTraceVectorType(_get_SciML_matrix_wrapper(M), V)
 _HandleTraceVectorType(M::Type{<:SparseMatrixCSC}, V::SparseVector) = V
 
 function _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator})

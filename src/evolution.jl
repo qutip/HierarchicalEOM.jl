@@ -272,8 +272,10 @@ end
 function _generate_Eops(M::AbstractHEOMLSMatrix, e_ops, Id_sys, Id_HEOM)
     tr_e_ops = [
         # another adjoint will be applied in dot function in the HEOMsolveCallback
-        _HandleTraceVectorType(M, adjoint(HEOMSuperOp(spre(op, Id_sys), EVEN, M.dimensions, M.N; Id_cache = Id_HEOM).data) * _Tr(M))
-        for op in e_ops
+        _HandleTraceVectorType(
+            M,
+            adjoint(HEOMSuperOp(spre(op, Id_sys), EVEN, M.dimensions, M.N; Id_cache = Id_HEOM).data) * _Tr(M),
+        ) for op in e_ops
     ]
     return tr_e_ops
 end

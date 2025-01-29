@@ -63,7 +63,7 @@
     expvals = Matrix{ComplexF64}(undef, length(e_ops), length(tlist))
     for i in 1:length(e_ops)
         for j in 1:length(tlist)
-            expvals[i,j] = expect(e_ops[i], getRho(sol_e.ados[j]))
+            expvals[i, j] = expect(e_ops[i], getRho(sol_e.ados[j]))
         end
     end
     @test all(expvals .≈ expvals_p .≈ expvals_e)
