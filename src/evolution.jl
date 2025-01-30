@@ -36,7 +36,7 @@ function Base.show(io::IO, sol::TimeEvolutionHEOMSol)
     print(io, "----------------------------\n")
     print(io, "Btier = $(sol.Btier)\n")
     print(io, "Ftier = $(sol.Ftier)\n")
-    print(io, "num_states = $(length(sol.ados))\n")
+    print(io, "num_ados   = $(length(sol.ados))\n")
     print(io, "num_expect = $(size(sol.expect, 1))\n")
     print(io, "ODE alg.: $(sol.alg)\n")
     print(io, "abstol = $(sol.abstol)\n")
@@ -206,7 +206,7 @@ function HEOMsolve(
     _check_parity(M, ados)
     u0 = _HandleVectorType(M, ados.data)
 
-    t_l = convert(Vector{_FType(M)}, tlist) # Convert it to support GPUs and avoid type instabilities for OrdinaryDiffEq.jl
+    t_l = _check_tlist(tlist, _FType(M))
 
     # handle e_ops
     if e_ops isa Nothing
