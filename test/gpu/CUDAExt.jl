@@ -153,7 +153,7 @@ CUDA.@time @testset "CUDA Extension" begin
         TrADO(M, HDict.nvec2idx[Nvec([0, 0, 1, 1, 1, 1])]),
     ]
 
-    result = ComplexF64[1.0 + 0.0im]
+    result = ComplexF64[1.0+0.0im]
     for tout in tlist
         (tout == 0) && continue
         p = (tout = tout,)
@@ -165,5 +165,5 @@ CUDA.@time @testset "CUDA Extension" begin
             exp(-1im * ω0 * tout - Γ * tout) * exp_vals[3] - exp_vals[4] + exp_vals[5],
         )
     end
-    @test all(isapprox.(result, sol_me.expect[1, :]), atol = 1e-6)
+    @test all(isapprox.(result, sol_me.expect[1, :], atol = 1e-6))
 end

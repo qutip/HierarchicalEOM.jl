@@ -280,7 +280,8 @@ function _generate_Eops(M::AbstractHEOMLSMatrix, e_ops::AbstractVector{T}, Id_sy
     return tr_e_ops
 end
 
-_generate_Eops(M::AbstractHEOMLSMatrix, e_ops::AbstractVector{T}, Id_sys, Id_HEOM) where {T<:ADOs} = [_HandleTraceVectorType(M, ados.data) for ados in e_ops]
+_generate_Eops(M::AbstractHEOMLSMatrix, e_ops::AbstractVector{T}, Id_sys, Id_HEOM) where {T<:ADOs} =
+    [_HandleTraceVectorType(M, ados.data) for ados in e_ops]
 
 struct HEOMsolveCallback{TT,TE,TEXPV<:AbstractMatrix}
     times::TT
