@@ -160,12 +160,6 @@ function Base.:(*)(Sup::HEOMSuperOp, ados::ADOs)
     return ADOs(Sup.data * ados.data, ados.dimensions, ados.N, Sup.parity * ados.parity)
 end
 
-function Base.:(*)(ados::ADOs, Sup::HEOMSuperOp)
-    _check_sys_dim_and_ADOs_num(ados, Sup)
-
-    return ADOs(transpose(transpose(ados.data) * Sup.data), ados.dimensions, ados.N, ados.parity * Sup.parity)
-end
-
 function Base.:(*)(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
     _check_sys_dim_and_ADOs_num(Sup1, Sup2)
 

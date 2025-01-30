@@ -4,9 +4,9 @@
     Γ = 0.1 * Δ
     λ = 0.1 * Δ
     ω0 = 0.2 * Δ
-    Z = sigmaz()
+    Y = sigmay()
     X = sigmax()
-    Hsys = 0.5 * Δ * Z
+    Hsys = 0.5 * Δ * Y
     ρ0 = ket2dm(basis(2, 0))
     bath = BosonBath(
         X,
@@ -26,7 +26,7 @@
         ρ0 ⊗ ket2dm(basis(tier, 0)),
         tlist,
         [sqrt(Γ * 2) * a],
-        e_ops = [Z ⊗ qeye(tier), a' * a],
+        e_ops = [Y ⊗ qeye(tier), a' * a],
         progress_bar = false,
     )
     sol_me1 = mesolve(
@@ -34,7 +34,7 @@
         ρ0 ⊗ ket2dm(basis(tier, 1)),
         tlist,
         [sqrt(Γ * 2) * a],
-        e_ops = [Z ⊗ qeye(tier), a' * a],
+        e_ops = [Y ⊗ qeye(tier), a' * a],
         progress_bar = false,
     )
 
@@ -56,9 +56,8 @@
     bath_list_in = [bath, bath_input]
     M_in = M_Boson(Hsys, tier, bath_list_in, verbose = false)
     HDict_in = M_in.hierarchy
-    Z_super = HEOMSuperOp(spre(Z), EVEN, M_in)
     e_ops_in =
-        [Tr_ADO(M_in, 1) * Z_super, (Tr_ADO(M_in, 1) - Tr_ADO(M_in, HDict_in.nvec2idx[Nvec([0, 0, 1, 1])])) * Z_super]
+        [TrADO(M_in; e_op = Y), TrADO(M_in; e_op = Y) - TrADO(M_in, HDict_in.nvec2idx[Nvec([0, 0, 1, 1])]; e_op = Y)]
     sol_heom_in = HEOMsolve(M_in, ρ0, tlist, e_ops = e_ops_in, verbose = false)
     @test length(sol_heom_in.ados) == 1
     @test size(sol_heom_in.expect) == (length(e_ops_in), Ntime)
@@ -69,7 +68,7 @@
     bath_list_out = [bath, bath_output_1R, bath_output_2L, bath_input]
     M_out = M_Boson(Hsys, tier, bath_list_out, verbose = false)
     HDict_out = M_out.hierarchy
-    e_ops_out = [-Tr_ADO(M_out, HDict_out.nvec2idx[Nvec([0, 0, 1, 1, 0, 0])])]
+    e_ops_out = [-TrADO(M_out, HDict_out.nvec2idx[Nvec([0, 0, 1, 1, 0, 0])])]
     sol_heom_out = HEOMsolve(M_out, ρ0, tlist, e_ops = e_ops_out, verbose = false)
     @test length(sol_heom_out.ados) == 1
     @test size(sol_heom_out.expect) == (length(e_ops_out), Ntime)
@@ -77,11 +76,11 @@
 
     # output conditional on input
     e_ops_out_in = [
-        Tr_ADO(M_out, 1),
-        Tr_ADO(M_out, HDict_out.nvec2idx[Nvec([0, 0, 0, 1, 1, 0])]),
-        Tr_ADO(M_out, HDict_out.nvec2idx[Nvec([0, 0, 1, 0, 0, 1])]),
-        Tr_ADO(M_out, HDict_out.nvec2idx[Nvec([0, 0, 1, 1, 0, 0])]),
-        Tr_ADO(M_out, HDict_out.nvec2idx[Nvec([0, 0, 1, 1, 1, 1])]),
+        TrADO(M_out),
+        TrADO(M_out, HDict_out.nvec2idx[Nvec([0, 0, 0, 1, 1, 0])]),
+        TrADO(M_out, HDict_out.nvec2idx[Nvec([0, 0, 1, 0, 0, 1])]),
+        TrADO(M_out, HDict_out.nvec2idx[Nvec([0, 0, 1, 1, 0, 0])]),
+        TrADO(M_out, HDict_out.nvec2idx[Nvec([0, 0, 1, 1, 1, 1])]),
     ]
     sol_heom_out_in = HEOMsolve(M_out, ρ0, tlist, e_ops = e_ops_out_in, verbose = false)
     @test length(sol_heom_out.ados) == 1
@@ -104,14 +103,14 @@
     M_out_fn = M_Boson(Hsys, tier, bath_list_out_fn, verbose = false)
     HDict_out_fn = M_out_fn.hierarchy
     e_ops_out_fn = [
-        Tr_ADO(M_out_fn, 1),
-        Tr_ADO(M_out_fn, HDict_out_fn.nvec2idx[Nvec([0, 0, 0, 1, 1, 0])]),
-        Tr_ADO(M_out_fn, HDict_out_fn.nvec2idx[Nvec([0, 0, 1, 0, 0, 1])]),
-        Tr_ADO(M_out_fn, HDict_out_fn.nvec2idx[Nvec([0, 0, 1, 1, 0, 0])]),
-        Tr_ADO(M_out_fn, HDict_out_fn.nvec2idx[Nvec([0, 0, 1, 1, 1, 1])]),
+        TrADO(M_out_fn),
+        TrADO(M_out_fn, HDict_out_fn.nvec2idx[Nvec([0, 0, 0, 1, 1, 0])]),
+        TrADO(M_out_fn, HDict_out_fn.nvec2idx[Nvec([0, 0, 1, 0, 0, 1])]),
+        TrADO(M_out_fn, HDict_out_fn.nvec2idx[Nvec([0, 0, 1, 1, 0, 0])]),
+        TrADO(M_out_fn, HDict_out_fn.nvec2idx[Nvec([0, 0, 1, 1, 1, 1])]),
     ]
     for (i, tout) in enumerate(tlist)
-        (i == 1) && continue ## TODO: fix this
+        (i == 1) && continue
         p = (tout = tout,)
         sol_heom_out_fn = HEOMsolve(M_out_fn, ρ0, [0, tout], params = p, e_ops = e_ops_out_fn, verbose = false)
         @test length(sol_heom_out_fn.ados) == 1

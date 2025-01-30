@@ -1,5 +1,5 @@
 export ADOs
-export getRho, getADO, Tr_ADO
+export getRho, getADO, TrADO
 
 @doc raw"""
     struct ADOs
@@ -169,13 +169,15 @@ This function equals to calling : `ados[idx]`.
 getADO(ados::ADOs, idx::Int) = ados[idx]
 
 @doc raw"""
-    Tr_ADO(M::AbstractHEOMLSMatrix, idx::Int = 1)
+    TrADO(M::AbstractHEOMLSMatrix, idx::Int = 1; e_op = nothing)
 
 Generate the equivalent trace operation on the specified index (idx) auxiliary density operator in the enlarged vectorized [`ADOs`](@ref) space.
 """
-Tr_ADO(M::AbstractHEOMLSMatrix, idx::Int = 1) = ADOs(_Tr(M, idx), M.dimensions, M.N, EVEN)
-
-_Tr(::Type{<:SparseMatrixCSC}, ados::ADOs) = ados.data
+TrADO(M::AbstractHEOMLSMatrix, idx::Int = 1; e_op::Union{Nothing,QuantumObject{OperatorQuantumObject}} = nothing) =
+    TrADO(M, idx, e_op)
+TrADO(M::AbstractHEOMLSMatrix, idx::Int, ::Nothing) = ADOs(_Tr(M, idx), M.dimensions, M.N, EVEN)
+TrADO(M::AbstractHEOMLSMatrix, idx::Int, e_op::QuantumObject{OperatorQuantumObject}) =
+    ADOs(adjoint(HEOMSuperOp(spre(e_op), EVEN, M.dimensions, M.N).data) * _Tr(M, idx), M.dimensions, M.N, EVEN) # another adjoint will be applied in dot function
 
 @doc raw"""
     expect(op, ados; take_real=true)
