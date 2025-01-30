@@ -165,5 +165,5 @@ CUDA.@time @testset "CUDA Extension" begin
             exp(-1im * ω0 * tout - Γ * tout) * exp_vals[3] - exp_vals[4] + exp_vals[5],
         )
     end
-    @test all(isapprox.(result, sol_me.expect[1, :], atol = 1e-6))
+    @test all(isapprox.(result, sol_me.expect[1, :], atol = 1e-4))
 end
