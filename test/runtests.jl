@@ -36,7 +36,7 @@ if (GROUP == "All") || (GROUP == "Core")
     end
 end
 
-if (GROUP == "All") || (GROUP == "Code_Quality")
+if (GROUP == "All") || (GROUP == "Code-Quality")
     Pkg.activate("code-quality")
     Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
     Pkg.instantiate()
@@ -44,7 +44,7 @@ if (GROUP == "All") || (GROUP == "Code_Quality")
     using HierarchicalEOM
     using Aqua, JET
 
-    include(joinpath(testdir, "code_quality", "code_quality.jl"))
+    include(joinpath(testdir, "code-quality", "code_quality.jl"))
 end
 
 if (GROUP == "CUDA_Ext")# || (GROUP == "All")
