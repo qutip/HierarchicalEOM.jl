@@ -1,0 +1,8 @@
+[deps]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+HierarchicalEOM = "a62dbcb7-80f5-4d31-9a88-8b19fd92b128"
+JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
+
+[compat]
+Aqua = "0.8"
+JET = "0.9"
