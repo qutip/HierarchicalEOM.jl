@@ -126,7 +126,7 @@ CUDA.@time @testset "CUDA Extension" begin
     a = qeye(2) ⊗ destroy(tier)
     H = Hsys ⊗ qeye(tier) + λ * tensor(X, qeye(tier)) * (a + a') + ω0 * a' * a
     tlist = LinRange(0, 20 / Δ, 100)
-    sol_me = mesolve(H, ρ0 ⊗ ket2dm(basis(tier, 0)), tlist, [sqrt(Γ * 2) * a], e_ops = [a' * a])
+    sol_me = mesolve(H, ρ0 ⊗ ket2dm(basis(tier, 1)), tlist, [sqrt(Γ * 2) * a], e_ops = [a' * a])
 
     # dynamical field
     input1(p, t) = λ * exp(-1.0im * ω0 * t - Γ * t)
@@ -165,5 +165,5 @@ CUDA.@time @testset "CUDA Extension" begin
             exp(-1im * ω0 * tout - Γ * tout) * exp_vals[3] - exp_vals[4] + exp_vals[5],
         )
     end
-    @test all(isapprox.(result, sol_me.expect[1, :], atol = 1e-4))
+    @test all(isapprox.(result, sol_me.expect[1, :], atol = 1e-6))
 end
