@@ -6,7 +6,16 @@ import Reexport: @reexport
 
 # intrinsic QuantumToolbox functions
 import QuantumToolbox:
-    _FType, _CType, _spre, _spost, _sprepost, _liouvillian, _gen_dimensions, _get_dims_string, dimensions_to_dims
+    _FType,
+    _CType,
+    _check_tlist,
+    _spre,
+    _spost,
+    _sprepost,
+    _liouvillian,
+    _gen_dimensions,
+    _get_dims_string,
+    dimensions_to_dims
 
 # SciML packages (for OrdinaryDiffEq and LinearSolve)
 import SciMLBase: init, solve, solve!, u_modified!, ODEProblem, FullSpecialize, CallbackSet, NullParameters

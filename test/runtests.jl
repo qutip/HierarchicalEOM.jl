@@ -23,13 +23,6 @@ core_tests = [
     "time_evolution.jl",
 ]
 
-if (GROUP == "All") || (GROUP == "Code_Quality")
-    using HierarchicalEOM
-    using Aqua, JET
-
-    include(joinpath(testdir, "code_quality.jl"))
-end
-
 if (GROUP == "All") || (GROUP == "Core")
     using HierarchicalEOM
     import JLD2: jldopen
@@ -41,6 +34,17 @@ if (GROUP == "All") || (GROUP == "Core")
     for test in core_tests
         include(joinpath(testdir, test))
     end
+end
+
+if (GROUP == "All") || (GROUP == "Code-Quality")
+    Pkg.activate("code-quality")
+    Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
+    Pkg.instantiate()
+
+    using HierarchicalEOM
+    using Aqua, JET
+
+    include(joinpath(testdir, "code-quality", "code_quality.jl"))
 end
 
 if (GROUP == "CUDA_Ext")# || (GROUP == "All")
