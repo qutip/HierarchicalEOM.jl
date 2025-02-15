@@ -15,7 +15,9 @@ import QuantumToolbox:
     _liouvillian,
     _gen_dimensions,
     _get_dims_string,
-    dimensions_to_dims
+    dimensions_to_dims,
+    _merge_saveat,
+    DEFAULT_ODE_SOLVER_OPTIONS
 
 # SciML packages (for OrdinaryDiffEq and LinearSolve)
 import SciMLBase: init, solve, solve!, u_modified!, ODEProblem, FullSpecialize, CallbackSet, NullParameters
