@@ -1,7 +1,5 @@
 export HEOMsolve, heomsolve, TimeEvolutionHEOMSol
 
-const DEFAULT_ODE_SOLVER_OPTIONS = (abstol = 1e-8, reltol = 1e-6, save_everystep = false, save_end = true)
-
 @doc raw"""
     struct TimeEvolutionHEOMSol
 
@@ -238,9 +236,7 @@ function HEOMsolve(
     # handle kwargs
     haskey(SOLVEROptions, :save_idxs) &&
         throw(ArgumentError("The keyword argument \"save_idxs\" is not supported in HierarchicalEOM.jl."))
-    saveat = is_empty_e_ops ? t_l : [t_l[end]]
-    default_values = (DEFAULT_ODE_SOLVER_OPTIONS..., saveat = saveat)
-    kwargs = merge(default_values, SOLVEROptions)
+    kwargs = _merge_saveat(tlist, e_ops, DEFAULT_ODE_SOLVER_OPTIONS; SOLVEROptions...)
     kwargs2 =
         haskey(kwargs, :callback) ? merge(kwargs, (callback = CallbackSet(kwargs.callback, cb),)) :
         merge(kwargs, (callback = cb,))
