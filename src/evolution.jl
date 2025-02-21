@@ -159,8 +159,8 @@ function HEOMsolve(
 end
 
 @doc raw"""
-    HEOMsolve(M, ρ0, tlist; e_ops, solver, H_t, params, verbose, filename, SOLVEROptions...)
-    heomsolve(M, ρ0, tlist; e_ops, solver, H_t, params, verbose, filename, SOLVEROptions...)
+    HEOMsolve(M, ρ0, tlist; e_ops, solver, H_t, params, verbose, filename, inplace, SOLVEROptions...)
+    heomsolve(M, ρ0, tlist; e_ops, solver, H_t, params, verbose, filename, inplace, SOLVEROptions...)
 
 Solve the time evolution for auxiliary density operators based on ordinary differential equations.
 
@@ -174,6 +174,7 @@ Solve the time evolution for auxiliary density operators based on ordinary diffe
 - `params`: Parameters to pass to the solver. This argument is usually expressed as a `NamedTuple` or `AbstractVector` of parameters. For more advanced usage, any custom struct can be used.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" after the solving process.
+- `inplace::Bool`: Whether to use the inplace version of the ODEProblem. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver
 
 # Notes
@@ -199,6 +200,7 @@ function HEOMsolve(
     params = NullParameters(),
     verbose::Bool = true,
     filename::String = "",
+    inplace::Bool = true,
     SOLVEROptions...,
 ) where {T_state<:Union{QuantumObject,ADOs}}
 
@@ -216,34 +218,24 @@ function HEOMsolve(
 
     t_l = _check_tlist(tlist, _FType(M))
 
-    # handle e_ops
-    if e_ops isa Nothing
-        expvals = Array{ComplexF64}(undef, 0, length(t_l))
-        tr_e_ops = typeof(M.data)[]
-        is_empty_e_ops = true
-    else
-        Id_sys = I(prod(M.dimensions))
-        Id_HEOM = I(M.N)
-        expvals = Array{ComplexF64}(undef, length(e_ops), length(t_l))
-        tr_e_ops = _generate_Eops(M, e_ops, Id_sys, Id_HEOM)
-        is_empty_e_ops = isempty(e_ops)
-    end
-
-    # handle callback
-    save_result! = HEOMsolveCallback(t_l, is_empty_e_ops, tr_e_ops, expvals, ProgressBar(length(t_l), enable = verbose))
-    cb = PresetTimeCallback(t_l, save_result!, save_positions = (false, false))
+    # generate save callback
+    tr_e_ops = e_ops isa Nothing ? nothing : _generate_Eops(M, e_ops, I(prod(M.dimensions)), I(M.N))
+    expvals = e_ops isa Nothing ? nothing : Array{ComplexF64}(undef, length(e_ops), length(t_l))
+    progr = verbose ? ProgressBar(length(t_l), enable = verbose) : nothing
+    save_result! = SaveFuncHEOMSolve(tr_e_ops, progr, Ref(1), expvals)
+    cb = FunctionCallingCallback(save_result!, funcat = t_l)
 
     # handle kwargs
     haskey(SOLVEROptions, :save_idxs) &&
         throw(ArgumentError("The keyword argument \"save_idxs\" is not supported in HierarchicalEOM.jl."))
-    kwargs = _merge_saveat(tlist, e_ops, DEFAULT_ODE_SOLVER_OPTIONS; SOLVEROptions...)
+    kwargs = _merge_saveat(t_l, e_ops, DEFAULT_ODE_SOLVER_OPTIONS; SOLVEROptions...)
     kwargs2 =
         haskey(kwargs, :callback) ? merge(kwargs, (callback = CallbackSet(kwargs.callback, cb),)) :
         merge(kwargs, (callback = cb,))
 
     # define ODE problem (L should be an AbstractSciMLOperator)
     L = _make_L(M, H_t)
-    prob = ODEProblem{true,FullSpecialize}(L, u0, (t_l[1], t_l[end]), params; kwargs2...)
+    prob = ODEProblem{inplace,FullSpecialize}(L, u0, (t_l[1], t_l[end]), params; kwargs2...)
 
     # start solving ode
     if verbose
@@ -265,13 +257,13 @@ function HEOMsolve(
     return TimeEvolutionHEOMSol(
         _getBtier(M),
         _getFtier(M),
-        save_result!.times,
+        t_l,
         ADOs_list,
         save_result!.expvals,
         sol.retcode,
         sol.alg,
-        sol.prob.kwargs[:abstol],
-        sol.prob.kwargs[:reltol],
+        NamedTuple(sol.prob.kwargs).abstol,
+        NamedTuple(sol.prob.kwargs).reltol,
     )
 end
 
@@ -288,23 +280,21 @@ function _generate_Eops(M::AbstractHEOMLSMatrix, e_ops, Id_sys, Id_HEOM)
     return tr_e_ops
 end
 
-struct HEOMsolveCallback{TT,TE,TEXPV<:AbstractMatrix}
-    times::TT
-    is_empty_e_ops::Bool
+struct SaveFuncHEOMSolve{TE,PT<:Union{Nothing,ProgressBar},IT,TEXPV<:Union{Nothing,AbstractMatrix}}
     tr_e_ops::TE
+    progr::PT
+    iter::IT
     expvals::TEXPV
-    progr::ProgressBar
 end
 
-(f::HEOMsolveCallback)(integrator) = _HEOMsolve_callback(integrator, f.is_empty_e_ops, f.tr_e_ops, f.progr, f.expvals)
+(f::SaveFuncHEOMSolve)(u, t, integrator) = _save_func_heomsolve(u, integrator, f.tr_e_ops, f.progr, f.iter, f.expvals)
+(f::SaveFuncHEOMSolve{Nothing})(u, t, integrator) = _save_func(integrator, f.progr) # Common for both mesolve and sesolve
 
-function _HEOMsolve_callback(integrator, is_empty_e_ops, tr_e_ops, progr, expvals)
-    if !is_empty_e_ops
-        _expect = op -> dot(op, integrator.u)
-        @. expvals[:, progr.counter[]+1] = _expect(tr_e_ops)
-    end
-    next!(progr)
-    return u_modified!(integrator, false)
+function _save_func_heomsolve(u, integrator, tr_e_ops, progr, iter, expvals)
+    _expect = op -> dot(op, integrator.u)
+    @. expvals[:, iter[]] = _expect(tr_e_ops)
+    iter[] += 1
+    return _save_func(integrator, progr)
 end
 
 _make_L(M::AbstractHEOMLSMatrix, H_t::Nothing) = M.data
