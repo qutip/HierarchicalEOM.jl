@@ -18,7 +18,8 @@ import QuantumToolbox:
     dimensions_to_dims,
     _save_func,
     _merge_saveat,
-    DEFAULT_ODE_SOLVER_OPTIONS
+    DEFAULT_ODE_SOLVER_OPTIONS,
+    SteadyStateODECondition
 
 # SciML packages (for OrdinaryDiffEq and LinearSolve)
 import SciMLBase: init, solve, solve!, u_modified!, ODEProblem, FullSpecialize, CallbackSet, NullParameters
