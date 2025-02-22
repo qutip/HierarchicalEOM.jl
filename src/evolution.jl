@@ -295,7 +295,7 @@ end
 (f::SaveFuncHEOMSolve{Nothing})(u, t, integrator) = _save_func(integrator, f.progr) # Common for both mesolve and sesolve
 
 function _save_func_heomsolve(u, integrator, tr_e_ops, progr, iter, expvals)
-    _expect = op -> dot(op, integrator.u)
+    _expect = op -> dot(op, u)
     @. expvals[:, iter[]] = _expect(tr_e_ops)
     iter[] += 1
     return _save_func(integrator, progr)
