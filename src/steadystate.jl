@@ -77,9 +77,19 @@ function QuantumToolbox.steadystate(
     _check_parity(M, ados)
     u0 = _HandleVectorType(M, ados.data)
 
-    Tspan = (0, tspan)
+    ftype = _FType(M)
+    Tspan = (ftype(0), ftype(tspan))
 
-    kwargs = merge(DEFAULT_ODE_SOLVER_OPTIONS, SOLVEROptions)
+    kwargs = merge(
+        (
+            abstol = DEFAULT_ODE_SOLVER_OPTIONS.abstol,
+            reltol = DEFAULT_ODE_SOLVER_OPTIONS.reltol,
+            save_everystep = false,
+            saveat = ftype[],
+        ),
+        SOLVEROptions,
+    )
+    _ss_condition = SteadyStateODECondition(similar(u0))
     cb = TerminateSteadyState(kwargs.abstol, kwargs.reltol, _ss_condition)
     kwargs2 =
         haskey(kwargs, :callback) ? merge(kwargs, (callback = CallbackSet(kwargs.callback, cb),)) :
@@ -101,16 +111,4 @@ function QuantumToolbox.steadystate(
     end
 
     return ADOs(Vector{ComplexF64}(sol.u[end]), M.dimensions, M.N, M.parity)
-end
-
-function _ss_condition(integrator, abstol, reltol, min_t)
-    # this condition is same as DiffEqBase.NormTerminationMode
-
-    du_dt = (integrator.u - integrator.uprev) / integrator.dt
-    norm_du_dt = norm(du_dt)
-    if (norm_du_dt <= reltol * norm(du_dt + integrator.u)) || (norm_du_dt <= abstol)
-        return true
-    else
-        return false
-    end
 end

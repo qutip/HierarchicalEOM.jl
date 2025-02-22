@@ -66,9 +66,9 @@
     trJρ = expect(J_me, ados_s)
     WTD_me = expect(J_me, ados_list) ./ trJρ
     for i in 1:length(tlist)
-        @test WTD_me[i] ≈ WTD_ans[i]
+        @test isapprox(WTD_me[i], WTD_ans[i]; atol = 1e-8)
     end
-    @test expect(J_me, ados_list[end]) / trJρ ≈ WTD_ans[end]
+    @test isapprox(expect(J_me, ados_list[end]) / trJρ, WTD_ans[end]; atol = 1e-8)
 
     ## Left lead with HEOM method and Right lead with local master equation
     bath = Fermion_Lorentz_Pade(d, Γ, μ, W, kT, N)

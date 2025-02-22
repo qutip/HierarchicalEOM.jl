@@ -16,8 +16,10 @@ import QuantumToolbox:
     _gen_dimensions,
     _get_dims_string,
     dimensions_to_dims,
+    _save_func,
     _merge_saveat,
-    DEFAULT_ODE_SOLVER_OPTIONS
+    DEFAULT_ODE_SOLVER_OPTIONS,
+    SteadyStateODECondition
 
 # SciML packages (for OrdinaryDiffEq and LinearSolve)
 import SciMLBase: init, solve, solve!, u_modified!, ODEProblem, FullSpecialize, CallbackSet, NullParameters
@@ -25,7 +27,7 @@ import SciMLOperators:
     AbstractSciMLOperator, MatrixOperator, ScaledOperator, AddedOperator, update_coefficients!, concretize
 import OrdinaryDiffEqCore: OrdinaryDiffEqAlgorithm
 import OrdinaryDiffEqLowOrderRK: DP5
-import DiffEqCallbacks: PresetTimeCallback, TerminateSteadyState
+import DiffEqCallbacks: FunctionCallingCallback, TerminateSteadyState
 import LinearSolve: LinearProblem, SciMLLinearSolveAlgorithm, UMFPACKFactorization
 
 # other dependencies (in alphabetical order)
