@@ -16,7 +16,7 @@ A structure storing the results and some information from solving time evolution
 - `abstol::Real`: The absolute tolerance which is used during the solving process.
 - `reltol::Real`: The relative tolerance which is used during the solving process.
 """
-struct TimeEvolutionHEOMSol{TT<:Vector{<:Real},TS<:Vector{ADOs},TE<:Matrix{ComplexF64}}
+struct TimeEvolutionHEOMSol{TT<:Vector{<:Real},TS<:Vector{ADOs},TE<:Union{Nothing,Matrix{ComplexF64}}}
     Btier::Int
     Ftier::Int
     times::TT
@@ -35,7 +35,11 @@ function Base.show(io::IO, sol::TimeEvolutionHEOMSol)
     print(io, "Btier = $(sol.Btier)\n")
     print(io, "Ftier = $(sol.Ftier)\n")
     print(io, "num_ados   = $(length(sol.ados))\n")
-    print(io, "num_expect = $(size(sol.expect, 1))\n")
+    if sol.expect isa Nothing
+        print(io, "num_expect = 0\n")
+    else
+        print(io, "num_expect = $(size(sol.expect, 1))\n")
+    end
     print(io, "ODE alg.: $(sol.alg)\n")
     print(io, "abstol = $(sol.abstol)\n")
     print(io, "reltol = $(sol.reltol)\n")
