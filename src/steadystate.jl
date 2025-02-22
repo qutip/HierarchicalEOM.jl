@@ -81,11 +81,13 @@ function QuantumToolbox.steadystate(
     Tspan = (ftype(0), ftype(tspan))
 
     kwargs = merge(
-        (abstol = DEFAULT_ODE_SOLVER_OPTIONS.abstol,
-        reltol = DEFAULT_ODE_SOLVER_OPTIONS.reltol,
-        save_everystep = false,
-        saveat = ftype[]),
-        SOLVEROptions
+        (
+            abstol = DEFAULT_ODE_SOLVER_OPTIONS.abstol,
+            reltol = DEFAULT_ODE_SOLVER_OPTIONS.reltol,
+            save_everystep = false,
+            saveat = ftype[],
+        ),
+        SOLVEROptions,
     )
     _ss_condition = SteadyStateODECondition(similar(u0))
     cb = TerminateSteadyState(kwargs.abstol, kwargs.reltol, _ss_condition)
