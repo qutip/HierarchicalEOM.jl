@@ -128,14 +128,14 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
     L_row = [Int[] for _ in 1:Nthread]
     L_col = [Int[] for _ in 1:Nthread]
     L_val = [ComplexF64[] for _ in 1:Nthread]
-
+    chnl = Channel{Tuple{Vector{Int},Vector{Int},Vector{ComplexF64}}}(Nthread)
+    foreach(i -> put!(chnl, (L_row[i], L_col[i], L_val[i])), 1:Nthread)
     if verbose
         println("Preparing block matrices for HEOM Liouvillian superoperator (using $(Nthread) threads)...")
         flush(stdout)
         prog = ProgressBar(Nado)
     end
     @threads for idx in 1:Nado
-        tID = threadid()
 
         # boson and fermion (current level) superoperator
         sum_γ = 0.0
@@ -146,7 +146,10 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         if nvec_f.level >= 1
             sum_γ += bath_sum_γ(nvec_f, baths_f)
         end
-        add_operator!(Lsys - sum_γ * I_sup, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx)
+        op = Lsys - sum_γ * I_sup
+        L_tuple = take!(chnl)
+        add_operator!(op, L_tuple[1], L_tuple[2], L_tuple[3], Nado, idx, idx)
+        put!(chnl, L_tuple)
 
         # connect to bosonic (n+1)th- & (n-1)th- level superoperator
         mode = 0
@@ -162,7 +165,9 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                     if (threshold == 0.0) || haskey(nvec2idx, (nvec_neigh, nvec_f))
                         idx_neigh = nvec2idx[(nvec_neigh, nvec_f)]
                         op = minus_i_D_op(bB, k, n_k)
-                        add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
+                        L_tuple = take!(chnl)
+                        add_operator!(op, L_tuple[1], L_tuple[2], L_tuple[3], Nado, idx, idx_neigh)
+                        put!(chnl, L_tuple)
                     end
                     Nvec_plus!(nvec_neigh, mode)
                 end
@@ -173,7 +178,9 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                     if (threshold == 0.0) || haskey(nvec2idx, (nvec_neigh, nvec_f))
                         idx_neigh = nvec2idx[(nvec_neigh, nvec_f)]
                         op = minus_i_B_op(bB)
-                        add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
+                        L_tuple = take!(chnl)
+                        add_operator!(op, L_tuple[1], L_tuple[2], L_tuple[3], Nado, idx, idx_neigh)
+                        put!(chnl, L_tuple)
                     end
                     Nvec_minus!(nvec_neigh, mode)
                 end
@@ -194,7 +201,9 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                     if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
                         idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
                         op = minus_i_C_op(fB, k, nvec_f.level, sum(nvec_neigh[1:(mode-1)]), parity)
-                        add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
+                        L_tuple = take!(chnl)
+                        add_operator!(op, L_tuple[1], L_tuple[2], L_tuple[3], Nado, idx, idx_neigh)
+                        put!(chnl, L_tuple)
                     end
                     Nvec_plus!(nvec_neigh, mode)
 
@@ -204,7 +213,9 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                     if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
                         idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
                         op = minus_i_A_op(fB, nvec_f.level, sum(nvec_neigh[1:(mode-1)]), parity)
-                        add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
+                        L_tuple = take!(chnl)
+                        add_operator!(op, L_tuple[1], L_tuple[2], L_tuple[3], Nado, idx, idx_neigh)
+                        put!(chnl, L_tuple)
                     end
                     Nvec_minus!(nvec_neigh, mode)
                 end

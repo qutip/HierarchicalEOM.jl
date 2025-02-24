@@ -88,14 +88,14 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
     L_row = [Int[] for _ in 1:Nthread]
     L_col = [Int[] for _ in 1:Nthread]
     L_val = [ComplexF64[] for _ in 1:Nthread]
-
+    chnl = Channel{Tuple{Vector{Int},Vector{Int},Vector{ComplexF64}}}(Nthread)
+    foreach(i -> put!(chnl, (L_row[i], L_col[i], L_val[i])), 1:Nthread)
     if verbose
         println("Preparing block matrices for HEOM Liouvillian superoperator (using $(Nthread) threads)...")
         flush(stdout)
         prog = ProgressBar(Nado)
     end
     @threads for idx in 1:Nado
-        tID = threadid()
 
         # fermion (current level) superoperator
         nvec = idx2nvec[idx]
@@ -105,7 +105,9 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         else
             op = Lsys
         end
-        add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx)
+        L_tuple = take!(chnl)
+        add_operator!(op, L_tuple[1], L_tuple[2], L_tuple[3], Nado, idx, idx)
+        put!(chnl, L_tuple)
 
         # connect to fermionic (n+1)th- & (n-1)th- level superoperator
         mode = 0
@@ -121,7 +123,9 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
                     if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                         idx_neigh = nvec2idx[nvec_neigh]
                         op = minus_i_C_op(fB, k, nvec.level, sum(nvec_neigh[1:(mode-1)]), parity)
-                        add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
+                        L_tuple = take!(chnl)
+                        add_operator!(op, L_tuple[1], L_tuple[2], L_tuple[3], Nado, idx, idx_neigh)
+                        put!(chnl, L_tuple)
                     end
                     Nvec_plus!(nvec_neigh, mode)
 
@@ -131,7 +135,9 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
                     if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                         idx_neigh = nvec2idx[nvec_neigh]
                         op = minus_i_A_op(fB, nvec.level, sum(nvec_neigh[1:(mode-1)]), parity)
-                        add_operator!(op, L_row[tID], L_col[tID], L_val[tID], Nado, idx, idx_neigh)
+                        L_tuple = take!(chnl)
+                        add_operator!(op, L_tuple[1], L_tuple[2], L_tuple[3], Nado, idx, idx_neigh)
+                        put!(chnl, L_tuple)
                     end
                     Nvec_minus!(nvec_neigh, mode)
                 end
