@@ -158,7 +158,7 @@ _gen_n_max(::Vector{AbstractFermionBath}, tier::Int, Nterm::Int) = (tier == 0) ?
                 end
             end
         end
-        drop_indices = reduce(vcat(drop_idx_list))
+        drop_indices = reduce(vcat, drop_idx_list)
         sort!(drop_indices)
         deleteat!(idx2nvec, drop_indices)
     end
@@ -247,7 +247,7 @@ end
                 end
             end
         end
-        drop_indices = reduce(vcat(drop_idx_list))
+        drop_indices = reduce(vcat, drop_idx_list)
         sort!(drop_indices)
         deleteat!(idx2nvec, drop_indices)
     end
