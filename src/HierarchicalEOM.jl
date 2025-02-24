@@ -31,7 +31,7 @@ import DiffEqCallbacks: FunctionCallingCallback, TerminateSteadyState
 import LinearSolve: LinearProblem, SciMLLinearSolveAlgorithm, UMFPACKFactorization
 
 # other dependencies (in alphabetical order)
-import Base.Threads: @threads, nthreads, Channel, threadid # TODO: remove threadid
+import Base.Threads: @threads, nthreads, Channel
 import FastExpm: fastExpm
 import JLD2: jldopen
 import Pkg
