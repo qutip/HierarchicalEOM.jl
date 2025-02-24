@@ -140,10 +140,10 @@ _gen_n_max(::Vector{AbstractFermionBath}, tier::Int, Nterm::Int) = (tier == 0) ?
     # create idx2nvec and remove nvec when its value of importance is below threshold
     idx2nvec = _Idx2Nvec(n_max, tier)
     if threshold > 0.0
-        N_thread = nthreads()
-        drop_idx_list = Vector{Int}[Int[] for i in 1:N_thread]
-        chnl = Channel{Vector{Int}}(N_thread)
-        foreach(i -> put!(chnl, drop_idx_list[i]), 1:N_thread)
+        Nthread = nthreads()
+        drop_idx_list = Vector{Int}[Int[] for i in 1:Nthread]
+        chnl = Channel{Vector{Int}}(Nthread)
+        foreach(i -> put!(chnl, drop_idx_list[i]), 1:Nthread)
 
         @threads for idx in eachindex(idx2nvec)
             nvec = idx2nvec[idx]
@@ -158,7 +158,7 @@ _gen_n_max(::Vector{AbstractFermionBath}, tier::Int, Nterm::Int) = (tier == 0) ?
                 end
             end
         end
-        drop_indices = vcat(drop_idx_list...)
+        drop_indices = reduce(vcat(drop_idx_list))
         sort!(drop_indices)
         deleteat!(idx2nvec, drop_indices)
     end
@@ -229,10 +229,10 @@ end
         end
     end
     if threshold > 0.0
-        N_thread = nthreads()
-        drop_idx_list = Vector{Int}[Int[] for i in 1:N_thread]
-        chnl = Channel{Vector{Int}}(N_thread)
-        foreach(i -> put!(chnl, drop_idx_list[i]), 1:N_thread)
+        Nthread = nthreads()
+        drop_idx_list = Vector{Int}[Int[] for i in 1:Nthread]
+        chnl = Channel{Vector{Int}}(Nthread)
+        foreach(i -> put!(chnl, drop_idx_list[i]), 1:Nthread)
 
         @threads for idx in eachindex(idx2nvec)
             nvec_b, nvec_f = idx2nvec[idx]
@@ -247,7 +247,7 @@ end
                 end
             end
         end
-        drop_indices = vcat(drop_idx_list...)
+        drop_indices = reduce(vcat(drop_idx_list))
         sort!(drop_indices)
         deleteat!(idx2nvec, drop_indices)
     end
