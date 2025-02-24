@@ -140,8 +140,11 @@ _gen_n_max(::Vector{AbstractFermionBath}, tier::Int, Nterm::Int) = (tier == 0) ?
     # create idx2nvec and remove nvec when its value of importance is below threshold
     idx2nvec = _Idx2Nvec(n_max, tier)
     if threshold > 0.0
-        splock = SpinLock()
-        drop_idx = Int[]
+        N_thread = nthreads()
+        drop_idx_list = Vector{Int}[Int[] for i in 1:N_thread]
+        chnl = Channel{Vector{Int}}(N_thread)
+        foreach(i -> put!(chnl, drop_idx_list[i]), 1:N_thread)
+
         @threads for idx in eachindex(idx2nvec)
             nvec = idx2nvec[idx]
 
@@ -149,17 +152,15 @@ _gen_n_max(::Vector{AbstractFermionBath}, tier::Int, Nterm::Int) = (tier == 0) ?
             if nvec.level >= 2
                 Ath = _Importance(B, bathPtr, nvec)
                 if Ath < threshold
-                    lock(splock)
-                    try
-                        push!(drop_idx, idx)
-                    finally
-                        unlock(splock)
-                    end
+                    drop_idx = take!(chnl)
+                    push!(drop_idx, idx)
+                    put!(chnl, drop_idx)
                 end
             end
         end
-        sort!(drop_idx)
-        deleteat!(idx2nvec, drop_idx)
+        drop_indices = vcat(drop_idx_list...)
+        sort!(drop_indices)
+        deleteat!(idx2nvec, drop_indices)
     end
 
     # create lvl2idx and nvec2idx
@@ -220,39 +221,35 @@ end
     n_max_f = _gen_n_max(baths_f, tier_f, Nterm_f)
     idx2nvec_f = _Idx2Nvec(n_max_f, tier_f)
 
-    # only store nvec tuple when its value of importance is above threshold
+    # create idx2nvec and remove nvec when its value of importance is below threshold
     idx2nvec = Tuple{Nvec,Nvec}[]
+    for nvec_b in idx2nvec_b
+        for nvec_f in idx2nvec_f
+            push!(idx2nvec, (nvec_b, nvec_f))
+        end
+    end
     if threshold > 0.0
-        splock = SpinLock()
-        @threads for nvec_b in idx2nvec_b
-            for nvec_f in idx2nvec_f
-                # only neglect the nvec tuple where level ≥ 2
-                if (nvec_b.level >= 2) || (nvec_f.level >= 2)
-                    Ath = _Importance(bB, bosonPtr, nvec_b) * _Importance(fB, fermionPtr, nvec_f)
-                    if Ath >= threshold
-                        lock(splock)
-                        try
-                            push!(idx2nvec, (nvec_b, nvec_f))
-                        finally
-                            unlock(splock)
-                        end
-                    end
-                else
-                    lock(splock)
-                    try
-                        push!(idx2nvec, (nvec_b, nvec_f))
-                    finally
-                        unlock(splock)
-                    end
+        N_thread = nthreads()
+        drop_idx_list = Vector{Int}[Int[] for i in 1:N_thread]
+        chnl = Channel{Vector{Int}}(N_thread)
+        foreach(i -> put!(chnl, drop_idx_list[i]), 1:N_thread)
+
+        @threads for idx in eachindex(idx2nvec)
+            nvec_b, nvec_f = idx2nvec[idx]
+
+            # only neglect the nvec tuple where level ≥ 2
+            if (nvec_b.level >= 2) || (nvec_f.level >= 2)
+                Ath = _Importance(bB, bosonPtr, nvec_b) * _Importance(fB, fermionPtr, nvec_f)
+                if Ath < threshold
+                    drop_idx = take!(chnl)
+                    push!(drop_idx, idx)
+                    put!(chnl, drop_idx)
                 end
             end
         end
-    else
-        for nvec_b in idx2nvec_b
-            for nvec_f in idx2nvec_f
-                push!(idx2nvec, (nvec_b, nvec_f))
-            end
-        end
+        drop_indices = vcat(drop_idx_list...)
+        sort!(drop_indices)
+        deleteat!(idx2nvec, drop_indices)
     end
 
     # create lvl2idx and nvec2idx
