@@ -13,7 +13,7 @@ steps:
     agents:
       queue: "juliagpu"
     plugins:
-      - staticfloat/forerunner:
+      - staticfloat/forerunner: # only trigger the pipeline if the following folders are updated
           watch:
             - ".buildkite/pipeline.yml"
             - ".buildkite/CUDA_Ext.yml"
