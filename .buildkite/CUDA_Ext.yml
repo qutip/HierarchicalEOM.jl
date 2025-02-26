@@ -22,12 +22,3 @@ steps:
       GROUP: "CUDA_Ext"
       SECRET_CODECOV_TOKEN: "LnZuLkirUZtLqOR8hrOChoiOgAKtHth5pTmttecSxdwANQSnwvvOZJRlWEg5otIVHfE2VMwDEitqFkQaSFxR8oO/7rl8Pxe2OiJCqyxosy5YYL5YLdfsUay2tBPau/lAy66dmB70LGhfyf7uUhpFKC2nlvGO+eyv0GKZ4JBu4PUiaLPOgkozGufQupkmOFGmpsWHo+a4HKN4/cOsIhF3P9JOWsBydlTtBMfFbG19qDGtUnrhaOfqitpoLo4h56kNDQstDnlApirMXS3B7tXMMxiUj/aWWE7ZQdDPrRrZMCv1eDcrRJktPWgJM1fUEQSy5mTSdEsyRDHp7JM8fdCamA==;U2FsdGVkX1/WQ6K/3LSCe5+vGyBKxftywEmwKVjgDXDW2mbj/BGoB3x7Vfx0LnTAvgu/DycV7AbhlsydNqmVBw=="
     timeout_in_minutes: 60
-    if: | 
-        // Don't run Buildkite if the commit message includes the text [skip ci], [ci skip], or [no ci]
-        // Don't run Buildkite for PR draft
-        // Only run Buildkite when new commits and PR are made to main branch
-        build.message !~ /\[skip ci\]/ &&
-        build.message !~ /\[ci skip\]/ &&
-        build.message !~ /\[no ci\]/   &&
-        !build.pull_request.draft      &&
-        (build.branch =~ /main/ || build.pull_request.base_branch =~ /main/)
