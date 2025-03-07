@@ -2,7 +2,7 @@ module HierarchicalEOM_CUDAExt
 
 using HierarchicalEOM
 import HierarchicalEOM: _HandleVectorType, _HandleTraceVectorType
-import QuantumToolbox: _CType, _convert_eltype_wordsize
+import QuantumToolbox: _CType, _convert_eltype_wordsize, makeVal, getVal
 import CUDA
 import CUDA: cu, CuArray
 import CUDA.CUSPARSE: CuSparseVector, CuSparseMatrixCSC
