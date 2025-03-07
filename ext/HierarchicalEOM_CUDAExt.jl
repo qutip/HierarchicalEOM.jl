@@ -18,11 +18,12 @@ Return a new HEOMLS-matrix-type object with `M.data` is in the type of `CuSparse
 - `word_size::Union{Val,Int}` : The word size of the element type of `M`, can be either `32` or `64`. Default to `64`.
 """
 function cu(M::AbstractHEOMLSMatrix; word_size::Union{Val,Int} = Val(64))
-    _word_size = getVal(makeVal(word_size))
+    word_size_val = makeVal(word_size)
+    _word_size = getVal(word_size_val)
 
     ((_word_size == 64) || (_word_size == 32)) || throw(DomainError(_word_size, "The word size should be 32 or 64."))
 
-    return CuSparseMatrixCSC{_convert_eltype_wordsize(eltype(M), word_size)}(M)
+    return CuSparseMatrixCSC{_convert_eltype_wordsize(eltype(M), word_size_val)}(M)
 end
 
 @doc raw"""
