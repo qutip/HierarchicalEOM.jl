@@ -30,6 +30,7 @@ CUDA.@time @testset "CUDA Extension" begin
     L_gpu = cu(L_cpu)
     sol_cpu = heomsolve(L_cpu, ψ0, [0, 10]; e_ops = e_ops, verbose = false)
     sol_gpu = heomsolve(L_gpu, ψ0, [0, 10]; e_ops = e_ops, verbose = false)
+    @test L_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64, Int32}
     @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1e-4))
     @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu.ados[end]), atol = 1e-4)
 
@@ -38,6 +39,7 @@ CUDA.@time @testset "CUDA Extension" begin
     L_gpu = cu(L_cpu)
     sol_cpu = heomsolve(L_cpu, ψ0, [0, 10]; e_ops = e_ops, verbose = false)
     sol_gpu = heomsolve(L_gpu, ψ0, [0, 10]; e_ops = e_ops, verbose = false)
+    @test L_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64, Int32}
     @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1e-4))
     @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu.ados[end]), atol = 1e-4)
 
@@ -46,6 +48,7 @@ CUDA.@time @testset "CUDA Extension" begin
     L_gpu = cu(L_cpu)
     sol_cpu = heomsolve(L_cpu, ψ0, [0, 10]; e_ops = e_ops, verbose = false)
     sol_gpu = heomsolve(L_gpu, ψ0, [0, 10]; e_ops = e_ops, verbose = false)
+    @test L_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64, Int32}
     @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1e-4))
     @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu.ados[end]), atol = 1e-4)
 
@@ -55,6 +58,7 @@ CUDA.@time @testset "CUDA Extension" begin
     tlist = 0:1:10
     sol_cpu = heomsolve(L_cpu, ψ0, tlist; e_ops = e_ops, saveat = tlist, verbose = false)
     sol_gpu = heomsolve(L_gpu, ψ0, tlist; e_ops = e_ops, saveat = tlist, verbose = false)
+    @test L_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64, Int32}
     @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1e-4))
     for i in 1:length(tlist)
         @test isapprox(getRho(sol_cpu.ados[i]), getRho(sol_gpu.ados[i]), atol = 1e-4)
@@ -85,12 +89,13 @@ CUDA.@time @testset "CUDA Extension" begin
     L_even_gpu = cu(L_even_cpu)
     ados_cpu = steadystate(L_even_cpu; verbose = false)
     ados_gpu = steadystate(L_even_gpu, ψ0, 10; verbose = false)
+    @test L_even_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64, Int32}
     @test all(isapprox.(ados_cpu.data, ados_gpu.data; atol = 1e-6))
 
     ## solve density of states
     ωlist = -5:0.5:5
     L_odd_cpu = M_Fermion(Hsys, tier, bath_list, ODD; verbose = false)
-    L_odd_gpu = cu(L_odd_cpu)
+    L_odd_gpu = cu(L_odd_cpu, word_size = 32)
     dos_cpu = DensityOfStates(L_odd_cpu, ados_cpu, d_up, ωlist; verbose = false)
     dos_gpu = DensityOfStates(
         L_odd_gpu,
@@ -100,6 +105,7 @@ CUDA.@time @testset "CUDA Extension" begin
         solver = KrylovJL_BICGSTAB(rtol = 1.0f-10, atol = 1.0f-12),
         verbose = false,
     )
+    @test L_odd_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF32, Int32}
     for (i, ω) in enumerate(ωlist)
         @test dos_cpu[i] ≈ dos_gpu[i] atol = 1e-6
     end
