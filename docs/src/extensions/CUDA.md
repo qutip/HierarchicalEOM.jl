@@ -2,9 +2,6 @@
 
 This is an extension to support GPU ([`CUDA.jl`](https://github.com/JuliaGPU/CUDA.jl)) acceleration for solving the [time evolution](@ref doc-Time-Evolution) and [spectra](@ref doc-Spectrum). This improves the execution time and memory usage especially when the HEOMLS matrix is super large.
 
-!!! compat "Compat"
-    The described feature requires `Julia 1.9+`.
-
 The functions of calculating [time evolution](@ref doc-Time-Evolution) (only supports ODE method with time-independent system Hamiltonian) and [spectra](@ref doc-Spectrum) will automatically choose to solve on CPU or GPU depend on the type of the sparse matrix in `M::AbstractHEOMLSMatrix` objects (i.e., the type of the field `M.data`). 
 
 ```julia
@@ -12,9 +9,11 @@ typeof(M.data) <:   SparseMatrixCSC # solve on CPU
 typeof(M.data) <: CuSparseMatrixCSC # solve on GPU
 ```
 
-Therefore, we wrapped several functions in `CUDA` and `CUDA.CUSPARSE` in order to return a new HEOMLS-matrix-type object with `M.data` is in the type of `CuSparseMatrix`, and also change the element type into `ComplexF32` and `Int32` (since GPU performs better in this type). The functions are listed as follows:
-- `cu(M::AbstractHEOMLSMatrix)` : Translate `M.data` into the type `CuSparseMatrixCSC{ComplexF32, Int32}`
-- `CuSparseMatrixCSC(M::AbstractHEOMLSMatrix)` : Translate `M.data` into the type `CuSparseMatrixCSC{ComplexF32, Int32}`
+We wrapped several functions in CUDA and CUDA.CUSPARSE in order to not only converting QuantumObject.data into GPU arrays, but also changing the element type and word size (32 and 64) since some of the GPUs perform better in 32-bit. The functions are listed as follows (where input A is a QuantumObject):
+
+Therefore, we wrapped several functions in `CUDA` and `CUDA.CUSPARSE` in order to not only converting a HEOMLS-matrix-type object into GPU arrays, but also changing the element type and word size (`32` and `64`) since some of the GPUs perform better in `32`-bit. The functions are listed as follows (where input `M` is a `AbstractHEOMLSMatrix`):
+- `cu(M, word_size=64)` : Translate `M.data` into CUDA arrays with specified `word_size`.
+- `CuSparseMatrixCSC{T}(M)` : Translate `M.data` into the type `CuSparseMatrixCSC{T, Int32}`
 
 ### Demonstration
 
@@ -58,11 +57,11 @@ bath_list = [bath_up, bath_dn]
 
 # even HEOMLS matrix
 M_even_cpu = M_Fermion(Hsys, tier, bath_list)
-M_even_gpu = cu(M_even_cpu)
+M_even_gpu = cu(M_even_cpu, word_size = 32)
 
 # odd HEOMLS matrix
 M_odd_cpu  = M_Fermion(Hsys, tier, bath_list, ODD)
-M_odd_gpu  = cu(M_odd_cpu)
+M_odd_gpu  = cu(M_odd_cpu, word_size = 32)
 
 # solve steady state with CPU
 ados_ss = steadystate(M_even_cpu);

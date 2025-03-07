@@ -10,7 +10,7 @@ import SparseArrays: sparse, SparseVector, SparseMatrixCSC
 import SciMLOperators: MatrixOperator, ScaledOperator, AddedOperator
 
 @doc raw"""
-    cu(M::AbstractHEOMLSMatrix, word_size::Union{Val,Int} = Val(64))
+    cu(M::AbstractHEOMLSMatrix; word_size::Union{Val,Int} = Val(64))
 Return a new HEOMLS-matrix-type object with `M.data` is in the type of `CuSparseMatrixCSC{ComplexF32, Int32}` for gpu calculations.
 
 # Arguments
