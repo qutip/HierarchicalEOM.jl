@@ -30,7 +30,7 @@ end
 
 Return a new HEOMLS-matrix-type object with `M.data` is in the type of `CUDA.CUSPARSE.CuSparseMatrixCSC` with element type `T` for gpu calculations.
 """
-function CuSparseMatrixCSC{T}(M::MT) where {T, MT<:AbstractHEOMLSMatrix}
+function CuSparseMatrixCSC{T}(M::MT) where {T,MT<:AbstractHEOMLSMatrix}
     A_gpu = _convert_to_gpu_matrix(M.data, T)
     if MT <: M_S
         return M_S(A_gpu, M.tier, M.dimensions, M.N, M.sup_dim, M.parity)
@@ -54,7 +54,8 @@ function CuSparseMatrixCSC{T}(M::MT) where {T, MT<:AbstractHEOMLSMatrix}
     end
 end
 
-CuSparseMatrixCSC{T}(M::HEOMSuperOp) where {T} = HEOMSuperOp(_convert_to_gpu_matrix(M.data, T), M.dimensions, M.N, M.parity)
+CuSparseMatrixCSC{T}(M::HEOMSuperOp) where {T} =
+    HEOMSuperOp(_convert_to_gpu_matrix(M.data, T), M.dimensions, M.N, M.parity)
 
 function _convert_to_gpu_matrix(A::AbstractSparseMatrix, ElType::Type{T}) where {T<:Number}
     if A isa CuSparseMatrixCSC{ElType,Int32}
