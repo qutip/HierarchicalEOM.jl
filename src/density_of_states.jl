@@ -29,7 +29,7 @@ Calculate density of states for the fermionic system in frequency domain.
     ρ::Union{QuantumObject,ADOs},
     d_op::QuantumObject,
     ωlist::AbstractVector;
-    solver::SciMLLinearSolveAlgorithm = KrylovJL_BICGSTAB(rtol=1e-12, atol=1e-14),
+    solver::SciMLLinearSolveAlgorithm = KrylovJL_BICGSTAB(rtol = 1e-12, atol = 1e-14),
     verbose::Bool = true,
     filename::String = "",
     SOLVEROptions...,

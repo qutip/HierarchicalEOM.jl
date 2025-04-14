@@ -16,7 +16,7 @@ Solve the steady state of the auxiliary density operators based on `LinearSolve.
 """
 function QuantumToolbox.steadystate(
     M::AbstractHEOMLSMatrix{<:MatrixOperator};
-    solver::SciMLLinearSolveAlgorithm = KrylovJL_BICGSTAB(rtol=1e-12, atol=1e-14),
+    solver::SciMLLinearSolveAlgorithm = KrylovJL_BICGSTAB(rtol = 1e-12, atol = 1e-14),
     verbose::Bool = true,
     SOLVEROptions...,
 )
