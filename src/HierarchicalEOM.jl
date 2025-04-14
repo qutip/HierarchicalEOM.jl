@@ -1,5 +1,9 @@
 module HierarchicalEOM
 
+# Standard Julia libraries
+using LinearAlgebra
+using SparseArrays
+
 # Re-export QuantumToolbox
 import Reexport: @reexport
 @reexport using QuantumToolbox
@@ -28,11 +32,12 @@ import SciMLOperators:
 import OrdinaryDiffEqCore: OrdinaryDiffEqAlgorithm
 import OrdinaryDiffEqLowOrderRK: DP5
 import DiffEqCallbacks: FunctionCallingCallback, TerminateSteadyState
-import LinearSolve: LinearProblem, SciMLLinearSolveAlgorithm, UMFPACKFactorization
+import LinearSolve: LinearProblem, SciMLLinearSolveAlgorithm, KrylovJL_BICGSTAB
 
 # other dependencies (in alphabetical order)
 import Base.Threads: @threads, nthreads, Channel
 import FastExpm: fastExpm
+import IncompleteLU: ilu
 import JLD2: jldopen
 import Pkg
 

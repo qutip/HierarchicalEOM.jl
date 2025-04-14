@@ -1,6 +1,9 @@
 using Pkg
 using Test
 
+# Importing only the necessary functions to keep track the re-export of the functions
+import SparseArrays: spzeros, nnz
+
 const GROUP = get(ENV, "GROUP", "All")
 
 const testdir = dirname(@__FILE__)
