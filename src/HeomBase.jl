@@ -100,7 +100,6 @@ function _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator})
     ElType = eltype(M)
     D = prod(M.dimensions)
     A = copy(M.data.A)
-    A[1, 1:S] .= 0
 
     # sparse(row_idx, col_idx, values, row_dims, col_dims)
     A += sparse(ones(ElType, D), [(n - 1) * (D + 1) + 1 for n in 1:D], ones(ElType, D), S, S)

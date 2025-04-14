@@ -10,7 +10,13 @@ using LinearSolve
 
 (click [here](https://docs.sciml.ai/LinearSolve/stable/solvers/solvers/) to see the full solver list provided by `LinearSolve.jl`)
 
-### UMFPACKFactorization (Default solver)
+### A generic BICGSTAB implementation from Krylov (Default solver)
+
+```julia
+KrylovJL_BICGSTAB(rtol=1e-12, atol=1e-14)
+```
+
+### UMFPACKFactorization
 This solver performs better when there is more structure to the sparsity pattern (depends on the complexity of your system and baths).
 
 ```julia
@@ -22,12 +28,6 @@ This solver performs better when there is less structure to the sparsity pattern
 
 ```julia
 KLUFactorization()
-```
-
-### A generic BICGSTAB implementation from Krylov
-
-```julia
-KrylovJL_BICGSTAB()
 ```
 
 ### Pardiso

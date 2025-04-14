@@ -6,7 +6,7 @@ import QuantumToolbox: _CType, _convert_eltype_wordsize, makeVal, getVal
 import CUDA
 import CUDA: cu, CuArray
 import CUDA.CUSPARSE: CuSparseVector, CuSparseMatrixCSC
-import SparseArrays: sparse, SparseVector, SparseMatrixCSC
+import SparseArrays: AbstractSparseMatrix, sparse, SparseVector, SparseMatrixCSC
 import SciMLOperators: MatrixOperator, ScaledOperator, AddedOperator
 
 @doc raw"""
