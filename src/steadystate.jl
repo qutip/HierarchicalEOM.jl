@@ -29,7 +29,7 @@ function QuantumToolbox.steadystate(
     b = sparsevec([1], [1.0 + 0.0im], size(M, 1))
 
     if verbose
-        print("Solving steady state for ADOs by linear-solve method...")
+        println("Solving steady state for ADOs by linear-solve method...")
         flush(stdout)
     end
     if !haskey(SOLVEROptions, :Pl)
