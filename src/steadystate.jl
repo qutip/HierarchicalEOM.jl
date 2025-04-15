@@ -28,11 +28,25 @@ function QuantumToolbox.steadystate(
     A = _HandleSteadyStateMatrix(M)
     b = sparsevec([1], [1.0 + 0.0im], size(M, 1))
 
-    !haskey(SOLVEROptions, :Pl) && (SOLVEROptions = merge((; SOLVEROptions...), (Pl = ilu(A, τ = 0.01),)))
+    if verbose
+        println("Solving steady state for ADOs by linear-solve method...")
+        flush(stdout)
+    end
+    if !haskey(SOLVEROptions, :Pl)
+        if verbose
+            print("Calculating left preconditioner with ilu...")
+            flush(stdout)
+        end
+        SOLVEROptions = merge((; SOLVEROptions...), (Pl = ilu(A, τ = 0.01),))
+        if verbose
+            println("[DONE]")
+            flush(stdout)
+        end
+    end
 
     # solving x where A * x = b
     if verbose
-        print("Solving steady state for ADOs by linear-solve method...")
+        print("Solving linear problem...")
         flush(stdout)
     end
     cache = init(LinearProblem(A, _HandleVectorType(M, b)), solver, SOLVEROptions...)
@@ -106,7 +120,6 @@ function QuantumToolbox.steadystate(
         flush(stdout)
     end
     sol = solve(prob, solver)
-
     if verbose
         println("Last timepoint t = $(sol.t[end])\n[DONE]")
         flush(stdout)
