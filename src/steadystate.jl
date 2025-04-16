@@ -32,7 +32,7 @@ function QuantumToolbox.steadystate(
         println("Solving steady state for ADOs by linear-solve method...")
         flush(stdout)
     end
-    if !haskey(SOLVEROptions, :Pl)
+    if (!haskey(SOLVEROptions, :Pl)) && (isa(A, SparseMatrixCSC))
         if verbose
             print("Calculating left preconditioner with ilu...")
             flush(stdout)

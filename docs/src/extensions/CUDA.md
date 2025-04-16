@@ -12,7 +12,7 @@ typeof(M.data) <: CuSparseMatrixCSC # solve on GPU
 We wrapped several functions in CUDA and CUDA.CUSPARSE in order to not only converting QuantumObject.data into GPU arrays, but also changing the element type and word size (32 and 64) since some of the GPUs perform better in 32-bit. The functions are listed as follows (where input A is a QuantumObject):
 
 Therefore, we wrapped several functions in `CUDA` and `CUDA.CUSPARSE` in order to not only converting a HEOMLS-matrix-type object into GPU arrays, but also changing the element type and word size (`32` and `64`) since some of the GPUs perform better in `32`-bit. The functions are listed as follows (where input `M` is a `AbstractHEOMLSMatrix`):
-- `cu(M, word_size=64)` : Translate `M.data` into CUDA arrays with specified `word_size`.
+- `cu(M, word_size=64)` : Translate `M.data` into CUDA arrays with specified `word_size` (default to `64`).
 - `CuSparseMatrixCSC{T}(M)` : Translate `M.data` into the type `CuSparseMatrixCSC{T, Int32}`
 
 ### Demonstration
@@ -21,7 +21,6 @@ The extension will be automatically loaded if user imports the package `CUDA.jl`
 
 ```julia
 using HierarchicalEOM
-using LinearSolve # to change the solver for better GPU performance
 using CUDA
 CUDA.allowscalar(false) # Avoid unexpected scalar indexing
 ```
@@ -43,12 +42,12 @@ tier  = 3
 tlist = 0:0.1:10
 ωlist = -10:1:10
 
-σm = [0 1; 0  0]
-σz = [1 0; 0 -1]
-II = [1 0; 0  1]
-d_up = kron(     σm, II)
-d_dn = kron(-1 * σz, σm)
-ρ0   = kron([1 0; 0 0], [1 0; 0 0])
+σm = sigmam()
+σz = sigmaz()
+II = qeye(2)
+d_up = tensor(     σm, II)
+d_dn = tensor(-1 * σz, σm)
+ψ0   = tensor(basis(2, 0), basis(2, 0))
 Hsys = ϵ * (d_up' * d_up + d_dn' * d_dn) + U * (d_up' * d_up * d_dn' * d_dn)
 
 bath_up = Fermion_Lorentz_Pade(d_up, Γ, μ, W, kT, N)
@@ -62,34 +61,52 @@ M_even_gpu = cu(M_even_cpu, word_size = 32)
 # odd HEOMLS matrix
 M_odd_cpu  = M_Fermion(Hsys, tier, bath_list, ODD)
 M_odd_gpu  = cu(M_odd_cpu, word_size = 32)
-
-# solve steady state with CPU
-ados_ss = steadystate(M_even_cpu);
 ```
-
-!!! note "Note"
-    This extension does not support for solving [stationary state](@ref doc-Stationary-State) on GPU since it is not efficient and might get wrong solutions. If you really want to obtain the stationary state with GPU, you can repeatedly solve the [time evolution](@ref doc-Time-Evolution) until you find it.
 
 ### Solving time evolution with CPU
 
 ```julia
-ados_list_cpu = HEOMsolve(M_even_cpu, ρ0, tlist)
+ados_list = HEOMsolve(M_even_cpu, ψ0, tlist)
 ```
 
 ### Solving time evolution with GPU
 
 ```julia
-ados_list_gpu = HEOMsolve(M_even_gpu, ρ0, tlist)
+ados_list = HEOMsolve(M_even_gpu, ψ0, tlist)
 ```
 
-### Solving Spectrum with CPU
+### Solving steady state with CPU using linear-solve method
 
 ```julia
-dos_cpu = DensityOfStates(M_odd_cpu, ados_ss, d_up, ωlist)
+ados_ss = steadystate(M_even_cpu);
 ```
 
-### Solving Spectrum with GPU
+### Solving steady state with GPU using linear-solve method
 
 ```julia
-dos_gpu = DensityOfStates(M_odd_gpu, ados_ss, d_up, ωlist; solver=KrylovJL_BICGSTAB(rtol=1f-10, atol=1f-12))
+ados_ss = steadystate(M_even_gpu);
+```
+
+### Solving steady state with CPU using ODE method
+
+```julia
+ados_ss = steadystate(M_even_cpu, ψ0);
+```
+
+### Solving steady state with GPU using ODE method
+
+```julia
+ados_ss = steadystate(M_even_gpu, ψ0);
+```
+
+### Solving spectrum with CPU
+
+```julia
+dos = DensityOfStates(M_odd_cpu, ados_ss, d_up, ωlist)
+```
+
+### Solving spectrum with GPU
+
+```julia
+dos = DensityOfStates(M_odd_gpu, ados_ss, d_up, ωlist)
 ```

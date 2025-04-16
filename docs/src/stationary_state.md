@@ -3,6 +3,9 @@
 
 To solve the stationary state of the reduced state and also all the [ADOs](@ref doc-ADOs), you only need to call [`steadystate`](@ref). Different methods are implemented with different input parameters of the function which makes it easy to switch between different methods. The output of the function [`steadystate`](@ref) for each methods will always be in the type of the auxiliary density operators [`ADOs`](@ref).
 
+!!! compat "Extension for CUDA.jl"
+    `HierarchicalEOM.jl` provides an extension to support GPU ([`CUDA.jl`](https://github.com/JuliaGPU/CUDA.jl)) acceleration for [`steadystate`](@ref). See [here](@ref doc-ext-CUDA) for more details.
+
 ## Solve with [LinearSolve.jl](http://linearsolve.sciml.ai/stable/)
 The first method is implemented by solving the linear problem
 ```math
@@ -16,6 +19,7 @@ The first method is implemented by solving the linear problem
 M::AbstractHEOMLSMatrix  
 ados_steady = steadystate(M)
 ```
+
 !!! warning "Unphysical solution"
     This method does not require an initial condition ``\rho^{(m,n,p)}_{\textbf{j} \vert \textbf{q}}(0)``. Although this method works for most of the cases, it does not guarantee that one can obtain a physical (or unique) solution. If there is any problem within the solution, please try the second method which solves with an initial condition, as shown below.
 
