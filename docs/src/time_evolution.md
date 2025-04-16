@@ -78,7 +78,7 @@ end
 The first method is implemented by solving the ordinary differential equation (ODE). `HierarchicalEOM.jl` wraps some of the functions in [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/), which is a very rich numerical library for solving the differential equations and provides many ODE solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to [DifferentialEquations solvers](@ref ODE-solvers) and also the documentation of [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/).
 
 !!! compat "Extension for CUDA.jl"
-    `HierarchicalEOM.jl` provides an extension to support GPU ([`CUDA.jl`](https://github.com/JuliaGPU/CUDA.jl)) acceleration for solving the time evolution (only for ODE method with time-independent system Hamiltonian). See [here](@ref doc-ext-CUDA) for more details.
+    `HierarchicalEOM.jl` provides an extension to support GPU ([`CUDA.jl`](https://github.com/JuliaGPU/CUDA.jl)) acceleration for [`HEOMsolve`](@ref) (only for ODE method). See [here](@ref doc-ext-CUDA) for more details.
 
 See the docstring of this method:  
 

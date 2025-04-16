@@ -95,16 +95,12 @@ _HandleTraceVectorType(M::AbstractHEOMLSMatrix, V::SparseVector) =
     _HandleTraceVectorType(_get_SciML_matrix_wrapper(M), V)
 _HandleTraceVectorType(M::Type{<:SparseMatrixCSC}, V::SparseVector) = V
 
-function _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator})
-    S = size(M, 1)
-    ElType = eltype(M)
-    D = prod(M.dimensions)
-    A = copy(M.data.A)
+_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}}) where {T<:Number,MT<:SparseMatrixCSC} =
+    M.data.A + _SteadyStateConstraint(T, prod(M.dimensions), size(M, 1))
 
-    # sparse(row_idx, col_idx, values, row_dims, col_dims)
-    A += sparse(ones(ElType, D), [(n - 1) * (D + 1) + 1 for n in 1:D], ones(ElType, D), S, S)
-    return A
-end
+# this adds the trace == 1 contraint for reduced density operator during linear solve of steadystate
+_SteadyStateConstraint(T::Type{<:Number}, D::Int, S::Int) =
+    sparse(ones(T, D), [(n - 1) * (D + 1) + 1 for n in 1:D], ones(T, D), S, S)
 
 function _check_sys_dim_and_ADOs_num(A, B)
     if (A.dimensions != B.dimensions)

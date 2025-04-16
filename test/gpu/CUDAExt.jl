@@ -88,23 +88,18 @@ CUDA.@time @testset "CUDA Extension" begin
     L_even_cpu = M_Fermion(Hsys, tier, bath_list; verbose = false)
     L_even_gpu = cu(L_even_cpu)
     ados_cpu = steadystate(L_even_cpu; verbose = false)
-    ados_gpu = steadystate(L_even_gpu, ψ0, 10; verbose = false)
+    ados_gpu1 = steadystate(L_even_gpu; verbose = false)
+    ados_gpu2 = steadystate(L_even_gpu, ψ0, 10; verbose = false)
     @test L_even_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64,Int32}
-    @test all(isapprox.(ados_cpu.data, ados_gpu.data; atol = 1e-6))
+    @test all(isapprox.(ados_cpu.data, ados_gpu1.data; atol = 1e-6))
+    @test all(isapprox.(ados_cpu.data, ados_gpu2.data; atol = 1e-6))
 
     ## solve density of states
     ωlist = -5:0.5:5
     L_odd_cpu = M_Fermion(Hsys, tier, bath_list, ODD; verbose = false)
     L_odd_gpu = cu(L_odd_cpu, word_size = 32)
     dos_cpu = DensityOfStates(L_odd_cpu, ados_cpu, d_up, ωlist; verbose = false)
-    dos_gpu = DensityOfStates(
-        L_odd_gpu,
-        ados_cpu,
-        d_up,
-        ωlist;
-        solver = KrylovJL_BICGSTAB(rtol = 1.0f-10, atol = 1.0f-12),
-        verbose = false,
-    )
+    dos_gpu = DensityOfStates(L_odd_gpu, ados_cpu, d_up, ωlist; verbose = false)
     @test L_odd_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF32,Int32}
     for (i, ω) in enumerate(ωlist)
         @test dos_cpu[i] ≈ dos_gpu[i] atol = 1e-6

@@ -1,7 +1,7 @@
 module HierarchicalEOM_CUDAExt
 
 using HierarchicalEOM
-import HierarchicalEOM: _HandleVectorType, _HandleTraceVectorType
+import HierarchicalEOM: _HandleVectorType, _HandleTraceVectorType, _HandleSteadyStateMatrix, _SteadyStateConstraint
 import QuantumToolbox: _CType, _convert_eltype_wordsize, makeVal, getVal
 import CUDA
 import CUDA: cu, CuArray
@@ -81,4 +81,7 @@ _convert_to_gpu_matrix(A::AddedOperator, ElType) = AddedOperator(map(op -> _conv
 _HandleVectorType(M::Type{<:CuSparseMatrixCSC}, V::SparseVector) = CuArray{_CType(eltype(M))}(V)
 
 _HandleTraceVectorType(M::Type{<:CuSparseMatrixCSC}, V::SparseVector) = CuSparseVector{_CType(eltype(M))}(V)
+
+_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}}) where {T<:Number,MT<:CuSparseMatrixCSC} =
+    M.data.A + cu(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1)))
 end
