@@ -99,7 +99,14 @@ CUDA.@time @testset "CUDA Extension" begin
     L_odd_cpu = M_Fermion(Hsys, tier, bath_list, ODD; verbose = false)
     L_odd_gpu = cu(L_odd_cpu, word_size = 32)
     dos_cpu = DensityOfStates(L_odd_cpu, ados_cpu, d_up, ωlist; verbose = false)
-    dos_gpu = DensityOfStates(L_odd_gpu, ados_cpu, d_up, ωlist; verbose = false)
+    dos_gpu = DensityOfStates(
+        L_odd_gpu,
+        ados_cpu,
+        d_up,
+        ωlist;
+        verbose = false,
+        solver = KrylovJL_BICGSTAB(rtol = 1.0f-12, atol = 1.0f-14),
+    )
     @test L_odd_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF32,Int32}
     for (i, ω) in enumerate(ωlist)
         @test dos_cpu[i] ≈ dos_gpu[i] atol = 1e-6
