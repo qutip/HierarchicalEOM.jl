@@ -56,11 +56,11 @@ bath_list = [bath_up, bath_dn]
 
 # even HEOMLS matrix
 M_even_cpu = M_Fermion(Hsys, tier, bath_list)
-M_even_gpu = cu(M_even_cpu, word_size = 32)
+M_even_gpu = cu(M_even_cpu)
 
 # odd HEOMLS matrix
 M_odd_cpu  = M_Fermion(Hsys, tier, bath_list, ODD)
-M_odd_gpu  = cu(M_odd_cpu, word_size = 32)
+M_odd_gpu  = cu(M_odd_cpu)
 ```
 
 ### Solving time evolution with CPU
