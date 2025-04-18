@@ -9,10 +9,8 @@ typeof(M.data) <:   SparseMatrixCSC # solve on CPU
 typeof(M.data) <: CuSparseMatrixCSC # solve on GPU
 ```
 
-We wrapped several functions in CUDA and CUDA.CUSPARSE in order to not only converting QuantumObject.data into GPU arrays, but also changing the element type and word size (32 and 64) since some of the GPUs perform better in 32-bit. The functions are listed as follows (where input A is a QuantumObject):
-
 Therefore, we wrapped several functions in `CUDA` and `CUDA.CUSPARSE` in order to not only converting a HEOMLS-matrix-type object into GPU arrays, but also changing the element type and word size (`32` and `64`) since some of the GPUs perform better in `32`-bit. The functions are listed as follows (where input `M` is a `AbstractHEOMLSMatrix`):
-- `cu(M, word_size=64)` : Translate `M.data` into CUDA arrays with specified `word_size` (default to `64`).
+- `cu(M, word_size=64)` : Transform `M.data` into `CUDA` sparse arrays with specified `word_size` (default to `64`).
 - `CuSparseMatrixCSC{T}(M)` : Translate `M.data` into the type `CuSparseMatrixCSC{T, Int32}`
 
 ### Demonstration
@@ -37,7 +35,7 @@ U  = 10
 W  = 10
 kT = 0.5
 N  = 5
-tier  = 3
+tier = 3
 
 tlist = 0:0.1:10
 ωlist = -10:1:10
@@ -56,10 +54,15 @@ bath_list = [bath_up, bath_dn]
 
 # even HEOMLS matrix
 M_even_cpu = M_Fermion(Hsys, tier, bath_list)
-M_even_gpu = cu(M_even_cpu)
 
 # odd HEOMLS matrix
 M_odd_cpu  = M_Fermion(Hsys, tier, bath_list, ODD)
+```
+
+### Generate HEOMLS matrix for GPU computation
+
+```julia
+M_even_gpu = cu(M_even_cpu)
 M_odd_gpu  = cu(M_odd_cpu)
 ```
 
