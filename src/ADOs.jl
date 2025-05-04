@@ -100,7 +100,7 @@ function Base.getindex(A::ADOs, i::Int)
     D = prod(A.dimensions)
     sup_dim = D^2
     back = sup_dim * i
-    return QuantumObject(reshape(A.data[(back-sup_dim+1):back], D, D), Operator, A.dimensions)
+    return QuantumObject(reshape(A.data[(back-sup_dim+1):back], D, D), Operator(), A.dimensions)
 end
 
 function Base.getindex(A::ADOs, r::UnitRange{Int})
@@ -112,7 +112,7 @@ function Base.getindex(A::ADOs, r::UnitRange{Int})
     sup_dim = D^2
     for i in r
         back = sup_dim * i
-        push!(result, QuantumObject(reshape(A.data[(back-sup_dim+1):back], D, D), Operator, A.dimensions))
+        push!(result, QuantumObject(reshape(A.data[(back-sup_dim+1):back], D, D), Operator(), A.dimensions))
     end
     return result
 end
@@ -138,7 +138,7 @@ Return the density matrix of the reduced state (system) from a given auxiliary d
 """
 function getRho(ados::ADOs)
     D = prod(ados.dimensions)
-    return QuantumObject(reshape(ados.data[1:(D^2)], D, D), Operator, ados.dimensions)
+    return QuantumObject(reshape(ados.data[1:(D^2)], D, D), Operator(), ados.dimensions)
 end
 
 @doc raw"""
@@ -177,7 +177,7 @@ function QuantumToolbox.expect(op, ados::ADOs; take_real::Bool = true)
         _check_sys_dim_and_ADOs_num(op, ados)
         exp_val = dot(_Tr(eltype(ados), ados.dimensions, ados.N), (op * ados).data)
     else
-        _op = HandleMatrixType(op, ados.dimensions, "op (observable)"; type = Operator)
+        _op = HandleMatrixType(op, ados.dimensions, "op (observable)"; type = Operator())
         exp_val = tr(_op.data * getRho(ados).data)
     end
 

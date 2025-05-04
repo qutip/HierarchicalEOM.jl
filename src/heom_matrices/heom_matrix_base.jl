@@ -73,7 +73,7 @@ During the multiplication on all the `ADOs`, the parity of the output `ADOs` mig
 """
 function HEOMSuperOp(op, opParity::AbstractParity, dims, N::Int; Id_cache = I(N))
     dimensions = _gen_dimensions(dims)
-    sup_op = HandleMatrixType(op, dimensions, "op (operator)"; type = SuperOperator)
+    sup_op = HandleMatrixType(op, dimensions, "op (operator)"; type = SuperOperator())
 
     return HEOMSuperOp(kron(Id_cache, sup_op.data), dimensions, N, opParity)
 end
@@ -309,7 +309,7 @@ function addFermionDissipator(M::AbstractHEOMLSMatrix, jumpOP::Vector{T} = Quant
     if length(jumpOP) > 0
         Id_cache = I(prod(M.dimensions))
         L_data = mapreduce(J -> _fermion_lindblad_dissipator(J, M.parity, Id_cache), +, jumpOP)
-        L = QuantumObject(L_data, type = SuperOperator, dims = M.dimensions)
+        L = QuantumObject(L_data, type = SuperOperator(), dims = M.dimensions)
 
         return M + HEOMSuperOp(L, M.parity, M)
     else
@@ -318,11 +318,7 @@ function addFermionDissipator(M::AbstractHEOMLSMatrix, jumpOP::Vector{T} = Quant
 end
 addFermionDissipator(M::AbstractHEOMLSMatrix, jumpOP::QuantumObject) = addFermionDissipator(M, [jumpOP])
 
-function _fermion_lindblad_dissipator(
-    J::QuantumObject{OperatorQuantumObject},
-    parity::AbstractParity,
-    Id_cache = I(size(J, 1)),
-)
+function _fermion_lindblad_dissipator(J::QuantumObject{Operator}, parity::AbstractParity, Id_cache = I(size(J, 1)))
     _J = J.data
     Jd_J = _J' * _J
     return (-1)^(value(parity)) * _sprepost(_J, _J') - (_spre(Jd_J, Id_cache) + _spost(Jd_J, Id_cache)) / 2

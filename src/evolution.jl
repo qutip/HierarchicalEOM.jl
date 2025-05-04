@@ -305,7 +305,7 @@ _make_L(M::AbstractHEOMLSMatrix, H_t::Nothing) = M.data
 function _make_L(M::AbstractHEOMLSMatrix, H_t::QuantumObjectEvolution)
     Id_HEOM = I(M.N)
     MType = _get_SciML_matrix_wrapper(M)
-    L_t = HandleMatrixType(liouvillian(H_t), M.dimensions, "H_t"; type = SuperOperator)
+    L_t = HandleMatrixType(liouvillian(H_t), M.dimensions, "H_t"; type = SuperOperator())
 
     return M.data + _L_t_to_HEOMSuperOp(MType, L_t.data, Id_HEOM)
 end
