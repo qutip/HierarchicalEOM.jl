@@ -78,13 +78,8 @@ HandleMatrixType(
     dimensions::Dimensions,
     MatrixName::String = "";
     type::T = nothing,
-) where {T<:Union{Nothing,Operator,SuperOperator}} =
-    HandleMatrixType(M, MatrixName; type = type)
-HandleMatrixType(
-    M,
-    MatrixName::String = "";
-    type::T = nothing,
-) where {T<:Union{Nothing,Operator,SuperOperator}} =
+) where {T<:Union{Nothing,Operator,SuperOperator}} = HandleMatrixType(M, MatrixName; type = type)
+HandleMatrixType(M, MatrixName::String = ""; type::T = nothing) where {T<:Union{Nothing,Operator,SuperOperator}} =
     error("HierarchicalEOM doesn't support matrix $(MatrixName) with type : $(typeof(M))")
 
 # change the type of `ADOs` to match the type of HEOMLS matrix

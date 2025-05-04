@@ -318,11 +318,7 @@ function addFermionDissipator(M::AbstractHEOMLSMatrix, jumpOP::Vector{T} = Quant
 end
 addFermionDissipator(M::AbstractHEOMLSMatrix, jumpOP::QuantumObject) = addFermionDissipator(M, [jumpOP])
 
-function _fermion_lindblad_dissipator(
-    J::QuantumObject{Operator},
-    parity::AbstractParity,
-    Id_cache = I(size(J, 1)),
-)
+function _fermion_lindblad_dissipator(J::QuantumObject{Operator}, parity::AbstractParity, Id_cache = I(size(J, 1)))
     _J = J.data
     Jd_J = _J' * _J
     return (-1)^(value(parity)) * _sprepost(_J, _J') - (_spre(Jd_J, Id_cache) + _spost(Jd_J, Id_cache)) / 2
