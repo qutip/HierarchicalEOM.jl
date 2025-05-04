@@ -22,10 +22,10 @@ Other developers:
 Package information:
 ====================================
 Julia              Ver. 1.11.5
-HierarchicalEOM    Ver. 2.5.3
-QuantumToolbox     Ver. 0.30.1
-SciMLOperators     Ver. 0.3.13
-LinearSolve        Ver. 3.9.0
+HierarchicalEOM    Ver. 2.5.4
+QuantumToolbox     Ver. 0.31.0
+SciMLOperators     Ver. 0.3.14
+LinearSolve        Ver. 3.10.0
 OrdinaryDiffEqCore Ver. 1.23.0
 
 System information:
@@ -53,7 +53,7 @@ P11 = ket2dm(basis(2, 1))
 # Define the operator that measures the 0, 1 element of density matrix
 # (corresponding to coherence):
 P01 = basis(2, 0) * basis(2, 1)&#39;</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">
-Quantum Object:   type=Operator   dims=[2]   size=(2, 2)   ishermitian=false
+Quantum Object:   type=Operator()   dims=[2]   size=(2, 2)   ishermitian=false
 2×2 Matrix{ComplexF64}:
  0.0+0.0im  1.0+0.0im
  0.0+0.0im  0.0+0.0im</code></pre><h4 id="Bath-Properties"><a class="docs-heading-anchor" href="#Bath-Properties">Bath Properties</a><a id="Bath-Properties-1"></a><a class="docs-heading-anchor-permalink" href="#Bath-Properties" title="Permalink"></a></h4><p>Now, we demonstrate how to describe the bath using the built-in implementation of <span>$J_D(\omega)$</span> under Pade expansion by calling <a href="../libraryAPI/#HierarchicalEOM.Boson_DrudeLorentz_Pade"><code>Boson_DrudeLorentz_Pade</code></a></p><pre><code class="language-julia hljs">λ = 0.1  # coupling strength
@@ -91,7 +91,7 @@ ados_list = sol.ados
 # reduce density operator in stationary state
 ρ = ados_steady[1]
 ρ = getRho(ados_steady)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">
-Quantum Object:   type=Operator   dims=[2]   size=(2, 2)   ishermitian=true
+Quantum Object:   type=Operator()   dims=[2]   size=(2, 2)   ishermitian=true
 2×2 reshape(::SparseArrays.SparseVector{ComplexF64, Int64}, 2, 2) with eltype ComplexF64:
   0.314523+0.0im          -0.332303-5.50226e-14im
  -0.332303+5.50226e-14im   0.685477+0.0im</code></pre><p>One of the great features of <code>HierarchicalEOM.jl</code> is that we allow users to not only considering the density operator of the reduced state but also easily take high-order terms into account without struggling in finding the indices (see <a href="../ADOs/#doc-ADOs">Auxiliary Density Operators</a> and <a href="../hierarchy_dictionary/#doc-Hierarchy-Dictionary">Hierarchy Dictionary</a> for more details).</p><h3 id="Expectation-Value"><a class="docs-heading-anchor" href="#Expectation-Value">Expectation Value</a><a id="Expectation-Value-1"></a><a class="docs-heading-anchor-permalink" href="#Expectation-Value" title="Permalink"></a></h3><p>We can now compare the results obtained from <code>HEOMsolve</code> and <code>steadystate</code>:</p><pre><code class="language-julia hljs"># for time evolution
@@ -122,7 +122,7 @@ plot!(
 )
 
 xlabel!(&quot;time&quot;)
-ylabel!(&quot;Population&quot;)</code></pre><img src="de737e02.svg" alt="Example block output"/><h3 id="Multiple-Baths"><a class="docs-heading-anchor" href="#Multiple-Baths">Multiple Baths</a><a id="Multiple-Baths-1"></a><a class="docs-heading-anchor-permalink" href="#Multiple-Baths" title="Permalink"></a></h3><p><code>HierarchicalEOM.jl</code> also supports for system to interact with multiple baths. All you need to do is to provide a list of baths instead of a single bath</p><pre><code class="language-julia hljs"># The system Hamiltonian
+ylabel!(&quot;Population&quot;)</code></pre><img src="8b293e00.svg" alt="Example block output"/><h3 id="Multiple-Baths"><a class="docs-heading-anchor" href="#Multiple-Baths">Multiple Baths</a><a id="Multiple-Baths-1"></a><a class="docs-heading-anchor-permalink" href="#Multiple-Baths" title="Permalink"></a></h3><p><code>HierarchicalEOM.jl</code> also supports for system to interact with multiple baths. All you need to do is to provide a list of baths instead of a single bath</p><pre><code class="language-julia hljs"># The system Hamiltonian
 Hsys = Qobj([
     0.25 1.50 2.50
     1.50 0.75 3.50
@@ -160,4 +160,4 @@ plot(tlist, p0, linewidth = 3, linecolor = &quot;blue&quot;, label = L&quot;P_0&
 plot!(tlist, p1, linewidth = 3, linecolor = &quot;orange&quot;, label = L&quot;P_1&quot;)
 plot!(tlist, p2, linewidth = 3, linecolor = :green, label = L&quot;P_2&quot;)
 xlabel!(&quot;time&quot;)
-ylabel!(&quot;Population&quot;)</code></pre><img src="ee29f448.svg" alt="Example block output"/><p>Note that this example can also be found in <a href="https://qutip.org/docs/latest/guide/heom/bosonic.html">qutip documentation</a>.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../install/">« Installation</a><a class="docs-footer-nextpage" href="../cite/">Cite HierarchicalEOM.jl »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.10.2 on <span class="colophon-date" title="Tuesday 29 April 2025 03:18">Tuesday 29 April 2025</span>. Using Julia version 1.11.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+ylabel!(&quot;Population&quot;)</code></pre><img src="f98746a1.svg" alt="Example block output"/><p>Note that this example can also be found in <a href="https://qutip.org/docs/latest/guide/heom/bosonic.html">qutip documentation</a>.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../install/">« Installation</a><a class="docs-footer-nextpage" href="../cite/">Cite HierarchicalEOM.jl »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.10.2 on <span class="colophon-date" title="Sunday 4 May 2025 04:26">Sunday 4 May 2025</span>. Using Julia version 1.11.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
