@@ -51,10 +51,10 @@ function HandleMatrixType(
     M::AbstractQuantumObject,
     MatrixName::String = "";
     type::T = nothing,
-) where {T<:Union{Nothing,OperatorQuantumObject,SuperOperatorQuantumObject}}
+) where {T<:Union{Nothing,Operator,SuperOperator}}
     if (type isa Nothing)
-        (M.type isa OperatorQuantumObject) ||
-            (M.type isa SuperOperatorQuantumObject) ||
+        (M.type isa Operator) ||
+            (M.type isa SuperOperator) ||
             error("The matrix $(MatrixName) should be either an Operator or a SuperOperator.")
     elseif M.type != type
         error("The matrix $(MatrixName) should be an $(type).")
@@ -66,7 +66,7 @@ function HandleMatrixType(
     dimensions::Dimensions,
     MatrixName::String = "";
     type::T = nothing,
-) where {T<:Union{Nothing,OperatorQuantumObject,SuperOperatorQuantumObject}}
+) where {T<:Union{Nothing,Operator,SuperOperator}}
     if M.dimensions == dimensions
         return HandleMatrixType(M, MatrixName; type = type)
     else
@@ -78,13 +78,13 @@ HandleMatrixType(
     dimensions::Dimensions,
     MatrixName::String = "";
     type::T = nothing,
-) where {T<:Union{Nothing,OperatorQuantumObject,SuperOperatorQuantumObject}} =
+) where {T<:Union{Nothing,Operator,SuperOperator}} =
     HandleMatrixType(M, MatrixName; type = type)
 HandleMatrixType(
     M,
     MatrixName::String = "";
     type::T = nothing,
-) where {T<:Union{Nothing,OperatorQuantumObject,SuperOperatorQuantumObject}} =
+) where {T<:Union{Nothing,Operator,SuperOperator}} =
     error("HierarchicalEOM doesn't support matrix $(MatrixName) with type : $(typeof(M))")
 
 # change the type of `ADOs` to match the type of HEOMLS matrix
