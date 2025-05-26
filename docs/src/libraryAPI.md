@@ -116,8 +116,12 @@ There are two function definitions of `steadystate`, which depend on different m
 steadystate
 ```
 
-## Spectrum
+## Correlation Functions and Spectrum
 ```@docs
+correlation_3op_2t
+correlation_3op_1t
+correlation_2op_2t
+correlation_2op_1t
 PowerSpectrum
 DensityOfStates
 ```
