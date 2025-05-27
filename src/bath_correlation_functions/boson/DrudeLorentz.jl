@@ -33,7 +33,7 @@ function Boson_DrudeLorentz_Matsubara(op, λ::Real, W::Real, kT::Real, N::Int)
     β = 1.0 / kT
     ϵ = matsubara(N, fermion = false)
 
-    η = ComplexF64[λ*W*(cot(W*β/2.0)-1.0im)]
+    η = ComplexF64[λ*W*(cot(W * β / 2.0)-1.0im)]
     γ = ComplexF64[W]
 
     if N > 0
@@ -72,7 +72,7 @@ function Boson_DrudeLorentz_Pade(op, λ::Real, W::Real, kT::Real, N::Int)
     β = 1.0 / kT
     κ, ζ = pade_NmN(N, fermion = false)
 
-    η = ComplexF64[λ*W*(cot(W*β/2.0)-1.0im)]
+    η = ComplexF64[λ*W*(cot(W * β / 2.0)-1.0im)]
     γ = ComplexF64[W]
     if N > 0
         for l in 2:(N+1)

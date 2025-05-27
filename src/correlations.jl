@@ -27,8 +27,8 @@ function QuantumToolbox.correlation_3op_2t(
     QuantumToolbox._check_correlation_time_list(tlist)
     QuantumToolbox._check_correlation_time_list(τlist)
 
-    AC = HEOMSuperOp(sprepost(C,A), M.parity, M)
-    
+    AC = HEOMSuperOp(sprepost(C, A), M.parity, M)
+
     kwargs2 = merge((saveat = collect(tlist),), (; kwargs...))
     ados_t_list = HEOMsolve(M, state, tlist; kwargs2...).ados
 
@@ -59,7 +59,7 @@ function QuantumToolbox.correlation_3op_1t(
     kwargs...,
 ) where {T_state<:Union{QuantumObject,ADOs}}
     corr = correlation_3op_2t(M, state, [0], τlist, A, B, C; kwargs...)
-    return corr[1,:]
+    return corr[1, :]
 end
 
 @doc raw"""
@@ -89,7 +89,7 @@ function QuantumToolbox.correlation_2op_2t(
     kwargs...,
 ) where {T_state<:Union{QuantumObject,ADOs}}
     C = eye(prod(M.dimensions), dims = M.dimensions)
-    
+
     if reverse
         corr = correlation_3op_2t(M, state, tlist, τlist, A, B, C; kwargs...)
     else
@@ -123,7 +123,6 @@ function QuantumToolbox.correlation_2op_1t(
     reverse::Bool = false,
     kwargs...,
 ) where {T_state<:Union{QuantumObject,ADOs}}
-
     corr = correlation_2op_2t(M, state, [0], τlist, A, B; reverse = reverse, kwargs...)
 
     return corr[1, :] # 1 means tlist[1] = 0
