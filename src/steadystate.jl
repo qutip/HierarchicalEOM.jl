@@ -87,8 +87,10 @@ function QuantumToolbox.steadystate(
     SOLVEROptions...,
 ) where {T_state<:Union{QuantumObject,ADOs}}
 
+    (typeof(M.parity) == EvenParity) || error("The parity of M should be \"EVEN\".")
+
     # handle initial state
-    ados = (T_state <: QuantumObject) ? ADOs(ρ0, M.N, M.parity) : ρ0
+    ados = (T_state <: QuantumObject) ? ADOs(ρ0, M.N, EVEN) : ρ0
     _check_sys_dim_and_ADOs_num(M, ados)
     _check_parity(M, ados)
     u0 = _HandleVectorType(M, ados.data)

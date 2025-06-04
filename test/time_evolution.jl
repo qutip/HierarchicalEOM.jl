@@ -1,4 +1,5 @@
-@time @testset "Time evolution" begin
+@testitem "Time evolution" begin
+    using JLD2
 
     # System Hamiltonian and initial state
     Hsys = 0.25 * sigmaz() + 0.5 * sigmax()

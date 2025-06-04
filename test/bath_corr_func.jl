@@ -1,4 +1,4 @@
-@time @testset "Bath correlation functions" begin
+@testitem "Bath correlation functions" begin
     λ = 0.1450
     W = 0.6464
     kT = 0.7414

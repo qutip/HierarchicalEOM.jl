@@ -1,4 +1,5 @@
-@time @testset "HEOM superoperator" begin
+@testitem "HEOM superoperator" begin
+    using SparseArrays
 
     # Take waiting time distribution as an example
     WTD_ans = [
@@ -54,7 +55,7 @@
     @test J_me.data * 2 ≈ (J_me - (-1) * J_me).data
     @test J_me.data * 2 ≈
           (HEOMSuperOp(√(2) * γ_eR * spre(d), ODD, M_me) * HEOMSuperOp(√(2) * γ_eR * spost(d'), ODD, M_me)).data
-    @test show(devnull, MIME("text/plain"), J_me) == nothing
+    @test show(devnull, MIME("text/plain"), J_me) === nothing
 
     # create HEOM Liouvuillian superoperator without quantum jump
     M0 = M_me - J_me

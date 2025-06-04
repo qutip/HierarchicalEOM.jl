@@ -1,4 +1,4 @@
-@time @testset "Bath and Exponent" begin
+@testitem "Bath and Exponent" begin
 
     # prepare coupling operator and coefficients of exponential-exponential-expansion terms
     η0 = [1]
@@ -108,12 +108,12 @@
         0.6 - 0.7im,
         0.8 + 0.9im,
     ]
-    @test show(devnull, MIME("text/plain"), b) == nothing
+    @test show(devnull, MIME("text/plain"), b) === nothing
 
     ## check for exponents
-    @test show(devnull, MIME("text/plain"), b[1]) == nothing
-    @test show(devnull, MIME("text/plain"), b[:]) == nothing
-    @test show(devnull, MIME("text/plain"), b[1:end]) == nothing
+    @test show(devnull, MIME("text/plain"), b[1]) === nothing
+    @test show(devnull, MIME("text/plain"), b[:]) === nothing
+    @test show(devnull, MIME("text/plain"), b[1:end]) === nothing
 
     ## check exceptions
     @test_throws ErrorException BosonBathRWA(op, [0], [0, 0], [0, 0], [0, 0])

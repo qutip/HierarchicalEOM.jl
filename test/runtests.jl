@@ -1,43 +1,26 @@
-using Pkg
 using Test
+using TestItemRunner
+using Pkg
 
-# Importing only the necessary functions to keep track the re-export of the functions
-import SparseArrays: spzeros, nnz
+const GROUP_LIST = String["All", "Core", "Code-Quality", "CUDA_Ext"]
 
 const GROUP = get(ENV, "GROUP", "All")
-
-const testdir = dirname(@__FILE__)
-
-# Put Core tests in alphabetical order
-core_tests = [
-    "ADOs.jl",
-    "bath.jl",
-    "bath_corr_func.jl",
-    "density_of_states.jl",
-    "HEOMSuperOp.jl",
-    "hierarchy_dictionary.jl",
-    "M_Boson.jl",
-    "M_Boson_Fermion.jl",
-    "M_Boson_RWA.jl",
-    "M_Fermion.jl",
-    "M_S.jl",
-    "power_spectrum.jl",
-    "stationary_state.jl",
-    "time_evolution.jl",
-]
+(GROUP in GROUP_LIST) || throw(ArgumentError("Unknown GROUP = $GROUP"))
 
 if (GROUP == "All") || (GROUP == "Core")
-    using HierarchicalEOM
-    import JLD2: jldopen
+    import HierarchicalEOM
 
     HierarchicalEOM.about()
 
-    include(joinpath(testdir, "test_utils.jl"))
-
-    for test in core_tests
-        include(joinpath(testdir, test))
-    end
+    println("\nStart running Core tests...\n")
+    @run_package_tests verbose=true
 end
+
+########################################################################
+# Use traditional Test.jl instead of TestItemRunner.jl for other tests #
+########################################################################
+
+const testdir = dirname(@__FILE__)
 
 if (GROUP == "All") || (GROUP == "Code-Quality")
     Pkg.activate("code-quality")
@@ -46,6 +29,8 @@ if (GROUP == "All") || (GROUP == "Code-Quality")
 
     using HierarchicalEOM
     using Aqua, JET
+
+    (GROUP == "Code-Quality") && HierarchicalEOM.about() # print version info. for code quality CI in GitHub
 
     include(joinpath(testdir, "code-quality", "code_quality.jl"))
 end
@@ -62,6 +47,5 @@ if (GROUP == "CUDA_Ext")# || (GROUP == "All")
     HierarchicalEOM.about()
     CUDA.versioninfo()
 
-    include(joinpath(testdir, "test_utils.jl"))
     include(joinpath(testdir, "gpu", "CUDAExt.jl"))
 end
