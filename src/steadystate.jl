@@ -86,7 +86,6 @@ function QuantumToolbox.steadystate(
     verbose::Bool = true,
     SOLVEROptions...,
 ) where {T_state<:Union{QuantumObject,ADOs}}
-
     (typeof(M.parity) == EvenParity) || error("The parity of M should be \"EVEN\".")
 
     # handle initial state
