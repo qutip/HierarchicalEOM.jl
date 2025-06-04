@@ -1,4 +1,4 @@
-@time @testset "Stationary state" begin
+@testitem "Stationary state" begin
 
     # System Hamiltonian and initial state
     d = sigmam()
@@ -27,8 +27,8 @@
     ρ1 = getRho(steadystate(L; verbose = false))
     @test isapprox(ρ1, ρs, atol = 1e-6)
 
-    mat = Qobj(spzeros(ComplexF64, 2, 2))
-    mat2 = Qobj(spzeros(ComplexF64, 3, 3))
+    mat = Qobj(zeros(ComplexF64, 2, 2))
+    mat2 = Qobj(zeros(ComplexF64, 3, 3))
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
     @test_throws ErrorException SteadyState(L)
     @test_throws ErrorException SteadyState(L, ψ0)

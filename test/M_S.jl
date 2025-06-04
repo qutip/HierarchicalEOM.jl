@@ -1,4 +1,5 @@
-@time @testset "M_S" begin
+@testitem "M_S" begin
+    using SparseArrays
 
     # Test Schrodinger type HEOM Liouvillian superoperator matrix
     t = 10
@@ -18,11 +19,11 @@
     @test eltype(L) == eltype(ados)
     ρ1 = ados[1]
     @test getRho(ados) == ρ1
-    ρ2 = [
+    ρ2 = Qobj([
         cos(t)^2 0.5im*sin(2 * t)
         -0.5im*sin(2 * t) sin(t)^2
-    ]
-    @test _is_Matrix_approx(ρ1, ρ2)
+    ])
+    @test ρ1 ≈ ρ2 atol=1e-6
 
     L = addBosonDissipator(L, √(0.01) * sigmaz())
     L = addFermionDissipator(L, √(0.01) * sigmaz())
@@ -31,11 +32,11 @@
     ados = ados_list[end]
     ρ3 = ados[1]
     @test getRho(ados) == ρ3
-    ρ4 = [
+    ρ4 = Qobj([
         0.6711641119639493+0.0im 0.3735796014268062im
         -0.3735796014268062im 0.32883588803605024
-    ]
-    @test _is_Matrix_approx(ρ3, ρ4)
+    ])
+    @test ρ3 ≈ ρ4
 
     ## check exceptions
     @test_throws BoundsError L[1, 5]

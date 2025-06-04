@@ -1,4 +1,5 @@
-@time @testset "M_Boson_Fermion" begin
+@testitem "M_Boson_Fermion" begin
+    using SparseArrays
 
     # Test Boson-Fermion-type HEOM Liouvillian superoperator matrix
     λ = 0.1450
@@ -39,11 +40,11 @@
     @test eltype(L) == eltype(ados)
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
-    ρ1 = [
+    ρ1 = Qobj([
         0.496709+4.88415e-12im -0.00324048+0.00286376im
         -0.00324048-0.00286376im 0.503291-4.91136e-12im
-    ]
-    @test _is_Matrix_approx(ρ0, ρ1)
+    ])
+    @test ρ0 ≈ ρ1 atol=1e-6
 
     L = M_Boson_Fermion(Hsys, tierb, tierf, [Bbath, Bbath], Fbath; verbose = false)
     @test size(L) == (6660, 6660)
@@ -56,11 +57,11 @@
     @test length(ados) == L.N
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
-    ρ1 = [
+    ρ1 = Qobj([
         0.493774+6.27624e-13im -0.00536526+0.00651746im
         -0.00536526-0.00651746im 0.506226-6.15855e-13im
-    ]
-    @test _is_Matrix_approx(ρ0, ρ1)
+    ])
+    @test ρ0 ≈ ρ1 atol=1e-6
 
     L = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, [Fbath, Fbath]; verbose = false)
     @test size(L) == (8220, 8220)
@@ -73,11 +74,11 @@
     @test length(ados) == L.N
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
-    ρ1 = [
+    ρ1 = Qobj([
         0.496468-4.32253e-12im -0.00341484+0.00316445im
         -0.00341484-0.00316445im 0.503532+4.32574e-12im
-    ]
-    @test _is_Matrix_approx(ρ0, ρ1)
+    ])
+    @test ρ0 ≈ ρ1 atol=1e-6
 
     ## check exceptions
     @test_throws ErrorException ados[L.N+1]

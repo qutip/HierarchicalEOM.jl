@@ -1,4 +1,4 @@
-@time @testset "Density of states" begin
+@testitem "Density of states" begin
     e = -5
     U = 10
     d_up = tensor(sigmam(), qeye(2))
@@ -64,8 +64,8 @@
     end
     @test length(readlines("DOS.txt")) == length(ωlist)
 
-    mat = Qobj(spzeros(ComplexF64, 2, 2))
-    mat2 = Qobj(spzeros(ComplexF64, 3, 3))
+    mat = rand_dm(2)
+    mat2 = rand_dm(3)
     bathb = Boson_DrudeLorentz_Pade(mat, 1, 1, 1, 2)
     @test_throws ErrorException DensityOfStates(Lo, ados_s, d_up, ωlist; verbose = false, filename = "DOS")
     @test_throws ErrorException DensityOfStates(Lo, ados_s, mat2, ωlist; verbose = false)

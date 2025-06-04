@@ -1,4 +1,4 @@
-@time @testset "Power spectrum" begin
+@testitem "Power spectrum" begin
     a = destroy(2)
 
     Hsys = a' * a
@@ -49,8 +49,8 @@
     end
     @test length(readlines("PSD.txt")) == length(ωlist)
 
-    mat = Qobj(spzeros(ComplexF64, 2, 2))
-    mat2 = Qobj(spzeros(ComplexF64, 3, 3))
+    mat = Qobj(zeros(ComplexF64, 2, 2))
+    mat2 = Qobj(zeros(ComplexF64, 3, 3))
     a_even = HEOMSuperOp(spre(a), EVEN, L)
     a_odd = HEOMSuperOp(spre(a), ODD, L)
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)

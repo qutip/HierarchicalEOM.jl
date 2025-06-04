@@ -1,4 +1,5 @@
-@time @testset "M_Fermion" begin
+@testitem "M_Fermion" begin
+    using SparseArrays
 
     # Test Fermion-type HEOM Liouvillian superoperator matrix
     λ = 0.1450
@@ -38,11 +39,13 @@
     @test eltype(L) == eltype(ados)
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
-    ρ1 = [
-        0.49971864340781574+1.5063528845574697e-11im -0.00025004129095353573+0.00028356932981729176im
-        -0.0002500413218393161-0.0002835693203755187im 0.5002813565929579-1.506436545359778e-11im
-    ]
-    @test _is_Matrix_approx(ρ0, ρ1)
+    ρ1 = Qobj(
+        [
+            0.49971864340781574+1.5063528845574697e-11im -0.00025004129095353573+0.00028356932981729176im
+            -0.0002500413218393161-0.0002835693203755187im 0.5002813565929579-1.506436545359778e-11im
+        ],
+    )
+    @test ρ0 ≈ ρ1 atol=1e-6
 
     L = M_Fermion(Hsys, tier, Fbath; threshold = 1e-8, verbose = false)
     L = addFermionDissipator(L, J)
@@ -51,7 +54,7 @@
     @test nnz(L.data.A) == nnz(L(0)) == 2054
     ados = steadystate(L; verbose = false)
     ρ2 = ados[1]
-    @test _is_Matrix_approx(ρ2, ρ0.data)
+    @test ρ0 ≈ ρ2 atol=1e-6
 
     L = M_Fermion(Hsys, tier, [Fbath, Fbath]; verbose = false)
     @test size(L) == (9300, 9300)
@@ -64,11 +67,13 @@
     @test length(ados) == L.N
     ρ0 = ados[1]
     @test getRho(ados) == ρ0
-    ρ1 = [
-        0.4994229368103249+2.6656157051929377e-12im -0.0005219753638749304+0.0005685093274121244im
-        -0.0005219753958601764-0.0005685092413099392im 0.5005770631903512-2.6376966158390854e-12im
-    ]
-    @test _is_Matrix_approx(ρ0, ρ1)
+    ρ1 = Qobj(
+        [
+            0.4994229368103249+2.6656157051929377e-12im -0.0005219753638749304+0.0005685093274121244im
+            -0.0005219753958601764-0.0005685092413099392im 0.5005770631903512-2.6376966158390854e-12im
+        ],
+    )
+    @test ρ0 ≈ ρ1
 
     ## check exceptions
     @test_throws BoundsError L[1, 9301]
