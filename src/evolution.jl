@@ -8,18 +8,25 @@ A structure storing the results and some information from solving time evolution
 # Fields (Attributes)
 - `Btier` : The tier (cutoff level) for bosonic hierarchy
 - `Ftier` : The tier (cutoff level) for fermionic hierarchy
-- `times::AbstractVector`: The time list of the evolution.
-- `ados::Vector{ADOs}`: The list of result ADOs at each time point.
-- `expect::Matrix`: The expectation values corresponding to each time point in `times`.
+- `times::AbstractVector`: The list of time points at which the expectation values are calculated during the evolution.
+- `times_ados::AbstractVector`: The list of time points at which the [`ADOs`](@ref) are stored during the evolution.
+- `ados::Vector{ADOs}`: The list of result [`ADOs`](@ref) corresponding to each time point in `times_ados`.
+- `expect::Union{AbstractMatrix,Nothing}`: The expectation values corresponding to each time point in `times`.
 - `retcode`: The return code from the solver.
 - `alg`: The algorithm which is used during the solving process.
 - `abstol::Real`: The absolute tolerance which is used during the solving process.
 - `reltol::Real`: The relative tolerance which is used during the solving process.
 """
-struct TimeEvolutionHEOMSol{TT<:Vector{<:Real},TS<:Vector{ADOs},TE<:Union{Nothing,Matrix{ComplexF64}}}
+struct TimeEvolutionHEOMSol{
+    TT1<:Vector{<:Real},
+    TT2<:Vector{<:Real},
+    TS<:Vector{ADOs},
+    TE<:Union{Nothing,Matrix{ComplexF64}},
+}
     Btier::Int
     Ftier::Int
-    times::TT
+    times::TT1
+    times_ados::TT2
     ados::TS
     expect::TE
     retcode::Union{Nothing,Enum}
@@ -109,9 +116,13 @@ function HEOMsolve(
         is_empty_e_ops = isempty(e_ops)
     end
 
+    t_end = Δt*steps
     if is_empty_e_ops
+        times = times_ados = collect(0:Δt:t_end)
         ADOs_list = Vector{ADOs}(undef, steps + 1)
     else
+        times = collect(0:Δt:t_end)
+        times_ados = [t_end]
         ADOs_list = Vector{ADOs}(undef, 1)
     end
 
@@ -152,7 +163,8 @@ function HEOMsolve(
     return TimeEvolutionHEOMSol(
         _getBtier(M),
         _getFtier(M),
-        collect(0:Δt:(Δt*steps)),
+        times,
+        times_ados,
         ADOs_list,
         expvals,
         nothing,
@@ -262,6 +274,7 @@ function HEOMsolve(
         _getBtier(M),
         _getFtier(M),
         t_l,
+        sol.t,
         ADOs_list,
         save_result!.expvals,
         sol.retcode,

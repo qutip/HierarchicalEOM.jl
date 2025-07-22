@@ -14,15 +14,16 @@ To solve the dynamics of the reduced state and also all the [ADOs](@ref doc-ADOs
 ```julia
 sol::TimeEvolutionHEOMSol
 
-sol.Btier   # the tier (cutoff level) for bosonic hierarchy
-sol.Ftier   # the tier (cutoff level) for fermionic hierarchy
-sol.times   # The time list of the evolution.
-sol.ados    # The list of result ADOs at each time point.
-sol.expect  # The expectation values corresponding to each time point in `times`.
-sol.retcode # The return code from the solver.
-sol.alg     # The algorithm which is used during the solving process.
-sol.abstol  # The absolute tolerance which is used during the solving process.
-sol.reltol  # The relative tolerance which is used during the solving process.
+sol.Btier      # the tier (cutoff level) for bosonic hierarchy
+sol.Ftier      # the tier (cutoff level) for fermionic hierarchy
+sol.times      # The list of time points at which the expectation values are calculated during the evolution.
+sol.times_ados # The list of time points at which the ADOs are stored during the evolution.
+sol.ados       # The list of result ADOs corresponding to each time point in `times_ados`.
+sol.expect     # The expectation values corresponding to each time point in `times`.
+sol.retcode    # The return code from the solver.
+sol.alg        # The algorithm which is used during the solving process.
+sol.abstol     # The absolute tolerance which is used during the solving process.
+sol.reltol     # The relative tolerance which is used during the solving process.
 ```
 
 ### Expectation Values
