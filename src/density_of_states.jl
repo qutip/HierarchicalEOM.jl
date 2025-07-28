@@ -69,7 +69,7 @@ Calculate density of states for the fermionic system in frequency domain.
     end
 
     ElType = eltype(M)
-    ωList = convert(Vector{_FType(M)}, ωlist) # Convert it to support GPUs and avoid type instabilities
+    ωList = convert(Vector{_float_type(M)}, ωlist) # Convert it to support GPUs and avoid type instabilities
     Length = length(ωList)
     Aω = Vector{Float64}(undef, Length)
 

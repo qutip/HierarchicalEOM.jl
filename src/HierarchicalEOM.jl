@@ -10,8 +10,8 @@ import Reexport: @reexport
 
 # intrinsic QuantumToolbox functions
 import QuantumToolbox:
-    _FType,
-    _CType,
+    _float_type,
+    _complex_float_type,
     _check_tlist,
     _spre,
     _spost,

@@ -118,7 +118,7 @@ remember to set the parameters:
     end
 
     ElType = eltype(M)
-    ωList = convert(Vector{_FType(M)}, ωlist) # Convert it to support GPUs and avoid type instabilities
+    ωList = convert(Vector{_float_type(M)}, ωlist) # Convert it to support GPUs and avoid type instabilities
     Length = length(ωList)
     Sω = Vector{Float64}(undef, Length)
 

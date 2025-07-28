@@ -94,7 +94,7 @@ function QuantumToolbox.steadystate(
     _check_parity(M, ados)
     u0 = _HandleVectorType(M, ados.data)
 
-    ftype = _FType(M)
+    ftype = _float_type(M)
     Tspan = (ftype(0), ftype(tspan))
 
     kwargs = merge(
