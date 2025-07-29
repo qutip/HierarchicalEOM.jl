@@ -2,7 +2,7 @@ module HierarchicalEOM_CUDAExt
 
 using HierarchicalEOM
 import HierarchicalEOM: _HandleVectorType, _HandleTraceVectorType, _HandleSteadyStateMatrix, _SteadyStateConstraint
-import QuantumToolbox: _CType, _convert_eltype_wordsize, makeVal, getVal
+import QuantumToolbox: _complex_float_type, _convert_eltype_wordsize, makeVal, getVal
 import CUDA
 import CUDA: cu, CuArray
 import CUDA.CUSPARSE: CuSparseVector, CuSparseMatrixCSC
@@ -78,9 +78,10 @@ _convert_to_gpu_matrix(A::ScaledOperator, ElType) = ScaledOperator(A.λ, _conver
 _convert_to_gpu_matrix(A::AddedOperator, ElType) = AddedOperator(map(op -> _convert_to_gpu_matrix(op, ElType), A.ops))
 
 # change the type of `ADOs` to match the type of HEOMLS matrix
-_HandleVectorType(M::Type{<:CuSparseMatrixCSC}, V::SparseVector) = CuArray{_CType(eltype(M))}(V)
+_HandleVectorType(M::Type{<:CuSparseMatrixCSC}, V::SparseVector) = CuArray{_complex_float_type(eltype(M))}(V)
 
-_HandleTraceVectorType(M::Type{<:CuSparseMatrixCSC}, V::SparseVector) = CuSparseVector{_CType(eltype(M))}(V)
+_HandleTraceVectorType(M::Type{<:CuSparseMatrixCSC}, V::SparseVector) =
+    CuSparseVector{_complex_float_type(eltype(M))}(V)
 
 _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}}) where {T<:Number,MT<:CuSparseMatrixCSC} =
     M.data.A + cu(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1)))

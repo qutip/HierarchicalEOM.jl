@@ -31,8 +31,8 @@ end
 
 (M::AbstractHEOMLSMatrix)(t) = M(nothing, t)
 
-QuantumToolbox._FType(M::AbstractHEOMLSMatrix) = _FType(eltype(M))
-QuantumToolbox._CType(M::AbstractHEOMLSMatrix) = _CType(eltype(M))
+QuantumToolbox._float_type(M::AbstractHEOMLSMatrix) = _float_type(eltype(M))
+QuantumToolbox._complex_float_type(M::AbstractHEOMLSMatrix) = _complex_float_type(eltype(M))
 
 _get_SciML_matrix_wrapper(M::AbstractArray) = QuantumToolbox.get_typename_wrapper(M){eltype(M)}
 _get_SciML_matrix_wrapper(M::MatrixOperator) = _get_SciML_matrix_wrapper(M.A)
@@ -84,7 +84,7 @@ HandleMatrixType(M, MatrixName::String = ""; type::T = nothing) where {T<:Union{
 
 # change the type of `ADOs` to match the type of HEOMLS matrix
 _HandleVectorType(M::AbstractHEOMLSMatrix, V::SparseVector) = _HandleVectorType(_get_SciML_matrix_wrapper(M), V)
-_HandleVectorType(M::Type{<:SparseMatrixCSC}, V::SparseVector) = Vector{_CType(eltype(M))}(V)
+_HandleVectorType(M::Type{<:SparseMatrixCSC}, V::SparseVector) = Vector{_complex_float_type(eltype(M))}(V)
 
 _HandleTraceVectorType(M::AbstractHEOMLSMatrix, V::SparseVector) =
     _HandleTraceVectorType(_get_SciML_matrix_wrapper(M), V)

@@ -232,7 +232,7 @@ function HEOMsolve(
     _check_parity(M, ados)
     u0 = _HandleVectorType(M, ados.data)
 
-    t_l = _check_tlist(tlist, _FType(M))
+    t_l = _check_tlist(tlist, _float_type(M))
 
     # generate save callback
     tr_e_ops = e_ops isa Nothing ? nothing : _generate_Eops(M, e_ops, I(prod(M.dimensions)), I(M.N))

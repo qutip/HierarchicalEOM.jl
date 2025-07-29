@@ -1,7 +1,7 @@
 name = "HierarchicalEOM"
 uuid = "a62dbcb7-80f5-4d31-9a88-8b19fd92b128"
 authors = ["Yi-Te Huang"]
-version = "2.5.5"
+version = "2.5.6"
 
 [deps]
 DiffEqCallbacks = "459566f4-90b8-5000-8ac3-15dfb0a30def"
@@ -37,10 +37,10 @@ LinearSolve = "2.4.2 - 3"
 OrdinaryDiffEqCore = "1"
 OrdinaryDiffEqLowOrderRK = "1"
 Pkg = "1"
-QuantumToolbox = "0.31, 0.32, 0.33"
+QuantumToolbox = "0.34"
 Reexport = "1"
-SciMLBase = "2"
-SciMLOperators = "0.3, 0.4"
+SciMLBase = "2.105"
+SciMLOperators = "1.4"
 SparseArrays = "1"
 StaticArraysCore = "1"
 julia = "1.10"
