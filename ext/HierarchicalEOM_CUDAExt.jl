@@ -51,11 +51,11 @@ CuSparseMatrixCSR{T}(M::MT) where {T,MT<:AbstractHEOMLSMatrix} =
     _gen_gpu_HEOMLS(M, _convert_to_gpu_matrix(M.data, CuSparseMatrixCSR{T}))
 
 function _gen_gpu_HEOMLS(M::MT, data::AbstractSciMLOperator) where {MT<:AbstractHEOMLSMatrix}
-    if MT isa M_S
+    if M isa M_S
         return M_S(data, M.tier, M.dimensions, M.N, M.sup_dim, M.parity)
-    elseif MT isa M_Boson
+    elseif M isa M_Boson
         return M_Boson(data, M.tier, M.dimensions, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
-    elseif MT isa M_Fermion
+    elseif M isa M_Fermion
         return M_Fermion(data, M.tier, M.dimensions, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
     else
         return M_Boson_Fermion(
