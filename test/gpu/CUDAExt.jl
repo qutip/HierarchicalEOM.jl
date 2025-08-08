@@ -105,7 +105,7 @@ CUDA.@time @testset "CUDA Extension" begin
         d_up,
         ωlist;
         verbose = false,
-        solver = KrylovJL_BICGSTAB(rtol = 1.0f-12, atol = 1.0f-14),
+        solver = KrylovJL_GMRES(rtol = 1.0f-12, atol = 1.0f-14),
     )
     @test L_odd_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF32,Int32}
     for (i, ω) in enumerate(ωlist)

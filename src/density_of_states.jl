@@ -13,7 +13,7 @@ Calculate density of states for the fermionic system in frequency domain.
 - `ρ::Union{QuantumObject,ADOs}` :  the system density matrix or the auxiliary density operators.
 - `d_op::QuantumObject` : The annihilation operator (``d`` as shown above) acting on the fermionic system.
 - `ωlist::AbstractVector` : the specific frequency points to solve.
-- `solver::SciMLLinearSolveAlgorithm` : solver in package `LinearSolve.jl`. Default to `KrylovJL_BICGSTAB(rtol=1e-12, atol=1e-14)`.
+- `solver::SciMLLinearSolveAlgorithm` : solver in package `LinearSolve.jl`. Default to `KrylovJL_GMRES(rtol=1e-12, atol=1e-14)`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `filename::String` : If filename was specified, the value of spectrum for each ω will be saved into the file "filename.txt" during the solving process.
 - `SOLVEROptions` : extra options for solver 
@@ -29,7 +29,7 @@ Calculate density of states for the fermionic system in frequency domain.
     ρ::Union{QuantumObject,ADOs},
     d_op::QuantumObject,
     ωlist::AbstractVector;
-    solver::SciMLLinearSolveAlgorithm = KrylovJL_BICGSTAB(rtol = 1e-12, atol = 1e-14),
+    solver::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14),
     verbose::Bool = true,
     filename::String = "",
     SOLVEROptions...,

@@ -13,7 +13,7 @@ using LinearSolve
 ### A generic BICGSTAB implementation from Krylov (Default solver)
 
 ```julia
-KrylovJL_BICGSTAB(rtol=1e-12, atol=1e-14)
+KrylovJL_GMRES(rtol=1e-12, atol=1e-14)
 ```
 
 ### UMFPACKFactorization

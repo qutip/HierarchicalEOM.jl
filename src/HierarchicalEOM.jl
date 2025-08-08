@@ -32,7 +32,7 @@ import SciMLOperators:
 import OrdinaryDiffEqCore: OrdinaryDiffEqAlgorithm
 import OrdinaryDiffEqLowOrderRK: DP5
 import DiffEqCallbacks: FunctionCallingCallback, TerminateSteadyState
-import LinearSolve: LinearProblem, SciMLLinearSolveAlgorithm, KrylovJL_BICGSTAB
+import LinearSolve: LinearProblem, SciMLLinearSolveAlgorithm, KrylovJL_GMRES
 
 # other dependencies (in alphabetical order)
 import Base.Threads: @threads, nthreads, Channel

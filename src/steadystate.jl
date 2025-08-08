@@ -4,7 +4,7 @@ Solve the steady state of the auxiliary density operators based on `LinearSolve.
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
-- `solver::SciMLLinearSolveAlgorithm` : solver in package `LinearSolve.jl`. Default to `KrylovJL_BICGSTAB(rtol=1e-12, atol=1e-14)`.
+- `solver::SciMLLinearSolveAlgorithm` : solver in package `LinearSolve.jl`. Default to `KrylovJL_GMRES(rtol=1e-12, atol=1e-14)`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `SOLVEROptions` : extra options for solver 
 
@@ -16,7 +16,7 @@ Solve the steady state of the auxiliary density operators based on `LinearSolve.
 """
 function QuantumToolbox.steadystate(
     M::AbstractHEOMLSMatrix{<:MatrixOperator};
-    solver::SciMLLinearSolveAlgorithm = KrylovJL_BICGSTAB(rtol = 1e-12, atol = 1e-14),
+    solver::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14),
     verbose::Bool = true,
     SOLVEROptions...,
 )

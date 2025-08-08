@@ -35,7 +35,7 @@
     dos2 =
         PowerSpectrum(Lo, ados_s, d_up_normal, d_up', ωlist, true; verbose = false) .+
         PowerSpectrum(Lo, ados_s, d_up', d_up_normal, ωlist, false; verbose = false)
-    dos3 = [
+    dos3 = [ # result with solver = UMFPACKFactorization()
         0.0007920428534358747,
         0.0012795202828027256,
         0.0022148985361417936,
