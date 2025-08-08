@@ -2,10 +2,10 @@ module HierarchicalEOM_CUDAExt
 
 using HierarchicalEOM
 import HierarchicalEOM: _HandleVectorType, _HandleTraceVectorType, _HandleSteadyStateMatrix, _SteadyStateConstraint
-import QuantumToolbox: _complex_float_type, _convert_eltype_wordsize, makeVal, getVal
+import QuantumToolbox: _complex_float_type, _convert_eltype_wordsize, makeVal, getVal, get_typename_wrapper
 import CUDA
 import CUDA: cu, CuArray
-import CUDA.CUSPARSE: CuSparseVector, CuSparseMatrixCSC
+import CUDA.CUSPARSE: CuSparseVector, CuSparseMatrixCSC, CuSparseMatrixCSR, AbstractCuSparseArray
 import SparseArrays: AbstractSparseMatrix, sparse, SparseVector, SparseMatrixCSC
 import SciMLOperators: MatrixOperator, ScaledOperator, AddedOperator
 
@@ -30,18 +30,36 @@ end
     CuSparseMatrixCSC{T}(M::AbstractHEOMLSMatrix)
 
 Return a new HEOMLS-matrix-type object with `M.data` is in the type of `CUDA.CUSPARSE.CuSparseMatrixCSC` with element type `T` for gpu calculations.
+
+If `{T}` is not specified, default to `{eltype(M)}`.
 """
-function CuSparseMatrixCSC{T}(M::MT) where {T,MT<:AbstractHEOMLSMatrix}
-    A_gpu = _convert_to_gpu_matrix(M.data, T)
-    if MT <: M_S
-        return M_S(A_gpu, M.tier, M.dimensions, M.N, M.sup_dim, M.parity)
-    elseif MT <: M_Boson
-        return M_Boson(A_gpu, M.tier, M.dimensions, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
-    elseif MT <: M_Fermion
-        return M_Fermion(A_gpu, M.tier, M.dimensions, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+CuSparseMatrixCSC(M::MT) where {MT<:AbstractHEOMLSMatrix} =
+    _gen_gpu_HEOMLS(M, _convert_to_gpu_matrix(M.data, CuSparseMatrixCSC{eltype(M)}))
+CuSparseMatrixCSC{T}(M::MT) where {T,MT<:AbstractHEOMLSMatrix} =
+    _gen_gpu_HEOMLS(M, _convert_to_gpu_matrix(M.data, CuSparseMatrixCSC{T}))
+
+@doc raw"""
+    CuSparseMatrixCSR{T}(M::AbstractHEOMLSMatrix)
+
+Return a new HEOMLS-matrix-type object with `M.data` is in the type of `CUDA.CUSPARSE.CuSparseMatrixCSR` with element type `T` for gpu calculations.
+
+If `{T}` is not specified, default to `{eltype(M)}`.
+"""
+CuSparseMatrixCSR(M::MT) where {MT<:AbstractHEOMLSMatrix} =
+    _gen_gpu_HEOMLS(M, _convert_to_gpu_matrix(M.data, CuSparseMatrixCSR{eltype(M)}))
+CuSparseMatrixCSR{T}(M::MT) where {T,MT<:AbstractHEOMLSMatrix} =
+    _gen_gpu_HEOMLS(M, _convert_to_gpu_matrix(M.data, CuSparseMatrixCSR{T}))
+
+function _gen_gpu_HEOMLS(M::MT, data::AbstractSciMLOperator) where {MT<:AbstractHEOMLSMatrix}
+    if MT isa M_S
+        return M_S(data, M.tier, M.dimensions, M.N, M.sup_dim, M.parity)
+    elseif MT isa M_Boson
+        return M_Boson(data, M.tier, M.dimensions, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
+    elseif MT isa M_Fermion
+        return M_Fermion(data, M.tier, M.dimensions, M.N, M.sup_dim, M.parity, M.bath, M.hierarchy)
     else
         return M_Boson_Fermion(
-            A_gpu,
+            data,
             M.Btier,
             M.Ftier,
             M.dimensions,
@@ -56,33 +74,21 @@ function CuSparseMatrixCSC{T}(M::MT) where {T,MT<:AbstractHEOMLSMatrix}
 end
 
 CuSparseMatrixCSC{T}(M::HEOMSuperOp) where {T} =
-    HEOMSuperOp(_convert_to_gpu_matrix(M.data, T), M.dimensions, M.N, M.parity)
+    HEOMSuperOp(_convert_to_gpu_matrix(M.data, CuSparseMatrixCSC{T}), M.dimensions, M.N, M.parity)
+CuSparseMatrixCSR{T}(M::HEOMSuperOp) where {T} =
+    HEOMSuperOp(_convert_to_gpu_matrix(M.data, CuSparseMatrixCSR{T}), M.dimensions, M.N, M.parity)
 
-function _convert_to_gpu_matrix(A::AbstractSparseMatrix, ElType::Type{T}) where {T<:Number}
-    if A isa CuSparseMatrixCSC{ElType,Int32}
-        return A
-    elseif A isa CuSparseMatrixCSC
-        colptr = CuArray{Int32}(A.colPtr)
-        rowval = CuArray{Int32}(A.rowVal)
-        nzval = CuArray{ElType}(A.nzVal)
-        return CuSparseMatrixCSC{ElType,Int32}(colptr, rowval, nzval, size(A))
-    else
-        colptr = CuArray{Int32}(A.colptr)
-        rowval = CuArray{Int32}(A.rowval)
-        nzval = CuArray{ElType}(A.nzval)
-        return CuSparseMatrixCSC{ElType,Int32}(colptr, rowval, nzval, size(A))
-    end
-end
-_convert_to_gpu_matrix(A::MatrixOperator, ElType) = MatrixOperator(_convert_to_gpu_matrix(A.A, ElType))
-_convert_to_gpu_matrix(A::ScaledOperator, ElType) = ScaledOperator(A.λ, _convert_to_gpu_matrix(A.L, ElType))
-_convert_to_gpu_matrix(A::AddedOperator, ElType) = AddedOperator(map(op -> _convert_to_gpu_matrix(op, ElType), A.ops))
+_convert_to_gpu_matrix(A::AbstractSparseMatrix, MType::Type{T}) where {T<:AbstractCuSparseArray} = MType(A)
+_convert_to_gpu_matrix(A::MatrixOperator, MType) = MatrixOperator(_convert_to_gpu_matrix(A.A, MType))
+_convert_to_gpu_matrix(A::ScaledOperator, MType) = ScaledOperator(A.λ, _convert_to_gpu_matrix(A.L, MType))
+_convert_to_gpu_matrix(A::AddedOperator, MType) = AddedOperator(map(op -> _convert_to_gpu_matrix(op, MType), A.ops))
 
 # change the type of `ADOs` to match the type of HEOMLS matrix
-_HandleVectorType(M::Type{<:CuSparseMatrixCSC}, V::SparseVector) = CuArray{_complex_float_type(eltype(M))}(V)
+_HandleVectorType(M::Type{<:AbstractCuSparseArray}, V::SparseVector) = CuArray{_complex_float_type(eltype(M))}(V)
 
-_HandleTraceVectorType(M::Type{<:CuSparseMatrixCSC}, V::SparseVector) =
+_HandleTraceVectorType(M::Type{<:AbstractCuSparseArray}, V::SparseVector) =
     CuSparseVector{_complex_float_type(eltype(M))}(V)
 
-_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}}) where {T<:Number,MT<:CuSparseMatrixCSC} =
-    M.data.A + cu(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1)))
+_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}}) where {T<:Number,MT<:AbstractCuSparseArray} =
+    M.data.A + get_typename_wrapper(M.data.A){eltype(M)}(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1)))
 end

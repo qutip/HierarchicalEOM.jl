@@ -5,13 +5,16 @@ This is an extension to support GPU ([`CUDA.jl`](https://github.com/JuliaGPU/CUD
 The functions of calculating [time evolution](@ref doc-Time-Evolution) (only supports ODE method with time-independent system Hamiltonian) and [spectra](@ref doc-Spectrum) will automatically choose to solve on CPU or GPU depend on the type of the sparse matrix in `M::AbstractHEOMLSMatrix` objects (i.e., the type of the field `M.data`). 
 
 ```julia
-typeof(M.data) <:   SparseMatrixCSC # solve on CPU
-typeof(M.data) <: CuSparseMatrixCSC # solve on GPU
+typeof(M.data) <: SparseMatrixCSC # solve on CPU
+typeof(M.data) <: Union{CuSparseMatrixCSC,CuSparseMatrixCSR} # solve on GPU
 ```
 
 Therefore, we wrapped several functions in `CUDA` and `CUDA.CUSPARSE` in order to not only converting a HEOMLS-matrix-type object into GPU arrays, but also changing the element type and word size (`32` and `64`) since some of the GPUs perform better in `32`-bit. The functions are listed as follows (where input `M` is a `AbstractHEOMLSMatrix`):
 - `cu(M, word_size=64)` : Transform `M.data` into `CUDA` sparse arrays with specified `word_size` (default to `64`).
+- `CuSparseMatrixCSC(M)` : Translate `M.data` into the type `CuSparseMatrixCSC{eltype(M), Int32}`
 - `CuSparseMatrixCSC{T}(M)` : Translate `M.data` into the type `CuSparseMatrixCSC{T, Int32}`
+- `CuSparseMatrixCSR(M)` : Translate `M.data` into the type `CuSparseMatrixCSR{eltype(M)}, Int32}`
+- `CuSparseMatrixCSR{T}(M)` : Translate `M.data` into the type `CuSparseMatrixCSR{T, Int32}`
 
 ### Demonstration
 
