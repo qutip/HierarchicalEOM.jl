@@ -1,5 +1,5 @@
 CUDA.@time @testset "CUDA Extension" begin
-
+    import CUDA.CUSPARSE.CuSparseMatrixCSR
     # re-define the bath (make the matrix smaller)
     λ = 0.01
     W = 0.5
