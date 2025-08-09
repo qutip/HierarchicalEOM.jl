@@ -1,5 +1,5 @@
 CUDA.@time @testset "CUDA Extension" begin
-
+    import CUDA.CUSPARSE.CuSparseMatrixCSR
     # re-define the bath (make the matrix smaller)
     λ = 0.01
     W = 0.5
@@ -89,10 +89,12 @@ CUDA.@time @testset "CUDA Extension" begin
     L_even_gpu = cu(L_even_cpu)
     ados_cpu = steadystate(L_even_cpu; verbose = false)
     ados_gpu1 = steadystate(L_even_gpu; verbose = false)
-    ados_gpu2 = steadystate(L_even_gpu, ψ0, 10; verbose = false)
+    ados_gpu2 = steadystate(CuSparseMatrixCSR(L_even_cpu); verbose = false)
+    ados_gpu3 = steadystate(L_even_gpu, ψ0, 10; verbose = false)
     @test L_even_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64,Int32}
     @test all(isapprox.(ados_cpu.data, ados_gpu1.data; atol = 1e-6))
     @test all(isapprox.(ados_cpu.data, ados_gpu2.data; atol = 1e-6))
+    @test all(isapprox.(ados_cpu.data, ados_gpu3.data; atol = 1e-6))
 
     ## solve density of states
     ωlist = -5:0.5:5
