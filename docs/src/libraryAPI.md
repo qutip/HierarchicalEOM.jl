@@ -130,6 +130,7 @@ DensityOfStates
 ```@docs
 HierarchicalEOM.versioninfo()
 HierarchicalEOM.about()
+HierarchicalEOM.cite()
 ```
 The outputs will be something like the following:
 ```@example

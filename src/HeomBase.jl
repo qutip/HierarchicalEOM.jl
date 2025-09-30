@@ -118,7 +118,7 @@ function _get_pkg_version(pkg_name::String)
     end
 end
 
-"""
+@doc raw"""
     HierarchicalEOM.print_logo(io::IO=stdout)
 
 Print the Logo of HierarchicalEOM package
@@ -178,10 +178,10 @@ function print_logo(io::IO = stdout)
     return printstyled(io, "\n")
 end
 
-"""
+@doc raw"""
     HierarchicalEOM.versioninfo(io::IO=stdout)
 
-Command line output of information on HierarchicalEOM, dependencies, and system information.
+Command line output of information on HierarchicalEOM, dependencies, and system information, same as [`HierarchicalEOM.about`](@ref).
 """
 function versioninfo(io::IO = stdout)
     cpu = Sys.cpu_info()
@@ -218,22 +218,60 @@ function versioninfo(io::IO = stdout)
     )
 
     # print System information
-    println(io, "System information:")
-    println(io, "====================================")
-    println(io, """OS       : $(OS_name) ($(Sys.MACHINE))""")
-    println(io, """CPU      : $(length(cpu)) × $(cpu[1].model)""")
-    println(io, """Memory   : $(round(Sys.total_memory() / 2 ^ 30, digits=3)) GB""")
-    println(io, """WORD_SIZE: $(Sys.WORD_SIZE)""")
-    println(io, """LIBM     : $(Base.libm_name)""")
-    println(io, """LLVM     : libLLVM-$(Base.libllvm_version) ($(Sys.JIT), $(Sys.CPU_NAME))""")
-    println(io, """BLAS     : $(basename(BLAS_info.libname)) ($(BLAS_info.interface))""")
-    println(io, """Threads  : $(Threads.nthreads()) (on $(Sys.CPU_THREADS) virtual cores)""")
-    return print(io, "\n")
+    println(
+        io,
+        "System information:\n",
+        "====================================\n",
+        """OS       : $(OS_name) ($(Sys.MACHINE))\n""",
+        """CPU      : $(length(cpu)) × $(cpu[1].model)\n""",
+        """Memory   : $(round(Sys.total_memory() / 2 ^ 30, digits=3)) GB\n""",
+        """WORD_SIZE: $(Sys.WORD_SIZE)\n""",
+        """LIBM     : $(Base.libm_name)\n""",
+        """LLVM     : libLLVM-$(Base.libllvm_version) ($(Sys.JIT), $(Sys.CPU_NAME))\n""",
+        """BLAS     : $(basename(BLAS_info.libname)) ($(BLAS_info.interface))\n""",
+        """Threads  : $(Threads.nthreads()) (on $(Sys.CPU_THREADS) virtual cores)\n""",
+    )
+
+    # print citation information
+    println(
+        io,
+        "+----------------------------------------------------+\n",
+        "| Please cite HierarchicalEOM.jl in your publication |\n",
+        "+----------------------------------------------------+\n",
+        "For your convenience, a bibtex reference can be easily generated using `HierarchicalEOM.cite()`.\n",
+    )
+    return nothing
 end
 
-"""
-    QuantumToolbox.about(io::IO=stdout)
+@doc raw"""
+    HierarchicalEOM.about(io::IO=stdout)
 
 Command line output of information on HierarchicalEOM, dependencies, and system information, same as [`HierarchicalEOM.versioninfo`](@ref).
 """
 about(io::IO = stdout) = versioninfo(io)
+
+@doc raw"""
+    HierarchicalEOM.cite(io::IO = stdout)
+
+Command line output of citation information and bibtex generator for `HierarchicalEOM.jl`.
+"""
+function cite(io::IO = stdout)
+    citation = raw"""
+    @article{HierarchicalEOM.jl2023,
+      title = {An efficient {J}ulia framework for hierarchical equations of motion in open quantum systems},
+      author = {Huang, Yi-Te and Kuo, Po-Chen and Lambert, Neill and Cirio, Mauro and Cross, Simon and Yang, Shen-Liang and Nori, Franco and Chen, Yueh-Nan},  
+      journal = {Communications Physics},
+      publisher = {Nature Portfolio},
+      volume = {6},
+      number = {1},
+      pages = {313},
+      month = {Oct},
+      year = {2023},
+      doi = {10.1038/s42005-023-01427-2},
+      url = {https://doi.org/10.1038/s42005-023-01427-2}
+    }
+    """
+    print(io, citation)
+    QuantumToolbox.cite(io)
+    return nothing
+end
