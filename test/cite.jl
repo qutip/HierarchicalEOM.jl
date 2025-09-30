@@ -1,8 +1,13 @@
 @testitem "Citation Bibtex" begin
     # citation bibtex
-    io_buffer = IOBuffer()
-    HierarchicalEOM.cite(io_buffer)
-    captured_output = String(take!(io_buffer))
+    HEOM_buffer = IOBuffer()
+    HierarchicalEOM.cite(HEOM_buffer)
+    captured_output = String(take!(HEOM_buffer))
+
+    QT_buffer = IOBuffer()
+    QuantumToolbox.cite(QT_buffer)
+    QuantumToolbox_output = String(take!(QT_buffer))
+
     @test captured_output ==
           """@article{HierarchicalEOM.jl2023,\n""" *
           """  title = {An efficient {J}ulia framework for hierarchical equations of motion in open quantum systems},\n""" *
@@ -17,5 +22,5 @@
           """  doi = {10.1038/s42005-023-01427-2},\n""" *
           """  url = {https://doi.org/10.1038/s42005-023-01427-2}\n""" *
           """}\n""" *
-          QuantumToolbox.cite(io_buffer)
+          QuantumToolbox_output
 end
