@@ -259,7 +259,7 @@ function cite(io::IO = stdout)
     citation = raw"""
     @article{HierarchicalEOM.jl2023,
       title = {An efficient {J}ulia framework for hierarchical equations of motion in open quantum systems},
-      author = {Huang, Yi-Te and Kuo, Po-Chen and Lambert, Neill and Cirio, Mauro and Cross, Simon and Yang, Shen-Liang and Nori, Franco and Chen, Yueh-Nan},  
+      author = {Huang, Yi-Te and Kuo, Po-Chen and Lambert, Neill and Cirio, Mauro and Cross, Simon and Yang, Shen-Liang and Nori, Franco and Chen, Yueh-Nan},
       journal = {Communications Physics},
       publisher = {Nature Portfolio},
       volume = {6},
