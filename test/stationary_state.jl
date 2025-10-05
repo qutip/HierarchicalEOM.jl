@@ -38,4 +38,9 @@
     @test_throws ErrorException steadystate(L, ADOs(zeros(8), 2))
     @test_throws ErrorException steadystate(L, ADOs(ados.data, ados.N, ODD))
     @test_throws ErrorException steadystate(L, HEOMSuperOp(spre(d), ODD, L) * ados)
+
+    # deprecated kwargs
+    import LinearSolve, OrdinaryDiffEqLowOrderRK # when removing these, remember to also remove them in test/Project.toml
+    @test_throws ErrorException steadystate(L; solver = LinearSolve.KrylovJL_GMRES())
+    @test_throws ErrorException steadystate(L, ψ0; solver = OrdinaryDiffEqLowOrderRK.DP5())
 end

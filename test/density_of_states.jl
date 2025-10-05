@@ -35,7 +35,7 @@
     dos2 =
         PowerSpectrum(Lo, ados_s, d_up_normal, d_up', ωlist, true; verbose = false) .+
         PowerSpectrum(Lo, ados_s, d_up', d_up_normal, ωlist, false; verbose = false)
-    dos3 = [ # result with solver = UMFPACKFactorization()
+    dos3 = [ # result with alg = UMFPACKFactorization()
         0.0007920428534358747,
         0.0012795202828027256,
         0.0022148985361417936,
@@ -74,6 +74,10 @@
     @test_throws ErrorException DensityOfStates(Lo, ADOs(ados_s.data, ados_s.N, ODD), d_up, ωlist; verbose = false)
     @test_throws ErrorException DensityOfStates(M_Boson(mat, 2, bathb; verbose = false), mat, mat, [0])
     @test_throws ErrorException DensityOfStates(M_Fermion(mat, 2, fuL; verbose = false), mat, mat, [0])
+
+    # deprecated kwargs
+    import LinearSolve # when removing this, remember to also remove LinearSolve in test/Project.toml
+    @test_throws ErrorException DensityOfStates(Lo, ados_s, d_up, ωlist; solver = LinearSolve.KrylovJL_GMRES())
 
     # remove all the temporary files
     rm("DOS.txt")

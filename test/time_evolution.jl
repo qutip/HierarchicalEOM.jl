@@ -62,6 +62,10 @@
     @test_throws ErrorException heomsolve(L, ados_wrong3, tlist; verbose = false)
     @test_throws ErrorException heomsolve(L, ados_wrong4, tlist; verbose = false)
 
+    # deprecated kwargs
+    import OrdinaryDiffEqLowOrderRK # when removing this, remember to also remove OrdinaryDiffEqLowOrderRK in test/Project.toml
+    @test_throws ErrorException heomsolve(L, ψ0, tlist; solver = OrdinaryDiffEqLowOrderRK.DP5())
+
     expvals = Matrix{ComplexF64}(undef, length(e_ops), length(tlist))
     for i in 1:length(e_ops)
         for j in 1:length(tlist)

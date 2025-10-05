@@ -21,7 +21,7 @@
         rm("PSD.txt")
     end
     psd1 = PowerSpectrum(L, ados_s, a, ωlist; verbose = false, filename = "PSD")
-    psd2 = [ # result with solver = UMFPACKFactorization()
+    psd2 = [ # result with alg = UMFPACKFactorization()
         0.0008880366931592341,
         0.0010614535356223845,
         0.001300813127188815,
@@ -59,6 +59,10 @@
     @test_throws ErrorException PowerSpectrum(L, ados_s, mat2, ωlist; verbose = false)
     @test_throws ErrorException PowerSpectrum(L, ADOs(zeros(8), 2), a, ωlist; verbose = false)
     @test_throws ErrorException PowerSpectrum(L, ADOs(zeros(32), 2), a, ωlist; verbose = false)
+
+    # deprecated kwargs
+    import LinearSolve # when removing this, remember to also remove LinearSolve in test/Project.toml
+    @test_throws ErrorException PowerSpectrum(L, ados_s, a, ωlist; solver = LinearSolve.KrylovJL_GMRES())
 
     # remove all the temporary files
     rm("PSD.txt")

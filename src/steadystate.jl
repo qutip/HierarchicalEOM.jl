@@ -1,25 +1,29 @@
 @doc raw"""
-    steadystate(M::AbstractHEOMLSMatrix; solver, verbose, SOLVEROptions...)
+    steadystate(M::AbstractHEOMLSMatrix; alg, verbose, kwargs...)
 Solve the steady state of the auxiliary density operators based on `LinearSolve.jl` (i.e., solving ``x`` where ``A \times x = b``).
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
-- `solver::SciMLLinearSolveAlgorithm` : solver in package `LinearSolve.jl`. Default to `KrylovJL_GMRES(rtol=1e-12, atol=1e-14)`.
+- `alg::SciMLLinearSolveAlgorithm` : The solving algorithm in package `LinearSolve.jl`. Default to `KrylovJL_GMRES(rtol=1e-12, atol=1e-14)`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
-- `SOLVEROptions` : extra options for solver 
+- `kwargs` : The keyword arguments for the `LinearProblem`
 
 # Notes
-- For more details about `solver` and `SOLVEROptions`, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
+- For more details about `alg`, `kwargs`, and `LinearProblem`, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
 
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
 """
 function QuantumToolbox.steadystate(
     M::AbstractHEOMLSMatrix{<:MatrixOperator};
-    solver::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14),
+    alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14),
     verbose::Bool = true,
-    SOLVEROptions...,
+    kwargs...,
 )
+    haskey(kwargs, :solver) && error(
+        "The keyword argument `solver` for solving HEOM steadystate has been deprecated, please use `alg` instead.",
+    )
+
     # check parity
     if typeof(M.parity) != EvenParity
         error("The parity of M should be \"EVEN\".")
@@ -32,12 +36,12 @@ function QuantumToolbox.steadystate(
         println("Solving steady state for ADOs by linear-solve method...")
         flush(stdout)
     end
-    if (!haskey(SOLVEROptions, :Pl)) && (isa(A, SparseMatrixCSC))
+    if (!haskey(kwargs, :Pl)) && (isa(A, SparseMatrixCSC))
         if verbose
             print("Calculating left preconditioner with ilu...")
             flush(stdout)
         end
-        SOLVEROptions = merge((; SOLVEROptions...), (Pl = ilu(A, τ = 0.01),))
+        kwargs = merge((; kwargs...), (Pl = ilu(A, τ = 0.01),))
         if verbose
             println("[DONE]")
             flush(stdout)
@@ -49,7 +53,7 @@ function QuantumToolbox.steadystate(
         print("Solving linear problem...")
         flush(stdout)
     end
-    cache = init(LinearProblem(A, _HandleVectorType(M, b)), solver, SOLVEROptions...)
+    cache = init(LinearProblem(A, _HandleVectorType(M, b)), alg, kwargs...)
     sol = solve!(cache)
     if verbose
         println("[DONE]")
@@ -60,20 +64,20 @@ function QuantumToolbox.steadystate(
 end
 
 @doc raw"""
-    steadystate(M::AbstractHEOMLSMatrix, ρ0, tspan; solver, verbose, SOLVEROptions...)
+    steadystate(M::AbstractHEOMLSMatrix, ρ0, tspan; alg, verbose, kwargs...)
 Solve the steady state of the auxiliary density operators based on time evolution (`OrdinaryDiffEq.jl`) with initial state is given in the type of density-matrix (`ρ0`).
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
 - `ρ0::Union{QuantumObject,ADOs}` : system initial state (density matrix) or initial auxiliary density operators (`ADOs`)
 - `tspan::Number` : the time limit to find stationary state. Default to `Inf`
-- `solver::OrdinaryDiffEqAlgorithm` : The ODE solvers in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `alg::OrdinaryDiffEqAlgorithm` : The ODE algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
-- `SOLVEROptions` : extra options for solver
+- `kwargs` : The keyword arguments in `ODEProblem`
 
 # Notes
-- For more details about `solver` please refer to [`DifferentialEquations.jl` (ODE Solvers)](https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/)
-- For more details about `SOLVEROptions` please refer to [`DifferentialEquations.jl` (Keyword Arguments)](https://docs.sciml.ai/DiffEqDocs/stable/basics/common_solver_opts/)
+- For more details about `alg` please refer to [`DifferentialEquations.jl` (ODE Solvers)](https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/)
+- For more details about `kwargs` please refer to [`DifferentialEquations.jl` (Keyword Arguments)](https://docs.sciml.ai/DiffEqDocs/stable/basics/common_solver_opts/)
 
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
@@ -82,10 +86,14 @@ function QuantumToolbox.steadystate(
     M::AbstractHEOMLSMatrix{<:MatrixOperator},
     ρ0::T_state,
     tspan::Number = Inf;
-    solver::OrdinaryDiffEqAlgorithm = DP5(),
+    alg::OrdinaryDiffEqAlgorithm = DP5(),
     verbose::Bool = true,
-    SOLVEROptions...,
+    kwargs...,
 ) where {T_state<:Union{QuantumObject,ADOs}}
+    haskey(kwargs, :solver) && error(
+        "The keyword argument `solver` for solving HEOM steadystate has been deprecated, please use `alg` instead.",
+    )
+
     (typeof(M.parity) == EvenParity) || error("The parity of M should be \"EVEN\".")
 
     # handle initial state
@@ -97,30 +105,30 @@ function QuantumToolbox.steadystate(
     ftype = _float_type(M)
     Tspan = (ftype(0), ftype(tspan))
 
-    kwargs = merge(
+    kwargs2 = merge(
         (
             abstol = DEFAULT_ODE_SOLVER_OPTIONS.abstol,
             reltol = DEFAULT_ODE_SOLVER_OPTIONS.reltol,
             save_everystep = false,
             saveat = ftype[],
         ),
-        SOLVEROptions,
+        kwargs,
     )
     _ss_condition = SteadyStateODECondition(similar(u0))
-    cb = TerminateSteadyState(kwargs.abstol, kwargs.reltol, _ss_condition)
-    kwargs2 =
-        haskey(kwargs, :callback) ? merge(kwargs, (callback = CallbackSet(kwargs.callback, cb),)) :
-        merge(kwargs, (callback = cb,))
+    cb = TerminateSteadyState(kwargs2.abstol, kwargs2.reltol, _ss_condition)
+    kwargs3 =
+        haskey(kwargs2, :callback) ? merge(kwargs2, (callback = CallbackSet(kwargs2.callback, cb),)) :
+        merge(kwargs2, (callback = cb,))
 
     # define ODE problem
-    prob = ODEProblem{true,FullSpecialize}(M.data, u0, Tspan; kwargs2...)
+    prob = ODEProblem{true,FullSpecialize}(M.data, u0, Tspan; kwargs3...)
 
     # solving steady state of the ODE problem
     if verbose
         println("Solving steady state for ADOs by Ordinary Differential Equations method...")
         flush(stdout)
     end
-    sol = solve(prob, solver)
+    sol = solve(prob, alg)
     if verbose
         println("Last timepoint t = $(sol.t[end])\n[DONE]")
         flush(stdout)

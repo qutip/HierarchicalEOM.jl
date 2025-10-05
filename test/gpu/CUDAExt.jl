@@ -107,7 +107,7 @@ CUDA.@time @testset "CUDA Extension" begin
         d_up,
         ωlist;
         verbose = false,
-        solver = KrylovJL_BICGSTAB(rtol = 1.0f-12, atol = 1.0f-14), # somehow KrylovJL_GMRES doesn't work for Float32 (it takes forever to solve)
+        alg = KrylovJL_BICGSTAB(rtol = 1.0f-12, atol = 1.0f-14), # somehow KrylovJL_GMRES doesn't work for Float32 (it takes forever to solve)
     )
     dos_gpu_64 = DensityOfStates(L_odd_gpu_64, ados_cpu, d_up, ωlist; verbose = false)
     @test L_odd_gpu_32.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF32,Int32}
