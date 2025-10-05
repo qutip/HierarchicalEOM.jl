@@ -175,8 +175,8 @@ function HEOMsolve(
 end
 
 @doc raw"""
-    HEOMsolve(M, ρ0, tlist; e_ops, solver, H_t, params, verbose, filename, inplace, SOLVEROptions...)
-    heomsolve(M, ρ0, tlist; e_ops, solver, H_t, params, verbose, filename, inplace, SOLVEROptions...)
+    HEOMsolve(M, ρ0, tlist; e_ops, alg, H_t, params, verbose, filename, inplace, kwargs...)
+    heomsolve(M, ρ0, tlist; e_ops, alg, H_t, params, verbose, filename, inplace, kwargs...)
 
 Solve the time evolution for auxiliary density operators based on ordinary differential equations.
 
@@ -185,20 +185,20 @@ Solve the time evolution for auxiliary density operators based on ordinary diffe
 - `ρ0::Union{QuantumObject,ADOs}` : system initial state (density matrix) or initial auxiliary density operators (`ADOs`)
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `e_ops::Union{Nothing,AbstractVector}`: List of operators for which to calculate expectation values.
-- `solver::OrdinaryDiffEqAlgorithm` : solver in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `alg::OrdinaryDiffEqAlgorithm` : The solving algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `H_t::Union{Nothing,QuantumObjectEvolution}`: The time-dependent system Hamiltonian or Liouvillian. Default to `nothing`.
 - `params`: Parameters to pass to the solver. This argument is usually expressed as a `NamedTuple` or `AbstractVector` of parameters. For more advanced usage, any custom struct can be used.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file "filename.jld2" after the solving process.
 - `inplace::Bool`: Whether to use the inplace version of the ODEProblem. Defaults to `true`.
-- `SOLVEROptions` : extra options for solver
+- `kwargs` : The keyword arguments for the `ODEProblem`.
 
 # Notes
 - The [`ADOs`](@ref) will be saved depend on the keyword argument `saveat` in `kwargs`.
 - If `e_ops` is specified, the default value of `saveat=[tlist[end]]` (only save the final `ADOs`), otherwise, `saveat=tlist` (saving the `ADOs` corresponding to `tlist`). You can also specify `e_ops` and `saveat` separately.
 - The default tolerances in `kwargs` are given as `reltol=1e-6` and `abstol=1e-8`.
-- For more details about `solver` please refer to [`DifferentialEquations.jl` (ODE Solvers)](https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/)
-- For more details about `SOLVEROptions` please refer to [`DifferentialEquations.jl` (Keyword Arguments)](https://docs.sciml.ai/DiffEqDocs/stable/basics/common_solver_opts/)
+- For more details about `alg` please refer to [`DifferentialEquations.jl` (ODE Solvers)](https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/)
+- For more details about `kwargs` please refer to [`DifferentialEquations.jl` (Keyword Arguments)](https://docs.sciml.ai/DiffEqDocs/stable/basics/common_solver_opts/)
 
 # Returns
 - sol::TimeEvolutionHEOMSol : The solution of the hierarchical EOM. See also [`TimeEvolutionHEOMSol`](@ref)
@@ -211,14 +211,16 @@ function HEOMsolve(
     ρ0::T_state,
     tlist::AbstractVector;
     e_ops::Union{Nothing,AbstractVector} = nothing,
-    solver::OrdinaryDiffEqAlgorithm = DP5(),
+    alg::OrdinaryDiffEqAlgorithm = DP5(),
     H_t::Union{Nothing,QuantumObjectEvolution} = nothing,
     params = NullParameters(),
     verbose::Bool = true,
     filename::String = "",
     inplace::Bool = true,
-    SOLVEROptions...,
+    kwargs...,
 ) where {T_state<:Union{QuantumObject,ADOs}}
+    haskey(kwargs, :solver) &&
+        error("The keyword argument `solver` for HEOMsolve has been deprecated, please use `alg` instead.")
 
     # check filename
     if filename != ""
@@ -242,23 +244,23 @@ function HEOMsolve(
     cb = FunctionCallingCallback(save_result!, funcat = t_l)
 
     # handle kwargs
-    haskey(SOLVEROptions, :save_idxs) &&
+    haskey(kwargs, :save_idxs) &&
         throw(ArgumentError("The keyword argument \"save_idxs\" is not supported in HierarchicalEOM.jl."))
-    kwargs = _merge_saveat(t_l, e_ops, DEFAULT_ODE_SOLVER_OPTIONS; SOLVEROptions...)
-    kwargs2 =
-        haskey(kwargs, :callback) ? merge(kwargs, (callback = CallbackSet(kwargs.callback, cb),)) :
-        merge(kwargs, (callback = cb,))
+    kwargs2 = _merge_saveat(t_l, e_ops, DEFAULT_ODE_SOLVER_OPTIONS; kwargs...)
+    kwargs3 =
+        haskey(kwargs2, :callback) ? merge(kwargs2, (callback = CallbackSet(kwargs2.callback, cb),)) :
+        merge(kwargs2, (callback = cb,))
 
     # define ODE problem (L should be an AbstractSciMLOperator)
     L = _make_L(M, H_t)
-    prob = ODEProblem{inplace,FullSpecialize}(L, u0, (t_l[1], t_l[end]), params; kwargs2...)
+    prob = ODEProblem{inplace,FullSpecialize}(L, u0, (t_l[1], t_l[end]), params; kwargs3...)
 
     # start solving ode
     if verbose
         print("Solving time evolution for ADOs by Ordinary Differential Equations method...\n")
         flush(stdout)
     end
-    sol = solve(prob, solver)
+    sol = solve(prob, alg)
     ADOs_list = map(ρvec -> ADOs(Vector{ComplexF64}(ρvec), M.dimensions, M.N, M.parity), sol.u)
 
     # save ADOs to file
@@ -270,6 +272,7 @@ function HEOMsolve(
         verbose && println("[DONE]\n")
     end
 
+    sol_kwargs = NamedTuple(sol.prob.kwargs)
     return TimeEvolutionHEOMSol(
         _getBtier(M),
         _getFtier(M),
@@ -279,8 +282,8 @@ function HEOMsolve(
         save_result!.expvals,
         sol.retcode,
         sol.alg,
-        NamedTuple(sol.prob.kwargs).abstol,
-        NamedTuple(sol.prob.kwargs).reltol,
+        sol_kwargs.abstol,
+        sol_kwargs.reltol,
     )
 end
 

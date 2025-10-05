@@ -1,11 +1,11 @@
 export PowerSpectrum
 
 @doc raw"""
-    PowerSpectrum(M, ρ, Q_op, ωlist, reverse; solver, verbose, filename, SOLVEROptions...)
+    PowerSpectrum(M, ρ, Q_op, ωlist, reverse; alg, verbose, filename, kwargs...)
 Calculate power spectrum for the system in frequency domain where `P_op` will be automatically set as the adjoint of `Q_op`.
 
 This function is equivalent to:
-`PowerSpectrum(M, ρ, Q_op', Q_op, ωlist, reverse; solver, verbose, filename, SOLVEROptions...)`
+`PowerSpectrum(M, ρ, Q_op', Q_op, ωlist, reverse; alg, verbose, filename, kwargs...)`
 """
 PowerSpectrum(
     M::AbstractHEOMLSMatrix{<:MatrixOperator},
@@ -13,25 +13,14 @@ PowerSpectrum(
     Q_op::QuantumObject,
     ωlist::AbstractVector,
     reverse::Bool = false;
-    solver::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14),
+    alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14),
     verbose::Bool = true,
     filename::String = "",
-    SOLVEROptions...,
-) = PowerSpectrum(
-    M,
-    ρ,
-    Q_op',
-    Q_op,
-    ωlist,
-    reverse;
-    solver = solver,
-    verbose = verbose,
-    filename = filename,
-    SOLVEROptions...,
-)
+    kwargs...,
+) = PowerSpectrum(M, ρ, Q_op', Q_op, ωlist, reverse; alg = alg, verbose = verbose, filename = filename, kwargs...)
 
 @doc raw"""
-    PowerSpectrum(M, ρ, P_op, Q_op, ωlist, reverse; solver, verbose, filename, SOLVEROptions...)
+    PowerSpectrum(M, ρ, P_op, Q_op, ωlist, reverse; alg, verbose, filename, kwargs...)
 Calculate power spectrum for the system in frequency domain.
 
 ```math
@@ -53,13 +42,13 @@ remember to set the parameters:
 - `Q_op::Union{QuantumObject,HEOMSuperOp}`: the system operator (or `HEOMSuperOp`) ``Q`` acting on the system.
 - `ωlist::AbstractVector` : the specific frequency points to solve.
 - `reverse::Bool` : If `true`, calculate ``\langle P(-t)Q(0) \rangle = \langle P(0)Q(t) \rangle = \langle P(t)Q(0) \rangle^*`` instead of ``\langle P(t) Q(0) \rangle``. Default to `false`.
-- `solver::SciMLLinearSolveAlgorithm` : solver in package `LinearSolve.jl`. Default to `KrylovJL_GMRES(rtol=1e-12, atol=1e-14)`.
+- `alg::SciMLLinearSolveAlgorithm` : The solving algorithm in package `LinearSolve.jl`. Default to `KrylovJL_GMRES(rtol=1e-12, atol=1e-14)`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 - `filename::String` : If filename was specified, the value of spectrum for each ω will be saved into the file "filename.txt" during the solving process.
-- `SOLVEROptions` : extra options for solver 
+- `kwargs` : The keyword arguments for `LinearProblem`.
 
 # Notes
-- For more details about `solver` and `SOLVEROptions`, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
+- For more details about `alg`, `kwargs`, and `LinearProblem`, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
 
 # Returns
 - `spec::AbstractVector` : the spectrum list corresponds to the specified `ωlist`
@@ -71,11 +60,13 @@ remember to set the parameters:
     Q_op,
     ωlist::AbstractVector,
     reverse::Bool = false;
-    solver::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14),
+    alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14),
     verbose::Bool = true,
     filename::String = "",
-    SOLVEROptions...,
+    kwargs...,
 )
+    haskey(kwargs, :solver) &&
+        error("The keyword argument `solver` for PowerSpectrum has been deprecated, please use `alg` instead.")
 
     # Handle ρ
     if ρ isa ADOs
@@ -134,7 +125,7 @@ remember to set the parameters:
         Iω = i * ω * I_total
 
         if prog.counter[] == 0
-            cache = init(LinearProblem(M.data.A + Iω, b), solver, SOLVEROptions...)
+            cache = init(LinearProblem(M.data.A + Iω, b), alg, kwargs...)
             sol = solve!(cache)
         else
             cache.A = M.data.A + Iω

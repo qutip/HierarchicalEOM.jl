@@ -8,7 +8,7 @@ We briefly summarize how to numerically compute the spectrum associated with the
  - [Power Spectrum](@ref doc-PS)
  - [Density of States](@ref doc-DOS)
 
-`HierarchicalEOM.jl` wraps some of the functions in [LinearSolve.jl](http://linearsolve.sciml.ai/stable/), which is a very rich numerical library for solving the linear problems and provides many solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to [LinearSolve solvers](@ref LS-solvers) and also the documentation of [LinearSolve.jl](http://linearsolve.sciml.ai/stable/).
+`HierarchicalEOM.jl` wraps some of the functions in [LinearSolve.jl](http://linearsolve.sciml.ai/stable/), which is a very rich numerical library for solving the linear problems and provides many `alg`orithms. It offers quite a few options for the user to tailor the solver to their specific needs. The default `alg`orithm (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to [LinearSolve solvers](@ref LS-solvers) and also the documentation of [LinearSolve.jl](http://linearsolve.sciml.ai/stable/).
 
 !!! compat "Extension for CUDA.jl"
     `HierarchicalEOM.jl` provides an extension to support GPU ([`CUDA.jl`](https://github.com/JuliaGPU/CUDA.jl)) acceleration for solving the spectrum, but this feature requires `Julia 1.9+` and `HierarchicalEOM 1.1+`. See [here](@ref doc-ext-CUDA) for more details.

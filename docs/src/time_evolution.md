@@ -1,6 +1,6 @@
 # [Time Evolution](@id doc-Time-Evolution)
 ## Introduction
-`HierarchicalEOM.jl` implements various methods and solvers to simulate the open quantum system dynamics. 
+`HierarchicalEOM.jl` implements various methods and `alg`orithms to simulate the open quantum system dynamics. 
 The [HEOM Liouvillian superoperator (HEOMLS) matrix](@ref doc-HEOMLS-Matrix) ``\hat{\mathcal{M}}`` characterizes the dynamics of the reduce state and in the full extended space of all [auxiliary density operators (ADOs)](@ref doc-ADOs) ``\rho^{(m,n,p)}_{\textbf{j} \vert \textbf{q}}(t)``, namely
 ```math
 \begin{equation}
@@ -76,7 +76,7 @@ end
 ```
 
 ## Ordinary Differential Equation (ODE) Method
-The first method is implemented by solving the ordinary differential equation (ODE). `HierarchicalEOM.jl` wraps some of the functions in [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/), which is a very rich numerical library for solving the differential equations and provides many ODE solvers. It offers quite a few options for the user to tailor the solver to their specific needs. The default solver (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to [DifferentialEquations solvers](@ref ODE-solvers) and also the documentation of [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/).
+The first method is implemented by solving the ordinary differential equation (ODE). `HierarchicalEOM.jl` wraps some of the functions in [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/), which is a very rich numerical library for solving the differential equations and provides many ODE `alg`orithms. It offers quite a few options for the user to tailor the solver to their specific needs. The default `alg`orithm (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to [DifferentialEquations solvers](@ref ODE-solvers) and also the documentation of [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/).
 
 !!! compat "Extension for CUDA.jl"
     `HierarchicalEOM.jl` provides an extension to support GPU ([`CUDA.jl`](https://github.com/JuliaGPU/CUDA.jl)) acceleration for [`HEOMsolve`](@ref) (only for ODE method). See [here](@ref doc-ext-CUDA) for more details.
@@ -84,7 +84,7 @@ The first method is implemented by solving the ordinary differential equation (O
 See the docstring of this method:  
 
 ```@docs
-HEOMsolve(M::AbstractHEOMLSMatrix, ρ0::T_state, tlist::AbstractVector; e_ops::Union{Nothing,AbstractVector} = nothing, solver::OrdinaryDiffEqAlgorithm = DP5(), H_t::Union{Nothing,Function} = nothing, params::NamedTuple = NamedTuple(), verbose::Bool = true, filename::String = "", SOLVEROptions...,) where {T_state<:Union{QuantumObject,ADOs}}
+HEOMsolve(M::AbstractHEOMLSMatrix, ρ0::T_state, tlist::AbstractVector; e_ops::Union{Nothing,AbstractVector} = nothing, alg::OrdinaryDiffEqAlgorithm = DP5(), H_t::Union{Nothing,Function} = nothing, params::NamedTuple = NamedTuple(), verbose::Bool = true, filename::String = "", kwargs...,) where {T_state<:Union{QuantumObject,ADOs}}
 ```
 
 ```julia
