@@ -55,25 +55,7 @@ Here, `Elist` contains the expectation values corresponding to the `ados_list` (
 ## Common and optional parameters
 There are three common optional parameters for all the methods provided below:
  - `e_ops::Union{Nothing,AbstractVector}`: List of operators for which to calculate expectation values.
- - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
- - `filename::String` : If filename was specified, the ADOs at each time point will be saved into the JLD2 file after the solving process. Default to Empty `String`: `""`.
-
-If the `filename` is specified, the function will automatically save the [`ADOs`](@ref) to the file (with `.jld2` behind the `filename`) once the solving process is finished. The saving method is based on the package [`JLD2.jl`](https://juliaio.github.io/JLD2.jl/stable/), which saves and loads `Julia` data structures in a format comprising a subset of HDF5.
-```julia
-tlist = 0:0.5:5
-ados_list = HEOMsolve(..., tlist, ...; filename="test", ...)
-```
-The solution of the [`ADOs`](@ref) for each time step in `tlist` is saved in the file named `test.jld2` with a key: `"ados"`.
-
-To retrieve the solution the list of [`ADOs`](@ref) from a previously saved file `"text.jld2"`, just read the file with the methods provided by [`JLD2.jl`](https://juliaio.github.io/JLD2.jl/stable/) and specify the key: `"ados"`, namely
-```julia
-using HierarchicalEOM, JLD2 # remember to import these before retrieving the solution
-
-filename = "test.jld2"
-jldopen(filename, "r") do file
-    ados_list = file["ados"]
-end
-```
+ - `progress_bar::Union{Val,Bool}` : To display progress bar during the process or not. Defaults to `Val(true)`.
 
 ## Ordinary Differential Equation (ODE) Method
 The first method is implemented by solving the ordinary differential equation (ODE). `HierarchicalEOM.jl` wraps some of the functions in [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/), which is a very rich numerical library for solving the differential equations and provides many ODE `alg`orithms. It offers quite a few options for the user to tailor the solver to their specific needs. The default `alg`orithm (and its corresponding settings) are chosen to suit commonly encountered problems and should work fine for most of the cases. If you require more specialized methods, such as the choice of algorithm, please refer to [DifferentialEquations solvers](@ref ODE-solvers) and also the documentation of [`DifferentialEquations.jl`](https://diffeq.sciml.ai/stable/).
@@ -84,7 +66,7 @@ The first method is implemented by solving the ordinary differential equation (O
 See the docstring of this method:  
 
 ```@docs
-HEOMsolve(M::AbstractHEOMLSMatrix, ρ0::T_state, tlist::AbstractVector; e_ops::Union{Nothing,AbstractVector} = nothing, alg::OrdinaryDiffEqAlgorithm = DP5(), H_t::Union{Nothing,Function} = nothing, params::NamedTuple = NamedTuple(), verbose::Bool = true, filename::String = "", kwargs...,) where {T_state<:Union{QuantumObject,ADOs}}
+HEOMsolve(M::AbstractHEOMLSMatrix, ρ0::T_state, tlist::AbstractVector; e_ops::Union{Nothing,AbstractVector} = nothing, alg::OrdinaryDiffEqAlgorithm = DP5(), H_t::Union{Nothing,Function} = nothing, params::NamedTuple = NamedTuple(), progress_bar::Union{Val,Bool} = Val(true), inplace::Union{Val,Bool} = Val(true), kwargs...) where {T_state<:Union{QuantumObject,ADOs}}
 ```
 
 ```julia
@@ -147,7 +129,7 @@ To construct the propagator, we wrap the function in the package [`fastExpm.jl`]
 See the docstring of this method:  
 
 ```@docs
-HEOMsolve(M::AbstractHEOMLSMatrix ,ρ0::T_state, Δt::Real, steps::Int; e_ops::Union{Nothing,AbstractVector} = nothing, threshold = 1.0e-6, nonzero_tol = 1.0e-14, verbose::Bool = true, filename::String = "",) where {T_state<:Union{QuantumObject,ADOs}}
+HEOMsolve(M::AbstractHEOMLSMatrix ,ρ0::T_state, Δt::Real, steps::Int; e_ops::Union{Nothing,AbstractVector} = nothing, threshold = 1.0e-6, nonzero_tol = 1.0e-14, verbose::Bool = true) where {T_state<:Union{QuantumObject,ADOs}}
 ```
 
 ```julia

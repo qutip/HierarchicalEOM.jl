@@ -5,7 +5,7 @@ using Pkg
 const GROUP_LIST = String["All", "Core", "Code-Quality", "CUDA_Ext"]
 
 const GROUP = get(ENV, "GROUP", "All")
-(GROUP in GROUP_LIST) || throw(ArgumentError("Unknown GROUP = $GROUP"))
+(GROUP in GROUP_LIST) || throw(ArgumentError("Unknown GROUP = $GROUP\nThe allowed groups are: $GROUP_LIST\n"))
 
 if (GROUP == "All") || (GROUP == "Core")
     import HierarchicalEOM
