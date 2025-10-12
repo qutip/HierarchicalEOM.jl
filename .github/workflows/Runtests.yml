@@ -50,13 +50,13 @@ jobs:
         group:
           - 'Core'
 
-        # include:
+        include:
           # for core tests (intermediate versions)
-          # - version: '1.x'
-          #   node:
-          #     os: 'ubuntu-latest'
-          #     arch: 'x64'
-          #   group: 'Core'
+          - version: '1.11'
+            node:
+              os: 'ubuntu-latest'
+              arch: 'x64'
+            group: 'Core'
 
     steps:
       - uses: actions/checkout@v5
