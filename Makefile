@@ -6,10 +6,10 @@ format:
 	${JULIA} -e 'using JuliaFormatter; format(".")'
 
 test:
-	${JULIA} -t 4 --project -e 'using Pkg; Pkg.resolve(); Pkg.test()'
+	${JULIA} -t 4 --project -e 'using Pkg; Pkg.update(); Pkg.test()'
 
 docs:
-	${JULIA} --project=docs -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+	${JULIA} --project=docs -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.update()'
 	${JULIA} --project=docs docs/make.jl
 
 all: format test docs

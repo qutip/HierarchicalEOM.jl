@@ -69,10 +69,10 @@
 
     # two time correlation functions
     tlist = 0:0.1:1000
-    corr1 = correlation_2op_1t(L, ados_s, tlist, a', a; verbose = false)
-    corr2 = correlation_3op_2t(L, ados_s, [0], tlist, qeye(2), a', a; verbose = false)
-    corr3 = correlation_3op_1t(L, ados_s, tlist, a', a, qeye(2), verbose = false)
-    corr4 = correlation_2op_2t(L, ados_s, [0], tlist, a', a, reverse = true, verbose = false)
+    corr1 = correlation_2op_1t(L, ados_s, tlist, a', a; progress_bar = Val(false))
+    corr2 = correlation_3op_2t(L, ados_s, [0], tlist, qeye(2), a', a; progress_bar = Val(false))
+    corr3 = correlation_3op_1t(L, ados_s, tlist, a', a, qeye(2), progress_bar = Val(false))
+    corr4 = correlation_2op_2t(L, ados_s, [0], tlist, a', a, reverse = true, progress_bar = Val(false))
 
     @test corr1 == corr2[1, :]
     @test corr3 == corr4[1, :]

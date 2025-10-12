@@ -22,6 +22,12 @@ import QuantumToolbox:
     dimensions_to_dims,
     _save_func,
     _merge_saveat,
+    _merge_kwargs_with_callback,
+    _get_expvals,
+    makeVal,
+    getVal,
+    TimeEvolutionProblem,
+    AbstractSaveFunc,
     DEFAULT_ODE_SOLVER_OPTIONS,
     SteadyStateODECondition
 
