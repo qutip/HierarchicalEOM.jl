@@ -1,5 +1,4 @@
 @testitem "Time evolution" begin
-    using JLD2
 
     # System Hamiltonian and initial state
     Hsys = 0.25 * sigmaz() + 0.5 * sigmax()
@@ -243,4 +242,38 @@
     @test_throws ErrorException heomsolve(L, ados_wrong1, tlist; H_t = Ht, progress_bar = Val(false))
     @test_throws ErrorException heomsolve(L, ados_wrong2, tlist; H_t = Ht, progress_bar = Val(false))
     @test_throws ErrorException heomsolve(L, ados_wrong3, tlist; H_t = Ht, progress_bar = Val(false))
+
+    # test HEOMsolve_map
+    function coef2(p, t)
+        # p -> [amplitude, delay, integral]
+        duration = p[3] / p[1]
+        period = duration + p[2]
+
+        t = t % period
+        if t < duration
+            return p[1]
+        else
+            return 0.0
+        end
+    end
+    Ht2 = QobjEvo(sigmax(), coef2)
+
+    amp_list = [0.5, 0.01] # [fast, slow]
+    delay_list = [20.0]
+    integral_list = [π / 2]
+    mapDD_sol = heomsolve_map(
+        L,
+        ψ0,
+        tlist;
+        H_t = Ht2,
+        params = (amp_list, delay_list, integral_list),
+        e_ops = [P01],
+        reltol = 1e-12,
+        abstol = 1e-12,
+    ) # also test progress_bar
+
+    @test size(mapDD_sol) == (1, 2, 1, 1)
+    @test mapDD_sol isa Array{<:TimeEvolutionHEOMSol}
+    @test all(isapprox.(mapDD_sol[1, 1, 1, 1].expect[1, :], fastBoFiN, atol = 1.0e-6))
+    @test all(isapprox.(mapDD_sol[1, 2, 1, 1].expect[1, :], slowBoFiN, atol = 1.0e-6))
 end

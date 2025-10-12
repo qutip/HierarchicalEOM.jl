@@ -1,4 +1,4 @@
-export HEOMsolve, heomsolve, TimeEvolutionHEOMSol
+export HEOMsolve, heomsolve, HEOMsolve_map, heomsolve_map, TimeEvolutionHEOMSol
 
 @doc raw"""
     struct TimeEvolutionHEOMSol
@@ -371,3 +371,98 @@ _L_t_to_HEOMSuperOp(MType::Type{<:AbstractSparseMatrix}, M::ScaledOperator, Id::
     ScaledOperator(M.λ, _L_t_to_HEOMSuperOp(MType, M.L, Id))
 _L_t_to_HEOMSuperOp(MType::Type{<:AbstractSparseMatrix}, M::AddedOperator, Id::Diagonal) =
     AddedOperator(map(op -> _L_t_to_HEOMSuperOp(MType, op, Id), M.ops))
+
+@doc raw"""
+    HEOMsolve_map(M, ρ0, tlist; e_ops, alg, ensemblealg, H_t, params, progress_bar, kwargs...)
+    heomsolve_map(M, ρ0, tlist; e_ops, alg, ensemblealg, H_t, params, progress_bar, kwargs...)
+
+Solve the time evolution for auxiliary density operators with multiple initial states and parameter sets using ensemble simulation.
+
+This function computes the time evolution for all combinations (Cartesian product) of initial states and parameter sets, solving the HEOM (see [`HEOMsolve`](@ref)) for each combination in the ensemble.
+
+# Arguments
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
+- `ρ0::AbstractVector{<:Union{QuantumObject,ADOs}}` : system initial state(s) [the elements can be density matrix or `ADOs`].
+- `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
+- `e_ops::Union{Nothing,AbstractVector}`: List of operators for which to calculate expectation values.
+- `alg::OrdinaryDiffEqAlgorithm` : The solving algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `ensemblealg::EnsembleAlgorithm`: Ensemble algorithm to use for parallel computation. Default is `EnsembleThreads()`.
+- `H_t::Union{Nothing,QuantumObjectEvolution}`: The time-dependent system Hamiltonian or Liouvillian. Default to `nothing`.
+- `params::Union{NullParameters,Tuple}`: A `Tuple` of parameter sets. Each element should be an `AbstractVector` representing the sweep range for that parameter. The function will solve for all combinations of initial states and parameter sets.
+- `progress_bar::Union{Val,Bool}`: Whether to show the progress bar. Default to `Val(true)`. Using non-`Val` types might lead to type instabilities.
+- `kwargs` : The keyword arguments for the `ODEProblem`.
+
+# Notes
+- The function returns an array of solutions with dimensions matching the Cartesian product of initial states and parameter sets.
+- If `ρ0` is a vector with length `m`, and `params = (p1, p2, ...)` where `p1` has length `n1`, `p2` has length `n2`, etc., the output will be of size `(m, n1, n2, ...)`.
+- See [`HEOMsolve`](@ref) for more details.
+
+# Returns
+- An array of [`TimeEvolutionHEOMSol`](@ref) objects with dimensions `(length(ρ0), length(params[1]), length(params[2]), ...)`.
+
+!!! note
+    `heomsolve_map` is a synonym of `HEOMsolve_map`.
+"""
+function HEOMsolve_map(
+    M::AbstractHEOMLSMatrix,
+    ρ0::AbstractVector{<:T_state},
+    tlist::AbstractVector;
+    e_ops::Union{Nothing,AbstractVector} = nothing,
+    alg::OrdinaryDiffEqAlgorithm = DP5(),
+    ensemblealg::EnsembleAlgorithm = EnsembleThreads(),
+    H_t::Union{Nothing,QuantumObjectEvolution} = nothing,
+    params::Union{NullParameters,Tuple} = NullParameters(),
+    progress_bar::Union{Val,Bool} = Val(true),
+    kwargs...,
+) where {T_state<:Union{QuantumObject,ADOs}}
+
+    # mapping initial states and parameters
+    ados_iter = map(ρ -> _gen_ados_ode_vector(ρ, M), ρ0)
+    iter =
+        params isa NullParameters ? collect(Iterators.product(ados_iter, [params])) :
+        collect(Iterators.product(ados_iter, params...))
+    ntraj = length(iter)
+
+    # we disable the progress bar of the HEOMsolveProblem because we use a global progress bar for all the trajectories
+    prob = HEOMsolveProblem(
+        M,
+        first(ρ0),
+        tlist;
+        e_ops = e_ops,
+        H_t = H_t,
+        params = first(iter)[2:end],
+        progress_bar = Val(false),
+        kwargs...,
+    )
+
+    # generate and solve ensemble problem
+    _output_func = _ensemble_dispatch_output_func(ensemblealg, progress_bar, ntraj, _standard_output_func) # setup global progress bar
+    ens_prob = TimeEvolutionProblem(
+        EnsembleProblem(
+            prob.prob,
+            prob_func = (prob, i, repeat) -> _se_me_map_prob_func(prob, i, repeat, iter),
+            output_func = _output_func[1],
+            safetycopy = false,
+        ),
+        prob.times,
+        prob.dimensions,
+        (progr = _output_func[2], channel = _output_func[3]),
+    )
+    sol = _ensemble_dispatch_solve(ens_prob, alg, ensemblealg, ntraj)
+
+    # handle solution and make it become an Array of TimeEvolutionHEOMSol
+    sol_vec = [_gen_HEOMsolve_solution(sol[:, i], prob.times, M) for i in eachindex(sol)] # map is type unstable
+    if params isa NullParameters # if no parameters specified, just return a Vector
+        return sol_vec
+    else
+        return reshape(sol_vec, size(iter))
+    end
+end
+HEOMsolve_map(
+    M::AbstractHEOMLSMatrix,
+    ρ0::T_state,
+    tlist::AbstractVector;
+    kwargs...,
+) where {T_state<:Union{QuantumObject,ADOs}} = HEOMsolve_map(M, [ρ0], tlist; kwargs...)
+
+const heomsolve_map = HEOMsolve_map # a synonym to align with QuantumToolbox.jl
