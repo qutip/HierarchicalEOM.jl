@@ -52,7 +52,7 @@ jobs:
 
         include:
           # for core tests (intermediate versions)
-          - version: '1.11'
+          - julia-version: '1.11'
             node:
               os: 'ubuntu-latest'
               arch: 'x64'
