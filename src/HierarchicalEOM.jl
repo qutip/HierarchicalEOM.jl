@@ -59,7 +59,6 @@ import LinearSolve: LinearProblem, SciMLLinearSolveAlgorithm, KrylovJL_GMRES
 import Base.Threads: @threads, nthreads, Channel
 import FastExpm: fastExpm
 import IncompleteLU: ilu
-import JLD2: jldopen
 import Pkg
 
 # Basic functions
