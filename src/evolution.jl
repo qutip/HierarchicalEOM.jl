@@ -476,7 +476,7 @@ function HEOMsolve_map(
     sol = _ensemble_dispatch_solve(ens_prob, alg, ensemblealg, ntraj)
 
     # handle solution and make it become an Array of TimeEvolutionHEOMSol
-    sol_vec = [_gen_HEOMsolve_solution(sol[:, i], prob.times, M) for i in eachindex(sol)] # map is type unstable
+    sol_vec = [_gen_HEOMsolve_solution(sol[:, i], prob.times, prob.kwargs.M) for i in eachindex(sol)] # map is type unstable
     return reshape(sol_vec, size(iter))
 end
 
