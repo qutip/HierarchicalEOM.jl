@@ -62,7 +62,7 @@ Generate the object of auxiliary density operators for HEOM model.
 - `parity::AbstractParity` : the parity label (`EVEN` or `ODD`). Default to `EVEN`.
 """
 function ADOs(ρ::QuantumObject, N::Int = 1, parity::AbstractParity = EVEN)
-    _ρ = sparsevec(ket2dm(ρ).data)
+    _ρ = sparse(vec(ket2dm(ρ).data)) # to avoid _ρ begin reshape type, which cannot do _ρ.nzind and _ρ.nzval
     return ADOs(sparsevec(_ρ.nzind, _ρ.nzval, N * length(_ρ)), ρ.dimensions, N, parity)
 end
 ADOs(ρ, N::Int = 1, parity::AbstractParity = EVEN) =
