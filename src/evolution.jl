@@ -22,9 +22,9 @@ struct TimeEvolutionHEOMSol{
     TT2<:AbstractVector{<:Real},
     TS<:Vector{ADOs},
     TE<:Union{Nothing,AbstractMatrix},
-    RETT<:Enum,
+    RETT<:Union{Nothing,Enum},
     AlgT<:Union{Nothing,OrdinaryDiffEqAlgorithm},
-    TolT<:Real,
+    TolT<:Union{Nothing,Real},
 }
     Btier::Int
     Ftier::Int
