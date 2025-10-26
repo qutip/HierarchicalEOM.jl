@@ -38,6 +38,7 @@ jobs:
       matrix:
         julia-version:
           - 'lts'
+          - '1'
         os:
           - 'ubuntu-latest'
         arch:
