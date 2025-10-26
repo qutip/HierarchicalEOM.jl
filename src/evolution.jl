@@ -18,10 +18,13 @@ A structure storing the results and some information from solving time evolution
 - `reltol::Real`: The relative tolerance which is used during the solving process.
 """
 struct TimeEvolutionHEOMSol{
-    TT1<:Vector{<:Real},
-    TT2<:Vector{<:Real},
+    TT1<:AbstractVector{<:Real},
+    TT2<:AbstractVector{<:Real},
     TS<:Vector{ADOs},
-    TE<:Union{Nothing,Matrix{ComplexF64}},
+    TE<:Union{Nothing,AbstractMatrix},
+    RETT<:Enum,
+    AlgT<:Union{Nothing,OrdinaryDiffEqAlgorithm},
+    TolT<:Real,
 }
     Btier::Int
     Ftier::Int
@@ -29,10 +32,10 @@ struct TimeEvolutionHEOMSol{
     times_ados::TT2
     ados::TS
     expect::TE
-    retcode::Union{Nothing,Enum}
-    alg::Union{Nothing,OrdinaryDiffEqAlgorithm}
-    abstol::Union{Nothing,Real}
-    reltol::Union{Nothing,Real}
+    retcode::RETT
+    alg::AlgT
+    abstol::TolT
+    reltol::TolT
 end
 
 function Base.show(io::IO, sol::TimeEvolutionHEOMSol)
