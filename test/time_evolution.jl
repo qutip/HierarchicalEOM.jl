@@ -33,7 +33,7 @@
     ρ_list_p = getRho.(ados_list)
     @test show(devnull, MIME("text/plain"), sol_p) === nothing
     @test length(sol_p.ados) == 1
-    @test_throws ErrorException evolution(L, ψ0, Δt, steps; verbose = false)
+    @test_logs (:warn,) evolution(L, ψ0, Δt, steps; verbose = false) # deprecated function
     @test_throws ErrorException heomsolve(L, ρ_wrong, Δt, steps; verbose = false)
     @test_throws ErrorException heomsolve(L, ados_wrong1, Δt, steps; verbose = false)
     @test_throws ErrorException heomsolve(L, ados_wrong2, Δt, steps; verbose = false)
@@ -46,7 +46,7 @@
     ρ_list_e = getRho.(sol_e.ados)
     expvals_e = sol_e.expect
     @test show(devnull, MIME("text/plain"), sol_e) === nothing
-    @test_throws ErrorException evolution(L, ψ0, tlist; progress_bar = Val(false))
+    @test_logs (:warn,) evolution(L, ψ0, tlist; progress_bar = Val(false)) # deprecated function
     @test_throws ErrorException heomsolve(L, ψ0, tlist; verbose = true)
     @test_throws ErrorException heomsolve(L, ψ0, tlist; filename = "test")
     @test_throws DimensionMismatch heomsolve(L, ρ_wrong, tlist; progress_bar = Val(false))
