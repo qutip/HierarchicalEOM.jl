@@ -4,3 +4,6 @@ HierarchicalEOM = "a62dbcb7-80f5-4d31-9a88-8b19fd92b128"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 QuantumToolbox = "6c2fb7c5-b903-41d2-bc5e-5a7c320b9fab"
+
+[compat]
+QuantumToolbox = "0.37"
