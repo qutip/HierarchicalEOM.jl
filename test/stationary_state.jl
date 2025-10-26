@@ -30,8 +30,8 @@
     mat = Qobj(zeros(ComplexF64, 2, 2))
     mat2 = Qobj(zeros(ComplexF64, 3, 3))
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
-    @test_throws ErrorException SteadyState(L)
-    @test_throws ErrorException SteadyState(L, ψ0)
+    @test_logs (:warn,) SteadyState(L) # deprecated function
+    @test_logs (:warn,) SteadyState(L, ψ0) # deprecated function
     @test_throws ErrorException steadystate(M_Fermion(mat, 2, bathf, ODD; verbose = false))
     @test_throws ErrorException steadystate(M_Fermion(mat, 2, bathf, ODD; verbose = false), mat)
     @test_throws ErrorException steadystate(L, mat2)

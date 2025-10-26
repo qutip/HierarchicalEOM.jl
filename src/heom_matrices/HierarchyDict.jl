@@ -288,7 +288,7 @@ Here is an example to use [`Bath`](@ref lib-Bath), [`Exponent`](@ref), [`Hierarc
 ```julia
 L::M_Fermion;          # suppose this is a fermion type of HEOM Liouvillian superoperator matrix you create
 HDict = L.hierarchy;   # the hierarchy dictionary
-ados = SteadyState(L); # the stationary state (ADOs) for L 
+ados = steadystate(L); # the stationary state (ADOs) for L 
 
 # Let's consider all the ADOs for first level
 idx_list = HDict.lvl2idx[1];

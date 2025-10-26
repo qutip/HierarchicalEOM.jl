@@ -42,7 +42,7 @@
     types = ["bRI", "bRI", "bR", "bR", "bI", "bI", "bI"]
     @test length(b) == 7
     @test correlation_function(b, 0.183183)[1] ≈ correlation_function(bs, [0.183183])[1]
-    @test_throws ErrorException C(bs, [0.183183])
+    @test_logs (:warn,) C(bs, [0.183183]) # deprecated function
 
     ## check for η and γ list, and coupling operator
     η = Vector{ComplexF64}(undef, length(b))
@@ -82,7 +82,7 @@
     types = ["bA", "bA", "bA", "bA", "bA", "bE", "bE", "bE", "bE", "bE"]
     @test length(bs) == 10
     cp, cm = correlation_function(b, 0.183183)
-    @test_throws ErrorException C(b, [0.183183])
+    @test_logs (:warn,) C(b, [0.183183]) # deprecated function
     @test cp[1] ≈ 22.384506765987076 + 0.7399082821797519im
     @test cm[1] ≈ 26.994911851482776 - 0.799138487523946im
 
@@ -136,7 +136,7 @@
     types = ["fA", "fA", "fA", "fA", "fA", "fE", "fE", "fE", "fE", "fE"]
     @test length(b) == 10
     cp, cm = correlation_function(b, 0.183183)
-    @test_throws ErrorException C(b, [0.183183])
+    @test_logs (:warn,) C(b, [0.183183]) # deprecated function
     @test cp[1] ≈ 22.384506765987076 + 0.7399082821797519im
     @test cm[1] ≈ 26.994911851482776 - 0.799138487523946im
     for (i, e) in enumerate(b)
