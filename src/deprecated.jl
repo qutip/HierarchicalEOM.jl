@@ -43,13 +43,13 @@ function evolution(args...; kwargs...)
 end
 
 export C
-function C(args...; kwargs...)
+function C(args...)
     Base.depwarn(
         "`C` is deprecated and will be removed in next major release, use `correlation_function` instead.",
         :C,
         force = true,
     )
-    return correlation_function(args...; kwargs...)
+    return correlation_function(args...)
 end
 
 _HEOMSuperOp_deprecated_method_error() = error(
