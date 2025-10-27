@@ -41,7 +41,7 @@
     @test_throws ErrorException heomsolve(L, ados_wrong4, Δt, steps; progress_bar = Val(false))
 
     # using the method based on ODE solver
-    sol_e = heomsolve(L, ψ0, tlist; e_ops = e_ops, saveat = tlist, progress_bar = Val(false))
+    sol_e = heomsolve(L, ψ0, tlist; e_ops = e_ops, saveat = tlist, progress_bar = Val(true)) # also test progress bar
     sol_e2 = heomsolve(L, ψ0, tlist; e_ops = e_ops, progress_bar = Val(false))
     ρ_list_e = getRho.(sol_e.ados)
     expvals_e = sol_e.expect
@@ -270,6 +270,7 @@
         e_ops = [P01],
         reltol = 1e-12,
         abstol = 1e-12,
+        progress_bar = Val(true),
     ) # also test progress_bar
 
     @test size(mapDD_sol) == (1, 2, 1, 1)

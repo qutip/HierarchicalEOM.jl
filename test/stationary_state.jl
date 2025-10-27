@@ -18,29 +18,29 @@
     tier = 5
     L = M_Fermion(Hsys, tier, baths; verbose = false)
 
-    ados = steadystate(L, ψ0; verbose = false)
+    ados = steadystate(L, ψ0; verbose = true) # also test verbose
     ρs = getRho(ados)
     O = qeye(2) + 0.5 * sigmax()
     @test expect(O, ados) ≈ real(tr(O * ρs))
     @test expect(O, ados, take_real = false) ≈ tr(O * ρs)
 
-    ρ1 = getRho(steadystate(L; verbose = false))
+    ρ1 = getRho(steadystate(L; verbose = true)) # also test verbose
     @test isapprox(ρ1, ρs, atol = 1e-6)
 
     mat = Qobj(zeros(ComplexF64, 2, 2))
     mat2 = Qobj(zeros(ComplexF64, 3, 3))
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
-    @test_logs (:warn,) SteadyState(L) # deprecated function
-    @test_logs (:warn,) SteadyState(L, ψ0) # deprecated function
+    @test_logs (:warn,) SteadyState(L; verbose = false) # deprecated function
+    @test_logs (:warn,) SteadyState(L, ψ0; verbose = false) # deprecated function
     @test_throws ErrorException steadystate(M_Fermion(mat, 2, bathf, ODD; verbose = false))
     @test_throws ErrorException steadystate(M_Fermion(mat, 2, bathf, ODD; verbose = false), mat)
-    @test_throws ErrorException steadystate(L, mat2)
-    @test_throws ErrorException steadystate(L, ADOs(zeros(8), 2))
-    @test_throws ErrorException steadystate(L, ADOs(ados.data, ados.N, ODD))
-    @test_throws ErrorException steadystate(L, HEOMSuperOp(spre(d), ODD, L) * ados)
+    @test_throws ErrorException steadystate(L, mat2; verbose = false)
+    @test_throws ErrorException steadystate(L, ADOs(zeros(8), 2); verbose = false)
+    @test_throws ErrorException steadystate(L, ADOs(ados.data, ados.N, ODD); verbose = false)
+    @test_throws ErrorException steadystate(L, HEOMSuperOp(spre(d), ODD, L) * ados; verbose = false)
 
     # deprecated kwargs
     import LinearSolve, OrdinaryDiffEqLowOrderRK # when removing these, remember to also remove them in test/Project.toml
-    @test_throws ErrorException steadystate(L; solver = LinearSolve.KrylovJL_GMRES())
-    @test_throws ErrorException steadystate(L, ψ0; solver = OrdinaryDiffEqLowOrderRK.DP5())
+    @test_throws ErrorException steadystate(L; solver = LinearSolve.KrylovJL_GMRES(), verbose = false)
+    @test_throws ErrorException steadystate(L, ψ0; solver = OrdinaryDiffEqLowOrderRK.DP5(), verbose = false)
 end

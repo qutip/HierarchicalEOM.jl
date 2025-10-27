@@ -26,7 +26,7 @@
     # jump operator
     J = Qobj([0 0.1450-0.7414im; 0.1450+0.7414im 0])
 
-    L = M_Fermion(Hsys, tier, Fbath; verbose = false)
+    L = M_Fermion(Hsys, tier, Fbath; verbose = true) # also test progress bar
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (1196, 1196)
     @test L.N == 299

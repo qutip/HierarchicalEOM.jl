@@ -31,7 +31,7 @@
         rm("DOS.txt")
     end
     d_up_normal = HEOMSuperOp(spre(d_up), ODD, Le)
-    dos1 = DensityOfStates(Lo, ados_s, d_up, ωlist; progress_bar = Val(false), filename = "DOS")
+    dos1 = DensityOfStates(Lo, ados_s, d_up, ωlist; progress_bar = Val(true), filename = "DOS") # also test progress bar
     dos2 =
         PowerSpectrum(Lo, ados_s, d_up_normal, d_up', ωlist, true; progress_bar = Val(false)) .+
         PowerSpectrum(Lo, ados_s, d_up', d_up_normal, ωlist, false; progress_bar = Val(false))

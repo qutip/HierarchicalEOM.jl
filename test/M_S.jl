@@ -4,7 +4,7 @@
     # Test Schrodinger type HEOM Liouvillian superoperator matrix
     t = 10
     Hsys = sigmax()
-    L = M_S(Hsys; verbose = false)
+    L = M_S(Hsys; verbose = true) # also test progress bar
     L_super = M_S(liouvillian(Hsys); verbose = false) # test if input is already Liouvillian
     ψ0 = basis(2, 0)
     @test show(devnull, MIME("text/plain"), L) === nothing
