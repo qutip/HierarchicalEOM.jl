@@ -72,9 +72,27 @@
     @test_throws ErrorException DensityOfStates(Lo, ados_s, mat2, ωlist; progress_bar = Val(false))
     @test_throws ErrorException DensityOfStates(Lo, ADOs(zeros(8), 2), d_up, ωlist; progress_bar = Val(false))
     @test_throws ErrorException DensityOfStates(Lo, ADOs(zeros(32), 2), d_up, ωlist; progress_bar = Val(false))
-    @test_throws ErrorException DensityOfStates(Lo, ADOs(ados_s.data, ados_s.N, ODD), d_up, ωlist; progress_bar = Val(false))
-    @test_throws ErrorException DensityOfStates(M_Boson(mat, 2, bathb; verbose = false), mat, mat, [0]; progress_bar = Val(false))
-    @test_throws ErrorException DensityOfStates(M_Fermion(mat, 2, fuL; verbose = false), mat, mat, [0]; progress_bar = Val(false))
+    @test_throws ErrorException DensityOfStates(
+        Lo,
+        ADOs(ados_s.data, ados_s.N, ODD),
+        d_up,
+        ωlist;
+        progress_bar = Val(false),
+    )
+    @test_throws ErrorException DensityOfStates(
+        M_Boson(mat, 2, bathb; verbose = false),
+        mat,
+        mat,
+        [0];
+        progress_bar = Val(false),
+    )
+    @test_throws ErrorException DensityOfStates(
+        M_Fermion(mat, 2, fuL; verbose = false),
+        mat,
+        mat,
+        [0];
+        progress_bar = Val(false),
+    )
 
     # deprecated kwargs
     import LinearSolve # when removing this, remember to also remove LinearSolve in test/Project.toml

@@ -20,9 +20,8 @@ function QuantumToolbox.steadystate(
     verbose::Bool = true,
     kwargs...,
 )
-    haskey(kwargs, :solver) && error(
-        "The keyword argument `solver` for solving HEOM steadystate is deprecated, use `alg` instead.",
-    )
+    haskey(kwargs, :solver) &&
+        error("The keyword argument `solver` for solving HEOM steadystate is deprecated, use `alg` instead.")
 
     # check parity
     if typeof(M.parity) != EvenParity
@@ -90,9 +89,8 @@ function QuantumToolbox.steadystate(
     verbose::Bool = true,
     kwargs...,
 ) where {T_state<:Union{QuantumObject,ADOs}}
-    haskey(kwargs, :solver) && error(
-        "The keyword argument `solver` for solving HEOM steadystate is deprecated, use `alg` instead.",
-    )
+    haskey(kwargs, :solver) &&
+        error("The keyword argument `solver` for solving HEOM steadystate is deprecated, use `alg` instead.")
 
     (typeof(M.parity) == EvenParity) || error("The parity of M should be \"EVEN\".")
 

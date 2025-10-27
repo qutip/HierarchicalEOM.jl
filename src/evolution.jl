@@ -240,8 +240,7 @@ function HEOMsolve(
     inplace::Union{Val,Bool} = Val(true),
     kwargs...,
 ) where {T_state<:Union{QuantumObject,ADOs}}
-    haskey(kwargs, :solver) &&
-        error("The keyword argument `solver` for HEOMsolve is deprecated, use `alg` instead.")
+    haskey(kwargs, :solver) && error("The keyword argument `solver` for HEOMsolve is deprecated, use `alg` instead.")
     haskey(kwargs, :verbose) &&
         error("The keyword argument `verbose` for HEOMsolve is deprecated, use `progress_bar` instead.")
     haskey(kwargs, :filename) && error("The keyword argument `filename` for HEOMsolve is deprecated.")

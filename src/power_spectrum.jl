@@ -17,7 +17,18 @@ PowerSpectrum(
     progress_bar::Union{Val,Bool} = Val(true),
     filename::String = "",
     kwargs...,
-) = PowerSpectrum(M, ρ, Q_op', Q_op, ωlist, reverse; alg = alg, progress_bar = progress_bar, filename = filename, kwargs...)
+) = PowerSpectrum(
+    M,
+    ρ,
+    Q_op',
+    Q_op,
+    ωlist,
+    reverse;
+    alg = alg,
+    progress_bar = progress_bar,
+    filename = filename,
+    kwargs...,
+)
 
 @doc raw"""
     PowerSpectrum(M, ρ, P_op, Q_op, ωlist, reverse; alg, progress_bar, filename, kwargs...)
