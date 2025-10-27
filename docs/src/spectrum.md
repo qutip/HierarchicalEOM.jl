@@ -17,7 +17,7 @@ The output of the above listed functions will always be in the type of `Vector{F
 
 ## Common and optional parameters
 Furthermore, there are two common optional parameters for all the functions provided below:
-- `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
+- `progress_bar::Union{Val,Bool}`: Whether to show the progress bar. Defaults to `Val(true)`.
 - `filename::String` : If filename was specified, the value of spectrum for each ω will be saved into the file "filename.txt" during the solving process.
 
 If the filename is specified, the function will automatically save (update) the value (together with a comma behind it) to a new line in the file (with ".txt" behind the filename) once it obtains the solution of each specified ``\omega``. For example, if you specify `filename="test"` and `ωlist=0:1:5`, you will obtain a file `test.txt` where each line in this file (as shown below) is the result of spectrum corresponding to the given `ωlist`:

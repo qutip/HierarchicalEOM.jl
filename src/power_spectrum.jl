@@ -1,11 +1,11 @@
 export PowerSpectrum
 
 @doc raw"""
-    PowerSpectrum(M, ρ, Q_op, ωlist, reverse; alg, verbose, filename, kwargs...)
+    PowerSpectrum(M, ρ, Q_op, ωlist, reverse; alg, progress_bar, filename, kwargs...)
 Calculate power spectrum for the system in frequency domain where `P_op` will be automatically set as the adjoint of `Q_op`.
 
 This function is equivalent to:
-`PowerSpectrum(M, ρ, Q_op', Q_op, ωlist, reverse; alg, verbose, filename, kwargs...)`
+`PowerSpectrum(M, ρ, Q_op', Q_op, ωlist, reverse; alg, progress_bar, filename, kwargs...)`
 """
 PowerSpectrum(
     M::AbstractHEOMLSMatrix{<:MatrixOperator},
@@ -14,13 +14,13 @@ PowerSpectrum(
     ωlist::AbstractVector,
     reverse::Bool = false;
     alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14),
-    verbose::Bool = true,
+    progress_bar::Union{Val,Bool} = Val(true),
     filename::String = "",
     kwargs...,
-) = PowerSpectrum(M, ρ, Q_op', Q_op, ωlist, reverse; alg = alg, verbose = verbose, filename = filename, kwargs...)
+) = PowerSpectrum(M, ρ, Q_op', Q_op, ωlist, reverse; alg = alg, progress_bar = progress_bar, filename = filename, kwargs...)
 
 @doc raw"""
-    PowerSpectrum(M, ρ, P_op, Q_op, ωlist, reverse; alg, verbose, filename, kwargs...)
+    PowerSpectrum(M, ρ, P_op, Q_op, ωlist, reverse; alg, progress_bar, filename, kwargs...)
 Calculate power spectrum for the system in frequency domain.
 
 ```math
@@ -43,7 +43,7 @@ remember to set the parameters:
 - `ωlist::AbstractVector` : the specific frequency points to solve.
 - `reverse::Bool` : If `true`, calculate ``\langle P(-t)Q(0) \rangle = \langle P(0)Q(t) \rangle = \langle P(t)Q(0) \rangle^*`` instead of ``\langle P(t) Q(0) \rangle``. Default to `false`.
 - `alg::SciMLLinearSolveAlgorithm` : The solving algorithm in package `LinearSolve.jl`. Default to `KrylovJL_GMRES(rtol=1e-12, atol=1e-14)`.
-- `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
+- `progress_bar::Union{Val,Bool}`: Whether to show the progress bar. Defaults to `Val(true)`.
 - `filename::String` : If filename was specified, the value of spectrum for each ω will be saved into the file "filename.txt" during the solving process.
 - `kwargs` : The keyword arguments for `LinearProblem`.
 
@@ -61,12 +61,14 @@ remember to set the parameters:
     ωlist::AbstractVector,
     reverse::Bool = false;
     alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14),
-    verbose::Bool = true,
+    progress_bar::Union{Val,Bool} = Val(true),
     filename::String = "",
     kwargs...,
 )
     haskey(kwargs, :solver) &&
-        error("The keyword argument `solver` for PowerSpectrum has been deprecated, please use `alg` instead.")
+        error("The keyword argument `solver` for PowerSpectrum is deprecated, use `alg` instead.")
+    haskey(kwargs, :verbose) &&
+        error("The keyword argument `verbose` for PowerSpectrum is deprecated, use `progress_bar` instead.")
 
     # Handle ρ
     if ρ isa ADOs
@@ -113,39 +115,26 @@ remember to set the parameters:
     Length = length(ωList)
     Sω = Vector{Float64}(undef, Length)
 
-    if verbose
-        print("Calculating power spectrum in frequency domain...\n")
-        flush(stdout)
-    end
-    prog = ProgressBar(Length; enable = verbose)
+    progr = Progress(Length, showspeed = true, enabled = getVal(progress_bar), desc = "[PowerSpectrum] ")
     i = reverse ? convert(ElType, 1im) : i = convert(ElType, -1im)
     I_total = I(size(M, 1))
-    cache = nothing
-    for ω in ωList
-        Iω = i * ω * I_total
-
-        if prog.counter[] == 0
-            cache = init(LinearProblem(M.data.A + Iω, b), alg, kwargs...)
-            sol = solve!(cache)
-        else
-            cache.A = M.data.A + Iω
-            sol = solve!(cache)
+    cache = init(LinearProblem(M.data.A + i * ωList[1] * I_total, b), alg, kwargs...)
+    for (idx, ω) in enumerate(ωList)
+        if idx > 1
+            cache.A = M.data.A + i * ω * I_total
         end
+        sol = solve!(cache)
 
         # trace over the Hilbert space of system (expectation value)
         val = -1 * real(dot(_tr_P, sol.u))
-        Sω[prog.counter[]+1] = val
+        Sω[idx] = val
 
         if SAVE
             open(FILENAME, "a") do file
                 return write(file, "$(val),\n")
             end
         end
-        next!(prog)
+        next!(progr)
     end
-    if verbose
-        println("[DONE]")
-    end
-
     return Sω
 end

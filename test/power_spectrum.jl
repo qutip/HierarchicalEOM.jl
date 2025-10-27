@@ -20,7 +20,7 @@
     if isfile("PSD.txt")
         rm("PSD.txt")
     end
-    psd1 = PowerSpectrum(L, ados_s, a, ωlist; verbose = false, filename = "PSD")
+    psd1 = PowerSpectrum(L, ados_s, a, ωlist; progress_bar = Val(true), filename = "PSD") # also test progress_bar
     psd2 = [ # result with alg = UMFPACKFactorization()
         0.0008880366931592341,
         0.0010614535356223845,
@@ -54,11 +54,12 @@
     a_even = HEOMSuperOp(spre(a), EVEN, L)
     a_odd = HEOMSuperOp(spre(a), ODD, L)
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
-    @test_throws ErrorException PowerSpectrum(L, ados_s, a, ωlist; verbose = false, filename = "PSD")
-    @test_throws ErrorException PowerSpectrum(L, ados_s, a_even, a_odd, ωlist; verbose = false)
-    @test_throws ErrorException PowerSpectrum(L, ados_s, mat2, ωlist; verbose = false)
-    @test_throws ErrorException PowerSpectrum(L, ADOs(zeros(8), 2), a, ωlist; verbose = false)
-    @test_throws ErrorException PowerSpectrum(L, ADOs(zeros(32), 2), a, ωlist; verbose = false)
+    @test_throws ErrorException PowerSpectrum(L, ados_s, a, ωlist; verbose = false)
+    @test_throws ErrorException PowerSpectrum(L, ados_s, a, ωlist; progress_bar = Val(false), filename = "PSD")
+    @test_throws ErrorException PowerSpectrum(L, ados_s, a_even, a_odd, ωlist; progress_bar = Val(false))
+    @test_throws ErrorException PowerSpectrum(L, ados_s, mat2, ωlist; progress_bar = Val(false))
+    @test_throws ErrorException PowerSpectrum(L, ADOs(zeros(8), 2), a, ωlist; progress_bar = Val(false))
+    @test_throws ErrorException PowerSpectrum(L, ADOs(zeros(32), 2), a, ωlist; progress_bar = Val(false))
 
     # deprecated kwargs
     import LinearSolve # when removing this, remember to also remove LinearSolve in test/Project.toml

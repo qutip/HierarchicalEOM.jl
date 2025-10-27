@@ -93,7 +93,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
     if verbose
         println("Preparing block matrices for HEOM Liouvillian superoperator (using $(Nthread) threads)...")
         flush(stdout)
-        prog = ProgressBar(Nado)
+        progr = Progress(Nado, showspeed = true, enabled = verbose, desc = "[M_Fermion] ")
     end
     @threads for idx in 1:Nado
 
@@ -144,7 +144,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
             end
         end
         if verbose
-            next!(prog) # trigger a progress bar update
+            next!(progr) # trigger a progress bar update
         end
     end
     if verbose
