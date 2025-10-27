@@ -146,9 +146,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                 end
             end
         end
-        if verbose
-            next!(progr) # trigger a progress bar update
-        end
+        verbose && next!(progr) # trigger a progress bar update
     end
     if verbose
         print("Constructing matrix...")

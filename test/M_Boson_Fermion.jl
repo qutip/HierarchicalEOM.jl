@@ -27,7 +27,7 @@
     # jump operator
     J = Qobj([0 0.1450-0.7414im; 0.1450+0.7414im 0])
 
-    L = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose = true) # also test progress bar
+    L = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose = true) # also test verbosity
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (2220, 2220)
     @test L.N == 555

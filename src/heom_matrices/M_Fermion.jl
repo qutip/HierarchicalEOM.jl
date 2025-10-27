@@ -143,9 +143,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
                 end
             end
         end
-        if verbose
-            next!(progr) # trigger a progress bar update
-        end
+        verbose && next!(progr) # trigger a progress bar update
     end
     if verbose
         print("Constructing matrix...")

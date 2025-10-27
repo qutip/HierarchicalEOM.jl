@@ -53,7 +53,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 
     # the Liouvillian operator for free Hamiltonian
     if verbose
-        println("Constructing Liouville-von Neumann superoperator...")
+        print("Constructing Liouville-von Neumann superoperator...")
         flush(stdout)
     end
     Lsys = MatrixOperator(minus_i_L_op(_Hsys))

@@ -25,7 +25,7 @@
     # jump operator
     J = Qobj([0 0.1450-0.7414im; 0.1450+0.7414im 0])
 
-    L = M_Boson(Hsys, tier, Bbath; verbose = true) # also test progress bar
+    L = M_Boson(Hsys, tier, Bbath; verbose = true) # also test verbosity
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (336, 336)
     @test L.N == 84
