@@ -31,10 +31,10 @@
         rm("DOS.txt")
     end
     d_up_normal = HEOMSuperOp(spre(d_up), ODD, Le)
-    dos1 = DensityOfStates(Lo, ados_s, d_up, ωlist; verbose = false, filename = "DOS")
+    dos1 = DensityOfStates(Lo, ados_s, d_up, ωlist; progress_bar = Val(true), filename = "DOS") # also test progress bar
     dos2 =
-        PowerSpectrum(Lo, ados_s, d_up_normal, d_up', ωlist, true; verbose = false) .+
-        PowerSpectrum(Lo, ados_s, d_up', d_up_normal, ωlist, false; verbose = false)
+        PowerSpectrum(Lo, ados_s, d_up_normal, d_up', ωlist, true; progress_bar = Val(false)) .+
+        PowerSpectrum(Lo, ados_s, d_up', d_up_normal, ωlist, false; progress_bar = Val(false))
     dos3 = [ # result with alg = UMFPACKFactorization()
         0.0007920428534358747,
         0.0012795202828027256,
@@ -67,13 +67,32 @@
     mat = rand_dm(2)
     mat2 = rand_dm(3)
     bathb = Boson_DrudeLorentz_Pade(mat, 1, 1, 1, 2)
-    @test_throws ErrorException DensityOfStates(Lo, ados_s, d_up, ωlist; verbose = false, filename = "DOS")
-    @test_throws ErrorException DensityOfStates(Lo, ados_s, mat2, ωlist; verbose = false)
-    @test_throws ErrorException DensityOfStates(Lo, ADOs(zeros(8), 2), d_up, ωlist; verbose = false)
-    @test_throws ErrorException DensityOfStates(Lo, ADOs(zeros(32), 2), d_up, ωlist; verbose = false)
-    @test_throws ErrorException DensityOfStates(Lo, ADOs(ados_s.data, ados_s.N, ODD), d_up, ωlist; verbose = false)
-    @test_throws ErrorException DensityOfStates(M_Boson(mat, 2, bathb; verbose = false), mat, mat, [0])
-    @test_throws ErrorException DensityOfStates(M_Fermion(mat, 2, fuL; verbose = false), mat, mat, [0])
+    @test_throws ErrorException DensityOfStates(Lo, ados_s, d_up, ωlist; verbose = true) # deprecated function
+    @test_throws ErrorException DensityOfStates(Lo, ados_s, d_up, ωlist; progress_bar = Val(false), filename = "DOS")
+    @test_throws ErrorException DensityOfStates(Lo, ados_s, mat2, ωlist; progress_bar = Val(false))
+    @test_throws ErrorException DensityOfStates(Lo, ADOs(zeros(8), 2), d_up, ωlist; progress_bar = Val(false))
+    @test_throws ErrorException DensityOfStates(Lo, ADOs(zeros(32), 2), d_up, ωlist; progress_bar = Val(false))
+    @test_throws ErrorException DensityOfStates(
+        Lo,
+        ADOs(ados_s.data, ados_s.N, ODD),
+        d_up,
+        ωlist;
+        progress_bar = Val(false),
+    )
+    @test_throws ErrorException DensityOfStates(
+        M_Boson(mat, 2, bathb; verbose = false),
+        mat,
+        mat,
+        [0];
+        progress_bar = Val(false),
+    )
+    @test_throws ErrorException DensityOfStates(
+        M_Fermion(mat, 2, fuL; verbose = false),
+        mat,
+        mat,
+        [0];
+        progress_bar = Val(false),
+    )
 
     # deprecated kwargs
     import LinearSolve # when removing this, remember to also remove LinearSolve in test/Project.toml

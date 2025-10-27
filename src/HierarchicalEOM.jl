@@ -60,6 +60,7 @@ import Base.Threads: @threads, nthreads, Channel
 import FastExpm: fastExpm
 import IncompleteLU: ilu
 import Pkg
+import ProgressMeter: Progress, next!
 
 # Basic functions
 include("HeomBase.jl")

@@ -100,16 +100,16 @@ CUDA.@time @testset "CUDA Extension" begin
     L_odd_cpu = M_Fermion(Hsys, tier, bath_list, ODD; verbose = false)
     L_odd_gpu_32 = cu(L_odd_cpu, word_size = Val(32))
     L_odd_gpu_64 = cu(L_odd_cpu, word_size = Val(64))
-    dos_cpu = DensityOfStates(L_odd_cpu, ados_cpu, d_up, ωlist; verbose = false)
+    dos_cpu = DensityOfStates(L_odd_cpu, ados_cpu, d_up, ωlist; progress_bar = Val(false))
     dos_gpu_32 = DensityOfStates(
         L_odd_gpu_32,
         ados_cpu,
         d_up,
         ωlist;
-        verbose = false,
+        progress_bar = Val(false),
         alg = KrylovJL_BICGSTAB(rtol = 1.0f-12, atol = 1.0f-14), # somehow KrylovJL_GMRES doesn't work for Float32 (it takes forever to solve)
     )
-    dos_gpu_64 = DensityOfStates(L_odd_gpu_64, ados_cpu, d_up, ωlist; verbose = false)
+    dos_gpu_64 = DensityOfStates(L_odd_gpu_64, ados_cpu, d_up, ωlist; progress_bar = Val(false))
     @test L_odd_gpu_32.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF32,Int32}
     @test L_odd_gpu_64.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64,Int32}
     for (i, ω) in enumerate(ωlist)

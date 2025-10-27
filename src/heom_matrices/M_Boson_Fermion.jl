@@ -133,7 +133,12 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
     if verbose
         println("Preparing block matrices for HEOM Liouvillian superoperator (using $(Nthread) threads)...")
         flush(stdout)
-        prog = ProgressBar(Nado)
+        progr = Progress(
+            Nado;
+            enabled = verbose,
+            desc = "[M_Boson_Fermion] ",
+            QuantumToolbox.settings.ProgressMeterKWARGS...,
+        )
     end
     @threads for idx in 1:Nado
 
@@ -221,9 +226,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                 end
             end
         end
-        if verbose
-            next!(prog) # trigger a progress bar update
-        end
+        verbose && next!(progr) # trigger a progress bar update
     end
     if verbose
         print("Constructing matrix...")

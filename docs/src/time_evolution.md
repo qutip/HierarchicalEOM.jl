@@ -129,7 +129,7 @@ To construct the propagator, we wrap the function in the package [`fastExpm.jl`]
 See the docstring of this method:  
 
 ```@docs
-HEOMsolve(M::AbstractHEOMLSMatrix ,ρ0::T_state, Δt::Real, steps::Int; e_ops::Union{Nothing,AbstractVector} = nothing, threshold = 1.0e-6, nonzero_tol = 1.0e-14, verbose::Bool = true) where {T_state<:Union{QuantumObject,ADOs}}
+HEOMsolve(M::AbstractHEOMLSMatrix ,ρ0::T_state, Δt::Real, steps::Int; e_ops::Union{Nothing,AbstractVector} = nothing, threshold = 1.0e-6, nonzero_tol = 1.0e-14, progress_bar::Union{Val,Bool} = Val(true)) where {T_state<:Union{QuantumObject,ADOs}}
 ```
 
 ```julia

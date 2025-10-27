@@ -23,8 +23,8 @@
     steps = 10
     tlist = 0:Δt:(Δt*steps)
     # using the method based on propagator
-    ados_list = heomsolve(L, ψ0, Δt, steps; verbose = false).ados
-    sol_p = heomsolve(L, ψ0, Δt, steps; e_ops = e_ops, verbose = false)
+    ados_list = heomsolve(L, ψ0, Δt, steps; progress_bar = Val(true)).ados # also test progress bar
+    sol_p = heomsolve(L, ψ0, Δt, steps; e_ops = e_ops, progress_bar = Val(false))
     expvals_p = sol_p.expect
     ados_wrong1 = ADOs(zeros(8), 2)
     ados_wrong2 = ADOs(zeros(32), 2)
@@ -33,15 +33,15 @@
     ρ_list_p = getRho.(ados_list)
     @test show(devnull, MIME("text/plain"), sol_p) === nothing
     @test length(sol_p.ados) == 1
-    @test_logs (:warn,) evolution(L, ψ0, Δt, steps; verbose = false) # deprecated function
-    @test_throws ErrorException heomsolve(L, ρ_wrong, Δt, steps; verbose = false)
-    @test_throws ErrorException heomsolve(L, ados_wrong1, Δt, steps; verbose = false)
-    @test_throws ErrorException heomsolve(L, ados_wrong2, Δt, steps; verbose = false)
-    @test_throws ErrorException heomsolve(L, ados_wrong3, Δt, steps; verbose = false)
-    @test_throws ErrorException heomsolve(L, ados_wrong4, Δt, steps; verbose = false)
+    @test_logs (:warn,) evolution(L, ψ0, Δt, steps; progress_bar = Val(false)) # deprecated function
+    @test_throws ErrorException heomsolve(L, ρ_wrong, Δt, steps; progress_bar = Val(false))
+    @test_throws ErrorException heomsolve(L, ados_wrong1, Δt, steps; progress_bar = Val(false))
+    @test_throws ErrorException heomsolve(L, ados_wrong2, Δt, steps; progress_bar = Val(false))
+    @test_throws ErrorException heomsolve(L, ados_wrong3, Δt, steps; progress_bar = Val(false))
+    @test_throws ErrorException heomsolve(L, ados_wrong4, Δt, steps; progress_bar = Val(false))
 
     # using the method based on ODE solver
-    sol_e = heomsolve(L, ψ0, tlist; e_ops = e_ops, saveat = tlist, progress_bar = Val(false))
+    sol_e = heomsolve(L, ψ0, tlist; e_ops = e_ops, saveat = tlist, progress_bar = Val(true)) # also test progress bar
     sol_e2 = heomsolve(L, ψ0, tlist; e_ops = e_ops, progress_bar = Val(false))
     ρ_list_e = getRho.(sol_e.ados)
     expvals_e = sol_e.expect
@@ -270,6 +270,7 @@
         e_ops = [P01],
         reltol = 1e-12,
         abstol = 1e-12,
+        progress_bar = Val(true),
     ) # also test progress_bar
 
     @test size(mapDD_sol) == (1, 2, 1, 1)

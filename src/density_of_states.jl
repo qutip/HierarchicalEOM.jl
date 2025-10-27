@@ -1,7 +1,7 @@
 export DensityOfStates
 
 @doc raw"""
-    DensityOfStates(M, ρ, d_op, ωlist; alg, verbose, filename, kwargs...)
+    DensityOfStates(M, ρ, d_op, ωlist; alg, progress_bar, filename, kwargs...)
 Calculate density of states for the fermionic system in frequency domain.
 
 ```math
@@ -14,7 +14,7 @@ Calculate density of states for the fermionic system in frequency domain.
 - `d_op::QuantumObject` : The annihilation operator (``d`` as shown above) acting on the fermionic system.
 - `ωlist::AbstractVector` : the specific frequency points to solve.
 - `alg::SciMLLinearSolveAlgorithm` : The solving algorithm in package `LinearSolve.jl`. Default to `KrylovJL_GMRES(rtol=1e-12, atol=1e-14)`.
-- `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
+- `progress_bar::Union{Val,Bool}`: Whether to show the progress bar. Defaults to `Val(true)`.
 - `filename::String` : If filename was specified, the value of spectrum for each ω will be saved into the file "filename.txt" during the solving process.
 - `kwargs` : The keyword arguments for `LinearProblem`.
 
@@ -30,24 +30,22 @@ Calculate density of states for the fermionic system in frequency domain.
     d_op::QuantumObject,
     ωlist::AbstractVector;
     alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14),
-    verbose::Bool = true,
+    progress_bar::Union{Val,Bool} = Val(true),
     filename::String = "",
     kwargs...,
 )
     haskey(kwargs, :solver) &&
-        error("The keyword argument `solver` for DensityOfStates has been deprecated, please use `alg` instead.")
+        error("The keyword argument `solver` for DensityOfStates is deprecated, use `alg` instead.")
+    haskey(kwargs, :verbose) &&
+        error("The keyword argument `verbose` for DensityOfStates is deprecated, use `progress_bar` instead.")
 
     # check M
-    if M.parity == EVEN
-        error("The HEOMLS matrix M must be acting on `ODD`-parity operators.")
-    end
+    (M.parity == EVEN) && error("The HEOMLS matrix M must be acting on `ODD`-parity operators.")
 
     # Handle ρ
     if typeof(ρ) == ADOs  # ρ::ADOs
         ados = ρ
-        if ados.parity != EVEN
-            error("The parity of ρ must be `EVEN`.")
-        end
+        (ados.parity != EVEN) && error("The parity of ρ must be `EVEN`.")
     else
         ados = ADOs(ρ, M.N)
     end
@@ -75,45 +73,36 @@ Calculate density of states for the fermionic system in frequency domain.
     Length = length(ωList)
     Aω = Vector{Float64}(undef, Length)
 
-    if verbose
-        print("Calculating density of states in frequency domain...\n")
-        flush(stdout)
-    end
-    prog = ProgressBar(Length; enable = verbose)
+    progr = Progress(
+        Length;
+        enabled = getVal(progress_bar),
+        desc = "[DensityOfStates] ",
+        QuantumToolbox.settings.ProgressMeterKWARGS...,
+    )
     i = convert(ElType, 1im)
     I_total = I(size(M, 1))
-    cache_m = cache_p = nothing
-    for ω in ωList
-        Iω = i * ω * I_total
-
-        if prog.counter[] == 0
-            cache_m = init(LinearProblem(M.data.A - Iω, b_m), alg, kwargs...)
-            sol_m = solve!(cache_m)
-
-            cache_p = init(LinearProblem(M.data.A + Iω, b_p), alg, kwargs...)
-            sol_p = solve!(cache_p)
-        else
+    Iω1 = i * ωList[1] * I_total
+    cache_m = init(LinearProblem(M.data.A - Iω1, b_m), alg, kwargs...)
+    cache_p = init(LinearProblem(M.data.A + Iω1, b_p), alg, kwargs...)
+    for (idx, ω) in enumerate(ωList)
+        if idx > 1
+            Iω = i * ω * I_total
             cache_m.A = M.data.A - Iω
-            sol_m = solve!(cache_m)
-
             cache_p.A = M.data.A + Iω
-            sol_p = solve!(cache_p)
         end
+        sol_m = solve!(cache_m)
+        sol_p = solve!(cache_p)
 
         # trace over the Hilbert space of system (expectation value)
         val = -1 * real(dot(_tr_d_normal, sol_p.u) + dot(_tr_d_dagger, sol_m.u))
-        Aω[prog.counter[]+1] = val
+        Aω[idx] = val
 
         if SAVE
             open(FILENAME, "a") do file
                 return write(file, "$(val),\n")
             end
         end
-        next!(prog)
+        next!(progr)
     end
-    if verbose
-        println("[DONE]")
-    end
-
     return Aω
 end

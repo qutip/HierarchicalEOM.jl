@@ -5,7 +5,7 @@ Solve the steady state of the auxiliary density operators based on `LinearSolve.
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
 - `alg::SciMLLinearSolveAlgorithm` : The solving algorithm in package `LinearSolve.jl`. Default to `KrylovJL_GMRES(rtol=1e-12, atol=1e-14)`.
-- `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
+- `verbose::Bool` : To display verbose output or not. Defaults to `true`.
 - `kwargs` : The keyword arguments for the `LinearProblem`
 
 # Notes
@@ -20,9 +20,8 @@ function QuantumToolbox.steadystate(
     verbose::Bool = true,
     kwargs...,
 )
-    haskey(kwargs, :solver) && error(
-        "The keyword argument `solver` for solving HEOM steadystate has been deprecated, please use `alg` instead.",
-    )
+    haskey(kwargs, :solver) &&
+        error("The keyword argument `solver` for solving HEOM steadystate is deprecated, use `alg` instead.")
 
     # check parity
     if typeof(M.parity) != EvenParity
@@ -72,7 +71,7 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 - `ρ0::Union{QuantumObject,ADOs}` : system initial state (density matrix) or initial auxiliary density operators (`ADOs`)
 - `tspan::Number` : the time limit to find stationary state. Default to `Inf`
 - `alg::OrdinaryDiffEqAlgorithm` : The ODE algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
-- `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
+- `verbose::Bool` : To display verbose output or not. Defaults to `true`.
 - `kwargs` : The keyword arguments in `ODEProblem`
 
 # Notes
@@ -90,9 +89,8 @@ function QuantumToolbox.steadystate(
     verbose::Bool = true,
     kwargs...,
 ) where {T_state<:Union{QuantumObject,ADOs}}
-    haskey(kwargs, :solver) && error(
-        "The keyword argument `solver` for solving HEOM steadystate has been deprecated, please use `alg` instead.",
-    )
+    haskey(kwargs, :solver) &&
+        error("The keyword argument `solver` for solving HEOM steadystate is deprecated, use `alg` instead.")
 
     (typeof(M.parity) == EvenParity) || error("The parity of M should be \"EVEN\".")
 
@@ -130,7 +128,7 @@ function QuantumToolbox.steadystate(
     end
     sol = solve(prob, alg)
     if verbose
-        println("Last timepoint t = $(sol.t[end])\n[DONE]")
+        println("Last time point t = $(sol.t[end])\n[DONE]")
         flush(stdout)
     end
 

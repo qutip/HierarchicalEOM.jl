@@ -53,7 +53,7 @@ function C(args...)
 end
 
 _HEOMSuperOp_deprecated_method_error() = error(
-    "Specifying `mul_basis = \"L\", \"R\", or \"LR\"` to `HEOMSuperOp` has been deprecated, try to construct system SuperOperator manually by using `spre`, `spost`, or `sprepost`.",
+    "Specifying `mul_basis = \"L\", \"R\", or \"LR\"` to `HEOMSuperOp` is deprecated, try to construct system SuperOperator manually by using `spre`, `spost`, or `sprepost`.",
 )
 
 HEOMSuperOp(op, opParity::AbstractParity, dims, N::Int, mul_basis::AbstractString; Id_cache = I(N)) =
