@@ -73,7 +73,12 @@ Calculate density of states for the fermionic system in frequency domain.
     Length = length(ωList)
     Aω = Vector{Float64}(undef, Length)
 
-    progr = Progress(Length, showspeed = true, enabled = getVal(progress_bar), desc = "[DensityOfStates] ")
+    progr = Progress(
+        Length;
+        enabled = getVal(progress_bar),
+        desc = "[DensityOfStates] ",
+        QuantumToolbox.settings.ProgressMeterKWARGS...,
+    )
     i = convert(ElType, 1im)
     I_total = I(size(M, 1))
     Iω1 = i * ωList[1] * I_total

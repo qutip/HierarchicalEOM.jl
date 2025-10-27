@@ -126,7 +126,12 @@ remember to set the parameters:
     Length = length(ωList)
     Sω = Vector{Float64}(undef, Length)
 
-    progr = Progress(Length, showspeed = true, enabled = getVal(progress_bar), desc = "[PowerSpectrum] ")
+    progr = Progress(
+        Length;
+        enabled = getVal(progress_bar),
+        desc = "[PowerSpectrum] ",
+        QuantumToolbox.settings.ProgressMeterKWARGS...,
+    )
     i = reverse ? convert(ElType, 1im) : i = convert(ElType, -1im)
     I_total = I(size(M, 1))
     cache = init(LinearProblem(M.data.A + i * ωList[1] * I_total, b), alg, kwargs...)

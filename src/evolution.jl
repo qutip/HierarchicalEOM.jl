@@ -127,7 +127,12 @@ function HEOMsolve(
     getVal(progress_bar) && println("[DONE]")
 
     # start solving
-    progr = Progress(steps + 1, showspeed = true, enabled = getVal(progress_bar), desc = "[HEOMsolve (propagator)] ")
+    progr = Progress(
+        steps + 1;
+        enabled = getVal(progress_bar),
+        desc = "[HEOMsolve (propagator)] ",
+        QuantumToolbox.settings.ProgressMeterKWARGS...,
+    )
     for n in 0:steps
         # calculate expectation values
         if !is_empty_e_ops
@@ -337,7 +342,12 @@ function _generate_heom_kwargs(
 
     progr =
         getVal(progress_bar) ?
-        Progress(length(tlist), showspeed = true, enabled = getVal(progress_bar), desc = "[HEOMsolve (ODE)] ") : nothing
+        Progress(
+            length(tlist);
+            enabled = getVal(progress_bar),
+            desc = "[HEOMsolve (ODE)] ",
+            QuantumToolbox.settings.ProgressMeterKWARGS...,
+        ) : nothing
 
     expvals = e_ops isa Nothing ? nothing : Array{ComplexF64}(undef, length(e_ops), length(tlist))
 
