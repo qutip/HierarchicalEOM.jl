@@ -58,11 +58,7 @@ _HEOMSuperOp_deprecated_method_error() = error(
 
 HEOMSuperOp(op, opParity::AbstractParity, dims, N::Int, mul_basis::AbstractString) =
     _HEOMSuperOp_deprecated_method_error()
-HEOMSuperOp(
-    op,
-    opParity::AbstractParity,
-    refHEOMLS::AbstractHEOMLSMatrix,
-    mul_basis::AbstractString
-) = HEOMSuperOp(op, opParity, refHEOMLS.dimensions, refHEOMLS.N, mul_basis)
+HEOMSuperOp(op, opParity::AbstractParity, refHEOMLS::AbstractHEOMLSMatrix, mul_basis::AbstractString) =
+    HEOMSuperOp(op, opParity, refHEOMLS.dimensions, refHEOMLS.N, mul_basis)
 HEOMSuperOp(op, opParity::AbstractParity, refADOs::ADOs, mul_basis::AbstractString) =
     HEOMSuperOp(op, opParity, refADOs.dimensions, refADOs.N, mul_basis)

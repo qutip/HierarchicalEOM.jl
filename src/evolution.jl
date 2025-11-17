@@ -341,10 +341,7 @@ const heomsolve = HEOMsolve # a synonym to align with qutip
 function _generate_Eops(M::AbstractHEOMLSMatrix, e_ops)
     tr_e_ops = [
         # another adjoint will be applied in dot function in the HEOMsolveCallback
-        _HandleTraceVectorType(
-            M,
-            adjoint(HEOMSuperOp(spre(op), EVEN, M.dimensions, M.N).data) * _Tr(M),
-        ) for op in e_ops
+        _HandleTraceVectorType(M, adjoint(HEOMSuperOp(spre(op), EVEN, M.dimensions, M.N).data) * _Tr(M)) for op in e_ops
     ]
     return tr_e_ops
 end

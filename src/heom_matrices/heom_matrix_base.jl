@@ -56,8 +56,7 @@ During the multiplication on all the `ADOs`, the parity of the output `ADOs` mig
 - `opParity::AbstractParity` : the parity label of the given operator (`op`), should be `EVEN` or `ODD`.
 - `refADOs::ADOs` : copy the system `dimensions` and number of `ADOs` (`N`) from this reference `ADOs`   
 """
-HEOMSuperOp(op, opParity::AbstractParity, refADOs::ADOs) =
-    HEOMSuperOp(op, opParity, refADOs.dimensions, refADOs.N)
+HEOMSuperOp(op, opParity::AbstractParity, refADOs::ADOs) = HEOMSuperOp(op, opParity, refADOs.dimensions, refADOs.N)
 
 @doc raw"""
     HEOMSuperOp(op, opParity, dims, N)
