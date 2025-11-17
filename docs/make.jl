@@ -6,7 +6,8 @@ using Documenter, HierarchicalEOM
 
 DocMeta.setdocmeta!(HierarchicalEOM, :DocTestSetup, :(using HierarchicalEOM); recursive = true)
 
-const DRAFT = false # set `true` to disable cell evaluation
+# some options for makedocs
+const DRAFT = get(ENV, "DRAFT", false) == "true"  # DRAFT   = true  disables cell evaluation
 
 const MathEngine = MathJax3(
     Dict(
