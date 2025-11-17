@@ -1,4 +1,4 @@
-export HEOMsolve, heomsolve, HEOMsolve_map, heomsolve_map, TimeEvolutionHEOMSol
+export HEOMsolve, heomsolve, HEOMsolve_map, heomsolve_map, TimeEvolutionHEOMSol, HEOMsolveProblem
 
 @doc raw"""
     struct TimeEvolutionHEOMSol
@@ -23,7 +23,7 @@ struct TimeEvolutionHEOMSol{
     TS<:Vector{ADOs},
     TE<:Union{Nothing,AbstractMatrix},
     RETT<:Union{Nothing,Enum},
-    AlgT<:Union{Nothing,OrdinaryDiffEqAlgorithm},
+    AlgT<:Union{Nothing,AbstractODEAlgorithm},
     TolT<:Union{Nothing,Real},
 }
     Btier::Int
@@ -104,10 +104,8 @@ function HEOMsolve(
         expvals = Array{ComplexF64}(undef, 0, steps + 1)
         is_empty_e_ops = true
     else
-        Id_sys = I(prod(M.dimensions))
-        Id_HEOM = I(M.N)
         expvals = Array{ComplexF64}(undef, length(e_ops), steps + 1)
-        tr_e_ops = _generate_Eops(M, e_ops, Id_sys, Id_HEOM)
+        tr_e_ops = _generate_Eops(M, e_ops)
         is_empty_e_ops = isempty(e_ops)
     end
 
@@ -172,6 +170,44 @@ function _gen_ados_ode_vector(ados::ADOs, M::AbstractHEOMLSMatrix)
     return _HandleVectorType(M, ados.data)
 end
 
+@doc raw"""
+    HEOMsolveProblem(
+        M::AbstractHEOMLSMatrix,
+        ρ0::Union{QuantumObject,ADOs},
+        tlist::AbstractVector;
+        e_ops::Union{Nothing,AbstractVector,Tuple} = nothing,
+        H_t::Union{Nothing,QuantumObjectEvolution} = nothing,
+        params = NullParameters(),
+        progress_bar::Union{Val,Bool} = Val(true),
+        inplace::Union{Val,Bool} = Val(true),
+        kwargs...,
+    )
+
+Generate the ODEProblem for the time evolution of auxiliary density operators.
+
+# Parameters
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
+- `ρ0::Union{QuantumObject,ADOs}` : system initial state (density matrix) or initial auxiliary density operators (`ADOs`)
+- `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
+- `e_ops::Union{Nothing,AbstractVector}`: List of operators for which to calculate expectation values.
+- `alg::AbstractODEAlgorithm` : The solving algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `H_t::Union{Nothing,QuantumObjectEvolution}`: The time-dependent system Hamiltonian or Liouvillian. Default to `nothing`.
+- `params`: Parameters to pass to the solver. This argument is usually expressed as a `NamedTuple` or `AbstractVector` of parameters. For more advanced usage, any custom struct can be used.
+- `progress_bar::Union{Val,Bool}`: Whether to show the progress bar. Defaults to `Val(true)`. Using non-`Val` types might lead to type instabilities.
+- `inplace::Union{Val,Bool}`: Whether to use the inplace version of the ODEProblem. Defaults to `Val(true)`.
+- `kwargs` : The keyword arguments for the `ODEProblem`.
+
+# Notes
+- The [`ADOs`](@ref) will be saved depend on the keyword argument `saveat` in `kwargs`.
+- If `e_ops` is specified, the default value of `saveat=[tlist[end]]` (only save the final `ADOs`), otherwise, `saveat=tlist` (saving the `ADOs` corresponding to `tlist`). You can also specify `e_ops` and `saveat` separately.
+- The default tolerances in `kwargs` are given as `reltol=1e-6` and `abstol=1e-8`.
+- For more details about `alg` please refer to [`DifferentialEquations.jl` (ODE Solvers)](https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/)
+- For more details about `kwargs` please refer to [`DifferentialEquations.jl` (Keyword Arguments)](https://docs.sciml.ai/DiffEqDocs/stable/basics/common_solver_opts/)
+
+# Returns
+
+- `prob`: The `TimeEvolutionProblem` containing the `ODEProblem` for the time evolution of auxiliary density operators.
+"""
 function HEOMsolveProblem(
     M::AbstractHEOMLSMatrix,
     ρ0::T_state,
@@ -192,12 +228,12 @@ function HEOMsolveProblem(
     # handle initial state
     u0 = _gen_ados_ode_vector(ρ0, M)
 
-    kwargs2 = _merge_saveat(tlist, e_ops, DEFAULT_ODE_SOLVER_OPTIONS; kwargs...)
-    kwargs3 = _generate_heom_kwargs(e_ops, makeVal(progress_bar), tlist, kwargs2, SaveFuncHEOMSolve, M)
-
     # define ODE problem (L should be an AbstractSciMLOperator)
     L = _make_L(M, H_t)
-    prob = ODEProblem{getVal(inplace),FullSpecialize}(L, u0, tspan, params; kwargs3...)
+    kwargs2 = _merge_saveat(tlist, e_ops, DEFAULT_ODE_SOLVER_OPTIONS; kwargs...)
+    kwargs3 = _merge_tstops(kwargs2, isconstant(L), tlist)
+    kwargs4 = _generate_heom_kwargs(e_ops, makeVal(progress_bar), tlist, kwargs3, SaveFuncHEOMSolve, M)
+    prob = ODEProblem{getVal(inplace),FullSpecialize}(L, u0, tspan, params; kwargs4...)
 
     return TimeEvolutionProblem(prob, tlist, M.dimensions, (M = M,))
 end
@@ -213,7 +249,7 @@ Solve the time evolution for auxiliary density operators based on ordinary diffe
 - `ρ0::Union{QuantumObject,ADOs}` : system initial state (density matrix) or initial auxiliary density operators (`ADOs`)
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `e_ops::Union{Nothing,AbstractVector}`: List of operators for which to calculate expectation values.
-- `alg::OrdinaryDiffEqAlgorithm` : The solving algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `alg::AbstractODEAlgorithm` : The solving algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `H_t::Union{Nothing,QuantumObjectEvolution}`: The time-dependent system Hamiltonian or Liouvillian. Default to `nothing`.
 - `params`: Parameters to pass to the solver. This argument is usually expressed as a `NamedTuple` or `AbstractVector` of parameters. For more advanced usage, any custom struct can be used.
 - `progress_bar::Union{Val,Bool}`: Whether to show the progress bar. Defaults to `Val(true)`. Using non-`Val` types might lead to type instabilities.
@@ -238,7 +274,7 @@ function HEOMsolve(
     ρ0::T_state,
     tlist::AbstractVector;
     e_ops::Union{Nothing,AbstractVector} = nothing,
-    alg::OrdinaryDiffEqAlgorithm = DP5(),
+    alg::AbstractODEAlgorithm = DP5(),
     H_t::Union{Nothing,QuantumObjectEvolution} = nothing,
     params = NullParameters(),
     progress_bar::Union{Val,Bool} = Val(true),
@@ -275,7 +311,7 @@ function HEOMsolve(
     end
 end
 
-function HEOMsolve(prob::TimeEvolutionProblem, alg::OrdinaryDiffEqAlgorithm = DP5(); kwargs...)
+function HEOMsolve(prob::TimeEvolutionProblem, alg::AbstractODEAlgorithm = DP5(); kwargs...)
     sol = solve(prob.prob, alg; kwargs...)
 
     return _gen_HEOMsolve_solution(sol, prob.times, prob.kwargs.M)
@@ -302,13 +338,10 @@ end
 
 const heomsolve = HEOMsolve # a synonym to align with qutip
 
-function _generate_Eops(M::AbstractHEOMLSMatrix, e_ops, Id_sys, Id_HEOM)
+function _generate_Eops(M::AbstractHEOMLSMatrix, e_ops)
     tr_e_ops = [
         # another adjoint will be applied in dot function in the HEOMsolveCallback
-        _HandleTraceVectorType(
-            M,
-            adjoint(HEOMSuperOp(spre(op, Id_sys), EVEN, M.dimensions, M.N; Id_cache = Id_HEOM).data) * _Tr(M),
-        ) for op in e_ops
+        _HandleTraceVectorType(M, adjoint(HEOMSuperOp(spre(op), EVEN, M.dimensions, M.N).data) * _Tr(M)) for op in e_ops
     ]
     return tr_e_ops
 end
@@ -338,7 +371,7 @@ function _generate_heom_kwargs(
     method::Type{SaveFuncHEOMSolve},
     M::AbstractHEOMLSMatrix,
 )
-    tr_e_ops = e_ops isa Nothing ? nothing : _generate_Eops(M, e_ops, I(prod(M.dimensions)), I(M.N))
+    tr_e_ops = e_ops isa Nothing ? nothing : _generate_Eops(M, e_ops)
 
     progr =
         getVal(progress_bar) ?
@@ -367,19 +400,18 @@ _generate_heom_kwargs(
 
 _make_L(M::AbstractHEOMLSMatrix, H_t::Nothing) = M.data
 function _make_L(M::AbstractHEOMLSMatrix, H_t::QuantumObjectEvolution)
-    Id_HEOM = I(M.N)
     MType = _get_SciML_matrix_wrapper(M)
     L_t = HandleMatrixType(liouvillian(H_t), M.dimensions, "H_t"; type = SuperOperator())
 
-    return M.data + _L_t_to_HEOMSuperOp(MType, L_t.data, Id_HEOM)
+    return M.data + _L_t_to_HEOMSuperOp(MType, L_t.data, M.N)
 end
 
-_L_t_to_HEOMSuperOp(MType::Type{<:AbstractSparseMatrix}, M::MatrixOperator, Id::Diagonal) =
-    MatrixOperator(MType(kron(Id, M.A)))
-_L_t_to_HEOMSuperOp(MType::Type{<:AbstractSparseMatrix}, M::ScaledOperator, Id::Diagonal) =
-    ScaledOperator(M.λ, _L_t_to_HEOMSuperOp(MType, M.L, Id))
-_L_t_to_HEOMSuperOp(MType::Type{<:AbstractSparseMatrix}, M::AddedOperator, Id::Diagonal) =
-    AddedOperator(map(op -> _L_t_to_HEOMSuperOp(MType, op, Id), M.ops))
+_L_t_to_HEOMSuperOp(MType::Type{<:AbstractSparseMatrix}, M::MatrixOperator, N::Int) =
+    MatrixOperator(MType(kron(Eye(N), M.A)))
+_L_t_to_HEOMSuperOp(MType::Type{<:AbstractSparseMatrix}, M::ScaledOperator, N::Int) =
+    ScaledOperator(M.λ, _L_t_to_HEOMSuperOp(MType, M.L, N))
+_L_t_to_HEOMSuperOp(MType::Type{<:AbstractSparseMatrix}, M::AddedOperator, N::Int) =
+    AddedOperator(map(op -> _L_t_to_HEOMSuperOp(MType, op, N), M.ops))
 
 @doc raw"""
     HEOMsolve_map(M, ρ0, tlist; e_ops, alg, ensemblealg, H_t, params, progress_bar, kwargs...)
@@ -394,7 +426,7 @@ This function computes the time evolution for all combinations (Cartesian produc
 - `ρ0::AbstractVector{<:Union{QuantumObject,ADOs}}` : system initial state(s) [the elements can be density matrix or `ADOs`].
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `e_ops::Union{Nothing,AbstractVector}`: List of operators for which to calculate expectation values.
-- `alg::OrdinaryDiffEqAlgorithm` : The solving algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `alg::AbstractODEAlgorithm` : The solving algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `ensemblealg::EnsembleAlgorithm`: Ensemble algorithm to use for parallel computation. Default is `EnsembleThreads()`.
 - `H_t::Union{Nothing,QuantumObjectEvolution}`: The time-dependent system Hamiltonian or Liouvillian. Default to `nothing`.
 - `params::Union{NullParameters,Tuple}`: A `Tuple` of parameter sets. Each element should be an `AbstractVector` representing the sweep range for that parameter. The function will solve for all combinations of initial states and parameter sets.
@@ -417,7 +449,7 @@ function HEOMsolve_map(
     ρ0::AbstractVector{<:T_state},
     tlist::AbstractVector;
     e_ops::Union{Nothing,AbstractVector} = nothing,
-    alg::OrdinaryDiffEqAlgorithm = DP5(),
+    alg::AbstractODEAlgorithm = DP5(),
     ensemblealg::EnsembleAlgorithm = EnsembleThreads(),
     H_t::Union{Nothing,QuantumObjectEvolution} = nothing,
     params::Union{NullParameters,Tuple} = NullParameters(),
@@ -463,7 +495,7 @@ HEOMsolve_map(
 function HEOMsolve_map(
     prob::TimeEvolutionProblem{<:ODEProblem},
     iter::AbstractArray,
-    alg::OrdinaryDiffEqAlgorithm = DP5(),
+    alg::AbstractODEAlgorithm = DP5(),
     ensemblealg::EnsembleAlgorithm = EnsembleThreads();
     prob_func::Union{Function,Nothing} = nothing,
     output_func::Union{Tuple,Nothing} = nothing,

@@ -62,7 +62,7 @@ c_list = correlation_function(bath, tlist)
 ```
 Here, `c_list` is a list which contains the value of ``C(t)`` corresponds to the given time series `tlist`.
 
-## Exponent
+## Exponential terms of the Bosonic Bath
 `HierarchicalEOM.jl` also supports users to access the specific exponential term with brackets `[]`. This returns an [`Exponent`](@ref) object, which contains the corresponding value of ``\eta_i`` and ``\gamma_i``:
 ```julia
 e = bath[2] # the 2nd-term

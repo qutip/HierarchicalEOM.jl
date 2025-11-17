@@ -240,8 +240,7 @@ function bosonReal(op::QuantumObject, η_real::Vector{Ti}, γ_real::Vector{Tj}) 
     if N_exp_term != length(γ_real)
         error("The length of \'η_real\' and \'γ_real\' should be the same.")
     end
-    Id_cache = I(size(_op, 1))
-    return bosonReal(_spre(_op.data, Id_cache) - _spost(_op.data, Id_cache), _op.dimensions, η_real, γ_real, N_exp_term)
+    return bosonReal(_spre(_op.data) - _spost(_op.data), _op.dimensions, η_real, γ_real, N_exp_term)
 end
 
 @doc raw"""
@@ -285,9 +284,8 @@ function bosonImag(op::QuantumObject, η_imag::Vector{Ti}, γ_imag::Vector{Tj}) 
     if N_exp_term != length(γ_imag)
         error("The length of \'η_imag\' and \'γ_imag\' should be the same.")
     end
-    Id_cache = I(size(_op, 1))
-    spreQ = _spre(_op.data, Id_cache)
-    spostQ = _spost(_op.data, Id_cache)
+    spreQ = _spre(_op.data)
+    spostQ = _spost(_op.data)
     return bosonImag(spreQ - spostQ, spreQ + spostQ, _op.dimensions, η_imag, γ_imag, N_exp_term)
 end
 
@@ -340,9 +338,8 @@ function bosonRealImag(
     if (N_exp_term != length(η_imag)) || (N_exp_term != length(γ))
         error("The length of \'η_real\', \'η_imag\' and \'γ\' should be the same.")
     end
-    Id_cache = I(size(_op, 1))
-    spreQ = _spre(_op.data, Id_cache)
-    spostQ = _spost(_op.data, Id_cache)
+    spreQ = _spre(_op.data)
+    spostQ = _spost(_op.data)
     return bosonRealImag(spreQ - spostQ, spreQ + spostQ, _op.dimensions, η_real, η_imag, γ, N_exp_term)
 end
 
@@ -437,11 +434,10 @@ function bosonAbsorb(
     if (N_exp_term != length(γ_absorb)) || (N_exp_term != length(η_emit))
         error("The length of \'η_absorb\', \'γ_absorb\' and \'η_emit\' should all be the same.")
     end
-    Id_cache = I(size(_op, 1))
     return bosonAbsorb(
-        _spre(_op.data, Id_cache),
-        _spost(_op.data, Id_cache),
-        _spre(adjoint(_op).data, Id_cache) - _spost(adjoint(_op).data, Id_cache),
+        _spre(_op.data),
+        _spost(_op.data),
+        _spre(adjoint(_op).data) - _spost(adjoint(_op).data),
         _op.dimensions,
         η_absorb,
         γ_absorb,
@@ -501,11 +497,10 @@ function bosonEmit(
     if (N_exp_term != length(γ_emit)) || (N_exp_term != length(η_absorb))
         error("The length of \'η_emit\', \'γ_emit\' and \'η_absorb\' should all be the same.")
     end
-    Id_cache = I(size(_op, 1))
     return bosonEmit(
-        _spre(_op.data, Id_cache),
-        _spost(_op.data, Id_cache),
-        _spre(adjoint(_op).data, Id_cache) - _spost(adjoint(_op).data, Id_cache),
+        _spre(_op.data),
+        _spost(_op.data),
+        _spre(adjoint(_op).data) - _spost(adjoint(_op).data),
         _op.dimensions,
         η_emit,
         γ_emit,

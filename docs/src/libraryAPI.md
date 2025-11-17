@@ -72,12 +72,14 @@ M_Fermion
 M_Fermion(Hsys::QuantumObject, tier::Int, Bath::Vector{FermionBath}, parity::AbstractParity=EVEN; threshold::Real=0.0, verbose::Bool=true)
 M_Boson_Fermion
 M_Boson_Fermion(Hsys::QuantumObject, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::Vector{FermionBath}, parity::AbstractParity=EVEN; threshold::Real=0.0, verbose::Bool=true)
-size(M::HEOMSuperOp)
-size(M::HEOMSuperOp, dim::Int)
-size(M::AbstractHEOMLSMatrix)
-size(M::AbstractHEOMLSMatrix, dim::Int)
-eltype(M::HEOMSuperOp)
-eltype(M::AbstractHEOMLSMatrix)
+Base.size(M::HEOMSuperOp)
+Base.size(M::HEOMSuperOp, dim::Int)
+Base.size(M::AbstractHEOMLSMatrix)
+Base.size(M::AbstractHEOMLSMatrix, dim::Int)
+Base.eltype(M::HEOMSuperOp)
+Base.eltype(M::AbstractHEOMLSMatrix)
+iscached
+isconstant
 Propagator
 addBosonDissipator
 addFermionDissipator
@@ -88,8 +90,8 @@ addTerminator
 ```@docs
 ADOs
 ADOs(V::AbstractVector, N::Int)
-length(A::ADOs)
-eltype(A::ADOs)
+Base.length(A::ADOs)
+Base.eltype(A::ADOs)
 getRho
 getADO
 QuantumToolbox.expect
@@ -106,6 +108,7 @@ getIndexEnsemble
 ## [Time Evolution](@id lib-Time-Evolution)
 There are two function definitions of `HEOMsolve`, which depend on different methods to solve the time evolution:
 ```@docs
+HEOMsolveProblem
 HEOMsolve
 HEOMsolve_map
 TimeEvolutionHEOMSol

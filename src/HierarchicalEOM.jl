@@ -4,6 +4,9 @@ module HierarchicalEOM
 using LinearAlgebra
 using SparseArrays
 
+import Base.Threads: @threads, nthreads, Channel
+import Pkg
+
 # Re-export QuantumToolbox
 import Reexport: @reexport
 @reexport using QuantumToolbox
@@ -17,11 +20,13 @@ import QuantumToolbox:
     _spost,
     _sprepost,
     _liouvillian,
+    _sum_lindblad_dissipators,
     _gen_dimensions,
     _get_dims_string,
     dimensions_to_dims,
     _save_func,
     _merge_saveat,
+    _merge_tstops,
     _merge_kwargs_with_callback,
     _get_expvals,
     _se_me_map_prob_func,
@@ -47,19 +52,24 @@ import SciMLBase:
     EnsembleThreads,
     FullSpecialize,
     CallbackSet,
-    NullParameters
+    NullParameters,
+    AbstractODEAlgorithm
 import SciMLOperators:
-    AbstractSciMLOperator, MatrixOperator, ScaledOperator, AddedOperator, update_coefficients!, concretize
-import OrdinaryDiffEqCore: OrdinaryDiffEqAlgorithm
+    SciMLOperators,
+    AbstractSciMLOperator,
+    MatrixOperator,
+    ScaledOperator,
+    AddedOperator,
+    update_coefficients!,
+    concretize
 import OrdinaryDiffEqLowOrderRK: DP5
 import DiffEqCallbacks: FunctionCallingCallback, TerminateSteadyState
 import LinearSolve: LinearProblem, SciMLLinearSolveAlgorithm, KrylovJL_GMRES
 
 # other dependencies (in alphabetical order)
-import Base.Threads: @threads, nthreads, Channel
 import FastExpm: fastExpm
+import FillArrays: Eye
 import IncompleteLU: ilu
-import Pkg
 import ProgressMeter: Progress, next!
 
 # Basic functions

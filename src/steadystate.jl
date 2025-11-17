@@ -70,7 +70,7 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
 - `ρ0::Union{QuantumObject,ADOs}` : system initial state (density matrix) or initial auxiliary density operators (`ADOs`)
 - `tspan::Number` : the time limit to find stationary state. Default to `Inf`
-- `alg::OrdinaryDiffEqAlgorithm` : The ODE algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `alg::AbstractODEAlgorithm` : The ODE algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `verbose::Bool` : To display verbose output or not. Defaults to `true`.
 - `kwargs` : The keyword arguments in `ODEProblem`
 
@@ -85,7 +85,7 @@ function QuantumToolbox.steadystate(
     M::AbstractHEOMLSMatrix{<:MatrixOperator},
     ρ0::T_state,
     tspan::Number = Inf;
-    alg::OrdinaryDiffEqAlgorithm = DP5(),
+    alg::AbstractODEAlgorithm = DP5(),
     verbose::Bool = true,
     kwargs...,
 ) where {T_state<:Union{QuantumObject,ADOs}}
