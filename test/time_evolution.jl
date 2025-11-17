@@ -41,10 +41,12 @@
     @test_throws ErrorException heomsolve(L, ados_wrong4, Δt, steps; progress_bar = Val(false))
 
     # using the method based on ODE solver
-    sol_e = heomsolve(L, ψ0, tlist; e_ops = e_ops, saveat = tlist, progress_bar = Val(true)) # also test progress bar
+    prob_e = HEOMsolveProblem(L, ψ0, tlist; e_ops = e_ops, saveat = tlist, progress_bar = Val(true)) # also test progress bar
+    sol_e = heomsolve(prob_e)
     sol_e2 = heomsolve(L, ψ0, tlist; e_ops = e_ops, progress_bar = Val(false))
     ρ_list_e = getRho.(sol_e.ados)
     expvals_e = sol_e.expect
+    @test !haskey(prob_e.prob.kwargs, :tstops) # tstops should not exist for time-independent cases
     @test show(devnull, MIME("text/plain"), sol_e) === nothing
     @test_logs (:warn,) evolution(L, ψ0, tlist; progress_bar = Val(false)) # deprecated function
     @test_throws ErrorException heomsolve(L, ψ0, tlist; verbose = true)
@@ -102,7 +104,7 @@
 
     tlist = 0:10:400
     p_fast = (amplitude = 0.5, delay = 20, integral = π / 2)
-    fastDD_sol = heomsolve(
+    fastDD_prob = HEOMsolveProblem(
         L,
         ψ0,
         tlist;
@@ -114,6 +116,7 @@
         abstol = 1e-12,
         progress_bar = Val(false),
     )
+    fastDD_sol = heomsolve(fastDD_prob)
     fastDD_ados = fastDD_sol.ados
     fastDD1 = real.(fastDD_sol.expect[1, :])
     fastDD2 = expect(P01, fastDD_ados)
@@ -161,6 +164,7 @@
         0.47479965067847246,
         0.47451220871416044,
     ]
+    @test fastDD_prob.prob.kwargs[:tstops] == tlist # tstops should be equal to tlist for time-dependent cases
     @test show(devnull, MIME("text/plain"), fastDD_sol) === nothing
     @test length(fastDD_sol.ados) == length(tlist)
     @test size(fastDD_sol.expect) == (1, length(tlist))

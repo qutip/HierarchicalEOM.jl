@@ -53,10 +53,8 @@ Calculate density of states for the fermionic system in frequency domain.
 
     # Handle d_op
     _tr = _Tr(M)
-    Id_sys = I(prod(d_op.dimensions))
-    Id_HEOM = I(M.N)
-    d_normal = HEOMSuperOp(spre(d_op, Id_sys), ODD, M; Id_cache = Id_HEOM)
-    d_dagger = HEOMSuperOp(spre(d_op', Id_sys), ODD, M; Id_cache = Id_HEOM)
+    d_normal = HEOMSuperOp(spre(d_op), ODD, M)
+    d_dagger = HEOMSuperOp(spre(d_op'), ODD, M)
     b_m = _HandleVectorType(M, (d_normal * ados).data)
     b_p = _HandleVectorType(M, (d_dagger * ados).data)
     _tr_d_normal = _HandleTraceVectorType(M, adjoint(d_normal.data) * _tr) # another adjoint will be applied in dot function later
@@ -80,7 +78,7 @@ Calculate density of states for the fermionic system in frequency domain.
         QuantumToolbox.settings.ProgressMeterKWARGS...,
     )
     i = convert(ElType, 1im)
-    I_total = I(size(M, 1))
+    I_total = Eye(size(M, 1))
     Iω1 = i * ωList[1] * I_total
     cache_m = init(LinearProblem(M.data.A - Iω1, b_m), alg, kwargs...)
     cache_p = init(LinearProblem(M.data.A + Iω1, b_p), alg, kwargs...)

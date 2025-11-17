@@ -89,14 +89,12 @@ remember to set the parameters:
     end
     _check_sys_dim_and_ADOs_num(M, ados)
 
-    Id_HEOM = I(M.N)
-
     # Handle P_op
     if P_op isa HEOMSuperOp
         _check_sys_dim_and_ADOs_num(M, P_op)
         _P = P_op
     else
-        _P = HEOMSuperOp(spre(P_op), EVEN, M; Id_cache = Id_HEOM)
+        _P = HEOMSuperOp(spre(P_op), EVEN, M)
     end
     _tr_P = _HandleTraceVectorType(M, adjoint(_P.data) * _Tr(M)) # another adjoint will be applied in dot function later
 
@@ -111,7 +109,7 @@ remember to set the parameters:
         else
             new_parity = !ados.parity
         end
-        _Q_ados = HEOMSuperOp(spre(Q_op), new_parity, M; Id_cache = Id_HEOM) * ados
+        _Q_ados = HEOMSuperOp(spre(Q_op), new_parity, M) * ados
     end
     b = _HandleVectorType(M, _Q_ados.data)
 
@@ -133,7 +131,7 @@ remember to set the parameters:
         QuantumToolbox.settings.ProgressMeterKWARGS...,
     )
     i = reverse ? convert(ElType, 1im) : i = convert(ElType, -1im)
-    I_total = I(size(M, 1))
+    I_total = Eye(size(M, 1))
     cache = init(LinearProblem(M.data.A + i * ωList[1] * I_total, b), alg, kwargs...)
     for (idx, ω) in enumerate(ωList)
         if idx > 1

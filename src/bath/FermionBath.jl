@@ -136,12 +136,11 @@ function fermionAbsorb(
     if (N_exp_term != length(γ_absorb)) || (N_exp_term != length(η_emit))
         error("The length of \'η_absorb\', \'γ_absorb\' and \'η_emit\' should all be the same.")
     end
-    Id_cache = I(size(_op, 1))
     return fermionAbsorb(
-        _spre(_op.data, Id_cache),
-        _spost(_op.data, Id_cache),
-        _spre(adjoint(_op).data, Id_cache),
-        _spost(adjoint(_op).data, Id_cache),
+        _spre(_op.data),
+        _spost(_op.data),
+        _spre(adjoint(_op).data),
+        _spost(adjoint(_op).data),
         _op.dimensions,
         η_absorb,
         γ_absorb,
@@ -204,12 +203,11 @@ function fermionEmit(
         error("The length of \'η_emit\', \'γ_emit\' and \'η_absorb\' should all be the same.")
     end
 
-    Id_cache = I(size(_op, 1))
     return fermionEmit(
-        _spre(_op.data, Id_cache),
-        _spost(_op.data, Id_cache),
-        _spre(adjoint(_op).data, Id_cache),
-        _spost(adjoint(_op).data, Id_cache),
+        _spre(_op.data),
+        _spost(_op.data),
+        _spre(adjoint(_op).data),
+        _spost(adjoint(_op).data),
         _op.dimensions,
         η_emit,
         γ_emit,

@@ -106,6 +106,7 @@ getIndexEnsemble
 ## [Time Evolution](@id lib-Time-Evolution)
 There are two function definitions of `HEOMsolve`, which depend on different methods to solve the time evolution:
 ```@docs
+HEOMsolveProblem
 HEOMsolve
 HEOMsolve_map
 TimeEvolutionHEOMSol
