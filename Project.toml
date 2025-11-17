@@ -1,6 +1,6 @@
 name = "HierarchicalEOM"
 uuid = "a62dbcb7-80f5-4d31-9a88-8b19fd92b128"
-version = "2.9.0"
+version = "2.10.0"
 authors = ["Yi-Te Huang"]
 
 [deps]
@@ -28,8 +28,8 @@ CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 HierarchicalEOM_CUDAExt = "CUDA"
 
 [compat]
-CUDA = "5"
-DiffEqCallbacks = "2 - 4"
+CUDA = "5.0 - 5.8, 5.9.4 - 5"
+DiffEqCallbacks = "4.2.1 - 4"
 FastExpm = "1.1"
 FillArrays = "1"
 IncompleteLU = "0.2"
@@ -42,7 +42,7 @@ ProgressMeter = "1.11.0"
 QuantumToolbox = "0.39"
 Reexport = "1"
 SciMLBase = "2.105"
-SciMLOperators = "1.4"
+SciMLOperators = "1.11"
 SparseArrays = "1"
 StaticArraysCore = "1"
 julia = "1.10"
