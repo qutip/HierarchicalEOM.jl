@@ -1,5 +1,10 @@
 export AbstractHEOMLSMatrix
 
+@doc raw"""
+    abstract type AbstractHEOMLSMatrix{T}
+
+Abstract type for all HEOM liouvillian superoperators
+"""
 abstract type AbstractHEOMLSMatrix{T} end
 
 function Base.getproperty(M::AbstractHEOMLSMatrix, key::Symbol)

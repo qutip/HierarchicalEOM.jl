@@ -55,7 +55,7 @@ import SciMLBase:
     NullParameters,
     AbstractODEAlgorithm
 import SciMLOperators:
-    AbstractSciMLOperator, MatrixOperator, ScaledOperator, AddedOperator, update_coefficients!, concretize
+    SciMLOperators, AbstractSciMLOperator, MatrixOperator, ScaledOperator, AddedOperator, update_coefficients!, concretize
 import OrdinaryDiffEqLowOrderRK: DP5
 import DiffEqCallbacks: FunctionCallingCallback, TerminateSteadyState
 import LinearSolve: LinearProblem, SciMLLinearSolveAlgorithm, KrylovJL_GMRES

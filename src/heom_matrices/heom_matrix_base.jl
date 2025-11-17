@@ -203,6 +203,20 @@ function Base.:(-)(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
 end
 
 @doc raw"""
+    SciMLOperators.iscached(M::AbstractHEOMLSMatrix)
+
+Test whether the [`AbstractHEOMLSMatrix`](@ref) `M` has preallocated caches for inplace evaluations.
+"""
+SciMLOperators.iscached(M::AbstractHEOMLSMatrix) = iscached(M.data)
+
+@doc raw"""
+    SciMLOperators.isconstant(M::AbstractHEOMLSMatrix)
+
+Test whether the [`AbstractHEOMLSMatrix`](@ref) `M` is constant in time.
+"""
+SciMLOperators.isconstant(M::AbstractHEOMLSMatrix) = isconstant(M.data)
+
+@doc raw"""
     Propagator(M, Δt; threshold, nonzero_tol)
 Use `FastExpm.jl` to calculate the propagator matrix from a given HEOM Liouvillian superoperator matrix ``M`` with a specific time step ``\Delta t``.
 That is, ``\exp(M * \Delta t)``.

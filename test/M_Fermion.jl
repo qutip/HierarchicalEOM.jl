@@ -33,6 +33,8 @@
     @test nnz(L.data.A) == nnz(L(0)) == 21318
     L = addFermionDissipator(L, J)
     @test nnz(L.data.A) == nnz(L(0)) == 22516
+    @test isconstant(L)
+    @test iscached(L)
     ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N

@@ -72,12 +72,14 @@ M_Fermion
 M_Fermion(Hsys::QuantumObject, tier::Int, Bath::Vector{FermionBath}, parity::AbstractParity=EVEN; threshold::Real=0.0, verbose::Bool=true)
 M_Boson_Fermion
 M_Boson_Fermion(Hsys::QuantumObject, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::Vector{FermionBath}, parity::AbstractParity=EVEN; threshold::Real=0.0, verbose::Bool=true)
-size(M::HEOMSuperOp)
-size(M::HEOMSuperOp, dim::Int)
-size(M::AbstractHEOMLSMatrix)
-size(M::AbstractHEOMLSMatrix, dim::Int)
-eltype(M::HEOMSuperOp)
-eltype(M::AbstractHEOMLSMatrix)
+Base.size(M::HEOMSuperOp)
+Base.size(M::HEOMSuperOp, dim::Int)
+Base.size(M::AbstractHEOMLSMatrix)
+Base.size(M::AbstractHEOMLSMatrix, dim::Int)
+Base.eltype(M::HEOMSuperOp)
+Base.eltype(M::AbstractHEOMLSMatrix)
+SciMLOperators.iscached
+SciMLOperators.isconstant
 Propagator
 addBosonDissipator
 addFermionDissipator

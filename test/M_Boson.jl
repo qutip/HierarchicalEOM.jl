@@ -32,6 +32,8 @@
     @test nnz(L.data.A) == nnz(L(0)) == 4422
     L = addBosonDissipator(L, J)
     @test nnz(L.data.A) == nnz(L(0)) == 4760
+    @test isconstant(L)
+    @test iscached(L)
     ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N
