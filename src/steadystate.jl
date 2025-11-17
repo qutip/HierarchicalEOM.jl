@@ -16,7 +16,11 @@ Solve the steady state of the auxiliary density operators based on `LinearSolve.
 """
 function QuantumToolbox.steadystate(
     M::AbstractHEOMLSMatrix{<:MatrixOperator};
-    alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(; rtol = 1e-12, atol = 1e-14, precs = (A, p) -> A isa SparseMatrixCSC ? (ilu(A, τ = 0.01), I) : (I, I)),
+    alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(;
+        rtol = 1e-12,
+        atol = 1e-14,
+        precs = (A, p) -> A isa SparseMatrixCSC ? (ilu(A, τ = 0.01), I) : (I, I),
+    ),
     verbose::Bool = true,
     kwargs...,
 )
