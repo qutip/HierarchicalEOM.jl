@@ -78,6 +78,8 @@ Base.size(M::AbstractHEOMLSMatrix)
 Base.size(M::AbstractHEOMLSMatrix, dim::Int)
 Base.eltype(M::HEOMSuperOp)
 Base.eltype(M::AbstractHEOMLSMatrix)
+iscached
+isconstant
 Propagator
 addBosonDissipator
 addFermionDissipator
@@ -88,8 +90,8 @@ addTerminator
 ```@docs
 ADOs
 ADOs(V::AbstractVector, N::Int)
-length(A::ADOs)
-eltype(A::ADOs)
+Base.length(A::ADOs)
+Base.eltype(A::ADOs)
 getRho
 getADO
 QuantumToolbox.expect
