@@ -206,7 +206,7 @@ Generate the ODEProblem for the time evolution of auxiliary density operators.
 
 # Returns
 
-- `prob`: The [`TimeEvolutionProblem`](@ref) containing the `ODEProblem` for the time evolution of auxiliary density operators.
+- `prob`: The `TimeEvolutionProblem` containing the `ODEProblem` for the time evolution of auxiliary density operators.
 """
 function HEOMsolveProblem(
     M::AbstractHEOMLSMatrix,

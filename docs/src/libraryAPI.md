@@ -78,8 +78,6 @@ Base.size(M::AbstractHEOMLSMatrix)
 Base.size(M::AbstractHEOMLSMatrix, dim::Int)
 Base.eltype(M::HEOMSuperOp)
 Base.eltype(M::AbstractHEOMLSMatrix)
-SciMLOperators.iscached
-SciMLOperators.isconstant
 Propagator
 addBosonDissipator
 addFermionDissipator
