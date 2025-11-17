@@ -23,7 +23,7 @@ struct TimeEvolutionHEOMSol{
     TS<:Vector{ADOs},
     TE<:Union{Nothing,AbstractMatrix},
     RETT<:Union{Nothing,Enum},
-    AlgT<:Union{Nothing,OrdinaryDiffEqAlgorithm},
+    AlgT<:Union{Nothing,AbstractODEAlgorithm},
     TolT<:Union{Nothing,Real},
 }
     Btier::Int
@@ -190,7 +190,7 @@ Generate the ODEProblem for the time evolution of auxiliary density operators.
 - `ρ0::Union{QuantumObject,ADOs}` : system initial state (density matrix) or initial auxiliary density operators (`ADOs`)
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `e_ops::Union{Nothing,AbstractVector}`: List of operators for which to calculate expectation values.
-- `alg::OrdinaryDiffEqAlgorithm` : The solving algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `alg::AbstractODEAlgorithm` : The solving algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `H_t::Union{Nothing,QuantumObjectEvolution}`: The time-dependent system Hamiltonian or Liouvillian. Default to `nothing`.
 - `params`: Parameters to pass to the solver. This argument is usually expressed as a `NamedTuple` or `AbstractVector` of parameters. For more advanced usage, any custom struct can be used.
 - `progress_bar::Union{Val,Bool}`: Whether to show the progress bar. Defaults to `Val(true)`. Using non-`Val` types might lead to type instabilities.
@@ -249,7 +249,7 @@ Solve the time evolution for auxiliary density operators based on ordinary diffe
 - `ρ0::Union{QuantumObject,ADOs}` : system initial state (density matrix) or initial auxiliary density operators (`ADOs`)
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `e_ops::Union{Nothing,AbstractVector}`: List of operators for which to calculate expectation values.
-- `alg::OrdinaryDiffEqAlgorithm` : The solving algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `alg::AbstractODEAlgorithm` : The solving algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `H_t::Union{Nothing,QuantumObjectEvolution}`: The time-dependent system Hamiltonian or Liouvillian. Default to `nothing`.
 - `params`: Parameters to pass to the solver. This argument is usually expressed as a `NamedTuple` or `AbstractVector` of parameters. For more advanced usage, any custom struct can be used.
 - `progress_bar::Union{Val,Bool}`: Whether to show the progress bar. Defaults to `Val(true)`. Using non-`Val` types might lead to type instabilities.
@@ -274,7 +274,7 @@ function HEOMsolve(
     ρ0::T_state,
     tlist::AbstractVector;
     e_ops::Union{Nothing,AbstractVector} = nothing,
-    alg::OrdinaryDiffEqAlgorithm = DP5(),
+    alg::AbstractODEAlgorithm = DP5(),
     H_t::Union{Nothing,QuantumObjectEvolution} = nothing,
     params = NullParameters(),
     progress_bar::Union{Val,Bool} = Val(true),
@@ -311,7 +311,7 @@ function HEOMsolve(
     end
 end
 
-function HEOMsolve(prob::TimeEvolutionProblem, alg::OrdinaryDiffEqAlgorithm = DP5(); kwargs...)
+function HEOMsolve(prob::TimeEvolutionProblem, alg::AbstractODEAlgorithm = DP5(); kwargs...)
     sol = solve(prob.prob, alg; kwargs...)
 
     return _gen_HEOMsolve_solution(sol, prob.times, prob.kwargs.M)
@@ -426,7 +426,7 @@ This function computes the time evolution for all combinations (Cartesian produc
 - `ρ0::AbstractVector{<:Union{QuantumObject,ADOs}}` : system initial state(s) [the elements can be density matrix or `ADOs`].
 - `tlist::AbstractVector` : Denote the specific time points to save the solution at, during the solving process.
 - `e_ops::Union{Nothing,AbstractVector}`: List of operators for which to calculate expectation values.
-- `alg::OrdinaryDiffEqAlgorithm` : The solving algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `alg::AbstractODEAlgorithm` : The solving algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
 - `ensemblealg::EnsembleAlgorithm`: Ensemble algorithm to use for parallel computation. Default is `EnsembleThreads()`.
 - `H_t::Union{Nothing,QuantumObjectEvolution}`: The time-dependent system Hamiltonian or Liouvillian. Default to `nothing`.
 - `params::Union{NullParameters,Tuple}`: A `Tuple` of parameter sets. Each element should be an `AbstractVector` representing the sweep range for that parameter. The function will solve for all combinations of initial states and parameter sets.
@@ -449,7 +449,7 @@ function HEOMsolve_map(
     ρ0::AbstractVector{<:T_state},
     tlist::AbstractVector;
     e_ops::Union{Nothing,AbstractVector} = nothing,
-    alg::OrdinaryDiffEqAlgorithm = DP5(),
+    alg::AbstractODEAlgorithm = DP5(),
     ensemblealg::EnsembleAlgorithm = EnsembleThreads(),
     H_t::Union{Nothing,QuantumObjectEvolution} = nothing,
     params::Union{NullParameters,Tuple} = NullParameters(),
@@ -495,7 +495,7 @@ HEOMsolve_map(
 function HEOMsolve_map(
     prob::TimeEvolutionProblem{<:ODEProblem},
     iter::AbstractArray,
-    alg::OrdinaryDiffEqAlgorithm = DP5(),
+    alg::AbstractODEAlgorithm = DP5(),
     ensemblealg::EnsembleAlgorithm = EnsembleThreads();
     prob_func::Union{Function,Nothing} = nothing,
     output_func::Union{Tuple,Nothing} = nothing,

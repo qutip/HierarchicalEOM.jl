@@ -66,7 +66,7 @@ The first method is implemented by solving the ordinary differential equation (O
 See the docstring of this method:  
 
 ```@docs
-HEOMsolve(M::AbstractHEOMLSMatrix, ρ0::T_state, tlist::AbstractVector; e_ops::Union{Nothing,AbstractVector} = nothing, alg::OrdinaryDiffEqAlgorithm = DP5(), H_t::Union{Nothing,Function} = nothing, params::NamedTuple = NamedTuple(), progress_bar::Union{Val,Bool} = Val(true), inplace::Union{Val,Bool} = Val(true), kwargs...) where {T_state<:Union{QuantumObject,ADOs}}
+HEOMsolve(M::AbstractHEOMLSMatrix, ρ0::T_state, tlist::AbstractVector; e_ops::Union{Nothing,AbstractVector} = nothing, alg::AbstractODEAlgorithm = DP5(), H_t::Union{Nothing,Function} = nothing, params::NamedTuple = NamedTuple(), progress_bar::Union{Val,Bool} = Val(true), inplace::Union{Val,Bool} = Val(true), kwargs...) where {T_state<:Union{QuantumObject,ADOs}}
 ```
 
 ```julia
