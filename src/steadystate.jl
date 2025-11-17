@@ -4,23 +4,19 @@ Solve the steady state of the auxiliary density operators based on `LinearSolve.
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
-- `alg::SciMLLinearSolveAlgorithm` : The solving algorithm in package `LinearSolve.jl`. Default to `KrylovJL_GMRES(; rtol = 1e-12, atol = 1e-14, precs = (A, p) -> A isa SparseMatrixCSC ? (ilu(A, τ = 0.01), I) : (I, I))`.
+- `alg::SciMLLinearSolveAlgorithm` : The solving algorithm in package `LinearSolve.jl`. Default to `KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14)`.
 - `verbose::Bool` : To display verbose output or not. Defaults to `true`.
 - `kwargs` : The keyword arguments for the `LinearProblem`
 
 # Notes
-- For more details about `alg`, `kwargs`, and `LinearProblem`, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/). For example, the preconditioners can be defined directly in the `alg`orithm like: `KrylovJL_GMRES(; precs = (A, p) -> (I, Diagonal(A))))`.
+- For more details about `alg`, `kwargs`, and `LinearProblem`, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/).
 
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
 """
 function QuantumToolbox.steadystate(
     M::AbstractHEOMLSMatrix{<:MatrixOperator};
-    alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(;
-        rtol = 1e-12,
-        atol = 1e-14,
-        precs = (A, p) -> A isa SparseMatrixCSC ? (ilu(A, τ = 0.01), I) : (I, I),
-    ),
+    alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14),
     verbose::Bool = true,
     kwargs...,
 )
@@ -40,6 +36,7 @@ function QuantumToolbox.steadystate(
         print("Solving steady state for ADOs by linear-solve method...")
         flush(stdout)
     end
+
     prob = LinearProblem{true}(A, _HandleVectorType(M, b))
     sol = solve(prob, alg; kwargs...)
     if verbose
