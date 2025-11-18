@@ -4,12 +4,12 @@ Solve the steady state of the auxiliary density operators based on `LinearSolve.
 
 # Parameters
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
-- `alg::SciMLLinearSolveAlgorithm` : The solving algorithm in package `LinearSolve.jl`. Default to `KrylovJL_GMRES(rtol=1e-12, atol=1e-14)`.
+- `alg::SciMLLinearSolveAlgorithm` : The solving algorithm in package `LinearSolve.jl`. Default to `KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14)`.
 - `verbose::Bool` : To display verbose output or not. Defaults to `true`.
 - `kwargs` : The keyword arguments for the `LinearProblem`
 
 # Notes
-- For more details about `alg`, `kwargs`, and `LinearProblem`, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
+- For more details about `alg`, `kwargs`, and `LinearProblem`, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/).
 
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
@@ -31,29 +31,14 @@ function QuantumToolbox.steadystate(
     A = _HandleSteadyStateMatrix(M)
     b = sparsevec([1], [1.0 + 0.0im], size(M, 1))
 
-    if verbose
-        println("Solving steady state for ADOs by linear-solve method...")
-        flush(stdout)
-    end
-    if (!haskey(kwargs, :Pl)) && (isa(A, SparseMatrixCSC))
-        if verbose
-            print("Calculating left preconditioner with ilu...")
-            flush(stdout)
-        end
-        kwargs = merge((; kwargs...), (Pl = ilu(A, τ = 0.01),))
-        if verbose
-            println("[DONE]")
-            flush(stdout)
-        end
-    end
-
     # solving x where A * x = b
     if verbose
-        print("Solving linear problem...")
+        print("Solving steady state for ADOs by linear-solve method...")
         flush(stdout)
     end
-    cache = init(LinearProblem(A, _HandleVectorType(M, b)), alg, kwargs...)
-    sol = solve!(cache)
+
+    prob = LinearProblem{true}(A, _HandleVectorType(M, b))
+    sol = solve(prob, alg; kwargs...)
     if verbose
         println("[DONE]")
         flush(stdout)
