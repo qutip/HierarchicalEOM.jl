@@ -67,7 +67,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
     # check for system dimension
     _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)")
     sup_dim = prod(_Hsys.dimensions)^2
-    I_sup = sparse(one(ComplexF64) * I, sup_dim, sup_dim)
+    I_sup = Eye(sup_dim)
 
     # the Liouvillian operator for free Hamiltonian term
     Lsys = minus_i_L_op(_Hsys)
