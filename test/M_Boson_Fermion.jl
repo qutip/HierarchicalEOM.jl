@@ -29,7 +29,7 @@
     J = Qobj([0 0.1450-0.7414im; 0.1450+0.7414im 0])
 
     L = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose = true) # also test verbosity
-    L_lazy = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose = false, assemble = Val(false)) # also test verbosity
+    L_lazy = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose = false, assemble = Val(false)) # test lazy tensor assembly with assemble = Val(false)
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (2220, 2220)
     @test L.N == 555
