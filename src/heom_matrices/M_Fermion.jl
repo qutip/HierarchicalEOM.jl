@@ -59,6 +59,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
     Bath::Vector{FermionBath},
     parity::AbstractParity = EVEN;
     threshold::Real = 0.0,
+    concretize::Union{Val,Bool} = Val(true),
     verbose::Bool = true,
 )
     _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)") # Checking input type first
@@ -83,11 +84,11 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
     F_terms = [HEOMSparseStructure(fB, Nado) for fB in baths]
 
     if verbose
-        println("Preparing block matrices for HEOM Liouvillian superoperator...")
+        println("Preparing HEOM Liouvillian sparsity structure...")
         flush(stdout)
         progr = Progress(Nado; enabled = verbose, desc = "[M_Fermion] ", QuantumToolbox.settings.ProgressMeterKWARGS...)
     end
-    @threads for idx in 1:Nado
+    for idx in 1:Nado
         nvec = idx2nvec[idx]
         if nvec.level > 0
             γ_term[idx] = -bath_sum_γ(nvec, baths)
@@ -120,15 +121,12 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         end
         verbose && next!(progr) # trigger a progress bar update
     end
-    if verbose
-        print("Constructing matrix...")
-        flush(stdout)
-    end
     
     # Create SciML lazy HEOM Liouvillian superoperator
+    sup_dim = prod(_Hsys.dimensions)^2
     L_heom = kron(MatrixOperator(Eye(Nado)), minus_i_L_op(_Hsys)) # the Liouvillian operator for free Hamiltonian term
-    L_heom += kron(MatrixOperator(spdiagm(γ_term)), Eye(prod(_Hsys.dimensions)^2)) # ADOs sum γ terms
-
+    L_heom += kron(MatrixOperator(spdiagm(γ_term)), Eye(sup_dim)) # ADOs sum γ terms
+    
     # Super operator cross level terms
     for (f_term, fB) in zip(F_terms, baths)
         for op in fieldnames(HEOMSparseStructure)
@@ -137,12 +135,26 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
             L_heom += kron(MatrixOperator(sparse(f_coo)), getfield(fB, op))
         end
     end
-
     if verbose
         println("[DONE]")
         flush(stdout)
     end
-    return M_Fermion(concretize(L_heom), tier, _Hsys.dimensions, Nado, sup_dim, parity, Bath, hierarchy)
+    
+    if getVal(makeVal(concretize))
+        if verbose
+            print("Concretizing matrix...")
+            flush(stdout)
+        end
+        data = SciMLOperators.concretize(L_heom) |> MatrixOperator
+        if verbose
+            println("[DONE]")
+            flush(stdout)
+        end
+    else
+        data = L_heom
+    end
+
+    return M_Fermion(data, tier, _Hsys.dimensions, Nado, sup_dim, parity, Bath, hierarchy)
 end
 
 _getBtier(M::M_Fermion) = 0

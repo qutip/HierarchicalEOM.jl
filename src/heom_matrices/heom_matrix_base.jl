@@ -513,10 +513,10 @@ function minus_i_C_op(bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
            ((-1)^n_exc_before) *
            (((-1)^value(parity)) * bath.η[k] * bath.spre - (-1)^(n_exc - 1) * conj(bath.η_emit[k]) * bath.spost)
 end
-function minus_i_C_op!(s_ops::Super_COO, I::Int, J::Int, bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
+function minus_i_C_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
     prefix = -1.0im * ((-1)^n_exc_before)
-    push!(s_ops.spre, I, J, prefix * ((-1)^value(parity)) * bath.η[k])
-    push!(s_ops.spost, I, J, - prefix * (-1)^(n_exc - 1) * conj(bath.η_emit[k]))
+    push!(ops_pattern.spre, I, J, prefix * ((-1)^value(parity)) * bath.η[k])
+    push!(ops_pattern.spost, I, J, - prefix * (-1)^(n_exc - 1) * conj(bath.η_emit[k]))
     return nothing
 end
 
@@ -526,10 +526,10 @@ function minus_i_C_op(bath::fermionEmit, k, n_exc, n_exc_before, parity)
            ((-1)^n_exc_before) *
            ((-1)^(value(parity)) * bath.η[k] * bath.spre - (-1)^(n_exc - 1) * conj(bath.η_absorb[k]) * bath.spost)
 end
-function minus_i_C_op!(s_ops::Super_COO, I::Int, J::Int, bath::fermionEmit, k, n_exc, n_exc_before, parity)
+function minus_i_C_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::fermionEmit, k, n_exc, n_exc_before, parity)
     prefix = -1.0im * ((-1)^n_exc_before)
-    push!(s_ops.spre, I, J, prefix * ((-1)^value(parity)) * bath.η[k])
-    push!(s_ops.spost, I, J, - prefix * (-1)^(n_exc - 1) * conj(bath.η_absorb[k]))
+    push!(ops_pattern.spre, I, J, prefix * ((-1)^value(parity)) * bath.η[k])
+    push!(ops_pattern.spost, I, J, - prefix * (-1)^(n_exc - 1) * conj(bath.η_absorb[k]))
     return nothing
 end
 
@@ -543,9 +543,9 @@ minus_i_B_op(bath::T) where {T<:Union{bosonAbsorb,bosonEmit}} = -1.0im * bath.Co
 function minus_i_A_op(bath::T, n_exc, n_exc_before, parity) where {T<:AbstractFermionBath}
     return -1.0im * ((-1)^n_exc_before) * ((-1)^(value(parity)) * bath.spreD + (-1)^(n_exc + 1) * bath.spostD)
 end
-function minus_i_A_op!(s_ops::Super_COO, I::Int, J::Int, bath::AbstractFermionBath, n_exc, n_exc_before, parity)
+function minus_i_A_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::AbstractFermionBath, n_exc, n_exc_before, parity)
     prefix = -1.0im * ((-1)^n_exc_before)
-    push!(s_ops.spreD, I, J, prefix * ((-1)^value(parity)))
-    push!(s_ops.spostD, I, J, prefix * (-1)^(n_exc + 1))
+    push!(ops_pattern.spreD, I, J, prefix * ((-1)^value(parity)))
+    push!(ops_pattern.spostD, I, J, prefix * (-1)^(n_exc + 1))
     return nothing
 end
