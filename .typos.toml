@@ -1,2 +1,9 @@
 [default.extend-words]
 ket = "ket"
+SPRE = "SPRE"
+SPOST = "SPOST"
+SPRED = "SPRED"
+SPOSTD = "SPOSTD"
+COMM = "COMM"
+ANCOMM = "ANCOMM"
+COMMD = "COMMD"
