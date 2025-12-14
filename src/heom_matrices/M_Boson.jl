@@ -72,7 +72,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         print("Checking the importance value for each ADOs...")
         flush(stdout)
     end
-    Nado, baths, hierarchy = genBathHierarchy(Bath, tier, Hsys.dimensions; threshold)
+    Nado, baths, hierarchy = genBathHierarchy(Bath, tier, _Hsys.dimensions; threshold)
     idx2nvec = hierarchy.idx2nvec
     nvec2idx = hierarchy.nvec2idx
     if verbose && (threshold > 0.0)
