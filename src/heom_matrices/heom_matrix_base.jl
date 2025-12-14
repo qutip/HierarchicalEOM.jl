@@ -482,6 +482,17 @@ end
 HEOMSparseStructure(bath::AbstractFermionBath, Nado::Int) =
     HEOMSparseStructure(spre = COOFormat(Nado), spost = COOFormat(Nado), spreD = COOFormat(Nado), spostD = COOFormat(Nado))
 
+HEOMSparseStructure(bath::bosonAbsorb, Nado::Int) =
+    HEOMSparseStructure(spre = COOFormat(Nado), spost = COOFormat(Nado), CommD = COOFormat(Nado))
+HEOMSparseStructure(bath::bosonEmit, Nado::Int) =
+    HEOMSparseStructure(spre = COOFormat(Nado), spost = COOFormat(Nado), CommD = COOFormat(Nado))
+HEOMSparseStructure(bath::bosonImag, Nado::Int) =
+    HEOMSparseStructure(Comm = COOFormat(Nado), anComm = COOFormat(Nado))
+HEOMSparseStructure(bath::bosonReal, Nado::Int) =
+    HEOMSparseStructure(Comm = COOFormat(Nado))
+HEOMSparseStructure(bath::bosonRealImag, Nado::Int) =
+    HEOMSparseStructure(Comm = COOFormat(Nado), anComm = COOFormat(Nado))
+
 # sum γ of bath for current level
 function bath_sum_γ(nvec, baths::Vector{T}) where {T<:Union{AbstractBosonBath,AbstractFermionBath}}
     p = 0
@@ -501,18 +512,41 @@ minus_i_L_op(Hsys::QuantumObject) = liouvillian(Hsys).data
 
 # connect to bosonic (n-1)th-level for "Real & Imag combined operator"
 minus_i_D_op(bath::bosonRealImag, k, n_k) = n_k * (-1.0im * bath.η_real[k] * bath.Comm + bath.η_imag[k] * bath.anComm)
+function minus_i_D_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::bosonRealImag, k, n_k)
+    push!(ops_pattern.Comm, I, J, -1.0im * n_k * bath.η_real[k])
+    push!(ops_pattern.anComm, I, J, n_k * bath.η_imag[k])
+    return nothing
+end
 
 # connect to bosonic (n-1)th-level for (Real & Imag combined) operator "Real operator"
 minus_i_D_op(bath::bosonReal, k, n_k) = -1.0im * n_k * bath.η[k] * bath.Comm
+function minus_i_D_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::bosonReal, k, n_k)
+    push!(ops_pattern.Comm, I, J, -1.0im * n_k * bath.η[k])
+    return nothing
+end
 
 # connect to bosonic (n-1)th-level for "Imag operator"
 minus_i_D_op(bath::bosonImag, k, n_k) = n_k * bath.η[k] * bath.anComm
+function minus_i_D_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::bosonImag, k, n_k)
+    push!(ops_pattern.anComm, I, J, n_k * bath.η[k])
+    return nothing
+end
 
 # connect to bosonic (n-1)th-level for "Absorption operator"
 minus_i_D_op(bath::bosonAbsorb, k, n_k) = -1.0im * n_k * (bath.η[k] * bath.spre - conj(bath.η_emit[k]) * bath.spost)
+function minus_i_D_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::bosonAbsorb, k, n_k)
+    push!(ops_pattern.spre, I, J, -1.0im * n_k * bath.η[k])
+    push!(ops_pattern.spost, I, J, 1.0im * n_k * conj(bath.η_emit[k]))
+    return nothing
+end
 
 # connect to bosonic (n-1)th-level for "Emission operator"
 minus_i_D_op(bath::bosonEmit, k, n_k) = -1.0im * n_k * (bath.η[k] * bath.spre - conj(bath.η_absorb[k]) * bath.spost)
+function minus_i_D_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::bosonEmit, k, n_k)
+    push!(ops_pattern.spre, I, J, -1.0im * n_k * bath.η[k])
+    push!(ops_pattern.spost, I, J, 1.0im * n_k * conj(bath.η_absorb[k]))
+    return nothing
+end
 
 # connect to fermionic (n-1)th-level for "absorption operator"
 function minus_i_C_op(bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
@@ -542,9 +576,17 @@ end
 
 # connect to bosonic (n+1)th-level for real-and-imaginary-type bosonic bath
 minus_i_B_op(bath::T) where {T<:Union{bosonReal,bosonImag,bosonRealImag}} = -1.0im * bath.Comm
+function minus_i_B_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::T) where {T<:Union{bosonReal,bosonImag,bosonRealImag}}
+    push!(ops_pattern.Comm, I, J, -1.0im)
+    return nothing
+end
 
 # connect to bosonic (n+1)th-level for absorption-and-emission-type bosonic bath
 minus_i_B_op(bath::T) where {T<:Union{bosonAbsorb,bosonEmit}} = -1.0im * bath.CommD
+function minus_i_B_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::T) where {T<:Union{bosonAbsorb,bosonEmit}}
+    push!(ops_pattern.CommD, I, J, -1.0im)
+    return nothing
+end
 
 # connect to fermionic (n+1)th-level
 function minus_i_A_op(bath::T, n_exc, n_exc_before, parity) where {T<:AbstractFermionBath}
@@ -555,4 +597,25 @@ function minus_i_A_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::A
     push!(ops_pattern.spreD, I, J, prefix * ((-1)^value(parity)))
     push!(ops_pattern.spostD, I, J, prefix * (-1)^(n_exc + 1))
     return nothing
+end
+
+function merge_terms(op)
+    Tensor_ops = op.ops |> collect # [ A_i ⊗ B_i ]
+    A_list = [op.ops[1].A for op in Tensor_ops] # [ A_i ]
+    B_list = [op.ops[2].A for op in Tensor_ops] # [ B_i ]
+
+    ub = unique(B_list)
+    aaa = [[] for i in ub]
+    for i in eachindex(Tensor_ops)
+        for j in eachindex(ub)
+            if ub[j] == B_list[i]
+                push!(aaa[j], i)
+            end
+        end
+    end
+
+    return sum(pairs(ub)) do (j, bj)
+        Aj = sum(k -> A_list[k], aaa[j])
+        kron(MatrixOperator(Aj), bj)
+    end
 end
