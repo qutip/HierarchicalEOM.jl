@@ -28,12 +28,12 @@
     J = Qobj([0 0.1450-0.7414im; 0.1450+0.7414im 0])
 
     L = M_Fermion(Hsys, tier, Fbath; verbose = true) # also test verbosity
-    L_lazy = M_Fermion(Hsys, tier, Fbath; verbose = false, concretize = Val(false))
+    L_lazy = M_Fermion(Hsys, tier, Fbath; verbose = false, assemble = Val(false))
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (1196, 1196)
     @test L.N == 299
     @test nnz(L.data.A) == nnz(L(0)) == nnz(concretize(L_lazy)(0)) == 21318
-    @test L_lazy.data isa SciMLOperators.AddOperator
+    @test L_lazy.data isa SciMLOperators.AddedOperator
     @test length(L_lazy.data.ops) == 8 * 1 + 2 # 8 ops per fermion bath + 2 free terms
     L = addFermionDissipator(L, J)
     @test nnz(L.data.A) == nnz(L(0)) == 22516

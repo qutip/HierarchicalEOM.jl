@@ -1,5 +1,6 @@
 @testitem "M_Boson" begin
     using SparseArrays
+    using SciMLOperators
 
     # Test Boson-type HEOM Liouvillian superoperator matrix
     λ = 0.1450
@@ -26,10 +27,12 @@
     J = Qobj([0 0.1450-0.7414im; 0.1450+0.7414im 0])
 
     L = M_Boson(Hsys, tier, Bbath; verbose = true) # also test verbosity
+    L_lazy = M_Boson(Hsys, tier, Bbath; verbose = false, assemble = Val(false))
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (336, 336)
     @test L.N == 84
-    @test nnz(L.data.A) == nnz(L(0)) == 4422
+    @test nnz(L.data.A) == nnz(L(0)) == nnz(concretize(L_lazy.data)) == 4422
+    @test L_lazy.data isa SciMLOperators.AddedOperator
     L = addBosonDissipator(L, J)
     @test nnz(L.data.A) == nnz(L(0)) == 4760
     @test isconstant(L)
