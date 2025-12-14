@@ -381,61 +381,6 @@ function addTerminator(M::Mtype, Bath::Union{BosonBath,FermionBath}) where {Mtyp
     end
 end
 
-# function csc2coo(A)
-#     len = length(A.nzval)
-
-#     if len == 0
-#         return A.m, A.n, [], [], []
-#     else
-#         colidx = Vector{Int}(undef, len)
-#         @inbounds for i in 1:(length(A.colptr)-1)
-#             @inbounds for j in A.colptr[i]:(A.colptr[i+1]-1)
-#                 colidx[j] = i
-#             end
-#         end
-#         return A.m, A.n, A.rowval, colidx, A.nzval
-#     end
-# end
-
-# function pad_coo(
-#     A::SparseMatrixCSC{T,Int64},
-#     row_scale::Int,
-#     col_scale::Int,
-#     row_idx = 1::Int,
-#     col_idx = 1::Int,
-# ) where {T<:Number}
-#     # transform matrix A's format from csc to coo
-#     M, N, I, J, V = csc2coo(A)
-
-#     # deal with values
-#     if T != ComplexF64
-#         V = convert.(ComplexF64, V)
-#     end
-
-#     # deal with rowval
-#     if (row_idx > row_scale) || (row_idx < 1)
-#         error("row_idx must be \'>= 1\' and \'<= row_scale\'")
-#     end
-
-#     # deal with colval
-#     if (col_idx > col_scale) || (col_idx < 1)
-#         error("col_idx must be \'>= 1\' and \'<= col_scale\'")
-#     end
-
-#     @inbounds Inew = I .+ (M * (row_idx - 1))
-#     @inbounds Jnew = J .+ (N * (col_idx - 1))
-
-#     return Inew, Jnew, V
-# end
-
-# function add_operator!(op, I, J, V, N_he, row_idx, col_idx)
-#     row, col, val = pad_coo(op, N_he, N_he, row_idx, col_idx)
-#     append!(I, row)
-#     append!(J, col)
-#     append!(V, val)
-#     return nothing
-# end
-
 raw"""
 A sparse COO representation of the positions and prefix values for a single superoperator in HEOM Liouville space.
 """
@@ -511,7 +456,6 @@ end
 minus_i_L_op(Hsys::QuantumObject) = liouvillian(Hsys).data
 
 # connect to bosonic (n-1)th-level for "Real & Imag combined operator"
-minus_i_D_op(bath::bosonRealImag, k, n_k) = n_k * (-1.0im * bath.η_real[k] * bath.Comm + bath.η_imag[k] * bath.anComm)
 function minus_i_D_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::bosonRealImag, k, n_k)
     push!(ops_pattern.Comm, I, J, -1.0im * n_k * bath.η_real[k])
     push!(ops_pattern.anComm, I, J, n_k * bath.η_imag[k])
@@ -519,21 +463,18 @@ function minus_i_D_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::b
 end
 
 # connect to bosonic (n-1)th-level for (Real & Imag combined) operator "Real operator"
-minus_i_D_op(bath::bosonReal, k, n_k) = -1.0im * n_k * bath.η[k] * bath.Comm
 function minus_i_D_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::bosonReal, k, n_k)
     push!(ops_pattern.Comm, I, J, -1.0im * n_k * bath.η[k])
     return nothing
 end
 
 # connect to bosonic (n-1)th-level for "Imag operator"
-minus_i_D_op(bath::bosonImag, k, n_k) = n_k * bath.η[k] * bath.anComm
 function minus_i_D_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::bosonImag, k, n_k)
     push!(ops_pattern.anComm, I, J, n_k * bath.η[k])
     return nothing
 end
 
 # connect to bosonic (n-1)th-level for "Absorption operator"
-minus_i_D_op(bath::bosonAbsorb, k, n_k) = -1.0im * n_k * (bath.η[k] * bath.spre - conj(bath.η_emit[k]) * bath.spost)
 function minus_i_D_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::bosonAbsorb, k, n_k)
     push!(ops_pattern.spre, I, J, -1.0im * n_k * bath.η[k])
     push!(ops_pattern.spost, I, J, 1.0im * n_k * conj(bath.η_emit[k]))
@@ -541,7 +482,6 @@ function minus_i_D_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::b
 end
 
 # connect to bosonic (n-1)th-level for "Emission operator"
-minus_i_D_op(bath::bosonEmit, k, n_k) = -1.0im * n_k * (bath.η[k] * bath.spre - conj(bath.η_absorb[k]) * bath.spost)
 function minus_i_D_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::bosonEmit, k, n_k)
     push!(ops_pattern.spre, I, J, -1.0im * n_k * bath.η[k])
     push!(ops_pattern.spost, I, J, 1.0im * n_k * conj(bath.η_absorb[k]))
@@ -549,11 +489,6 @@ function minus_i_D_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::b
 end
 
 # connect to fermionic (n-1)th-level for "absorption operator"
-function minus_i_C_op(bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
-    return -1.0im *
-           ((-1)^n_exc_before) *
-           (((-1)^value(parity)) * bath.η[k] * bath.spre - (-1)^(n_exc - 1) * conj(bath.η_emit[k]) * bath.spost)
-end
 function minus_i_C_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
     prefix = -1.0im * ((-1)^n_exc_before)
     push!(ops_pattern.spre, I, J, prefix * ((-1)^value(parity)) * bath.η[k])
@@ -562,11 +497,6 @@ function minus_i_C_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::f
 end
 
 # connect to fermionic (n-1)th-level for "emission operator"
-function minus_i_C_op(bath::fermionEmit, k, n_exc, n_exc_before, parity)
-    return -1.0im *
-           ((-1)^n_exc_before) *
-           ((-1)^(value(parity)) * bath.η[k] * bath.spre - (-1)^(n_exc - 1) * conj(bath.η_absorb[k]) * bath.spost)
-end
 function minus_i_C_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::fermionEmit, k, n_exc, n_exc_before, parity)
     prefix = -1.0im * ((-1)^n_exc_before)
     push!(ops_pattern.spre, I, J, prefix * ((-1)^value(parity)) * bath.η[k])
@@ -575,23 +505,18 @@ function minus_i_C_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::f
 end
 
 # connect to bosonic (n+1)th-level for real-and-imaginary-type bosonic bath
-minus_i_B_op(bath::T) where {T<:Union{bosonReal,bosonImag,bosonRealImag}} = -1.0im * bath.Comm
 function minus_i_B_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::T) where {T<:Union{bosonReal,bosonImag,bosonRealImag}}
     push!(ops_pattern.Comm, I, J, -1.0im)
     return nothing
 end
 
 # connect to bosonic (n+1)th-level for absorption-and-emission-type bosonic bath
-minus_i_B_op(bath::T) where {T<:Union{bosonAbsorb,bosonEmit}} = -1.0im * bath.CommD
 function minus_i_B_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::T) where {T<:Union{bosonAbsorb,bosonEmit}}
     push!(ops_pattern.CommD, I, J, -1.0im)
     return nothing
 end
 
 # connect to fermionic (n+1)th-level
-function minus_i_A_op(bath::T, n_exc, n_exc_before, parity) where {T<:AbstractFermionBath}
-    return -1.0im * ((-1)^n_exc_before) * ((-1)^(value(parity)) * bath.spreD + (-1)^(n_exc + 1) * bath.spostD)
-end
 function minus_i_A_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::AbstractFermionBath, n_exc, n_exc_before, parity)
     prefix = -1.0im * ((-1)^n_exc_before)
     push!(ops_pattern.spreD, I, J, prefix * ((-1)^value(parity)))
