@@ -68,9 +68,17 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 )
     _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)") # Checking input type first
 
+    if verbose && (threshold > 0.0)
+        print("Checking the importance value for each ADOs...")
+        flush(stdout)
+    end
     Nado, baths, hierarchy = genBathHierarchy(Bath, tier, Hsys.dimensions; threshold)
     idx2nvec = hierarchy.idx2nvec
     nvec2idx = hierarchy.nvec2idx
+    if verbose && (threshold > 0.0)
+        println("[DONE]")
+        flush(stdout)
+    end
 
     γ_term = Vector{ComplexF64}(undef, Nado)
     γ_term[1] = 0.0im
