@@ -567,17 +567,17 @@ function merge_terms(op)
     A_list = [op.ops[1].A for op in Tensor_ops] # [ A_i ]
     B_list = [op.ops[2].A for op in Tensor_ops] # [ B_i ]
 
-    ub = unique(B_list)
-    index_groups = [[] for i in ub]
+    unique_B_ops = unique(B_list)
+    aaa = [[] for i in unique_B_ops]
     for i in eachindex(Tensor_ops)
-        for j in eachindex(ub)
-            if ub[j] == B_list[i]
-                push!(index_groups[j], i)
+        for j in eachindex(unique_B_ops)
+            if unique_B_ops[j] == B_list[i]
+                push!(aaa[j], i)
             end
         end
     end
 
-    return sum(pairs(ub)) do (j, bj)
+    return sum(pairs(unique_B_ops)) do (j, bj)
         Aj = sum(k -> A_list[k], index_groups[j])
         return kron(MatrixOperator(Aj), bj)
     end
