@@ -32,7 +32,7 @@
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (1196, 1196)
     @test L.N == 299
-    @test nnz(L.data.A) == nnz(L(0)) == 21318
+    @test nnz(L.data.A) == nnz(L(0)) == nnz(concretize(L_lazy)(0)) == 21318
     @test L_lazy.data isa SciMLOperators.AddOperator
     @test length(L_lazy.data.ops) == 8 * 1 + 2 # 8 ops per fermion bath + 2 free terms
     L = addFermionDissipator(L, J)

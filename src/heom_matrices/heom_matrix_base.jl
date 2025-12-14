@@ -217,6 +217,13 @@ Test whether the [`AbstractHEOMLSMatrix`](@ref) `M` is constant in time.
 SciMLOperators.isconstant(M::AbstractHEOMLSMatrix) = isconstant(M.data)
 
 @doc raw"""
+    SciMLOperators.concretize(M::AbstractHEOMLSMatrix)
+
+Convert `M` to a concrete matrix representation by evaluating all lazy operations.
+"""
+SciMLOperators.concretize(M::AbstractHEOMLSMatrix) = _reset_HEOMLS_data(M, MatrixOperator(concretize(M.data)))
+
+@doc raw"""
     Propagator(M, Δt; threshold, nonzero_tol)
 Use `FastExpm.jl` to calculate the propagator matrix from a given HEOM Liouvillian superoperator matrix ``M`` with a specific time step ``\Delta t``.
 That is, ``\exp(M * \Delta t)``.
