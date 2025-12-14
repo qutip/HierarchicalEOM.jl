@@ -34,10 +34,10 @@ function M_Fermion(
     Bath::FermionBath,
     parity::AbstractParity = EVEN;
     threshold::Real = 0.0,
-    concretize::Union{Val,Bool} = Val(true),
+    assemble::Union{Val,Bool} = Val(true),
     verbose::Bool = true,
 )
-    return M_Fermion(Hsys, tier, [Bath], parity; threshold, concretize, verbose)
+    return M_Fermion(Hsys, tier, [Bath], parity; threshold, assemble, verbose)
 end
 
 @doc raw"""
@@ -50,7 +50,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
 - `Bath::Vector{FermionBath}` : objects for different fermionic baths
 - `parity::AbstractParity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
 - `threshold::Real` : The threshold of the importance value (see Ref. [1]). Defaults to `0.0`.
-- `concretize::Union{Val,Bool}` : Whether to concretize the HEOMLS to a single sparse matrix. Defaults to `Val(true)`.
+- `assemble::Union{Val,Bool}` : Whether to assemble the HEOMLS to a single sparse matrix. Defaults to `Val(true)`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 
 [1] [Phys. Rev. B 88, 235426 (2013)](https://doi.org/10.1103/PhysRevB.88.235426)
@@ -61,7 +61,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
     Bath::Vector{FermionBath},
     parity::AbstractParity = EVEN;
     threshold::Real = 0.0,
-    concretize::Union{Val,Bool} = Val(true),
+    assemble::Union{Val,Bool} = Val(true),
     verbose::Bool = true,
 )
     _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)") # Checking input type first
@@ -142,7 +142,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         flush(stdout)
     end
     
-    if getVal(makeVal(concretize))
+    if getVal(makeVal(assemble))
         if verbose
             print("Concretizing matrix...")
             flush(stdout)
