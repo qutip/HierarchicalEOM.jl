@@ -34,9 +34,10 @@ function M_Boson(
     Bath::BosonBath,
     parity::AbstractParity = EVEN;
     threshold::Real = 0.0,
+    assemble::Union{Val,Bool} = Val(true),
     verbose::Bool = true,
 )
-    return M_Boson(Hsys, tier, [Bath], parity, threshold = threshold, verbose = verbose)
+    return M_Boson(Hsys, tier, [Bath], parity; threshold, assemble, verbose)
 end
 
 @doc raw"""
