@@ -61,21 +61,14 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
     threshold::Real = 0.0,
     verbose::Bool = true,
 )
-
-    # check for system dimension
-    _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)")
-    sup_dim = prod(_Hsys.dimensions)^2
-    I_sup = Eye(sup_dim)
-
-    # the Liouvillian operator for free Hamiltonian term
-    Lsys = minus_i_L_op(_Hsys)
+    _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)") # Checking input type first
 
     # fermionic bath
     if verbose && (threshold > 0.0)
         print("Checking the importance value for each ADOs...")
         flush(stdout)
     end
-    Nado, baths, hierarchy = genBathHierarchy(Bath, tier, _Hsys.dimensions, threshold = threshold)
+    Nado, baths, hierarchy = genBathHierarchy(Bath, tier, Hsys.dimensions; threshold)
     idx2nvec = hierarchy.idx2nvec
     nvec2idx = hierarchy.nvec2idx
     if verbose && (threshold > 0.0)
@@ -83,65 +76,47 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         flush(stdout)
     end
 
-    # start to construct the matrix
-    Nthread = nthreads()
-    L_row = [Int[] for _ in 1:Nthread]
-    L_col = [Int[] for _ in 1:Nthread]
-    L_val = [ComplexF64[] for _ in 1:Nthread]
-    chnl = Channel{Tuple{Vector{Int},Vector{Int},Vector{ComplexF64}}}(Nthread)
-    foreach(i -> put!(chnl, (L_row[i], L_col[i], L_val[i])), 1:Nthread)
+    γ_term = Vector{ComplexF64}(undef, Nado)
+    γ_term[1] = 0.0im
+
+    # stores position and prefix value for each Fermion superoperators in HEOM Liouville space using sparse COO format
+    F_terms = [HEOMSparseStructure(fB, Nado) for fB in baths]
+
     if verbose
-        println("Preparing block matrices for HEOM Liouvillian superoperator (using $(Nthread) threads)...")
+        println("Preparing block matrices for HEOM Liouvillian superoperator...")
         flush(stdout)
         progr = Progress(Nado; enabled = verbose, desc = "[M_Fermion] ", QuantumToolbox.settings.ProgressMeterKWARGS...)
     end
     @threads for idx in 1:Nado
-
-        # fermion (current level) superoperator
         nvec = idx2nvec[idx]
-        if nvec.level >= 1
-            sum_γ = bath_sum_γ(nvec, baths)
-            op = Lsys - sum_γ * I_sup
-        else
-            op = Lsys
+        if nvec.level > 0
+            γ_term[idx] = -bath_sum_γ(nvec, baths)
         end
-        L_tuple = take!(chnl)
-        add_operator!(op, L_tuple[1], L_tuple[2], L_tuple[3], Nado, idx, idx)
-        put!(chnl, L_tuple)
 
-        # connect to fermionic (n+1)th- & (n-1)th- level superoperator
         mode = 0
         nvec_neigh = copy(nvec)
-        for fB in baths
+        for (f_term, fB) in zip(F_terms, baths)
             for k in 1:fB.Nterm
                 mode += 1
                 n_k = nvec[mode]
 
-                # connect to fermionic (n-1)th-level superoperator
                 if n_k > 0
                     Nvec_minus!(nvec_neigh, mode)
                     if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                         idx_neigh = nvec2idx[nvec_neigh]
-                        op = minus_i_C_op(fB, k, nvec.level, sum(nvec_neigh[1:(mode-1)]), parity)
-                        L_tuple = take!(chnl)
-                        add_operator!(op, L_tuple[1], L_tuple[2], L_tuple[3], Nado, idx, idx_neigh)
-                        put!(chnl, L_tuple)
+                        minus_i_C_op!(f_term, idx, idx_neigh, fB, k, nvec.level, sum(nvec_neigh[1:(mode-1)]), parity)
                     end
                     Nvec_plus!(nvec_neigh, mode)
-
-                    # connect to fermionic (n+1)th-level superoperator
                 elseif nvec.level < tier
                     Nvec_plus!(nvec_neigh, mode)
                     if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                         idx_neigh = nvec2idx[nvec_neigh]
-                        op = minus_i_A_op(fB, nvec.level, sum(nvec_neigh[1:(mode-1)]), parity)
-                        L_tuple = take!(chnl)
-                        add_operator!(op, L_tuple[1], L_tuple[2], L_tuple[3], Nado, idx, idx_neigh)
-                        put!(chnl, L_tuple)
+                        minus_i_A_op!(f_term, idx, idx_neigh, fB, nvec.level, sum(nvec_neigh[1:(mode-1)]), parity)
                     end
                     Nvec_minus!(nvec_neigh, mode)
                 end
             end
+
         end
         verbose && next!(progr) # trigger a progress bar update
     end
@@ -149,14 +124,25 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         print("Constructing matrix...")
         flush(stdout)
     end
-    L_he = MatrixOperator(
-        sparse(reduce(vcat, L_row), reduce(vcat, L_col), reduce(vcat, L_val), Nado * sup_dim, Nado * sup_dim),
-    )
+    
+    # Create SciML lazy HEOM Liouvillian superoperator
+    L_heom = kron(MatrixOperator(Eye(Nado)), minus_i_L_op(_Hsys)) # the Liouvillian operator for free Hamiltonian term
+    L_heom += kron(MatrixOperator(spdiagm(γ_term)), Eye(prod(_Hsys.dimensions)^2)) # ADOs sum γ terms
+
+    # Super operator cross level terms
+    for (f_term, fB) in zip(F_terms, baths)
+        for op in fieldnames(HEOMSparseStructure)
+            f_coo = getfield(f_term, op)
+            f_coo isa Nothing && continue
+            L_heom += kron(MatrixOperator(sparse(f_coo)), getfield(fB, op))
+        end
+    end
+
     if verbose
         println("[DONE]")
         flush(stdout)
     end
-    return M_Fermion(L_he, tier, _Hsys.dimensions, Nado, sup_dim, parity, Bath, hierarchy)
+    return M_Fermion(concretize(L_heom), tier, _Hsys.dimensions, Nado, sup_dim, parity, Bath, hierarchy)
 end
 
 _getBtier(M::M_Fermion) = 0

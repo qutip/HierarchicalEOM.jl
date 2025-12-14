@@ -374,60 +374,106 @@ function addTerminator(M::Mtype, Bath::Union{BosonBath,FermionBath}) where {Mtyp
     end
 end
 
-function csc2coo(A)
-    len = length(A.nzval)
+# function csc2coo(A)
+#     len = length(A.nzval)
 
-    if len == 0
-        return A.m, A.n, [], [], []
-    else
-        colidx = Vector{Int}(undef, len)
-        @inbounds for i in 1:(length(A.colptr)-1)
-            @inbounds for j in A.colptr[i]:(A.colptr[i+1]-1)
-                colidx[j] = i
-            end
-        end
-        return A.m, A.n, A.rowval, colidx, A.nzval
-    end
+#     if len == 0
+#         return A.m, A.n, [], [], []
+#     else
+#         colidx = Vector{Int}(undef, len)
+#         @inbounds for i in 1:(length(A.colptr)-1)
+#             @inbounds for j in A.colptr[i]:(A.colptr[i+1]-1)
+#                 colidx[j] = i
+#             end
+#         end
+#         return A.m, A.n, A.rowval, colidx, A.nzval
+#     end
+# end
+
+# function pad_coo(
+#     A::SparseMatrixCSC{T,Int64},
+#     row_scale::Int,
+#     col_scale::Int,
+#     row_idx = 1::Int,
+#     col_idx = 1::Int,
+# ) where {T<:Number}
+#     # transform matrix A's format from csc to coo
+#     M, N, I, J, V = csc2coo(A)
+
+#     # deal with values
+#     if T != ComplexF64
+#         V = convert.(ComplexF64, V)
+#     end
+
+#     # deal with rowval
+#     if (row_idx > row_scale) || (row_idx < 1)
+#         error("row_idx must be \'>= 1\' and \'<= row_scale\'")
+#     end
+
+#     # deal with colval
+#     if (col_idx > col_scale) || (col_idx < 1)
+#         error("col_idx must be \'>= 1\' and \'<= col_scale\'")
+#     end
+
+#     @inbounds Inew = I .+ (M * (row_idx - 1))
+#     @inbounds Jnew = J .+ (N * (col_idx - 1))
+
+#     return Inew, Jnew, V
+# end
+
+# function add_operator!(op, I, J, V, N_he, row_idx, col_idx)
+#     row, col, val = pad_coo(op, N_he, N_he, row_idx, col_idx)
+#     append!(I, row)
+#     append!(J, col)
+#     append!(V, val)
+#     return nothing
+# end
+
+raw"""
+A sparse COO representation of the positions and prefix values for a single superoperator in HEOM Liouville space.
+"""
+struct COOFormat
+    I::Vector{Int}
+    J::Vector{Int}
+    V::Vector{ComplexF64}
+    N::Int
 end
 
-function pad_coo(
-    A::SparseMatrixCSC{T,Int64},
-    row_scale::Int,
-    col_scale::Int,
-    row_idx = 1::Int,
-    col_idx = 1::Int,
-) where {T<:Number}
-    # transform matrix A's format from csc to coo
-    M, N, I, J, V = csc2coo(A)
+COOFormat(N::Int) = COOFormat(Int[], Int[], ComplexF64[], N)
 
-    # deal with values
-    if T != ComplexF64
-        V = convert.(ComplexF64, V)
-    end
+function Base.push!(mat::COOFormat, i, j, v)
+    push!(mat.I, i)
+    push!(mat.J, j)
+    push!(mat.V, v)
 
-    # deal with rowval
-    if (row_idx > row_scale) || (row_idx < 1)
-        error("row_idx must be \'>= 1\' and \'<= row_scale\'")
-    end
-
-    # deal with colval
-    if (col_idx > col_scale) || (col_idx < 1)
-        error("col_idx must be \'>= 1\' and \'<= col_scale\'")
-    end
-
-    @inbounds Inew = I .+ (M * (row_idx - 1))
-    @inbounds Jnew = J .+ (N * (col_idx - 1))
-
-    return Inew, Jnew, V
-end
-
-function add_operator!(op, I, J, V, N_he, row_idx, col_idx)
-    row, col, val = pad_coo(op, N_he, N_he, row_idx, col_idx)
-    append!(I, row)
-    append!(J, col)
-    append!(V, val)
     return nothing
 end
+
+SparseArrays.sparse(coo::COOFormat) = sparse(coo.I, coo.J, coo.V, coo.N, coo.N)
+
+raw"""
+Stores the sparsity structure (positions and prefix values) of all superoperators in HEOM Liouville space using COO format.
+"""
+Base.@kwdef struct HEOMSparseStructure{
+        SPRE<:Union{COOFormat, Nothing},
+        SPOST<:Union{COOFormat, Nothing},
+        SPRED<:Union{COOFormat, Nothing},
+        SPOSTD<:Union{COOFormat, Nothing},
+        COMM<:Union{COOFormat, Nothing},
+        ANCOMM<:Union{COOFormat, Nothing},
+        COMMD<:Union{COOFormat, Nothing}
+    }
+    spre::SPRE = nothing
+    spost::SPOST = nothing
+    spreD::SPRED = nothing
+    spostD::SPOSTD = nothing
+    Comm::COMM = nothing
+    anComm::ANCOMM = nothing
+    CommD::COMMD = nothing
+end
+
+HEOMSparseStructure(bath::AbstractFermionBath, Nado::Int) =
+    HEOMSparseStructure(spre = COOFormat(Nado), spost = COOFormat(Nado), spreD = COOFormat(Nado), spostD = COOFormat(Nado))
 
 # sum γ of bath for current level
 function bath_sum_γ(nvec, baths::Vector{T}) where {T<:Union{AbstractBosonBath,AbstractFermionBath}}
@@ -467,12 +513,24 @@ function minus_i_C_op(bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
            ((-1)^n_exc_before) *
            (((-1)^value(parity)) * bath.η[k] * bath.spre - (-1)^(n_exc - 1) * conj(bath.η_emit[k]) * bath.spost)
 end
+function minus_i_C_op!(s_ops::Super_COO, I::Int, J::Int, bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
+    prefix = -1.0im * ((-1)^n_exc_before)
+    push!(s_ops.spre, I, J, prefix * ((-1)^value(parity)) * bath.η[k])
+    push!(s_ops.spost, I, J, - prefix * (-1)^(n_exc - 1) * conj(bath.η_emit[k]))
+    return nothing
+end
 
 # connect to fermionic (n-1)th-level for "emission operator"
 function minus_i_C_op(bath::fermionEmit, k, n_exc, n_exc_before, parity)
     return -1.0im *
            ((-1)^n_exc_before) *
            ((-1)^(value(parity)) * bath.η[k] * bath.spre - (-1)^(n_exc - 1) * conj(bath.η_absorb[k]) * bath.spost)
+end
+function minus_i_C_op!(s_ops::Super_COO, I::Int, J::Int, bath::fermionEmit, k, n_exc, n_exc_before, parity)
+    prefix = -1.0im * ((-1)^n_exc_before)
+    push!(s_ops.spre, I, J, prefix * ((-1)^value(parity)) * bath.η[k])
+    push!(s_ops.spost, I, J, - prefix * (-1)^(n_exc - 1) * conj(bath.η_absorb[k]))
+    return nothing
 end
 
 # connect to bosonic (n+1)th-level for real-and-imaginary-type bosonic bath
@@ -484,4 +542,10 @@ minus_i_B_op(bath::T) where {T<:Union{bosonAbsorb,bosonEmit}} = -1.0im * bath.Co
 # connect to fermionic (n+1)th-level
 function minus_i_A_op(bath::T, n_exc, n_exc_before, parity) where {T<:AbstractFermionBath}
     return -1.0im * ((-1)^n_exc_before) * ((-1)^(value(parity)) * bath.spreD + (-1)^(n_exc + 1) * bath.spostD)
+end
+function minus_i_A_op!(s_ops::Super_COO, I::Int, J::Int, bath::AbstractFermionBath, n_exc, n_exc_before, parity)
+    prefix = -1.0im * ((-1)^n_exc_before)
+    push!(s_ops.spreD, I, J, prefix * ((-1)^value(parity)))
+    push!(s_ops.spostD, I, J, prefix * (-1)^(n_exc + 1))
+    return nothing
 end
