@@ -407,14 +407,14 @@ raw"""
 Stores the sparsity structure (positions and prefix values) of all superoperators in HEOM Liouville space using COO format.
 """
 Base.@kwdef struct HEOMSparseStructure{
-        SPRE<:Union{COOFormat, Nothing},
-        SPOST<:Union{COOFormat, Nothing},
-        SPRED<:Union{COOFormat, Nothing},
-        SPOSTD<:Union{COOFormat, Nothing},
-        COMM<:Union{COOFormat, Nothing},
-        ANCOMM<:Union{COOFormat, Nothing},
-        COMMD<:Union{COOFormat, Nothing}
-    }
+    SPRE<:Union{COOFormat,Nothing},
+    SPOST<:Union{COOFormat,Nothing},
+    SPRED<:Union{COOFormat,Nothing},
+    SPOSTD<:Union{COOFormat,Nothing},
+    COMM<:Union{COOFormat,Nothing},
+    ANCOMM<:Union{COOFormat,Nothing},
+    COMMD<:Union{COOFormat,Nothing},
+}
     spre::SPRE = nothing
     spost::SPOST = nothing
     spreD::SPRED = nothing
@@ -424,17 +424,19 @@ Base.@kwdef struct HEOMSparseStructure{
     CommD::COMMD = nothing
 end
 
-HEOMSparseStructure(bath::AbstractFermionBath, Nado::Int) =
-    HEOMSparseStructure(spre = COOFormat(Nado), spost = COOFormat(Nado), spreD = COOFormat(Nado), spostD = COOFormat(Nado))
+HEOMSparseStructure(bath::AbstractFermionBath, Nado::Int) = HEOMSparseStructure(
+    spre = COOFormat(Nado),
+    spost = COOFormat(Nado),
+    spreD = COOFormat(Nado),
+    spostD = COOFormat(Nado),
+)
 
 HEOMSparseStructure(bath::bosonAbsorb, Nado::Int) =
     HEOMSparseStructure(spre = COOFormat(Nado), spost = COOFormat(Nado), CommD = COOFormat(Nado))
 HEOMSparseStructure(bath::bosonEmit, Nado::Int) =
     HEOMSparseStructure(spre = COOFormat(Nado), spost = COOFormat(Nado), CommD = COOFormat(Nado))
-HEOMSparseStructure(bath::bosonImag, Nado::Int) =
-    HEOMSparseStructure(Comm = COOFormat(Nado), anComm = COOFormat(Nado))
-HEOMSparseStructure(bath::bosonReal, Nado::Int) =
-    HEOMSparseStructure(Comm = COOFormat(Nado))
+HEOMSparseStructure(bath::bosonImag, Nado::Int) = HEOMSparseStructure(Comm = COOFormat(Nado), anComm = COOFormat(Nado))
+HEOMSparseStructure(bath::bosonReal, Nado::Int) = HEOMSparseStructure(Comm = COOFormat(Nado))
 HEOMSparseStructure(bath::bosonRealImag, Nado::Int) =
     HEOMSparseStructure(Comm = COOFormat(Nado), anComm = COOFormat(Nado))
 
@@ -489,7 +491,16 @@ function minus_i_D_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::b
 end
 
 # connect to fermionic (n-1)th-level for "absorption operator"
-function minus_i_C_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::fermionAbsorb, k, n_exc, n_exc_before, parity)
+function minus_i_C_op!(
+    ops_pattern::HEOMSparseStructure,
+    I::Int,
+    J::Int,
+    bath::fermionAbsorb,
+    k,
+    n_exc,
+    n_exc_before,
+    parity,
+)
     prefix = -1.0im * ((-1)^n_exc_before)
     push!(ops_pattern.spre, I, J, prefix * ((-1)^value(parity)) * bath.η[k])
     push!(ops_pattern.spost, I, J, - prefix * (-1)^(n_exc - 1) * conj(bath.η_emit[k]))
@@ -497,7 +508,16 @@ function minus_i_C_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::f
 end
 
 # connect to fermionic (n-1)th-level for "emission operator"
-function minus_i_C_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::fermionEmit, k, n_exc, n_exc_before, parity)
+function minus_i_C_op!(
+    ops_pattern::HEOMSparseStructure,
+    I::Int,
+    J::Int,
+    bath::fermionEmit,
+    k,
+    n_exc,
+    n_exc_before,
+    parity,
+)
     prefix = -1.0im * ((-1)^n_exc_before)
     push!(ops_pattern.spre, I, J, prefix * ((-1)^value(parity)) * bath.η[k])
     push!(ops_pattern.spost, I, J, - prefix * (-1)^(n_exc - 1) * conj(bath.η_absorb[k]))
@@ -505,19 +525,37 @@ function minus_i_C_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::f
 end
 
 # connect to bosonic (n+1)th-level for real-and-imaginary-type bosonic bath
-function minus_i_B_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::T) where {T<:Union{bosonReal,bosonImag,bosonRealImag}}
+function minus_i_B_op!(
+    ops_pattern::HEOMSparseStructure,
+    I::Int,
+    J::Int,
+    bath::T,
+) where {T<:Union{bosonReal,bosonImag,bosonRealImag}}
     push!(ops_pattern.Comm, I, J, -1.0im)
     return nothing
 end
 
 # connect to bosonic (n+1)th-level for absorption-and-emission-type bosonic bath
-function minus_i_B_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::T) where {T<:Union{bosonAbsorb,bosonEmit}}
+function minus_i_B_op!(
+    ops_pattern::HEOMSparseStructure,
+    I::Int,
+    J::Int,
+    bath::T,
+) where {T<:Union{bosonAbsorb,bosonEmit}}
     push!(ops_pattern.CommD, I, J, -1.0im)
     return nothing
 end
 
 # connect to fermionic (n+1)th-level
-function minus_i_A_op!(ops_pattern::HEOMSparseStructure, I::Int, J::Int, bath::AbstractFermionBath, n_exc, n_exc_before, parity)
+function minus_i_A_op!(
+    ops_pattern::HEOMSparseStructure,
+    I::Int,
+    J::Int,
+    bath::AbstractFermionBath,
+    n_exc,
+    n_exc_before,
+    parity,
+)
     prefix = -1.0im * ((-1)^n_exc_before)
     push!(ops_pattern.spreD, I, J, prefix * ((-1)^value(parity)))
     push!(ops_pattern.spostD, I, J, prefix * (-1)^(n_exc + 1))
@@ -541,6 +579,6 @@ function merge_terms(op)
 
     return sum(pairs(ub)) do (j, bj)
         Aj = sum(k -> A_list[k], aaa[j])
-        kron(MatrixOperator(Aj), bj)
+        return kron(MatrixOperator(Aj), bj)
     end
 end

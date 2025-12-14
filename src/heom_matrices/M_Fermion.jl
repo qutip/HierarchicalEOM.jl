@@ -119,16 +119,15 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
                     Nvec_minus!(nvec_neigh, mode)
                 end
             end
-
         end
         verbose && next!(progr) # trigger a progress bar update
     end
-    
+
     # Create SciML lazy HEOM Liouvillian superoperator
     sup_dim = prod(_Hsys.dimensions)^2
     L_heom = kron(MatrixOperator(Eye(Nado)), minus_i_L_op(_Hsys)) # the Liouvillian operator for free Hamiltonian term
     L_heom += kron(MatrixOperator(spdiagm(γ_term)), Eye(sup_dim)) # ADOs sum γ terms
-    
+
     # Super operator cross level terms
     for (f_term, fB) in zip(F_terms, baths)
         for op in fieldnames(HEOMSparseStructure)
@@ -141,7 +140,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         println("[DONE]")
         flush(stdout)
     end
-    
+
     if getVal(makeVal(assemble))
         if verbose
             print("Concretizing matrix...")
