@@ -70,7 +70,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 
     assemble_method = makeVal(assemble)
     check_assemble_method(assemble_method)
-    
+
     # bosonic bath
     if verbose && (threshold > 0.0)
         print("Checking the importance value for each ADOs...")

@@ -611,6 +611,12 @@ function assemble_HEOMLS_terms(M::Vector{<:AbstractSciMLOperator}, ::Val{:combin
     return M_combine
 end
 assemble_HEOMLS_terms(M::Vector{<:AbstractSciMLOperator}, ::Val{:none}, verbose::Bool) = M
-assemble_HEOMLS_terms(M::AbstractSciMLOperator, method::Val, verbose::Bool) = assemble_HEOMLS_terms([M], method, verbose)
+assemble_HEOMLS_terms(M::AbstractSciMLOperator, method::Val, verbose::Bool) =
+    assemble_HEOMLS_terms([M], method, verbose)
 
-check_assemble_method(assemble_method) = (assemble_method ∉ (Val(:full), Val(:combine), Val(:none))) && throw(ArgumentError("Invalid value for `assemble`: $(assemble_method). Accepted values are `:full`, `:combine`, or `:none`."))
+check_assemble_method(assemble_method) =
+    (assemble_method ∉ (Val(:full), Val(:combine), Val(:none))) && throw(
+        ArgumentError(
+            "Invalid value for `assemble`: $(assemble_method). Accepted values are `:full`, `:combine`, or `:none`.",
+        ),
+    )

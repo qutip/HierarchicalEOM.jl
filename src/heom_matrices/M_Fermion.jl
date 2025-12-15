@@ -117,7 +117,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
                     end
                     Nvec_plus!(nvec_neigh, mode)
 
-                # connect to fermonic (n+1)th-level superoperator
+                    # connect to fermonic (n+1)th-level superoperator
                 elseif nvec.level < tier
                     Nvec_plus!(nvec_neigh, mode)
                     if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
