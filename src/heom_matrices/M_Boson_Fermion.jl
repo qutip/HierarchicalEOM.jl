@@ -124,7 +124,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         flush(stdout)
     end
 
-    γ_term = zeros(ComplexF64, Nado)
+    minus_γ_term = zeros(ComplexF64, Nado)
 
     # stores position and prefix value for each superoperators in HEOM Liouville space using sparse COO format
     B_terms = [HEOMSparseStructure(bB, Nado) for bB in baths_b] # Boson
@@ -144,10 +144,10 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         # boson and fermion (current level) superoperator
         nvec_b, nvec_f = idx2nvec[idx]
         if nvec_b.level >= 1
-            γ_term[idx] -= bath_sum_γ(nvec_b, baths_b)
+            minus_γ_term[idx] -= bath_sum_γ(nvec_b, baths_b)
         end
         if nvec_f.level >= 1
-            γ_term[idx] -= bath_sum_γ(nvec_f, baths_f)
+            minus_γ_term[idx] -= bath_sum_γ(nvec_f, baths_f)
         end
 
         # connect to bosonic (n+1)th- & (n-1)th- level superoperator
@@ -214,7 +214,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
     # Create SciML lazy HEOM Liouvillian superoperator
     sup_dim = prod(_Hsys.dimensions)^2
     L_t_indep = kron(MatrixOperator(Eye(Nado)), minus_i_L_op(_Hsys)) # the Liouvillian operator for free Hamiltonian term
-    L_t_indep += kron(MatrixOperator(spdiagm(γ_term)), Eye(sup_dim)) # ADOs sum γ terms
+    L_t_indep += kron(MatrixOperator(spdiagm(minus_γ_term)), Eye(sup_dim)) # minus sum γ terms
 
     # Superoperator cross level terms
     for (b_term, bB) in zip(B_terms, baths_b)

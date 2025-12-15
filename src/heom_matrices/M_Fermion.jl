@@ -82,8 +82,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         flush(stdout)
     end
 
-    γ_term = Vector{ComplexF64}(undef, Nado)
-    γ_term[1] = 0.0im
+    minus_γ_term = zeros(ComplexF64, Nado)
 
     # stores position and prefix value for each Fermion superoperators in HEOM Liouville space using sparse COO format
     F_terms = [HEOMSparseStructure(fB, Nado) for fB in baths]
@@ -97,7 +96,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         # fermion (current level) superoperator
         nvec = idx2nvec[idx]
         if nvec.level > 0
-            γ_term[idx] = -bath_sum_γ(nvec, baths)
+            minus_γ_term[idx] = -bath_sum_γ(nvec, baths)
         end
 
         # connect to fermionic (n+1)th- & (n-1)th- level superoperator
@@ -134,7 +133,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
     # Create SciML lazy HEOM Liouvillian superoperator
     sup_dim = prod(_Hsys.dimensions)^2
     L_t_indep = kron(MatrixOperator(Eye(Nado)), minus_i_L_op(_Hsys)) # the Liouvillian operator for free Hamiltonian term
-    L_t_indep += kron(MatrixOperator(spdiagm(γ_term)), Eye(sup_dim)) # ADOs sum γ terms
+    L_t_indep += kron(MatrixOperator(spdiagm(minus_γ_term)), Eye(sup_dim)) # minus sum γ terms
 
     # Superoperator cross level terms
     for (f_term, fB) in zip(F_terms, baths)
