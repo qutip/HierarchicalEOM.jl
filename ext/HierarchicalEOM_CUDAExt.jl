@@ -7,7 +7,7 @@ import CUDA
 import CUDA: cu, CuArray
 import CUDA.CUSPARSE: CuSparseVector, CuSparseMatrixCSC, CuSparseMatrixCSR, AbstractCuSparseArray
 import SparseArrays: AbstractSparseMatrix, sparse, SparseVector, SparseMatrixCSC
-import SciMLOperators: MatrixOperator, ScaledOperator, AddedOperator, AbstractSciMLOperator
+import SciMLOperators: MatrixOperator, ScaledOperator, AddedOperator, TensorProductOperator, AbstractSciMLOperator
 
 @doc raw"""
     cu(M::AbstractHEOMLSMatrix; word_size::Union{Val,Int} = Val(64))
