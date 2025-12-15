@@ -28,15 +28,20 @@
     J = Qobj([0 0.1450-0.7414im; 0.1450+0.7414im 0])
 
     L = M_Fermion(Hsys, tier, Fbath; verbose = true) # also test verbosity
-    L_lazy = M_Fermion(Hsys, tier, Fbath; verbose = false, assemble = Val(false))
+    L_combine = M_Fermion(Hsys, tier, Fbath; verbose = false, assemble = Val(:combine))
+    L_lazy = M_Fermion(Hsys, tier, Fbath; verbose = false, assemble = Val(:none))
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (1196, 1196)
     @test L.N == 299
-    @test nnz(L.data.A) == nnz(L(0)) == nnz(concretize(L_lazy)(0)) == 21318
+    @test nnz(L.data.A) == nnz(L(0).data.A) == nnz(concretize(L_lazy)(0).data.A) == 21318
+    @test L(0).data.A == concretize(L_combine).data.A
+    @test L.data isa SciMLOperators.MatrixOperator
+    @test L_combine.data isa SciMLOperators.AddedOperator
     @test L_lazy.data isa SciMLOperators.AddedOperator
+    @test length(L_combine.data.ops) == 4 * 1 + 2 # 4 ops per fermion bath + 2 free terms
     @test length(L_lazy.data.ops) == 8 * 1 + 2 # 8 ops per fermion bath + 2 free terms
     L = addFermionDissipator(L, J)
-    @test nnz(L.data.A) == nnz(L(0)) == 22516
+    @test nnz(L.data.A) == nnz(L(0).data.A) == 22516
     @test isconstant(L)
     @test iscached(L)
     ados = steadystate(L; verbose = false)
@@ -57,7 +62,7 @@
     L = addFermionDissipator(L, J)
     @test size(L) == (148, 148)
     @test L.N == 37
-    @test nnz(L.data.A) == nnz(L(0)) == 2054
+    @test nnz(L.data.A) == nnz(L(0).data.A) == 2054
     ados = steadystate(L; verbose = false)
     ρ2 = ados[1]
     @test ρ0 ≈ ρ2 atol=1e-6
@@ -65,9 +70,9 @@
     L = M_Fermion(Hsys, tier, [Fbath, Fbath]; verbose = false)
     @test size(L) == (9300, 9300)
     @test L.N == 2325
-    @test nnz(L.data.A) == nnz(L(0)) == 174338
+    @test nnz(L.data.A) == nnz(L(0).data.A) == 174338
     L = addFermionDissipator(L, J)
-    @test nnz(L.data.A) == nnz(L(0)) == 183640
+    @test nnz(L.data.A) == nnz(L(0).data.A) == 183640
     ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N

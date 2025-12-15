@@ -40,7 +40,7 @@ function M_Boson_Fermion(
     Fbath::FermionBath,
     parity::AbstractParity = EVEN;
     threshold::Real = 0.0,
-    assemble::Union{Val,Bool} = Val(true),
+    assemble::Union{Val,Symbol} = Val(:full),
     verbose::Bool = true,
 )
     return M_Boson_Fermion(Hsys, Btier, Ftier, [Bbath], [Fbath], parity; threshold, assemble, verbose)
@@ -54,7 +54,7 @@ function M_Boson_Fermion(
     Fbath::FermionBath,
     parity::AbstractParity = EVEN;
     threshold::Real = 0.0,
-    assemble::Union{Val,Bool} = Val(true),
+    assemble::Union{Val,Symbol} = Val(:full),
     verbose::Bool = true,
 )
     return M_Boson_Fermion(Hsys, Btier, Ftier, Bbath, [Fbath], parity; threshold, assemble, verbose)
@@ -68,7 +68,7 @@ function M_Boson_Fermion(
     Fbath::Vector{FermionBath},
     parity::AbstractParity = EVEN;
     threshold::Real = 0.0,
-    assemble::Union{Val,Bool} = Val(true),
+    assemble::Union{Val,Symbol} = Val(:full),
     verbose::Bool = true,
 )
     return M_Boson_Fermion(Hsys, Btier, Ftier, [Bbath], Fbath, parity; threshold, assemble, verbose)
@@ -86,7 +86,7 @@ Generate the boson-fermion-type HEOM Liouvillian superoperator matrix
 - `Fbath::Vector{FermionBath}` : objects for different fermionic baths
 - `parity::AbstractParity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
 - `threshold::Real` : The threshold of the importance value (see Ref. [1, 2]). Defaults to `0.0`.
-- `assemble::Union{Val,Bool}` : Whether to assemble the HEOMLS to a single sparse matrix. Defaults to `Val(true)`.
+- `assemble::Union{Val,Symbol}` : Methods to assemble (evaluate lazy operations) the HEOMLS. Accepted values are `:full`, `:combine`, or `:none`. Defaults to `Val(:full)`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 
 Note that the parity only need to be set as `ODD` when the system contains fermion systems and you need to calculate the spectrum of it.
@@ -102,10 +102,13 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
     Fbath::Vector{FermionBath},
     parity::AbstractParity = EVEN;
     threshold::Real = 0.0,
-    assemble::Union{Val,Bool} = Val(true),
+    assemble::Union{Val,Symbol} = Val(:full),
     verbose::Bool = true,
 )
     _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)") # Checking input type first
+
+    assemble_method = makeVal(assemble)
+    check_assemble_method(assemble_method)
 
     # check for bosonic and fermionic bath
     if verbose && (threshold > 0.0)
@@ -123,8 +126,9 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 
     γ_term = zeros(ComplexF64, Nado)
 
-    B_terms = [HEOMSparseStructure(bB, Nado) for bB in baths_b]
-    F_terms = [HEOMSparseStructure(fB, Nado) for fB in baths_f]
+    # stores position and prefix value for each superoperators in HEOM Liouville space using sparse COO format
+    B_terms = [HEOMSparseStructure(bB, Nado) for bB in baths_b] # Boson
+    F_terms = [HEOMSparseStructure(fB, Nado) for fB in baths_f] # Fermion
 
     if verbose
         println("Preparing HEOM Liouvillian sparsity structure...")
@@ -209,38 +213,31 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 
     # Create SciML lazy HEOM Liouvillian superoperator
     sup_dim = prod(_Hsys.dimensions)^2
-    L_heom = kron(MatrixOperator(Eye(Nado)), minus_i_L_op(_Hsys)) # the Liouvillian operator for free Hamiltonian term
-    L_heom += kron(MatrixOperator(spdiagm(γ_term)), Eye(sup_dim)) # ADOs sum γ terms
+    L_t_indep = kron(MatrixOperator(Eye(Nado)), minus_i_L_op(_Hsys)) # the Liouvillian operator for free Hamiltonian term
+    L_t_indep += kron(MatrixOperator(spdiagm(γ_term)), Eye(sup_dim)) # ADOs sum γ terms
 
+    # Superoperator cross level terms
     for (b_term, bB) in zip(B_terms, baths_b)
         for op in fieldnames(HEOMSparseStructure)
             b_coo = getfield(b_term, op)
             b_coo isa Nothing && continue
-            L_heom += kron(MatrixOperator(sparse(b_coo)), getfield(bB, op))
+            L_t_indep += kron(MatrixOperator(sparse(b_coo)), getfield(bB, op))
         end
     end
     for (f_term, fB) in zip(F_terms, baths_f)
         for op in fieldnames(HEOMSparseStructure)
             f_coo = getfield(f_term, op)
             f_coo isa Nothing && continue
-            L_heom += kron(MatrixOperator(sparse(f_coo)), getfield(fB, op))
+            L_t_indep += kron(MatrixOperator(sparse(f_coo)), getfield(fB, op))
         end
+    end
+    if verbose
+        println("[DONE]")
+        flush(stdout)
     end
 
-    if getVal(makeVal(assemble))
-        if verbose
-            print("Concretizing matrix...")
-            flush(stdout)
-        end
-        data = SciMLOperators.concretize(L_heom) |> MatrixOperator
-        if verbose
-            println("[DONE]")
-            flush(stdout)
-        end
-    else
-        data = L_heom
-    end
-    return M_Boson_Fermion(data, Btier, Ftier, _Hsys.dimensions, Nado, sup_dim, parity, Bbath, Fbath, hierarchy)
+    L_heom = assemble_HEOMLS_terms(L_t_indep, assemble_method, verbose)[1]
+    return M_Boson_Fermion(L_heom, Btier, Ftier, _Hsys.dimensions, Nado, sup_dim, parity, Bbath, Fbath, hierarchy)
 end
 
 _getBtier(M::M_Boson_Fermion) = M.Btier

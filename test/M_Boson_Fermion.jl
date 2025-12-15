@@ -29,14 +29,17 @@
     J = Qobj([0 0.1450-0.7414im; 0.1450+0.7414im 0])
 
     L = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose = true) # also test verbosity
-    L_lazy = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose = false, assemble = Val(false)) # test lazy tensor assembly with assemble = Val(false)
+    L_combine = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose = false, assemble = Val(:combine)) # test combined tensor assembly with assemble = Val(:combine)
+    L_lazy = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose = false, assemble = Val(:none)) # test lazy tensor assembly with assemble = Val(:none)
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (2220, 2220)
     @test L.N == 555
-    @test nnz(L.data.A) == nnz(L(0)) == nnz(concretize(L_lazy.data)) == 43368
+    @test nnz(L.data.A) == nnz(L(0).data.A) == nnz(concretize(L_lazy.data)) == 43368
+    @test L.data isa SciMLOperators.MatrixOperator
+    @test L_combine.data isa SciMLOperators.AddedOperator
     @test L_lazy.data isa SciMLOperators.AddedOperator
     L = addBosonDissipator(L, J)
-    @test nnz(L.data.A) == nnz(L(0)) == 45590
+    @test nnz(L.data.A) == nnz(L(0).data.A) == 45590
     @test isconstant(L)
     @test iscached(L)
     ados = steadystate(L; verbose = false)
@@ -54,9 +57,9 @@
     L = M_Boson_Fermion(Hsys, tierb, tierf, [Bbath, Bbath], Fbath; verbose = false)
     @test size(L) == (6660, 6660)
     @test L.N == 1665
-    @test nnz(L.data.A) == nnz(L(0)) == 139210
+    @test nnz(L.data.A) == nnz(L(0).data.A) == 139210
     L = addFermionDissipator(L, J)
-    @test nnz(L.data.A) == nnz(L(0)) == 145872
+    @test nnz(L.data.A) == nnz(L(0).data.A) == 145872
     ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N
@@ -71,9 +74,9 @@
     L = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, [Fbath, Fbath]; verbose = false)
     @test size(L) == (8220, 8220)
     @test L.N == 2055
-    @test nnz(L.data.A) == nnz(L(0)) == 167108
+    @test nnz(L.data.A) == nnz(L(0).data.A) == 167108
     L = addBosonDissipator(L, J)
-    @test nnz(L.data.A) == nnz(L(0)) == 175330
+    @test nnz(L.data.A) == nnz(L(0).data.A) == 175330
     ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N

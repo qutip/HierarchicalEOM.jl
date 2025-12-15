@@ -34,7 +34,7 @@ function M_Boson(
     Bath::BosonBath,
     parity::AbstractParity = EVEN;
     threshold::Real = 0.0,
-    assemble::Union{Val,Bool} = Val(true),
+    assemble::Union{Val,Symbol} = Val(:full),
     verbose::Bool = true,
 )
     return M_Boson(Hsys, tier, [Bath], parity; threshold, assemble, verbose)
@@ -50,7 +50,7 @@ Generate the boson-type HEOM Liouvillian superoperator matrix
 - `Bath::Vector{BosonBath}` : objects for different bosonic baths
 - `parity::AbstractParity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
 - `threshold::Real` : The threshold of the importance value (see Ref. [1]). Defaults to `0.0`.
-- `assemble::Union{Val,Bool}` : Whether to assemble the HEOMLS to a single sparse matrix. Defaults to `Val(true)`.
+- `assemble::Union{Val,Symbol}` : Methods to assemble (evaluate lazy operations) the HEOMLS. Accepted values are `:full`, `:combine`, or `:none`. Defaults to `Val(:full)`.
 - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 
 Note that the parity only need to be set as `ODD` when the system contains fermionic systems and you need to calculate the spectrum (density of states) of it.
@@ -63,11 +63,15 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
     Bath::Vector{BosonBath},
     parity::AbstractParity = EVEN;
     threshold::Real = 0.0,
-    assemble::Union{Val,Bool} = Val(true),
+    assemble::Union{Val,Symbol} = Val(:full),
     verbose::Bool = true,
 )
     _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)") # Checking input type first
 
+    assemble_method = makeVal(assemble)
+    check_assemble_method(assemble_method)
+    
+    # bosonic bath
     if verbose && (threshold > 0.0)
         print("Checking the importance value for each ADOs...")
         flush(stdout)
@@ -83,6 +87,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
     γ_term = Vector{ComplexF64}(undef, Nado)
     γ_term[1] = 0.0im
 
+    # stores position and prefix value for each Fermion superoperators in HEOM Liouville space using sparse COO format
     B_terms = [HEOMSparseStructure(bB, Nado) for bB in baths]
 
     if verbose
@@ -131,15 +136,15 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 
     # Create SciML lazy HEOM Liouvillian superoperator
     sup_dim = prod(_Hsys.dimensions)^2
-    L_heom = kron(MatrixOperator(Eye(Nado)), minus_i_L_op(_Hsys)) # the Liouvillian operator for free Hamiltonian term
-    L_heom += kron(MatrixOperator(spdiagm(γ_term)), Eye(sup_dim)) # ADOs sum γ terms
+    L_t_indep = kron(MatrixOperator(Eye(Nado)), minus_i_L_op(_Hsys)) # the Liouvillian operator for free Hamiltonian term
+    L_t_indep += kron(MatrixOperator(spdiagm(γ_term)), Eye(sup_dim)) # ADOs sum γ terms
 
-    # Super operator cross level terms
+    # Superoperator cross level terms
     for (b_term, bB) in zip(B_terms, baths)
         for op in fieldnames(HEOMSparseStructure)
             b_coo = getfield(b_term, op)
             b_coo isa Nothing && continue
-            L_heom += kron(MatrixOperator(sparse(b_coo)), getfield(bB, op))
+            L_t_indep += kron(MatrixOperator(sparse(b_coo)), getfield(bB, op))
         end
     end
     if verbose
@@ -147,21 +152,8 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         flush(stdout)
     end
 
-    if getVal(makeVal(assemble))
-        if verbose
-            print("Concretizing matrix...")
-            flush(stdout)
-        end
-        data = SciMLOperators.concretize(L_heom) |> MatrixOperator
-        if verbose
-            println("[DONE]")
-            flush(stdout)
-        end
-    else
-        data = L_heom
-    end
-
-    return M_Boson(data, tier, _Hsys.dimensions, Nado, sup_dim, parity, Bath, hierarchy)
+    L_heom = assemble_HEOMLS_terms(L_t_indep, assemble_method, verbose)[1]
+    return M_Boson(L_heom, tier, _Hsys.dimensions, Nado, sup_dim, parity, Bath, hierarchy)
 end
 
 _getBtier(M::M_Boson) = M.tier

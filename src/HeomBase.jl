@@ -31,7 +31,7 @@ Calculate the time-dependent AbstractHEOMLSMatrix at time `t` with parameters `p
 function (M::AbstractHEOMLSMatrix)(p, t)
     # We put 0 in the place of `u` because the time-dependence doesn't depend on the state
     update_coefficients!(M.data, 0, p, t)
-    return concretize(M.data)
+    return _reset_HEOMLS_data(M, MatrixOperator(concretize(M.data)))
 end
 
 (M::AbstractHEOMLSMatrix)(t) = M(nothing, t)

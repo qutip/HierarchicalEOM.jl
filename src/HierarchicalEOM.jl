@@ -59,6 +59,7 @@ import SciMLOperators:
     AbstractSciMLOperator,
     MatrixOperator,
     ScaledOperator,
+    TensorProductOperator,
     AddedOperator,
     update_coefficients!,
     concretize

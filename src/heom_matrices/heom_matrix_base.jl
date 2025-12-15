@@ -563,23 +563,54 @@ function minus_i_A_op!(
     return nothing
 end
 
-function merge_terms(op)
+function combine_HEOMLS_terms(op)
     Tensor_ops = op.ops |> collect # [ A_i ⊗ B_i ]
-    A_list = [op.ops[1].A for op in Tensor_ops] # [ A_i ]
-    B_list = [op.ops[2].A for op in Tensor_ops] # [ B_i ]
+    A_list = [top.ops[1].A for top in Tensor_ops] # [ A_i ]
+    B_list = [top.ops[2].A for top in Tensor_ops] # [ B_i ]
 
     unique_B_ops = unique(B_list)
-    aaa = [[] for i in unique_B_ops]
+    index_groups = [[] for i in unique_B_ops]
     for i in eachindex(Tensor_ops)
         for j in eachindex(unique_B_ops)
-            if unique_B_ops[j] == B_list[i]
-                push!(aaa[j], i)
+            if isequal(unique_B_ops[j], B_list[i])
+                push!(index_groups[j], i)
             end
         end
     end
 
-    return sum(pairs(unique_B_ops)) do (j, bj)
+    return sum(pairs(unique_B_ops)) do (j, Bj)
         Aj = sum(k -> A_list[k], index_groups[j])
-        return kron(MatrixOperator(Aj), bj)
+        return TensorProductOperator(Aj, Bj)
     end
 end
+
+function assemble_HEOMLS_terms(M::Vector{<:AbstractSciMLOperator}, ::Val{:full}, verbose::Bool)
+    M_combine = assemble_HEOMLS_terms(M, Val(:combine), verbose) # combine first
+
+    if verbose
+        print("Evaluating lazy operations...")
+        flush(stdout)
+    end
+    M_full = map(x -> MatrixOperator(SciMLOperators.concretize(x)), M_combine)
+    if verbose
+        println("[DONE]")
+        flush(stdout)
+    end
+    return M_full
+end
+function assemble_HEOMLS_terms(M::Vector{<:AbstractSciMLOperator}, ::Val{:combine}, verbose::Bool)
+    if verbose
+        print("Combining terms...")
+        flush(stdout)
+    end
+    M_combine = map(combine_HEOMLS_terms, M)
+    if verbose
+        println("[DONE]")
+        flush(stdout)
+    end
+    return M_combine
+end
+assemble_HEOMLS_terms(M::Vector{<:AbstractSciMLOperator}, ::Val{:none}, verbose::Bool) = M
+assemble_HEOMLS_terms(M::AbstractSciMLOperator, method::Val, verbose::Bool) = assemble_HEOMLS_terms([M], method, verbose)
+
+check_assemble_method(assemble_method) = (assemble_method ∉ (Val(:full), Val(:combine), Val(:none))) && throw(ArgumentError("Invalid value for `assemble`: $(assemble_method). Accepted values are `:full`, `:combine`, or `:none`."))
