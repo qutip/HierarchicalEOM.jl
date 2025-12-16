@@ -34,7 +34,7 @@ CUDA.@time @testset "CUDA Extension" begin
     @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu.ados[end]), atol = 1e-4)
 
     ## Boson HEOMLS
-    L_cpu_lazy = M_Boson(Hsys, tier, Bbath; verbose = false, assemble = Val(false))
+    L_cpu_lazy = M_Boson(Hsys, tier, Bbath; verbose = false, assemble = Val(:combine))
     L_gpu_lazy = cu(L_cpu_lazy)
     L_cpu = M_Boson(Hsys, tier, Bbath; verbose = false)
     L_gpu = cu(L_cpu)

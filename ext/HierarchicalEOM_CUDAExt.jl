@@ -82,6 +82,8 @@ _convert_to_gpu_matrix(A::AbstractSparseMatrix, MType::Type{T}) where {T<:Abstra
 _convert_to_gpu_matrix(A::MatrixOperator, MType) = MatrixOperator(_convert_to_gpu_matrix(A.A, MType))
 _convert_to_gpu_matrix(A::ScaledOperator, MType) = ScaledOperator(A.λ, _convert_to_gpu_matrix(A.L, MType))
 _convert_to_gpu_matrix(A::AddedOperator, MType) = AddedOperator(map(op -> _convert_to_gpu_matrix(op, MType), A.ops))
+_convert_to_gpu_matrix(A::Eye, MType::Type{T}) where {T<:AbstractCuSparseArray} = A
+_convert_to_gpu_matrix(A::DiagonalOperator, MType) = DiagonalOperator(_convert_to_gpu_matrix(A.A, MType))
 _convert_to_gpu_matrix(A::TensorProductOperator, MType) =
     TensorProductOperator(_convert_to_gpu_matrix(A.ops[1], MType), _convert_to_gpu_matrix(A.ops[2], MType))
 
