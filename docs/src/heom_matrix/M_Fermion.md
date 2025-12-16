@@ -14,6 +14,10 @@ To construct the HEOM matrix in this case, one can call
 
 *kwargs* (Keyword Arguments)
  - `threshold::Real` : The threshold of the [importance value](@ref doc-Importance-Value-and-Threshold). Defaults to `0.0`.
+- `assemble::Union{Val,Symbol}` : The assembly mode for the HEOMLS matrix. It can be 
+    - `Val(:full)` : Assemble the HEOMLS matrix into a single sparse matrix (default);
+    - `Val(:combine)` : Combine terms but do not assemble the HEOMLS matrix (lazy evaluation).
+    - `Val(:none)` : Do not assemble the HEOMLS matrix (lazy evaluation).
  - `verbose::Bool` : To display verbose output and progress bar during the process or not. Defaults to `true`.
 
 For example:
@@ -29,7 +33,7 @@ M_odd  = M_Fermion(Hs, tier, Bath, ODD)
 
 ## Fields
 The fields of the structure [`M_Fermion`](@ref) are as follows:
- - `data` : the sparse matrix of HEOM Liouvillian superoperator
+ - `data` : the `AbstractSciMLOperator` of HEOM Liouvillian superoperator
  - `tier` : the tier (cutoff level) for the fermionic hierarchy
  - `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
  - `N` : the number of total [ADOs](@ref doc-ADOs)
