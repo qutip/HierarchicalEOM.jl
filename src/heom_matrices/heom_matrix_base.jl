@@ -415,13 +415,13 @@ Base.@kwdef struct HEOMSparseStructure{
     TanComm<:Union{COOFormat,Nothing},
     TCommD<:Union{COOFormat,Nothing},
 }
-    spre::SPRE = nothing
-    spost::SPOST = nothing
-    spreD::SPRED = nothing
-    spostD::SPOSTD = nothing
-    Comm::COMM = nothing
-    anComm::ANCOMM = nothing
-    CommD::COMMD = nothing
+    spre::Tspre = nothing
+    spost::Tspost = nothing
+    spreD::TspreD = nothing
+    spostD::TspostD = nothing
+    Comm::TComm = nothing
+    anComm::TanComm = nothing
+    CommD::TCommD = nothing
 end
 
 HEOMSparseStructure(bath::AbstractFermionBath, Nado::Int) = HEOMSparseStructure(
