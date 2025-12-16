@@ -407,13 +407,13 @@ raw"""
 Stores the sparsity structure (positions and prefix values) of all superoperators in HEOM Liouville space using COO format.
 """
 Base.@kwdef struct HEOMSparseStructure{
-    SPRE<:Union{COOFormat,Nothing},
-    SPOST<:Union{COOFormat,Nothing},
-    SPRED<:Union{COOFormat,Nothing},
-    SPOSTD<:Union{COOFormat,Nothing},
-    COMM<:Union{COOFormat,Nothing},
-    ANCOMM<:Union{COOFormat,Nothing},
-    COMMD<:Union{COOFormat,Nothing},
+    Tspre<:Union{COOFormat,Nothing},
+    Tspost<:Union{COOFormat,Nothing},
+    TspreD<:Union{COOFormat,Nothing},
+    TspostD<:Union{COOFormat,Nothing},
+    TComm<:Union{COOFormat,Nothing},
+    TanComm<:Union{COOFormat,Nothing},
+    TCommD<:Union{COOFormat,Nothing},
 }
     spre::SPRE = nothing
     spost::SPOST = nothing
