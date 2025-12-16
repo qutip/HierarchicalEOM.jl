@@ -31,6 +31,7 @@
     L = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose = true) # also test verbosity
     L_combine = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose = false, assemble = Val(:combine)) # test combined tensor assembly with assemble = Val(:combine)
     L_lazy = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose = false, assemble = Val(:none)) # test lazy tensor assembly with assemble = Val(:none)
+    L_combine_cached = cache_operator(L_combine, similar(zeros(eltype(L_combine), size(L_combine, 1))))
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (2220, 2220)
     @test L.N == 555
@@ -42,6 +43,7 @@
     @test nnz(L.data.A) == nnz(L(0).data.A) == 45590
     @test isconstant(L)
     @test iscached(L)
+    @test iscached(L_combine_cached)
     ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N
