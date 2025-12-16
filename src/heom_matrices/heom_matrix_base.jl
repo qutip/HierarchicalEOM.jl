@@ -112,7 +112,6 @@ Base.eltype(M::HEOMSuperOp) = eltype(M.data)
 Returns the elements' type of the HEOM Liouvillian superoperator matrix
 """
 Base.eltype(M::AbstractHEOMLSMatrix) = eltype(M.data)
-Base.eltype(M::AbstractHEOMLSMatrix{T}) where {T<:AddedOperator} = eltype(M.data.ops[2]) # use the first superoperator for the reference 
 
 Base.getindex(M::HEOMSuperOp, i::Ti, j::Tj) where {Ti,Tj<:Any} = M.data[i, j]
 Base.getindex(M::AbstractHEOMLSMatrix, i::Ti, j::Tj) where {Ti,Tj<:Any} = M.data[i, j]
