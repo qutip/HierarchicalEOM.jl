@@ -3,6 +3,7 @@
 # julia --project=docs/ docs/make.jl
 
 using Documenter, HierarchicalEOM
+import SciMLOperators
 
 DocMeta.setdocmeta!(HierarchicalEOM, :DocTestSetup, :(using HierarchicalEOM); recursive = true)
 
