@@ -83,11 +83,10 @@ _HandleSteadyStateMatrix(
     M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}},
     b::CuArray{T},
 ) where {T<:Number,MT<:AbstractCuSparseArray} =
-    M.data.A + get_typename_wrapper(M.data.A){T,Int32}(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1)))
+    M.data.A + get_typename_wrapper(M.data.A)(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1)))
 # if the HEOMLS Matrix is transferred to GPU by proper apis, is should have all the operators in the same sparse format
 # To avoid scalar indexing in potential concretization, make the constraint the same type sparse format as M.data
-_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AddedOperator{T}}, b::CuArray{T}) where {T<:Number} = cache_operator(
-    M.data + _get_SciML_matrix_wrapper(M){T,Int32}(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1))),
-    b,
-)
+# Do not specify the element type for the CuSparseMatrix... (No method)
+_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AddedOperator{T}}, b::CuArray{T}) where {T<:Number} =
+    cache_operator(M.data + _get_SciML_matrix_wrapper(M)(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1))), b)
 end
