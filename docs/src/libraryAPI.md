@@ -67,11 +67,11 @@ AbstractHEOMLSMatrix
 M_S
 M_S(Hsys::QuantumObject, parity::AbstractParity=EVEN; verbose::Bool=true)
 M_Boson
-M_Boson(Hsys::QuantumObject, tier::Int, Bath::Vector{BosonBath}, parity::AbstractParity=EVEN; threshold::Real=0.0, verbose::Bool=true)
+M_Boson(Hsys::QuantumObject, tier::Int, Bath::Vector{BosonBath}, parity::AbstractParity=EVEN; threshold::Real=0.0, assemble::Union{Val,Symbol}=Val(:full), verbose::Bool=true)
 M_Fermion
-M_Fermion(Hsys::QuantumObject, tier::Int, Bath::Vector{FermionBath}, parity::AbstractParity=EVEN; threshold::Real=0.0, verbose::Bool=true)
+M_Fermion(Hsys::QuantumObject, tier::Int, Bath::Vector{FermionBath}, parity::AbstractParity=EVEN; threshold::Real=0.0, assemble::Union{Val,Symbol}=Val(:full), verbose::Bool=true)
 M_Boson_Fermion
-M_Boson_Fermion(Hsys::QuantumObject, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::Vector{FermionBath}, parity::AbstractParity=EVEN; threshold::Real=0.0, verbose::Bool=true)
+M_Boson_Fermion(Hsys::QuantumObject, tier_b::Int, tier_f::Int, Bath_b::Vector{BosonBath}, Bath_f::Vector{FermionBath}, parity::AbstractParity=EVEN; threshold::Real=0.0, assemble::Union{Val,Symbol}=Val(:full), verbose::Bool=true)
 Base.size(M::HEOMSuperOp)
 Base.size(M::HEOMSuperOp, dim::Int)
 Base.size(M::AbstractHEOMLSMatrix)
@@ -80,6 +80,7 @@ Base.eltype(M::HEOMSuperOp)
 Base.eltype(M::AbstractHEOMLSMatrix)
 iscached
 isconstant
+SciMLOperators.concretize(M::AbstractHEOMLSMatrix)
 Propagator
 addBosonDissipator
 addFermionDissipator

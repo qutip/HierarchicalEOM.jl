@@ -1,5 +1,6 @@
 @testitem "M_Boson" begin
     using SparseArrays
+    using SciMLOperators
 
     # Test Boson-type HEOM Liouvillian superoperator matrix
     λ = 0.1450
@@ -26,14 +27,22 @@
     J = Qobj([0 0.1450-0.7414im; 0.1450+0.7414im 0])
 
     L = M_Boson(Hsys, tier, Bbath; verbose = true) # also test verbosity
+    L_combine = M_Boson(Hsys, tier, Bbath; verbose = false, assemble = Val(:combine))
+    L_lazy = M_Boson(Hsys, tier, Bbath; verbose = false, assemble = Val(:none))
+    L_combine_cached = cache_operator(L_combine, similar(zeros(eltype(L_combine), size(L_combine, 1))))
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (336, 336)
     @test L.N == 84
-    @test nnz(L.data.A) == nnz(L(0)) == 4422
+    @test nnz(L.data.A) == nnz(L(0).data.A) == nnz(concretize(L_combine.data)) == nnz(concretize(L_lazy.data)) == 4422
+    @test L.data isa SciMLOperators.MatrixOperator
+    @test L_combine.data isa SciMLOperators.AddedOperator
+    @test L_lazy.data isa SciMLOperators.AddedOperator
+    @test length(L_combine.data.ops) == length(L_lazy.data.ops) == 2 * 1 + 2 # 2 ops per boson bath + 2 free terms
     L = addBosonDissipator(L, J)
-    @test nnz(L.data.A) == nnz(L(0)) == 4760
+    @test nnz(L.data.A) == nnz(L(0).data.A) == 4760
     @test isconstant(L)
     @test iscached(L)
+    @test iscached(L_combine_cached)
     ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N
@@ -51,9 +60,9 @@
     L = M_Boson(Hsys, tier, [Bbath, Bbath]; verbose = false)
     @test size(L) == (1820, 1820)
     @test L.N == 455
-    @test nnz(L.data.A) == nnz(L(0)) == 27662
+    @test nnz(L.data.A) == nnz(L(0).data.A) == 27662
     L = addBosonDissipator(L, J)
-    @test nnz(L.data.A) == nnz(L(0)) == 29484
+    @test nnz(L.data.A) == nnz(L(0).data.A) == 29484
     ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N

@@ -1,6 +1,8 @@
 export ADOs
 export getRho, getADO
 
+struct ADOsType <: QuantumObjectType end
+
 @doc raw"""
     struct ADOs
 The Auxiliary Density Operators for HEOM model.

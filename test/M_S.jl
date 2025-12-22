@@ -10,7 +10,7 @@
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == size(L_super) == (4, 4)
     @test L.N == L_super.N == 1
-    @test nnz(L.data.A) == nnz(L_super.data.A) == nnz(L(0)) == nnz(L_super(0)) == 8
+    @test nnz(L.data.A) == nnz(L_super.data.A) == nnz(L(0).data.A) == nnz(L_super(0).data.A) == 8
     @test L.data == L_super.data
     @test isconstant(L)
     @test iscached(L)
@@ -29,7 +29,7 @@
 
     L = addBosonDissipator(L, √(0.01) * sigmaz())
     L = addFermionDissipator(L, √(0.01) * sigmaz())
-    @test nnz(L.data.A) == nnz(L(0)) == 10
+    @test nnz(L.data.A) == nnz(L(0).data.A) == 10
     ados_list = heomsolve(L, ψ0, 0:0.5:t; reltol = 1e-8, abstol = 1e-10, progress_bar = Val(false)).ados
     ados = ados_list[end]
     ρ3 = ados[1]

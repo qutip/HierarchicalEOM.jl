@@ -79,7 +79,7 @@
 
     @test size(L) == (1696, 1696)
     @test L.N == 106
-    @test nnz(L.data.A) == nnz(L(0)) == 13536
+    @test nnz(L.data.A) == nnz(L(0).data.A) == 13536
 
     ados = steadystate(L; verbose = false)
     @test Ic(ados, L, 1) ≈ 0.2883390125832726
