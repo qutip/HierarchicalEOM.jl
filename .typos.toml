@@ -1,9 +1,2 @@
 [default.extend-words]
 ket = "ket"
-Tspre = "Tspre"
-Tspost = "Tspost"
-TspreD = "TspreD"
-TspostD = "TspostD"
-TComm = "TComm"
-TanComm = "TanComm"
-TCommD = "TCommD"
