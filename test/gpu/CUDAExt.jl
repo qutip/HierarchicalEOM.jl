@@ -29,6 +29,7 @@ CUDA.@time @testset "CUDA Extension" begin
     L_gpu = cu(L_cpu)
     sol_cpu = heomsolve(L_cpu, ψ0, [0, 10]; e_ops = e_ops, progress_bar = Val(false))
     sol_gpu = heomsolve(L_gpu, ψ0, [0, 10]; e_ops = e_ops, progress_bar = Val(false))
+    @test L_cpu.data.A isa SparseMatrixCSC{ComplexF64,Int64}
     @test L_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64,Int32}
     @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1e-4))
     @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu.ados[end]), atol = 1e-4)
