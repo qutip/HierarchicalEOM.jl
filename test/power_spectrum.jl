@@ -11,8 +11,11 @@
 
     tier = 3
     L = M_Boson(Hsys, tier, bath; verbose = false)
+    L_lazy = M_Boson(Hsys, tier, bath; verbose = false, assemble = Val(:combine))
     L = addBosonDissipator(L, 1e-3 * a')
     L = addTerminator(L, bath)
+    L_lazy = addBosonDissipator(L_lazy, 1e-3 * a')
+    L_lazy = addTerminator(L_lazy, bath)
 
     ados_s = steadystate(L; verbose = false)
     ωlist = 0.9:0.01:1.1
@@ -21,6 +24,7 @@
         rm("PSD.txt")
     end
     psd1 = PowerSpectrum(L, ados_s, a, ωlist; progress_bar = Val(true), filename = "PSD") # also test progress_bar
+    psd_lazy = PowerSpectrum(L_lazy, ados_s, a, ωlist; progress_bar = Val(false)) # also test progress_bar
     psd2 = [ # result with alg = UMFPACKFactorization()
         0.0008880366931592341,
         0.0010614535356223845,
@@ -46,6 +50,7 @@
     ]
     for i in 1:length(ωlist)
         @test psd1[i] ≈ psd2[i] atol = 1e-6
+        @test psd_lazy[i] ≈ psd2[i] atol = 1e-6
     end
     @test length(readlines("PSD.txt")) == length(ωlist)
 
