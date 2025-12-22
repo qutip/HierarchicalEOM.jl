@@ -132,7 +132,7 @@ remember to set the parameters:
         QuantumToolbox.settings.ProgressMeterKWARGS...,
     )
     i = reverse ? convert(ElType, 1im) : i = convert(ElType, -1im)
-    A0 = needs_concrete_A(alg) ? concretize(M.data) : cache_operator(M.data, b)
+    A0 = M.data isa MatrixOperator ? M.data.A : cache_operator(M.data, b)
     I_total = Eye(size(M, 1))
     cache = init(LinearProblem(A0 + i * ωList[1] * I_total, b), alg, kwargs...)
     for (idx, ω) in enumerate(ωList)
