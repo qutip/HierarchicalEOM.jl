@@ -8,6 +8,7 @@ import CUDA
 import CUDA: cu, CuArray
 import CUDA.CUSPARSE: CuSparseVector, CuSparseMatrixCSC, CuSparseMatrixCSR, AbstractCuSparseArray
 import SparseArrays: AbstractSparseMatrix, sparse, SparseVector, SparseMatrixCSC
+import LinearAlgebra: Diagonal
 import SciMLOperators:
     MatrixOperator, ScaledOperator, AddedOperator, TensorProductOperator, DiagonalOperator, AbstractSciMLOperator
 import FillArrays: Eye
