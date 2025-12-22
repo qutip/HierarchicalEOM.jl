@@ -107,6 +107,7 @@ CUDA.@time @testset "CUDA Extension" begin
     ## solve stationary state
     L_even_cpu = M_Fermion(Hsys, tier, bath_list; verbose = false)
     L_even_cpu_lazy = M_Fermion(Hsys, tier, bath_list; verbose = false, assemble = Val(:combine))
+    L_even_gpu = cu(L_even_cpu)
     L_even_gpu_lazy = cu(L_even_cpu_lazy)
     ados_cpu = steadystate(L_even_cpu; verbose = false)
     ados_gpu1 = steadystate(L_even_gpu; verbose = false)
