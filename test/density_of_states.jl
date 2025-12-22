@@ -23,6 +23,7 @@
     tier = 2
     Le = M_Fermion(Hsys, tier, [fuL, fdL, fuR, fdR]; verbose = false)
     Lo = M_Fermion(Hsys, tier, [fuL, fdL, fuR, fdR], ODD; verbose = false)
+    Lo_lazy = M_Fermion(Hsys, tier, [fuL, fdL, fuR, fdR], ODD; verbose = false, assemble = Val(:combine))
 
     ados_s = steadystate(Le; verbose = false)
     ωlist = -20:2:20
@@ -32,6 +33,7 @@
     end
     d_up_normal = HEOMSuperOp(spre(d_up), ODD, Le)
     dos1 = DensityOfStates(Lo, ados_s, d_up, ωlist; progress_bar = Val(true), filename = "DOS") # also test progress bar
+    dos_lazy = DensityOfStates(Lo_lazy, ados_s, d_up, ωlist; progress_bar = Val(false))
     dos2 =
         PowerSpectrum(Lo, ados_s, d_up_normal, d_up', ωlist, true; progress_bar = Val(false)) .+
         PowerSpectrum(Lo, ados_s, d_up', d_up_normal, ωlist, false; progress_bar = Val(false))
@@ -61,6 +63,7 @@
     for i in 1:length(ωlist)
         @test dos1[i] ≈ dos3[i] atol = 1.0e-10
         @test dos2[i] ≈ dos3[i] atol = 1.0e-10
+        @test dos_lazy[i] ≈ dos3[i] atol = 1.0e-10
     end
     @test length(readlines("DOS.txt")) == length(ωlist)
 
