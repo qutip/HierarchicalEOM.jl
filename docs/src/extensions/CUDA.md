@@ -9,6 +9,13 @@ typeof(M.data) <: SparseMatrixCSC # solve on CPU
 typeof(M.data) <: Union{CuSparseMatrixCSC,CuSparseMatrixCSR} # solve on GPU
 ```
 
+!!! note "Lazy Operators on GPU"
+    [Lazy operators](@ref doc-Lazy-Operators) are fully compatible with GPU acceleration. Simply construct the HEOMLS matrix with `assemble = Val(:combine)` and then convert to GPU using `cu()`. The lazy tensor product structure is preserved on GPU, providing both memory efficiency and GPU acceleration.
+    ```julia
+    L_lazy = M_Boson(Hsys, tier, bath; assemble = Val(:combine))
+    L_gpu = cu(L_lazy)  # Lazy operators work on GPU
+    ```
+
 Therefore, we wrapped several functions in `CUDA` and `CUDA.CUSPARSE` in order to not only converting a HEOMLS-matrix-type object into GPU arrays, but also changing the element type and word size (`32` and `64`) since some of the GPUs perform better in `32`-bit. The functions are listed as follows (where input `M` is a `AbstractHEOMLSMatrix`):
 - `cu(M, word_size=64)` : Transform `M.data` into `CUDA` sparse arrays with specified `word_size` (default to `64`).
 - `CuSparseMatrixCSC(M)` : Translate `M.data` into the type `CuSparseMatrixCSC{eltype(M), Int32}`

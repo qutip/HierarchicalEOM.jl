@@ -50,6 +50,7 @@ const PAGES = Any[
         ],
         "Parity Support"=>"Parity.md",
         "Hierarchy Dictionary"=>"hierarchy_dictionary.md",
+        "Lazy Operator Memory Optimization"=>"lazy_operators.md",
         "Time Evolution"=>"time_evolution.md",
         "Stationary State"=>"stationary_state.md",
         "Spectrum"=>"spectrum.md",
