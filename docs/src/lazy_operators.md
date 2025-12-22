@@ -58,21 +58,24 @@ L_lazy = M_Boson(Hsys, tier, bath; assemble = Val(:combine))
 
 **Recommended for most memory-constrained applications.**
 
-#### `Val(:none)` - Individual Lazy Operators (Maximum Memory Savings)
-Keeps all tensor product terms separate without any combination. This provides maximum memory savings but may have more overhead during operations.
+#### `Val(:none)` - Individual Lazy Operators (For Sparsity Analysis)
+Keeps all tensor product terms separate without any combination. This mode actually uses **more memory** than `Val(:combine)` because `Val(:combine)` reduces the number of terms in the `AddedOperator` by grouping terms with identical system operators. However, `Val(:none)` provides flexibility for investigating sparsity patterns and analyzing the structure of individual tensor product terms.
 
 ```julia
-L_lazy_max = M_Boson(Hsys, tier, bath; assemble = Val(:none))
+L_lazy_uncombined = M_Boson(Hsys, tier, bath; assemble = Val(:none))
 ```
+
+!!! note "Memory Usage: `:none` vs `:combine`"
+    Contrary to what the name might suggest, `Val(:none)` does not provide the maximum memory savings. In fact, `Val(:combine)` is more memory-efficient because it reduces the number of operator terms that need to be stored. Use `Val(:none)` primarily for flexibility in analyzing the operator structure, not for memory optimization.
 
 ## Combining with Importance Threshold
 
 The lazy operator feature is **completely compatible** with the [importance threshold](@ref doc-Importance-Value-and-Threshold) option, allowing you to combine two powerful memory optimization techniques:
 
-1. **Lazy operators** reduce memory by avoiding full matrix assembly (saves factor of ``N_{\text{ADO}}``)
+1. **Lazy operators** reduce memory by avoiding full matrix assembly (saves proportional to ``N_{\text{ADO}}``)
 2. **Importance threshold** reduces the number of ADOs by filtering out less important ones (reduces ``N_{\text{ADO}}`` itself)
 
-These optimizations are complementary and can be used together for maximum memory savings:
+These optimizations are complementary and can be used together:
 
 ```julia
 using HierarchicalEOM
@@ -96,10 +99,7 @@ println("Full matrix ADOs: $(L_full.N)")
 println("Full matrix memory: $(round(Base.summarysize(L_full.data) / 1024^2, digits=2)) MB")
 ```
 
-The combined approach can achieve dramatic memory reductions:
-- **Importance threshold** reduces ``N_{\text{ADO}}`` (e.g., from 1000 to 300 ADOs)
-- **Lazy operators** reduce memory per ADO (e.g., 70% reduction in matrix storage)
-- **Total savings**: Often 80-95% memory reduction for high-tier systems
+The actual memory savings depend on the specific system, hierarchy tier, and threshold value. Both techniques work together to reduce overall memory consumption.
 
 !!! tip "Recommended for Large Systems"
     For systems with high hierarchy tiers (≥6) or multiple baths, we recommend:
@@ -129,8 +129,8 @@ L_full = M_Boson(Hsys, 5, bath)
 # Memory-efficient lazy matrix (recommended)
 L_lazy = M_Boson(Hsys, 5, bath; assemble = Val(:combine))
 
-# Maximum memory savings
-L_lazy_max = M_Boson(Hsys, 5, bath; assemble = Val(:none))
+# Uncombined lazy operators (for sparsity analysis)
+L_lazy_uncombined = M_Boson(Hsys, 5, bath; assemble = Val(:none))
 ```
 
 ### Demonstrating Memory Savings
@@ -291,7 +291,7 @@ While lazy operators dramatically reduce memory usage, there are some trade-offs
 
 2. **For small systems**: If memory is not an issue and you need maximum speed, use the default `assemble = Val(:full)`.
 
-3. **For very large systems**: Try `assemble = Val(:none)` if `Val(:combine)` still uses too much memory.
+3. **For sparsity analysis**: Use `assemble = Val(:none)` to keep all tensor product terms separate for investigating the operator structure. Note that this uses more memory than `Val(:combine)` due to the larger number of terms stored.
 
 4. **Profile your specific case**: Use `@time` and `Base.summarysize` to measure the trade-offs for your particular system:
 
@@ -322,7 +322,7 @@ println("Memory - Lazy: $(Base.summarysize(L_lazy.data) / 1024^2) MB")
 The lazy operator feature provides substantial memory savings for HEOM calculations by representing the Liouvillian as a sum of Kronecker products rather than a single large sparse matrix. The `assemble` parameter gives you control over the memory-performance trade-off:
 
 - `Val(:full)`: Default, fastest for small systems
-- `Val(:combine)`: **Recommended** for memory-constrained applications, good balance
-- `Val(:none)`: Maximum memory savings
+- `Val(:combine)`: **Recommended** for memory-constrained applications, best memory savings
+- `Val(:none)`: For sparsity analysis (uses more memory than `:combine` but provides flexibility)
 
 The memory savings scale with ``N_{\text{ADO}}``, making this feature essential for high-tier calculations, multiple baths, or long-time dynamics.
