@@ -1,4 +1,5 @@
 CUDA.@time @testset "CUDA Extension" begin
+    using SparseArrays
     # re-define the bath (make the matrix smaller)
     λ = 0.01
     W = 0.5
@@ -25,7 +26,7 @@ CUDA.@time @testset "CUDA Extension" begin
 
     # Solving time Evolution
     ## Schrodinger HEOMLS
-    L_cpu = M_S(Hsys; verbose = false)
+    L_cpu = M_S(Hsys; verbose = false, assemble = Val(:full))
     L_gpu = cu(L_cpu)
     sol_cpu = heomsolve(L_cpu, ψ0, [0, 10]; e_ops = e_ops, progress_bar = Val(false))
     sol_gpu = heomsolve(L_gpu, ψ0, [0, 10]; e_ops = e_ops, progress_bar = Val(false))

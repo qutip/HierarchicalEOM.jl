@@ -1,7 +1,8 @@
 module HierarchicalEOM_CUDAExt
 
 using HierarchicalEOM
-import HierarchicalEOM: _reset_HEOMLS_data, _HandleVectorType, _HandleTraceVectorType, _HandleSteadyStateMatrix, _SteadyStateConstraint
+import HierarchicalEOM:
+    _reset_HEOMLS_data, _HandleVectorType, _HandleTraceVectorType, _HandleSteadyStateMatrix, _SteadyStateConstraint
 import QuantumToolbox: _complex_float_type, _convert_eltype_wordsize, makeVal, getVal, get_typename_wrapper
 import CUDA
 import CUDA: cu, CuArray
