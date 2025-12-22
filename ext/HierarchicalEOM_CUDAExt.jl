@@ -75,5 +75,7 @@ _HandleTraceVectorType(M::Type{<:AbstractCuSparseArray}, V::SparseVector) =
     CuSparseVector{_complex_float_type(eltype(M))}(V)
 
 _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}}) where {T<:Number,MT<:AbstractCuSparseArray} =
-    M.data.A + get_typename_wrapper(M.data.A){eltype(M)}(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1)))
+    M.data.A + get_typename_wrapper(M.data.A){T}(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1)))
+_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AbstractSciMLOperator{T}}) where {T<:Number} =
+    M.data + get_typename_wrapper(M.data){T}(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1)))
 end

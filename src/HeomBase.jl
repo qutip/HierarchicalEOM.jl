@@ -98,6 +98,8 @@ _HandleTraceVectorType(M::Type{<:SparseMatrixCSC}, V::SparseVector) = V
 
 _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}}) where {T<:Number,MT<:SparseMatrixCSC} =
     M.data.A + _SteadyStateConstraint(T, prod(M.dimensions), size(M, 1))
+_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AbstractSciMLOperator}) =
+    M.data + _SteadyStateConstraint(eltype(M), prod(M.dimensions), size(M, 1))
 
 # this adds the trace == 1 constraint for reduced density operator during linear solve of steadystate
 _SteadyStateConstraint(T::Type{<:Number}, D::Int, S::Int) =

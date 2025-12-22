@@ -15,11 +15,12 @@ Solve the steady state of the auxiliary density operators based on `LinearSolve.
 - `::ADOs` : The steady state of auxiliary density operators.
 """
 function QuantumToolbox.steadystate(
-    M::AbstractHEOMLSMatrix{<:MatrixOperator};
+    M::AbstractHEOMLSMatrix;
     alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14),
     verbose::Bool = true,
     kwargs...,
 )
+    isconstant(M) || throw(ArgumentError("The HEOMLS matrix M must be time-independent to solve steadystate."))
     haskey(kwargs, :solver) &&
         error("The keyword argument `solver` for solving HEOM steadystate is deprecated, use `alg` instead.")
 
@@ -28,8 +29,8 @@ function QuantumToolbox.steadystate(
         error("The parity of M should be \"EVEN\".")
     end
 
-    A = _HandleSteadyStateMatrix(M)
-    b = sparsevec([1], [1.0 + 0.0im], size(M, 1))
+    b = _HandleVectorType(M, sparsevec([1], [1.0 + 0.0im], size(M, 1)))
+    A = cache_operator(_HandleSteadyStateMatrix(M), b)
 
     # solving x where A * x = b
     if verbose
@@ -37,7 +38,7 @@ function QuantumToolbox.steadystate(
         flush(stdout)
     end
 
-    prob = LinearProblem{true}(A, _HandleVectorType(M, b))
+    prob = LinearProblem{true}(A, b)
     sol = solve(prob, alg; kwargs...)
     if verbose
         println("[DONE]")
@@ -67,13 +68,14 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 - `::ADOs` : The steady state of auxiliary density operators.
 """
 function QuantumToolbox.steadystate(
-    M::AbstractHEOMLSMatrix{<:MatrixOperator},
+    M::AbstractHEOMLSMatrix,
     ρ0::T_state,
     tspan::Number = Inf;
     alg::AbstractODEAlgorithm = DP5(),
     verbose::Bool = true,
     kwargs...,
 ) where {T_state<:Union{QuantumObject,ADOs}}
+    isconstant(M) || throw(ArgumentError("The HEOMLS matrix M must be time-independent to solve steadystate."))
     haskey(kwargs, :solver) &&
         error("The keyword argument `solver` for solving HEOM steadystate is deprecated, use `alg` instead.")
 
@@ -103,8 +105,10 @@ function QuantumToolbox.steadystate(
         haskey(kwargs2, :callback) ? merge(kwargs2, (callback = CallbackSet(kwargs2.callback, cb),)) :
         merge(kwargs2, (callback = cb,))
 
+    A = cache_operator(M.data, u0)
+
     # define ODE problem
-    prob = ODEProblem{true,FullSpecialize}(M.data, u0, Tspan; kwargs3...)
+    prob = ODEProblem{true,FullSpecialize}(A, u0, Tspan; kwargs3...)
 
     # solving steady state of the ODE problem
     if verbose
