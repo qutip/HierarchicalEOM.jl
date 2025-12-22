@@ -30,7 +30,7 @@ function QuantumToolbox.steadystate(
     end
 
     b = _HandleVectorType(M, sparsevec([1], [1.0 + 0.0im], size(M, 1)))
-    A = cache_operator(_HandleSteadyStateMatrix(M), b)
+    A = _HandleSteadyStateMatrix(M, b)
 
     # solving x where A * x = b
     if verbose

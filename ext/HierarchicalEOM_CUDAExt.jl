@@ -74,8 +74,9 @@ _HandleVectorType(M::Type{<:AbstractCuSparseArray}, V::SparseVector) = CuArray{_
 _HandleTraceVectorType(M::Type{<:AbstractCuSparseArray}, V::SparseVector) =
     CuSparseVector{_complex_float_type(eltype(M))}(V)
 
-_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}}) where {T<:Number,MT<:AbstractCuSparseArray} =
+_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}}, b::CuArray{T}) where {T<:Number,MT<:AbstractCuSparseArray} =
     M.data.A + get_typename_wrapper(M.data.A){T}(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1)))
-_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AbstractSciMLOperator{T}}) where {T<:Number} =
-    M.data + get_typename_wrapper(M.data){T}(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1)))
+# AddedOperator does not care about the homogenity of internal operators, so we optimally use CSR for the constraint term
+_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AddedOperator{T}}, b::CuArray{T}) where {T<:Number} =
+    cache_operator(M.data + CuSparseMatrixCSR{T}(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1))), b)
 end
