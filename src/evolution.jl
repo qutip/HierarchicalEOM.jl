@@ -389,7 +389,7 @@ HEOMsolve_map(
 #
 # Return: An array of TimeEvolutionSol objects with the size same as the given iter.
 function HEOMsolve_map(
-    prob::TimeEvolutionProblem{<:ODEProblem},
+    prob::TimeEvolutionProblem{<:QuantumObjectType,<:AbstractDimensions,<:ODEProblem},
     iter::AbstractArray,
     alg::AbstractODEAlgorithm = DP5(),
     ensemblealg::EnsembleAlgorithm = EnsembleThreads();
