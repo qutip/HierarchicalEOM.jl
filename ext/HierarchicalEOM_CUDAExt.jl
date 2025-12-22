@@ -1,8 +1,7 @@
 module HierarchicalEOM_CUDAExt
 
 using HierarchicalEOM
-import HierarchicalEOM:
-    _reset_HEOMLS_data, _HandleVectorType, _HandleTraceVectorType, _HandleSteadyStateMatrix, _SteadyStateConstraint
+import HierarchicalEOM:    _reset_HEOMLS_data, _HandleVectorType, _HandleTraceVectorType, _HandleSteadyStateMatrix, _SteadyStateConstraint, _get_SciML_matrix_wrapper
 import QuantumToolbox: _complex_float_type, _convert_eltype_wordsize, makeVal, getVal, get_typename_wrapper
 import CUDA
 import CUDA: cu, CuArray
@@ -76,7 +75,7 @@ _HandleTraceVectorType(M::Type{<:AbstractCuSparseArray}, V::SparseVector) =
 
 _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}}, b::CuArray{T}) where {T<:Number,MT<:AbstractCuSparseArray} =
     M.data.A + get_typename_wrapper(M.data.A){T}(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1)))
-# AddedOperator does not care about the homogenity of internal operators, so we optimally use CSR for the constraint term
+# if the HEOMLS Matrix is transfered to GPU by proper apis, is should have all the operators in the same sparse format
 _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AddedOperator{T}}, b::CuArray{T}) where {T<:Number} =
-    cache_operator(M.data + CuSparseMatrixCSR{T}(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1))), b)
+    cache_operator(M.data + _get_SciML_matrix_wrapper(M){T}(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1))), b)
 end
