@@ -61,9 +61,7 @@ This transforms a single large matrix-vector product into **two smaller matrix-m
 
 1. **Reduced Memory**: Instead of storing the full Kronecker product ``A_i \otimes B_i`` (size ``(N_{\text{ADO}} d^2) \times (N_{\text{ADO}} d^2)``), we only store ``A_i`` (size ``N_{\text{ADO}} \times N_{\text{ADO}}``) and ``B_i`` (size ``d^2 \times d^2``).
 
-2. **Better Parallelization**: Matrix-matrix multiplication (``A_i V`` and then result times ``B_i^T``) can leverage highly optimized BLAS routines (like `gemm`) that are better parallelized than sparse matrix-vector products.
-
-3. **Cache Efficiency**: The two sequential matrix-matrix products have better cache locality than a single sparse matrix-vector product with a very large matrix.
+2. **Cache Efficiency**: The two sequential matrix-matrix products have better cache locality than a single sparse matrix-vector product with a very large matrix.
 
 ### Full HEOM Liouvillian
 
@@ -107,9 +105,6 @@ Keeps all tensor product terms separate without any combination. This mode actua
 L_lazy_uncombined = M_Boson(Hsys, tier, bath; assemble = Val(:none))
 ```
 
-!!! note "Memory Usage: `:none` vs `:combine`"
-    Contrary to what the name might suggest, `Val(:none)` does not provide the maximum memory savings. In fact, `Val(:combine)` is more memory-efficient because it reduces the number of operator terms that need to be stored. Use `Val(:none)` primarily for flexibility in analyzing the operator structure, not for memory optimization.
-
 ## Combining with Importance Threshold
 
 The lazy operator feature is **completely compatible** with the [importance threshold](@ref doc-Importance-Value-and-Threshold) option, allowing you to combine two powerful memory optimization techniques:
@@ -142,15 +137,6 @@ println("Full matrix memory: $(round(Base.summarysize(L_full.data) / 1024^2, dig
 ```
 
 The actual memory savings depend on the specific system, hierarchy tier, and threshold value. Both techniques work together to reduce overall memory consumption.
-
-!!! tip "Recommended for Large Systems"
-    For systems with high hierarchy tiers (≥6) or multiple baths, we recommend:
-    ```julia
-    L = M_Boson(Hsys, tier, bath; 
-                assemble = Val(:combine),
-                threshold = 1e-6)  # Adjust threshold based on required accuracy
-    ```
-    This combination provides excellent memory efficiency while maintaining accuracy.
 
 ## Usage Examples
 
