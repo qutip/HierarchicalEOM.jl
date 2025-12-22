@@ -43,20 +43,20 @@ The `assemble` keyword parameter controls how the HEOMLS matrix is constructed. 
 ### Three Assembly Modes
 
 #### `Val(:full)` - Full Sparse Matrix (Default)
-Assembles the complete HEOMLS matrix as a single sparse matrix. This is the default behavior for backward compatibility and provides the fastest matrix-vector multiplication for small to medium systems.
+Assembles the complete HEOMLS matrix as a single sparse matrix. This is the default behavior for backward compatibility.
 
 ```julia
 L_full = M_Boson(Hsys, tier, bath; assemble = Val(:full))
 ```
 
 #### `Val(:combine)` - Combined Lazy Operators (Recommended)
-Combines terms with identical system operators (``B_i``) but does not materialize the full matrix. This provides a good balance between memory savings and computational efficiency.
+Combines terms with identical system operators (``B_i``) but does not materialize the full matrix. This provides excellent memory savings while maintaining computational efficiency. The lazy representation can leverage matrix-matrix multiplication patterns, which are more parallelizable than the sparse matrix-vector products used by full assembly.
 
 ```julia
 L_lazy = M_Boson(Hsys, tier, bath; assemble = Val(:combine))
 ```
 
-**Recommended for most memory-constrained applications.**
+**Recommended for most applications, especially memory-constrained systems.**
 
 #### `Val(:none)` - Individual Lazy Operators (For Sparsity Analysis)
 Keeps all tensor product terms separate without any combination. This mode actually uses **more memory** than `Val(:combine)` because `Val(:combine)` reduces the number of terms in the `AddedOperator` by grouping terms with identical system operators. However, `Val(:none)` provides flexibility for investigating sparsity patterns and analyzing the structure of individual tensor product terms.
@@ -189,7 +189,7 @@ println("Lazy matrix memory: $(round(Base.summarysize(L_lazy.data) / 1024^2, dig
 
 ## Time Evolution with Lazy Operators
 
-Lazy operators work seamlessly with all time evolution methods in `HierarchicalEOM.jl`. No code changes are needed:
+Lazy operators work seamlessly with time evolution in `HierarchicalEOM.jl`. No code changes are needed:
 
 ```julia
 using HierarchicalEOM
@@ -212,7 +212,7 @@ expect_z = sol.expect[1, :]
 expect_x = sol.expect[2, :]
 ```
 
-See [Time Evolution](@ref doc-Time-Evolution) for more details on time evolution methods.
+See [Time Evolution](@ref doc-Time-Evolution) for more details.
 
 ## Converting Lazy to Full Matrix
 
@@ -241,10 +241,10 @@ eigenvalues = eigvals(Matrix(L_materialized))
       - Memory is constrained
       - System has high tier or many ADOs
       - Performing time evolution or steady-state calculations
+      - Working with systems where memory is the bottleneck
     
     - **Use full assembly** (`Val(:full)`) when:
-      - System is small enough to fit in memory
-      - Need to perform many repeated matrix-vector products
+      - Backward compatibility is required
       - Require eigenvalue/eigenvector analysis
       - Working with specialized linear algebra routines that require concrete matrices
 
@@ -275,21 +275,18 @@ See [Extension for CUDA.jl](@ref doc-ext-CUDA) for more details on GPU accelerat
 
 ## Performance Considerations
 
-While lazy operators dramatically reduce memory usage, there are some trade-offs to consider:
+Lazy operators provide substantial memory savings with competitive computational performance:
 
-### Memory vs Speed
+### Memory vs Computation
 
 - **Memory**: Lazy operators reduce memory by a factor proportional to ``N_{\text{ADO}}``, often achieving 60-90% reduction for high-tier systems.
-- **Speed**: Matrix-vector products with lazy operators may be slower than with full sparse matrices, especially for small systems, because:
-  - Multiple Kronecker products must be evaluated
-  - Native Julia sparse BLAS is not specifically optimized for this pattern
-  - Some overhead from the operator algebra
+- **Computation**: The lazy tensor product representation enables matrix-matrix multiplication patterns, which can be more parallelizable than sparse matrix-vector products. Performance depends on the specific system size and available computational resources.
 
 ### Recommendations
 
-1. **For memory-constrained systems**: Always use `assemble = Val(:combine)`. The memory savings far outweigh any speed penalty.
+1. **For memory-constrained systems**: Always use `assemble = Val(:combine)`. The memory savings are substantial and computational performance remains competitive.
 
-2. **For small systems**: If memory is not an issue and you need maximum speed, use the default `assemble = Val(:full)`.
+2. **For small systems**: Either `assemble = Val(:full)` or `assemble = Val(:combine)` can be used, as memory is typically not a concern for small systems.
 
 3. **For sparsity analysis**: Use `assemble = Val(:none)` to keep all tensor product terms separate for investigating the operator structure. Note that this uses more memory than `Val(:combine)` due to the larger number of terms stored.
 
@@ -319,10 +316,10 @@ println("Memory - Lazy: $(Base.summarysize(L_lazy.data) / 1024^2) MB")
 
 ## Summary
 
-The lazy operator feature provides substantial memory savings for HEOM calculations by representing the Liouvillian as a sum of Kronecker products rather than a single large sparse matrix. The `assemble` parameter gives you control over the memory-performance trade-off:
+The lazy operator feature provides substantial memory savings for HEOM calculations by representing the Liouvillian as a sum of Kronecker products rather than a single large sparse matrix. The `assemble` parameter gives you control over the representation:
 
-- `Val(:full)`: Default, fastest for small systems
-- `Val(:combine)`: **Recommended** for memory-constrained applications, best memory savings
+- `Val(:full)`: Default, assembles full sparse matrix (for backward compatibility)
+- `Val(:combine)`: **Recommended** for most applications, provides best memory savings with competitive performance
 - `Val(:none)`: For sparsity analysis (uses more memory than `:combine` but provides flexibility)
 
 The memory savings scale with ``N_{\text{ADO}}``, making this feature essential for high-tier calculations, multiple baths, or long-time dynamics.
