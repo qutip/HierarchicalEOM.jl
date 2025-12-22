@@ -33,6 +33,48 @@ where ``k`` is the number of bath terms. The key insight is that the ``B_i`` mat
 - Large system dimensions
 - Long-time dynamics requiring high accuracy
 
+## Mathematical Background: The Lazy Operator Trick
+
+The computational efficiency of lazy operators comes from a mathematical property of Kronecker products. Consider a single term in the HEOM Liouvillian:
+
+```math
+\mathcal{M}_i = A_i \otimes B_i
+```
+
+where ``A_i`` is an ``N_{\text{ADO}} \times N_{\text{ADO}}`` matrix representing ADO connectivity, and ``B_i`` is a ``d^2 \times d^2`` matrix representing system superoperators.
+
+### Efficient Matrix-Vector Product
+
+When computing the product ``\mathcal{M}_i \vec{v}`` with a vector ``\vec{v}`` of length ``N_{\text{ADO}} \cdot d^2``, we can reshape ``\vec{v}`` into a matrix ``V`` of size ``N_{\text{ADO}} \times d^2`` and use the identity:
+
+```math
+(A \otimes B) \mathrm{vec}(V) = \mathrm{vec}(A V B^T)
+```
+
+This transforms a single large matrix-vector product into **two smaller matrix-matrix products**:
+
+```math
+\mathcal{M}_i \vec{v} = \mathrm{vec}(A_i V B_i^T)
+```
+
+### Computational Advantages
+
+1. **Reduced Memory**: Instead of storing the full Kronecker product ``A_i \otimes B_i`` (size ``(N_{\text{ADO}} d^2) \times (N_{\text{ADO}} d^2)``), we only store ``A_i`` (size ``N_{\text{ADO}} \times N_{\text{ADO}}``) and ``B_i`` (size ``d^2 \times d^2``).
+
+2. **Better Parallelization**: Matrix-matrix multiplication (``A_i V`` and then result times ``B_i^T``) can leverage highly optimized BLAS routines (like `gemm`) that are better parallelized than sparse matrix-vector products.
+
+3. **Cache Efficiency**: The two sequential matrix-matrix products have better cache locality than a single sparse matrix-vector product with a very large matrix.
+
+### Full HEOM Liouvillian
+
+For the complete HEOM Liouvillian with multiple terms:
+
+```math
+\mathcal{M} \vec{v} = \sum_i (A_i \otimes B_i) \vec{v} = \sum_i \mathrm{vec}(A_i V B_i^T)
+```
+
+The `Val(:combine)` mode groups terms with identical ``B_i`` to further reduce the number of operations and memory overhead.
+
 ## The `assemble` Parameter
 
 The `assemble` keyword parameter controls how the HEOMLS matrix is constructed. It is available in:
