@@ -43,6 +43,7 @@ _get_SciML_matrix_wrapper(M::AbstractArray) = QuantumToolbox.get_typename_wrappe
 _get_SciML_matrix_wrapper(M::MatrixOperator) = _get_SciML_matrix_wrapper(M.A)
 _get_SciML_matrix_wrapper(M::ScaledOperator) = _get_SciML_matrix_wrapper(M.L)
 _get_SciML_matrix_wrapper(M::AddedOperator) = _get_SciML_matrix_wrapper(M.ops[1])
+_get_SciML_matrix_wrapper(M::TensorProductOperator) = _get_SciML_matrix_wrapper(M.ops[2].A) # take the system superoperator part for the reference
 _get_SciML_matrix_wrapper(M::AbstractHEOMLSMatrix) = _get_SciML_matrix_wrapper(M.data)
 
 # equal to : sparse(vec(system_identity_matrix))
