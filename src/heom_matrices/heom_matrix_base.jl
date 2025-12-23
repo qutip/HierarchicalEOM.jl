@@ -584,7 +584,7 @@ function combine_HEOMLS_terms(op::AddedOperator)
     A_list = Vector{AbstractMatrix}(undef, length(Tensor_ops))
     B_list = Vector{AbstractMatrix}(undef, length(Tensor_ops))
     for (idx, t_op) in pairs(Tensor_ops)
-        t_op isa TensorProductOperator || throw(ArgumentError("The input operator is not a TensorProductOperator."))
+        t_op isa TensorProductOperator || throw(ArgumentError("The HEOMLS term should be a TensorProductOperator."))
         A_list[idx] = t_op.ops[1].A
         B_list[idx] = t_op.ops[2].A
     end
@@ -604,6 +604,7 @@ function combine_HEOMLS_terms(op::AddedOperator)
         return TensorProductOperator(Aj, Bj)
     end
 end
+combine_HEOMLS_terms(op::TensorProductOperator) = op
 
 function assemble_HEOMLS_terms(M::Vector{<:AbstractSciMLOperator}, ::Val{:full}, verbose::Bool)
     M_combine = assemble_HEOMLS_terms(M, Val(:combine), verbose) # combine first
