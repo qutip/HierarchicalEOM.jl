@@ -47,7 +47,7 @@ remember to set the parameters:
 - `M::AbstractHEOMLSMatrix`: should be `ODD` parity
 
 # Parameters
-- `M::AbstractHEOMLSMatrix` : the HEOMLS matrix.
+- `M::AbstractHEOMLSMatrix` : the HEOMLS matrix. Supports both full sparse matrices and lazy tensor product representations (constructed with `assemble = Val(:combine)`).
 - `ρ::Union{QuantumObject,ADOs}` :  the system density matrix or the auxiliary density operators.
 - `P_op::Union{QuantumObject,HEOMSuperOp}`: the system operator (or `HEOMSuperOp`) ``P`` acting on the system.
 - `Q_op::Union{QuantumObject,HEOMSuperOp}`: the system operator (or `HEOMSuperOp`) ``Q`` acting on the system.
@@ -60,6 +60,7 @@ remember to set the parameters:
 
 # Notes
 - For more details about `alg`, `kwargs`, and `LinearProblem`, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
+- This function supports [lazy operators](@ref doc-Lazy-Operators) for memory-efficient calculations. When using lazy operators, `alg` must be a matrix-free solver (e.g., Krylov-based methods like `KrylovJL_GMRES`) that does not require concretizing the matrix.
 
 # Returns
 - `spec::AbstractVector` : the spectrum list corresponds to the specified `ωlist`
@@ -131,9 +132,14 @@ remember to set the parameters:
         desc = "[PowerSpectrum] ",
         QuantumToolbox.settings.ProgressMeterKWARGS...,
     )
-    i = reverse ? convert(ElType, 1im) : i = convert(ElType, -1im)
-    I_total = M.data isa MatrixOperator ? LinearAlgebra.I : IdentityOperator(size(M, 1))
-    A0 = M.data isa MatrixOperator ? M.data.A : cache_operator(M.data, b)
+
+    I_total = LinearAlgebra.I
+    A0 = M.data.A
+    if !isa(M.data, MatrixOperator)
+        I_total = IdentityOperator(size(M, 1))
+        A0 = cache_operator(M.data, b_m)
+    end
+    i = reverse ? convert(ElType, 1im) : convert(ElType, -1im)
     cache = init(LinearProblem(A0 + i * ωList[1] * I_total, b), alg, kwargs...)
     for (idx, ω) in enumerate(ωList)
         if idx > 1

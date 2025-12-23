@@ -9,7 +9,7 @@ Calculate density of states for the fermionic system in frequency domain.
 ```
 
 # Parameters
-- `M::AbstractHEOMLSMatrix` : the HEOMLS matrix which acts on `ODD`-parity operators.
+- `M::AbstractHEOMLSMatrix` : the HEOMLS matrix which acts on `ODD`-parity operators. Supports both full sparse matrices and lazy tensor product representations (constructed with `assemble = Val(:combine)`).
 - `ρ::Union{QuantumObject,ADOs}` :  the system density matrix or the auxiliary density operators.
 - `d_op::QuantumObject` : The annihilation operator (``d`` as shown above) acting on the fermionic system.
 - `ωlist::AbstractVector` : the specific frequency points to solve.
@@ -20,6 +20,7 @@ Calculate density of states for the fermionic system in frequency domain.
 
 # Notes
 - For more details about `alg`, `kwargs`, and `LinearProblem`, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
+- This function supports [lazy operators](@ref doc-Lazy-Operators) for memory-efficient calculations. When using lazy operators, `alg` must be a matrix-free solver (e.g., Krylov-based methods like `KrylovJL_GMRES`) that does not require concretizing the matrix.
 
 # Returns
 - `dos::AbstractVector` : the list of density of states corresponds to the specified `ωlist`
@@ -78,10 +79,15 @@ Calculate density of states for the fermionic system in frequency domain.
         desc = "[DensityOfStates] ",
         QuantumToolbox.settings.ProgressMeterKWARGS...,
     )
+
+    I_total = LinearAlgebra.I
+    A0 = M.data.A
+    if !isa(M.data, MatrixOperator)
+        I_total = IdentityOperator(size(M, 1))
+        A0 = cache_operator(M.data, b_m)
+    end
     i = convert(ElType, 1im)
-    I_total = M.data isa MatrixOperator ? LinearAlgebra.I : IdentityOperator(size(M, 1))
     Iω1 = i * ωList[1] * I_total
-    A0 = M.data isa MatrixOperator ? M.data.A : cache_operator(M.data, b_m)
     cache_m = init(LinearProblem(A0 - Iω1, b_m), alg, kwargs...)
     cache_p = init(LinearProblem(A0 + Iω1, b_p), alg, kwargs...)
     for (idx, ω) in enumerate(ωList)

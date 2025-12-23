@@ -3,13 +3,14 @@
 Solve the steady state of the auxiliary density operators based on `LinearSolve.jl` (i.e., solving ``x`` where ``A \times x = b``).
 
 # Parameters
-- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`. Supports both full sparse matrices and lazy tensor product representations (constructed with `assemble = Val(:combine)`).
 - `alg::SciMLLinearSolveAlgorithm` : The solving algorithm in package `LinearSolve.jl`. Default to `KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14)`.
 - `verbose::Bool` : To display verbose output or not. Defaults to `true`.
 - `kwargs` : The keyword arguments for the `LinearProblem`
 
 # Notes
 - For more details about `alg`, `kwargs`, and `LinearProblem`, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/).
+- This function supports [lazy operators](@ref doc-Lazy-Operators) for memory-efficient calculations. When using lazy operators, the algorithm must be a matrix-free solver (e.g., Krylov-based methods like `KrylovJL_GMRES`) that does not require concretizing the matrix.
 
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
@@ -53,7 +54,7 @@ end
 Solve the steady state of the auxiliary density operators based on time evolution (`OrdinaryDiffEq.jl`) with initial state is given in the type of density-matrix (`ρ0`).
 
 # Parameters
-- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`. Supports both full sparse matrices and lazy tensor product representations (constructed with `assemble = Val(:combine)`).
 - `ρ0::Union{QuantumObject,ADOs}` : system initial state (density matrix) or initial auxiliary density operators (`ADOs`)
 - `tspan::Number` : the time limit to find stationary state. Default to `Inf`
 - `alg::AbstractODEAlgorithm` : The ODE algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
@@ -63,6 +64,7 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 # Notes
 - For more details about `alg` please refer to [`DifferentialEquations.jl` (ODE Solvers)](https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/)
 - For more details about `kwargs` please refer to [`DifferentialEquations.jl` (Keyword Arguments)](https://docs.sciml.ai/DiffEqDocs/stable/basics/common_solver_opts/)
+- This function supports [lazy operators](@ref doc-Lazy-Operators) for memory-efficient calculations.
 
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
