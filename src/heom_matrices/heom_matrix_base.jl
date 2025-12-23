@@ -394,9 +394,10 @@ struct COOFormat
     J::Vector{Int}
     V::Vector{ComplexF64}
     N::Int
+    data::AbstractMatrix
 end
 
-COOFormat(N::Int) = COOFormat(Int[], Int[], ComplexF64[], N)
+COOFormat(N::Int, data::AbstractMatrix) = COOFormat(Int[], Int[], ComplexF64[], N, data)
 
 function Base.push!(mat::COOFormat, i, j, v)
     push!(mat.I, i)
@@ -407,6 +408,8 @@ function Base.push!(mat::COOFormat, i, j, v)
 end
 
 SparseArrays.sparse(coo::COOFormat) = sparse(coo.I, coo.J, coo.V, coo.N, coo.N)
+
+_gen_HEOMLS_term(coo::COOFormat) = TensorProductOperator(sparse(coo), coo.data)
 
 raw"""
 Stores the sparsity structure (positions and prefix values) of all superoperators in HEOM Liouville space using COO format.
@@ -429,21 +432,30 @@ Base.@kwdef struct HEOMSparseStructure{
     CommD::TCommD = nothing
 end
 
+const HEOMSparseStructureFieldNames = fieldnames(HEOMSparseStructure)
+
 HEOMSparseStructure(bath::AbstractFermionBath, Nado::Int) = HEOMSparseStructure(
-    spre = COOFormat(Nado),
-    spost = COOFormat(Nado),
-    spreD = COOFormat(Nado),
-    spostD = COOFormat(Nado),
+    spre = COOFormat(Nado, bath.spre),
+    spost = COOFormat(Nado, bath.spost),
+    spreD = COOFormat(Nado, bath.spreD),
+    spostD = COOFormat(Nado, bath.spostD),
 )
 
-HEOMSparseStructure(bath::bosonAbsorb, Nado::Int) =
-    HEOMSparseStructure(spre = COOFormat(Nado), spost = COOFormat(Nado), CommD = COOFormat(Nado))
-HEOMSparseStructure(bath::bosonEmit, Nado::Int) =
-    HEOMSparseStructure(spre = COOFormat(Nado), spost = COOFormat(Nado), CommD = COOFormat(Nado))
-HEOMSparseStructure(bath::bosonImag, Nado::Int) = HEOMSparseStructure(Comm = COOFormat(Nado), anComm = COOFormat(Nado))
-HEOMSparseStructure(bath::bosonReal, Nado::Int) = HEOMSparseStructure(Comm = COOFormat(Nado))
+HEOMSparseStructure(bath::bosonAbsorb, Nado::Int) = HEOMSparseStructure(
+    spre = COOFormat(Nado, bath.spre),
+    spost = COOFormat(Nado, bath.spost),
+    CommD = COOFormat(Nado, bath.CommD),
+)
+HEOMSparseStructure(bath::bosonEmit, Nado::Int) = HEOMSparseStructure(
+    spre = COOFormat(Nado, bath.spre),
+    spost = COOFormat(Nado, bath.spost),
+    CommD = COOFormat(Nado, bath.CommD),
+)
+HEOMSparseStructure(bath::bosonImag, Nado::Int) =
+    HEOMSparseStructure(Comm = COOFormat(Nado, bath.Comm), anComm = COOFormat(Nado, bath.anComm))
+HEOMSparseStructure(bath::bosonReal, Nado::Int) = HEOMSparseStructure(Comm = COOFormat(Nado, bath.Comm))
 HEOMSparseStructure(bath::bosonRealImag, Nado::Int) =
-    HEOMSparseStructure(Comm = COOFormat(Nado), anComm = COOFormat(Nado))
+    HEOMSparseStructure(Comm = COOFormat(Nado, bath.Comm), anComm = COOFormat(Nado, bath.anComm))
 
 # sum γ of bath for current level
 function bath_sum_γ(nvec, baths::Vector{T}) where {T<:Union{AbstractBosonBath,AbstractFermionBath}}
@@ -567,10 +579,15 @@ function minus_i_A_op!(
     return nothing
 end
 
-function combine_HEOMLS_terms(op)
+function combine_HEOMLS_terms(op::AddedOperator)
     Tensor_ops = op.ops |> collect # [ A_i ⊗ B_i ]
-    A_list = [top.ops[1].A for top in Tensor_ops] # [ A_i ]
-    B_list = [top.ops[2].A for top in Tensor_ops] # [ B_i ]
+    A_list = Vector{AbstractMatrix}(undef, length(Tensor_ops))
+    B_list = Vector{AbstractMatrix}(undef, length(Tensor_ops))
+    for (idx, t_op) in pairs(Tensor_ops)
+        t_op isa TensorProductOperator || throw(ArgumentError("The HEOMLS term should be a TensorProductOperator."))
+        A_list[idx] = t_op.ops[1].A
+        B_list[idx] = t_op.ops[2].A
+    end
 
     unique_B_ops = unique(B_list)
     index_groups = [[] for i in unique_B_ops]
@@ -587,6 +604,7 @@ function combine_HEOMLS_terms(op)
         return TensorProductOperator(Aj, Bj)
     end
 end
+combine_HEOMLS_terms(op::TensorProductOperator) = op
 
 function assemble_HEOMLS_terms(M::Vector{<:AbstractSciMLOperator}, ::Val{:full}, verbose::Bool)
     M_combine = assemble_HEOMLS_terms(M, Val(:combine), verbose) # combine first
