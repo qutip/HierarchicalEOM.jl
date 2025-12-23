@@ -213,22 +213,22 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 
     # Create SciML lazy HEOM Liouvillian superoperator
     sup_dim = prod(_Hsys.dimensions)^2
-    L_t_indep = kron(MatrixOperator(Eye(Nado)), minus_i_L_op(_Hsys)) # the Liouvillian operator for free Hamiltonian term
-    L_t_indep += kron(MatrixOperator(spdiagm(minus_γ_term)), Eye(sup_dim)) # minus sum γ terms
+    L_t_indep = TensorProductOperator(Eye(Nado), minus_i_L_op(_Hsys)) # the Liouvillian operator for free Hamiltonian term
+    L_t_indep += TensorProductOperator(spdiagm(minus_γ_term), Eye(sup_dim)) # minus sum γ terms
 
     # Superoperator cross level terms
-    for (b_term, bB) in zip(B_terms, baths_b)
-        for op in fieldnames(HEOMSparseStructure)
+    for b_term in B_terms
+        for op in HEOMSparseStructureFieldNames
             b_coo = getfield(b_term, op)
             b_coo isa Nothing && continue
-            L_t_indep += kron(MatrixOperator(sparse(b_coo)), getfield(bB, op))
+            L_t_indep += _gen_HEOMLS_term(b_coo)
         end
     end
-    for (f_term, fB) in zip(F_terms, baths_f)
-        for op in fieldnames(HEOMSparseStructure)
+    for f_term in F_terms
+        for op in HEOMSparseStructureFieldNames
             f_coo = getfield(f_term, op)
             f_coo isa Nothing && continue
-            L_t_indep += kron(MatrixOperator(sparse(f_coo)), getfield(fB, op))
+            L_t_indep += _gen_HEOMLS_term(f_coo)
         end
     end
     if verbose

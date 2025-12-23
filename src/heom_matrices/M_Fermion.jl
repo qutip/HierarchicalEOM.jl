@@ -136,11 +136,11 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
     L_t_indep += kron(MatrixOperator(spdiagm(minus_γ_term)), Eye(sup_dim)) # minus sum γ terms
 
     # Superoperator cross level terms
-    for (f_term, fB) in zip(F_terms, baths)
-        for op in fieldnames(HEOMSparseStructure)
+    for f_term in F_terms
+        for op in HEOMSparseStructureFieldNames
             f_coo = getfield(f_term, op)
             f_coo isa Nothing && continue
-            L_t_indep += kron(MatrixOperator(sparse(f_coo)), getfield(fB, op))
+            L_t_indep += _gen_HEOMLS_term(f_coo)
         end
     end
     if verbose

@@ -139,11 +139,11 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
     L_t_indep += kron(MatrixOperator(spdiagm(minus_γ_term)), Eye(sup_dim)) # minus sum γ terms
 
     # Superoperator cross level terms
-    for (b_term, bB) in zip(B_terms, baths)
-        for op in fieldnames(HEOMSparseStructure)
+    for b_term in B_terms
+        for op in HEOMSparseStructureFieldNames
             b_coo = getfield(b_term, op)
             b_coo isa Nothing && continue
-            L_t_indep += kron(MatrixOperator(sparse(b_coo)), getfield(bB, op))
+            L_t_indep += _gen_HEOMLS_term(b_coo)
         end
     end
     if verbose
