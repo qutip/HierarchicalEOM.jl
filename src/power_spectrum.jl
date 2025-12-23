@@ -132,11 +132,12 @@ remember to set the parameters:
         QuantumToolbox.settings.ProgressMeterKWARGS...,
     )
     i = reverse ? convert(ElType, 1im) : i = convert(ElType, -1im)
+    I_total = M.data isa MatrixOperator ? LinearAlgebra.I : IdentityOperator(size(M, 1))
     A0 = M.data isa MatrixOperator ? M.data.A : cache_operator(M.data, b)
-    cache = init(LinearProblem(A0 + i * ωList[1] * I, b), alg, kwargs...)
+    cache = init(LinearProblem(A0 + i * ωList[1] * I_total, b), alg, kwargs...)
     for (idx, ω) in enumerate(ωList)
         if idx > 1
-            cache.A = A0 + i * ω * LinearAlgebra.I
+            cache.A = A0 + i * ω * I_total
         end
         sol = solve!(cache)
 
