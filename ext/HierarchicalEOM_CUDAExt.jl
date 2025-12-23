@@ -80,10 +80,11 @@ _HandleTraceVectorType(M::Type{<:AbstractCuSparseArray}, V::SparseVector) =
 
 _HandleSteadyStateMatrix(
     M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}},
-    b::CuArray{T},
+    ::CuArray{T},
 ) where {T<:Number,MT<:AbstractCuSparseArray} =
     M.data.A + get_typename_wrapper(M.data.A)(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1)))
-# if the HEOMLS Matrix is transferred to GPU by proper apis, is should have all the operators in the same sparse format
+
+# if the HEOMLS Matrix is transferred to GPU by proper apis, it should have all the operators in the same sparse format
 # To avoid scalar indexing in potential concretization, make the constraint the same type sparse format as M.data
 # Do not specify the element type for the CuSparseMatrix... (No method)
 _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AddedOperator{T}}, b::CuArray{T}) where {T<:Number} =

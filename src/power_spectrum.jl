@@ -137,7 +137,7 @@ remember to set the parameters:
         A0 = M.data.A
         I_total = LinearAlgebra.I
     else
-        A0 = cache_operator(M.data, b_m)
+        A0 = cache_operator(M.data, b)
         I_total = IdentityOperator(size(M, 1))
     end
     i = reverse ? convert(ElType, 1im) : convert(ElType, -1im)

@@ -98,7 +98,7 @@ _HandleTraceVectorType(M::Type{<:SparseMatrixCSC}, V::SparseVector) = V
 
 _HandleSteadyStateMatrix(
     M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}},
-    b::AbstractVector{T},
+    ::AbstractVector{T},
 ) where {T<:Number,MT<:SparseMatrixCSC} = M.data.A + _SteadyStateConstraint(T, prod(M.dimensions), size(M, 1))
 _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AbstractSciMLOperator{T}}, b::AbstractVector{T}) where {T<:Number} =
     cache_operator(M.data + _SteadyStateConstraint(eltype(M), prod(M.dimensions), size(M, 1)), b)
