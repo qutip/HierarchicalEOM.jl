@@ -13,6 +13,9 @@ We briefly summarize how to numerically compute the spectrum associated with the
 !!! compat "Extension for CUDA.jl"
     `HierarchicalEOM.jl` provides an extension to support GPU ([`CUDA.jl`](https://github.com/JuliaGPU/CUDA.jl)) acceleration for solving the spectrum, but this feature requires `Julia 1.9+` and `HierarchicalEOM 1.1+`. See [here](@ref doc-ext-CUDA) for more details.
 
+!!! tip "Lazy Operator Support"
+    Both [`PowerSpectrum`](@ref) and [`DensityOfStates`](@ref) fully support [lazy operators](@ref doc-Lazy-Operators) for memory-efficient calculations. Simply pass a HEOMLS matrix constructed with `assemble = Val(:combine)` to these functions. Note that lazy operators require matrix-free solvers (e.g., Krylov-based methods like `KrylovJL_GMRES`) that do not need to concretize the matrix.
+
 The output of the above listed functions will always be in the type of `Vector{Float64}`, which contains the list of the spectrum values corresponding to the given `ωlist`.
 
 ## Common and optional parameters

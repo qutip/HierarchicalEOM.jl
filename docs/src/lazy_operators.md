@@ -242,6 +242,82 @@ expect_x = sol.expect[2, :]
 
 See [Time Evolution](@ref doc-Time-Evolution) for more details.
 
+## Steady-State Calculations with Lazy Operators
+
+Lazy operators are fully compatible with steady-state calculations. Both the `LinearSolve` and ODE-based methods work seamlessly:
+
+```julia
+using HierarchicalEOM
+
+# Setup
+Hsys = 0.25 * sigmaz() + 0.5 * sigmax()
+bath = Boson_DrudeLorentz_Pade(sigmaz(), 0.01, 0.5, 0.5, 3)
+L_lazy = M_Boson(Hsys, 6, bath; assemble = Val(:combine))
+
+# Steady state via linear solve (default)
+ados_ss = steadystate(L_lazy)
+
+# Steady state via ODE evolution
+ψ0 = basis(2, 0)
+ρ0 = ψ0 * ψ0'
+ados_ss_ode = steadystate(L_lazy, ρ0)
+```
+
+!!! note "Solver Compatibility for `LinearSolve`"
+    When using lazy operators with the `LinearSolve` method, the algorithm must be a matrix-free solver that does not require concretizing the matrix. Krylov-based methods (e.g., `KrylovJL_GMRES`, `KrylovJL_BICGSTAB`) work well with lazy operators. Direct factorization methods (e.g., `UMFPACKFactorization`) require a concrete sparse matrix and are not compatible with lazy operators.
+
+See [Stationary State](@ref doc-Stationary-State) for more details.
+
+## Spectrum Calculations with Lazy Operators
+
+Lazy operators also support spectrum calculations, including both power spectrum and density of states.
+
+!!! note "Solver Compatibility"
+    Similar to steady-state calculations, spectrum functions with lazy operators require matrix-free solvers (e.g., Krylov-based methods like `KrylovJL_GMRES`) that do not need to concretize the matrix.
+
+### Power Spectrum
+
+```julia
+using HierarchicalEOM
+
+# Setup
+a = destroy(2)
+Hsys = a' * a
+bath = Boson_DrudeLorentz_Pade(a' + a, 0.01, 0.5, 0.5, 3)
+L_lazy = M_Boson(Hsys, 5, bath; assemble = Val(:combine))
+
+# Get steady state
+ados_ss = steadystate(L_lazy)
+
+# Calculate power spectrum
+ωlist = 0.5:0.1:1.5
+spectrum = PowerSpectrum(L_lazy, ados_ss, a, ωlist)
+```
+
+### Density of States
+
+```julia
+using HierarchicalEOM
+
+# Setup for fermionic system
+d = sigmam()
+Hsys = d' * d
+bath = Fermion_Lorentz_Pade(d, 1.0, 0.5, 10.0, 0.5, 3)
+
+# Create HEOMLS matrices with lazy operators
+L_even = M_Fermion(Hsys, 4, bath; assemble = Val(:combine))
+L_odd = M_Fermion(Hsys, 4, bath, ODD; assemble = Val(:combine))
+
+# Get steady state
+ados_ss = steadystate(L_even)
+
+# Calculate density of states
+ωlist = -5:0.5:5
+dos = DensityOfStates(L_odd, ados_ss, d, ωlist)
+```
+
+See [Spectrum](@ref doc-Spectrum) for more details.
+
 ## Converting Lazy to Full Matrix
 
 Sometimes you may need the full materialized matrix, for example when computing eigenvalues or for analysis. Use `SciMLOperators.concretize()` to convert a lazy operator back to a full sparse matrix:
@@ -351,3 +427,16 @@ The lazy operator feature provides substantial memory savings for HEOM calculati
 - `Val(:none)`: For sparsity analysis (uses more memory than `:combine` but provides flexibility)
 
 The memory savings scale with ``N_{\text{ADO}}``, making this feature essential for high-tier calculations, multiple baths, or long-time dynamics.
+
+### Supported Features
+
+Lazy operators (`assemble = Val(:combine)`) are fully supported by all major calculation functions in `HierarchicalEOM.jl`:
+
+| Feature | Function | Lazy Support |
+|---------|----------|--------------|
+| Time Evolution | [`HEOMsolve`](@ref) | ✓ |
+| Steady State (`LinearSolve`) | [`steadystate`](@ref) | ✓ |
+| Steady State (ODE) | [`steadystate`](@ref) | ✓ |
+| Power Spectrum | [`PowerSpectrum`](@ref) | ✓ |
+| Density of States | [`DensityOfStates`](@ref) | ✓ |
+| GPU Acceleration | `cu()` | ✓ |
