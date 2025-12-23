@@ -80,11 +80,12 @@ Calculate density of states for the fermionic system in frequency domain.
         QuantumToolbox.settings.ProgressMeterKWARGS...,
     )
 
-    I_total = LinearAlgebra.I
-    A0 = M.data.A
-    if !isa(M.data, MatrixOperator)
-        I_total = IdentityOperator(size(M, 1))
+    if M.data isa MatrixOperator
+        A0 = M.data.A
+        I_total = LinearAlgebra.I
+    else
         A0 = cache_operator(M.data, b_m)
+        I_total = IdentityOperator(size(M, 1))
     end
     i = convert(ElType, 1im)
     Iω1 = i * ωList[1] * I_total
