@@ -441,11 +441,18 @@ HEOMSparseStructure(bath::AbstractFermionBath, Nado::Int) = HEOMSparseStructure(
     spostD = COOFormat(Nado, bath.spostD),
 )
 
-HEOMSparseStructure(bath::bosonAbsorb, Nado::Int) =
-    HEOMSparseStructure(spre = COOFormat(Nado, bath.spre), spost = COOFormat(Nado, bath.spost), CommD = COOFormat(Nado, bath.CommD))
-HEOMSparseStructure(bath::bosonEmit, Nado::Int) =
-    HEOMSparseStructure(spre = COOFormat(Nado, bath.spre), spost = COOFormat(Nado, bath.spost), CommD = COOFormat(Nado, bath.CommD))
-HEOMSparseStructure(bath::bosonImag, Nado::Int) = HEOMSparseStructure(Comm = COOFormat(Nado, bath.Comm), anComm = COOFormat(Nado, bath.anComm))
+HEOMSparseStructure(bath::bosonAbsorb, Nado::Int) = HEOMSparseStructure(
+    spre = COOFormat(Nado, bath.spre),
+    spost = COOFormat(Nado, bath.spost),
+    CommD = COOFormat(Nado, bath.CommD),
+)
+HEOMSparseStructure(bath::bosonEmit, Nado::Int) = HEOMSparseStructure(
+    spre = COOFormat(Nado, bath.spre),
+    spost = COOFormat(Nado, bath.spost),
+    CommD = COOFormat(Nado, bath.CommD),
+)
+HEOMSparseStructure(bath::bosonImag, Nado::Int) =
+    HEOMSparseStructure(Comm = COOFormat(Nado, bath.Comm), anComm = COOFormat(Nado, bath.anComm))
 HEOMSparseStructure(bath::bosonReal, Nado::Int) = HEOMSparseStructure(Comm = COOFormat(Nado, bath.Comm))
 HEOMSparseStructure(bath::bosonRealImag, Nado::Int) =
     HEOMSparseStructure(Comm = COOFormat(Nado, bath.Comm), anComm = COOFormat(Nado, bath.anComm))
