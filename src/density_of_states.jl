@@ -79,13 +79,13 @@ Calculate density of states for the fermionic system in frequency domain.
         QuantumToolbox.settings.ProgressMeterKWARGS...,
     )
     i = convert(ElType, 1im)
-    Iω1 = i * ωList[1] * I
+    Iω1 = i * ωList[1] * LinearAlgebra.I
     A0 = M.data isa MatrixOperator ? M.data.A : cache_operator(M.data, b_m)
     cache_m = init(LinearProblem(A0 - Iω1, b_m), alg, kwargs...)
     cache_p = init(LinearProblem(A0 + Iω1, b_p), alg, kwargs...)
     for (idx, ω) in enumerate(ωList)
         if idx > 1
-            Iω = i * ω * I
+            Iω = i * ω * LinearAlgebra.I
             cache_m.A = A0 - Iω
             cache_p.A = A0 + Iω
         end

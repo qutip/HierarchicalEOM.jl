@@ -136,7 +136,7 @@ remember to set the parameters:
     cache = init(LinearProblem(A0 + i * ωList[1] * I, b), alg, kwargs...)
     for (idx, ω) in enumerate(ωList)
         if idx > 1
-            cache.A = A0 + i * ω * I
+            cache.A = A0 + i * ω * LinearAlgebra.I
         end
         sol = solve!(cache)
 
