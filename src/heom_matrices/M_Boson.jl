@@ -142,8 +142,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
     for b_term in B_terms
         for op in HEOMSparseStructureFieldNames
             b_coo = getfield(b_term, op)
-            b_coo isa Nothing && continue
-            L_t_indep += _gen_HEOMLS_term(b_coo)
+            b_coo isa Nothing || (L_t_indep += _gen_HEOMLS_term(b_coo))
         end
     end
     if verbose

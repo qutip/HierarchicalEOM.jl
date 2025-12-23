@@ -139,8 +139,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
     for f_term in F_terms
         for op in HEOMSparseStructureFieldNames
             f_coo = getfield(f_term, op)
-            f_coo isa Nothing && continue
-            L_t_indep += _gen_HEOMLS_term(f_coo)
+            f_coo isa Nothing || (L_t_indep += _gen_HEOMLS_term(f_coo))
         end
     end
     if verbose
