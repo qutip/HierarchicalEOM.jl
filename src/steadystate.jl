@@ -3,7 +3,7 @@
 Solve the steady state of the auxiliary density operators based on `LinearSolve.jl` (i.e., solving ``x`` where ``A \times x = b``).
 
 # Parameters
-- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`. Supports both full sparse matrices and lazy tensor product representations (constructed with `assemble = Val(:combine)`).
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
 - `alg::SciMLLinearSolveAlgorithm` : The solving algorithm in package `LinearSolve.jl`. Default to `KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14)`.
 - `verbose::Bool` : To display verbose output or not. Defaults to `true`.
 - `kwargs` : The keyword arguments for the `LinearProblem`

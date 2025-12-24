@@ -9,7 +9,7 @@ Calculate density of states for the fermionic system in frequency domain.
 ```
 
 # Parameters
-- `M::AbstractHEOMLSMatrix` : the HEOMLS matrix which acts on `ODD`-parity operators. Supports both full sparse matrices and lazy tensor product representations (constructed with `assemble = Val(:combine)`).
+- `M::AbstractHEOMLSMatrix` : the HEOMLS matrix which acts on `ODD`-parity operators.
 - `ρ::Union{QuantumObject,ADOs}` :  the system density matrix or the auxiliary density operators.
 - `d_op::QuantumObject` : The annihilation operator (``d`` as shown above) acting on the fermionic system.
 - `ωlist::AbstractVector` : the specific frequency points to solve.

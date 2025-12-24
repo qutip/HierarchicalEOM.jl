@@ -47,7 +47,7 @@ remember to set the parameters:
 - `M::AbstractHEOMLSMatrix`: should be `ODD` parity
 
 # Parameters
-- `M::AbstractHEOMLSMatrix` : the HEOMLS matrix. Supports both full sparse matrices and lazy tensor product representations (constructed with `assemble = Val(:combine)`).
+- `M::AbstractHEOMLSMatrix` : the HEOMLS matrix.
 - `ρ::Union{QuantumObject,ADOs}` :  the system density matrix or the auxiliary density operators.
 - `P_op::Union{QuantumObject,HEOMSuperOp}`: the system operator (or `HEOMSuperOp`) ``P`` acting on the system.
 - `Q_op::Union{QuantumObject,HEOMSuperOp}`: the system operator (or `HEOMSuperOp`) ``Q`` acting on the system.
