@@ -47,7 +47,7 @@ const PAGES = Any[
             "HEOMLS for Fermionic Bath"=>"heom_matrix/M_Fermion.md",
             "HEOMLS for Bosonic and Fermionic Bath"=>"heom_matrix/M_Boson_Fermion.md",
             "HEOMLS for Master Equation"=>"heom_matrix/master_eq.md",
-            "Memory Optimization with Lazy Operators"=>"lazy_operators.md",
+            "Memory Optimization with Lazy Operators"=>"heom_matrix/lazy_operators.md",
         ],
         "Parity Support"=>"Parity.md",
         "Hierarchy Dictionary"=>"hierarchy_dictionary.md",
