@@ -16,6 +16,7 @@
     bath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
 
     L = M_Boson(Hsys, tier, bath; verbose = false)
+    L_lazy = M_Boson(Hsys, tier, bath; verbose = false, assemble = Val(:combine))
     ρs = getRho(steadystate(L; verbose = false))
     ρ_wrong = Qobj(zeros(3, 3))
 
@@ -42,10 +43,15 @@
 
     # using the method based on ODE solver
     prob_e = HEOMsolveProblem(L, ψ0, tlist; e_ops = e_ops, saveat = tlist, progress_bar = Val(true)) # also test progress bar
+    prob_e_lazy = HEOMsolveProblem(L_lazy, ψ0, tlist; e_ops = e_ops, saveat = tlist, progress_bar = Val(false))
     sol_e = heomsolve(prob_e)
+    sol_e_lazy = heomsolve(prob_e_lazy)
     sol_e2 = heomsolve(L, ψ0, tlist; e_ops = e_ops, progress_bar = Val(false))
+    sol_e2_lazy = heomsolve(L_lazy, ψ0, tlist; e_ops = e_ops, progress_bar = Val(false))
     ρ_list_e = getRho.(sol_e.ados)
     expvals_e = sol_e.expect
+    @test sol_e.expect ≈ sol_e_lazy.expect
+    @test sol_e2.expect ≈ sol_e2_lazy.expect
     @test !haskey(prob_e.prob.kwargs, :tstops) # tstops should not exist for time-independent cases
     @test show(devnull, MIME("text/plain"), sol_e) === nothing
     @test_logs (:warn,) evolution(L, ψ0, tlist; progress_bar = Val(false)) # deprecated function
@@ -88,6 +94,7 @@
 
     bath = Boson_DrudeLorentz_Pade(σz, 0.0005, 0.005, 0.05, 3)
     L = M_Boson(H_sys, 6, bath; verbose = false)
+    L_lazy = M_Boson(H_sys, 6, bath; verbose = false, assemble = Val(:none))
 
     function coef(p, t)
         duration = p.integral / p.amplitude
@@ -185,9 +192,24 @@
         abstol = 1e-12,
         progress_bar = Val(false),
     )
+    slowDD_sol_lazy = heomsolve(
+        L_lazy,
+        ψ0,
+        tlist;
+        H_t = Ht,
+        params = p_slow,
+        e_ops = [P01],
+        saveat = tlist,
+        reltol = 1e-12,
+        abstol = 1e-12,
+        progress_bar = Val(false),
+    )
     slowDD_ados = slowDD_sol.ados
     slowDD1 = slowDD_sol.expect[1, :]
     slowDD2 = expect(P01, slowDD_ados; take_real = false)
+    slowDD_ados_lazy = slowDD_sol_lazy.ados
+    slowDD1_lazy = slowDD_sol_lazy.expect[1, :]
+    slowDD2_lazy = expect(P01, slowDD_ados_lazy; take_real = false)
     slowBoFiN = [
         0.4999999999999999,
         0.4949826158957288,
@@ -237,6 +259,8 @@
     @test typeof(slowDD1) == typeof(slowDD2) == Vector{ComplexF64}
     @test all(isapprox.(slowDD1, slowBoFiN; atol = 1.0e-6))
     @test all(isapprox.(slowDD2, slowBoFiN; atol = 1.0e-6))
+    @test all(isapprox.(slowDD1_lazy, slowBoFiN; atol = 1.0e-6))
+    @test all(isapprox.(slowDD2_lazy, slowBoFiN; atol = 1.0e-6))
 
     H_wrong = QobjEvo(Qobj(zeros(3, 3)), coef)
     ados_wrong1 = ADOs(zeros(8), 2)
@@ -276,9 +300,22 @@
         abstol = 1e-12,
         progress_bar = Val(true),
     ) # also test progress_bar
+    mapDD_sol_lazy = heomsolve_map(
+        L_lazy,
+        ψ0,
+        tlist;
+        H_t = Ht2,
+        params = (amp_list, delay_list, integral_list),
+        e_ops = [P01],
+        reltol = 1e-12,
+        abstol = 1e-12,
+        progress_bar = Val(false),
+    )
 
     @test size(mapDD_sol) == (1, 2, 1, 1)
     @test mapDD_sol isa Array{<:TimeEvolutionHEOMSol}
     @test all(isapprox.(mapDD_sol[1, 1, 1, 1].expect[1, :], fastBoFiN, atol = 1.0e-6))
     @test all(isapprox.(mapDD_sol[1, 2, 1, 1].expect[1, :], slowBoFiN, atol = 1.0e-6))
+    @test all(isapprox.(mapDD_sol_lazy[1, 1, 1, 1].expect[1, :], fastBoFiN, atol = 1.0e-6))
+    @test all(isapprox.(mapDD_sol_lazy[1, 2, 1, 1].expect[1, :], slowBoFiN, atol = 1.0e-6))
 end

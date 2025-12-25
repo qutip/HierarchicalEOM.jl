@@ -43,6 +43,7 @@ _get_SciML_matrix_wrapper(M::AbstractArray) = QuantumToolbox.get_typename_wrappe
 _get_SciML_matrix_wrapper(M::MatrixOperator) = _get_SciML_matrix_wrapper(M.A)
 _get_SciML_matrix_wrapper(M::ScaledOperator) = _get_SciML_matrix_wrapper(M.L)
 _get_SciML_matrix_wrapper(M::AddedOperator) = _get_SciML_matrix_wrapper(M.ops[1])
+_get_SciML_matrix_wrapper(M::TensorProductOperator) = _get_SciML_matrix_wrapper(M.ops[2].A) # take the system superoperator part for the reference
 _get_SciML_matrix_wrapper(M::AbstractHEOMLSMatrix) = _get_SciML_matrix_wrapper(M.data)
 
 # equal to : sparse(vec(system_identity_matrix))
@@ -95,8 +96,12 @@ _HandleTraceVectorType(M::AbstractHEOMLSMatrix, V::SparseVector) =
     _HandleTraceVectorType(_get_SciML_matrix_wrapper(M), V)
 _HandleTraceVectorType(M::Type{<:SparseMatrixCSC}, V::SparseVector) = V
 
-_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}}) where {T<:Number,MT<:SparseMatrixCSC} =
-    M.data.A + _SteadyStateConstraint(T, prod(M.dimensions), size(M, 1))
+_HandleSteadyStateMatrix(
+    M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}},
+    ::AbstractVector{T},
+) where {T<:Number,MT<:SparseMatrixCSC} = M.data.A + _SteadyStateConstraint(T, prod(M.dimensions), size(M, 1))
+_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AbstractSciMLOperator{T}}, b::AbstractVector{T}) where {T<:Number} =
+    cache_operator(M.data + _SteadyStateConstraint(eltype(M), prod(M.dimensions), size(M, 1)), b)
 
 # this adds the trace == 1 constraint for reduced density operator during linear solve of steadystate
 _SteadyStateConstraint(T::Type{<:Number}, D::Int, S::Int) =

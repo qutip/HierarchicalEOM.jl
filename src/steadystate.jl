@@ -10,16 +10,18 @@ Solve the steady state of the auxiliary density operators based on `LinearSolve.
 
 # Notes
 - For more details about `alg`, `kwargs`, and `LinearProblem`, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/).
+- This function supports [lazy operators](@ref doc-Lazy-Operators) for memory-efficient calculations. When using lazy operators, the algorithm must be a matrix-free solver (e.g., Krylov-based methods like `KrylovJL_GMRES`) that does not require concretizing the matrix.
 
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
 """
 function QuantumToolbox.steadystate(
-    M::AbstractHEOMLSMatrix{<:MatrixOperator};
+    M::AbstractHEOMLSMatrix;
     alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14),
     verbose::Bool = true,
     kwargs...,
 )
+    isconstant(M) || throw(ArgumentError("The HEOMLS matrix M must be time-independent to solve steadystate."))
     haskey(kwargs, :solver) &&
         error("The keyword argument `solver` for solving HEOM steadystate is deprecated, use `alg` instead.")
 
@@ -28,8 +30,8 @@ function QuantumToolbox.steadystate(
         error("The parity of M should be \"EVEN\".")
     end
 
-    A = _HandleSteadyStateMatrix(M)
-    b = sparsevec([1], [1.0 + 0.0im], size(M, 1))
+    b = _HandleVectorType(M, sparsevec([1], [1.0 + 0.0im], size(M, 1)))
+    A = _HandleSteadyStateMatrix(M, b)
 
     # solving x where A * x = b
     if verbose
@@ -37,7 +39,7 @@ function QuantumToolbox.steadystate(
         flush(stdout)
     end
 
-    prob = LinearProblem{true}(A, _HandleVectorType(M, b))
+    prob = LinearProblem{true}(A, b)
     sol = solve(prob, alg; kwargs...)
     if verbose
         println("[DONE]")
@@ -52,7 +54,7 @@ end
 Solve the steady state of the auxiliary density operators based on time evolution (`OrdinaryDiffEq.jl`) with initial state is given in the type of density-matrix (`ρ0`).
 
 # Parameters
-- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`.
+- `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model, where the parity should be `EVEN`. Supports both full sparse matrices and lazy tensor product representations (constructed with `assemble = Val(:combine)`).
 - `ρ0::Union{QuantumObject,ADOs}` : system initial state (density matrix) or initial auxiliary density operators (`ADOs`)
 - `tspan::Number` : the time limit to find stationary state. Default to `Inf`
 - `alg::AbstractODEAlgorithm` : The ODE algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
@@ -62,18 +64,20 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 # Notes
 - For more details about `alg` please refer to [`DifferentialEquations.jl` (ODE Solvers)](https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/)
 - For more details about `kwargs` please refer to [`DifferentialEquations.jl` (Keyword Arguments)](https://docs.sciml.ai/DiffEqDocs/stable/basics/common_solver_opts/)
+- This function supports [lazy operators](@ref doc-Lazy-Operators) for memory-efficient calculations.
 
 # Returns
 - `::ADOs` : The steady state of auxiliary density operators.
 """
 function QuantumToolbox.steadystate(
-    M::AbstractHEOMLSMatrix{<:MatrixOperator},
+    M::AbstractHEOMLSMatrix,
     ρ0::T_state,
     tspan::Number = Inf;
     alg::AbstractODEAlgorithm = DP5(),
     verbose::Bool = true,
     kwargs...,
 ) where {T_state<:Union{QuantumObject,ADOs}}
+    isconstant(M) || throw(ArgumentError("The HEOMLS matrix M must be time-independent to solve steadystate."))
     haskey(kwargs, :solver) &&
         error("The keyword argument `solver` for solving HEOM steadystate is deprecated, use `alg` instead.")
 
@@ -103,8 +107,10 @@ function QuantumToolbox.steadystate(
         haskey(kwargs2, :callback) ? merge(kwargs2, (callback = CallbackSet(kwargs2.callback, cb),)) :
         merge(kwargs2, (callback = cb,))
 
+    A = cache_operator(M.data, u0)
+
     # define ODE problem
-    prob = ODEProblem{true,FullSpecialize}(M.data, u0, Tspan; kwargs3...)
+    prob = ODEProblem{true,FullSpecialize}(A, u0, Tspan; kwargs3...)
 
     # solving steady state of the ODE problem
     if verbose

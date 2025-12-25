@@ -99,6 +99,7 @@ Generate the ODEProblem for the time evolution of auxiliary density operators.
 - The default tolerances in `kwargs` are given as `reltol=1e-6` and `abstol=1e-8`.
 - For more details about `alg` please refer to [`DifferentialEquations.jl` (ODE Solvers)](https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/)
 - For more details about `kwargs` please refer to [`DifferentialEquations.jl` (Keyword Arguments)](https://docs.sciml.ai/DiffEqDocs/stable/basics/common_solver_opts/)
+- This function supports [lazy operators](@ref doc-Lazy-Operators) for memory-efficient calculations.
 
 # Returns
 
@@ -125,7 +126,7 @@ function HEOMsolveProblem(
     u0 = _gen_ados_ode_vector(ρ0, M)
 
     # define ODE problem (L should be an AbstractSciMLOperator)
-    L = _make_L(M, H_t)
+    L = cache_operator(_make_L(M, H_t), u0)
     kwargs2 = _merge_saveat(tlist, e_ops, DEFAULT_ODE_SOLVER_OPTIONS; kwargs...)
     kwargs3 = _merge_tstops(kwargs2, isconstant(L), tlist)
     kwargs4 = _generate_heom_kwargs(e_ops, makeVal(progress_bar), tlist, kwargs3, SaveFuncHEOMSolve, M)
@@ -158,6 +159,7 @@ Solve the time evolution for auxiliary density operators based on ordinary diffe
 - The default tolerances in `kwargs` are given as `reltol=1e-6` and `abstol=1e-8`.
 - For more details about `alg` please refer to [`DifferentialEquations.jl` (ODE Solvers)](https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/)
 - For more details about `kwargs` please refer to [`DifferentialEquations.jl` (Keyword Arguments)](https://docs.sciml.ai/DiffEqDocs/stable/basics/common_solver_opts/)
+- This function supports [lazy operators](@ref doc-Lazy-Operators) for memory-efficient calculations.
 
 # Returns
 - sol::TimeEvolutionHEOMSol : The solution of the hierarchical EOM. See also [`TimeEvolutionHEOMSol`](@ref)
@@ -333,6 +335,7 @@ This function computes the time evolution for all combinations (Cartesian produc
 - The function returns an array of solutions with dimensions matching the Cartesian product of initial states and parameter sets.
 - If `ρ0` is a vector with length `m`, and `params = (p1, p2, ...)` where `p1` has length `n1`, `p2` has length `n2`, etc., the output will be of size `(m, n1, n2, ...)`.
 - See [`HEOMsolve`](@ref) for more details.
+- This function supports [lazy operators](@ref doc-Lazy-Operators) for memory-efficient calculations.
 
 # Returns
 - An array of [`TimeEvolutionHEOMSol`](@ref) objects with dimensions `(length(ρ0), length(params[1]), length(params[2]), ...)`.

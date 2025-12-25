@@ -6,6 +6,9 @@ To solve the stationary state of the reduced state and also all the [ADOs](@ref 
 !!! compat "Extension for CUDA.jl"
     `HierarchicalEOM.jl` provides an extension to support GPU ([`CUDA.jl`](https://github.com/JuliaGPU/CUDA.jl)) acceleration for [`steadystate`](@ref). See [here](@ref doc-ext-CUDA) for more details.
 
+!!! tip "Lazy Operator Support"
+    Both steady-state solving methods fully support [lazy operators](@ref doc-Lazy-Operators) for memory-efficient calculations. Simply pass a HEOMLS matrix constructed with `assemble = Val(:combine)` to [`steadystate`](@ref). For the `LinearSolve` method, lazy operators require matrix-free solvers (e.g., Krylov-based methods like `KrylovJL_GMRES`) that do not need to concretize the matrix.
+
 ## Solve with [LinearSolve.jl](http://linearsolve.sciml.ai/stable/)
 The first method is implemented by solving the linear problem
 ```math

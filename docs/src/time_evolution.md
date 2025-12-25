@@ -63,6 +63,9 @@ The first method is implemented by solving the ordinary differential equation (O
 !!! compat "Extension for CUDA.jl"
     `HierarchicalEOM.jl` provides an extension to support GPU ([`CUDA.jl`](https://github.com/JuliaGPU/CUDA.jl)) acceleration for [`HEOMsolve`](@ref) (only for ODE method). See [here](@ref doc-ext-CUDA) for more details.
 
+!!! tip "Lazy Operator Support"
+    [Lazy operators](@ref doc-Lazy-Operators) provide memory-efficient HEOMLS matrix representation for time evolution. Simply construct the HEOMLS matrix with `assemble = Val(:combine)` and pass it to [`HEOMsolve`](@ref) as usual. See [Memory Optimization with Lazy Operators](@ref doc-Lazy-Operators) for details on reducing memory usage.
+
 See the docstring of this method:  
 
 ```@docs

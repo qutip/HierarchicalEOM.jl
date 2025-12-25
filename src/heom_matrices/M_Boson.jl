@@ -86,7 +86,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 
     minus_γ_term = zeros(ComplexF64, Nado)
 
-    # stores position and prefix value for each Fermion superoperators in HEOM Liouville space using sparse COO format
+    # stores position and prefix value for each Boson superoperators in HEOM Liouville space using sparse COO format
     B_terms = [HEOMSparseStructure(bB, Nado) for bB in baths]
 
     if verbose

@@ -2,7 +2,12 @@ module HierarchicalEOM_CUDAExt
 
 using HierarchicalEOM
 import HierarchicalEOM:
-    _reset_HEOMLS_data, _HandleVectorType, _HandleTraceVectorType, _HandleSteadyStateMatrix, _SteadyStateConstraint
+    _reset_HEOMLS_data,
+    _HandleVectorType,
+    _HandleTraceVectorType,
+    _HandleSteadyStateMatrix,
+    _SteadyStateConstraint,
+    _get_SciML_matrix_wrapper
 import QuantumToolbox: _complex_float_type, _convert_eltype_wordsize, makeVal, getVal, get_typename_wrapper
 import CUDA
 import CUDA: cu, CuArray
@@ -60,7 +65,6 @@ CuSparseMatrixCSR{T}(M::HEOMSuperOp) where {T} =
 
 _convert_to_gpu_matrix(A::AbstractSparseMatrix, MType::Type{T}) where {T<:AbstractCuSparseArray} = MType(A)
 _convert_to_gpu_matrix(A::AbstractMatrix, MType::Type{T}) where {T<:AbstractCuSparseArray} = MType(sparse(A))
-_convert_to_gpu_matrix(A::Diagonal, MType::Type{T}) where {T<:AbstractCuSparseArray} = Diagonal(CuArray(A.diag))
 
 _convert_to_gpu_matrix(A::MatrixOperator, MType) = MatrixOperator(_convert_to_gpu_matrix(A.A, MType))
 _convert_to_gpu_matrix(A::ScaledOperator, MType) = ScaledOperator(A.λ, _convert_to_gpu_matrix(A.L, MType))
@@ -74,6 +78,15 @@ _HandleVectorType(M::Type{<:AbstractCuSparseArray}, V::SparseVector) = CuArray{_
 _HandleTraceVectorType(M::Type{<:AbstractCuSparseArray}, V::SparseVector) =
     CuSparseVector{_complex_float_type(eltype(M))}(V)
 
-_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}}) where {T<:Number,MT<:AbstractCuSparseArray} =
-    M.data.A + get_typename_wrapper(M.data.A){eltype(M)}(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1)))
+_HandleSteadyStateMatrix(
+    M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}},
+    ::CuArray{T},
+) where {T<:Number,MT<:AbstractCuSparseArray} =
+    M.data.A + get_typename_wrapper(M.data.A)(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1)))
+
+# if the HEOMLS Matrix is transferred to GPU by proper apis, it should have all the operators in the same sparse format
+# To avoid scalar indexing in potential concretization, make the constraint the same type sparse format as M.data
+# Do not specify the element type for the CuSparseMatrix... (No method)
+_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AddedOperator{T}}, b::CuArray{T}) where {T<:Number} =
+    cache_operator(M.data + _get_SciML_matrix_wrapper(M)(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1))), b)
 end

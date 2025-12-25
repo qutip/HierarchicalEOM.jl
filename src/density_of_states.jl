@@ -20,12 +20,13 @@ Calculate density of states for the fermionic system in frequency domain.
 
 # Notes
 - For more details about `alg`, `kwargs`, and `LinearProblem`, please refer to [`LinearSolve.jl`](http://linearsolve.sciml.ai/stable/)
+- This function supports [lazy operators](@ref doc-Lazy-Operators) for memory-efficient calculations. When using lazy operators, `alg` must be a matrix-free solver (e.g., Krylov-based methods like `KrylovJL_GMRES`) that does not require concretizing the matrix.
 
 # Returns
 - `dos::AbstractVector` : the list of density of states corresponds to the specified `ωlist`
 """
 @noinline function DensityOfStates(
-    M::AbstractHEOMLSMatrix{<:MatrixOperator},
+    M::AbstractHEOMLSMatrix,
     ρ::Union{QuantumObject,ADOs},
     d_op::QuantumObject,
     ωlist::AbstractVector;
@@ -34,6 +35,7 @@ Calculate density of states for the fermionic system in frequency domain.
     filename::String = "",
     kwargs...,
 )
+    isconstant(M) || throw(ArgumentError("The HEOMLS matrix M must be time-independent to calculate DensityOfStates."))
     haskey(kwargs, :solver) &&
         error("The keyword argument `solver` for DensityOfStates is deprecated, use `alg` instead.")
     haskey(kwargs, :verbose) &&
@@ -77,16 +79,23 @@ Calculate density of states for the fermionic system in frequency domain.
         desc = "[DensityOfStates] ",
         QuantumToolbox.settings.ProgressMeterKWARGS...,
     )
+
+    if M.data isa MatrixOperator
+        A0 = M.data.A
+        I_total = LinearAlgebra.I
+    else
+        A0 = cache_operator(M.data, b_m)
+        I_total = IdentityOperator(size(M, 1))
+    end
     i = convert(ElType, 1im)
-    I_total = Eye(size(M, 1))
     Iω1 = i * ωList[1] * I_total
-    cache_m = init(LinearProblem(M.data.A - Iω1, b_m), alg, kwargs...)
-    cache_p = init(LinearProblem(M.data.A + Iω1, b_p), alg, kwargs...)
+    cache_m = init(LinearProblem(A0 - Iω1, b_m), alg, kwargs...)
+    cache_p = init(LinearProblem(A0 + Iω1, b_p), alg, kwargs...)
     for (idx, ω) in enumerate(ωList)
         if idx > 1
             Iω = i * ω * I_total
-            cache_m.A = M.data.A - Iω
-            cache_p.A = M.data.A + Iω
+            cache_m.A = A0 - Iω
+            cache_p.A = A0 + Iω
         end
         sol_m = solve!(cache_m)
         sol_p = solve!(cache_p)
