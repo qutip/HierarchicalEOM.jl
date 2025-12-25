@@ -2,7 +2,7 @@
 
 ## Introduction
 
-`HierarchicalEOM.jl` provides a memory-efficient lazy evaluation feature for HEOM Liouvillian superoperator (HEOMLS) matrices using [`SciMLOperators.TensorProductOperator`](https://docs.sciml.ai/SciMLOperators/stable/). This feature can significantly reduce memory usage for large systems, with savings proportional to the number of auxiliary density operators (ADOs), ``N_{\text{ADO}}``.
+`HierarchicalEOM.jl` provides a memory-efficient lazy evaluation feature for HEOM Liouvillian superoperator (HEOMLS) matrices using [`SciMLOperators.TensorProductOperator`](https://docs.sciml.ai/SciMLOperators/stable/). This feature can significantly reduce memory usage for large systems.
 
 By default, a HEOMLS matrix is assembled as a single large sparse matrix with space complexity (memory scaling) as:
 
@@ -10,12 +10,12 @@ By default, a HEOMLS matrix is assembled as a single large sparse matrix with sp
 \mathcal{O}(N_{\text{ADO}}^2 \cdot d^4)
 ```
 
-where ``d`` is the system dimension and ``N_{\text{ADO}}`` grows rapidly with hierarchy tier and number of bath terms.
+where ``d`` is the system dimension, and ``N_{\text{ADO}}`` is the number of auxiliary density operators (ADOs) which grows rapidly with hierarchy tier and number of bath terms.
 
-Instead of assembling a single large matrix, the lazy operator feature represents the HEOM Liouvillian superoperator as a sum of Kronecker products:
+Instead of assembling HEOMLS into a single large sparse matrix, the lazy operator feature represents it as a sum of Kronecker products:
 
 ```math
-\mathcal{M} = \sum_i A_i \otimes B_i,
+\hat{\mathcal{M}} = \sum_i A_i \otimes B_i,
 ```
 
 where ``B_i`` represent the system coupling superoperators, and ``A_i`` encodes the hierarchy (ADO) connectivity pattern and corresponding prefix values of ``B_i``. In this case, the space complexity (memory allocation) has been reduced to
@@ -41,7 +41,7 @@ The `assemble` keyword argument controls how the HEOMLS matrix is constructed. I
 - [`M_Fermion`](@ref)
 - [`M_Boson_Fermion`](@ref)
 
-#### `assemble = Val(:full)` - Full Sparse Matrix (Default)
+### `assemble = Val(:full)` - Full Sparse Matrix (Default)
 
 Assembles the complete HEOMLS matrix as a single sparse matrix. This is the default behavior for backward compatibility.
 
@@ -49,7 +49,7 @@ Assembles the complete HEOMLS matrix as a single sparse matrix. This is the defa
 L_full = M_Boson(Hsys, tier, bath; assemble = Val(:full))
 ```
 
-#### `assemble = Val(:combine)` - Combined Lazy Operators (Recommended)
+### `assemble = Val(:combine)` - Combined Lazy Operators (Recommended)
 
 Combines terms with identical system coupling superoperators (``B_i``) but does not materialize the full matrix. This provides excellent memory savings while maintaining computational efficiency. The lazy representation can leverage matrix-matrix multiplication patterns, which are more parallelizable than the sparse matrix-vector products used by full assembly.
 
@@ -59,7 +59,7 @@ L_combine = M_Boson(Hsys, tier, bath; assemble = Val(:combine))
 
 Recommended for most applications, especially memory-constrained devices.
 
-#### `assemble = Val(:none)` - Individual Lazy Operators (For Sparsity Analysis)
+### `assemble = Val(:none)` - Individual Lazy Operators (For Sparsity Analysis)
 
 Keeps all tensor product terms separate without any combination. This mode actually uses more memory than `Val(:combine)` because `Val(:combine)` reduces the number of terms in the `SciMLOperators.AddedOperator` by grouping terms with identical system coupling superoperators. However, `Val(:none)` provides flexibility for investigating sparsity patterns and analyzing the structure of individual tensor product terms.
 
@@ -71,6 +71,7 @@ L_none = M_Boson(Hsys, tier, bath; assemble = Val(:none))
 
 ```@setup lazy-operators
 using HierarchicalEOM
+using SparseArrays
 ```
 
 ```@example lazy-operators 
