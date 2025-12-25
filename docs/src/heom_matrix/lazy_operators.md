@@ -4,7 +4,7 @@
 
 `HierarchicalEOM.jl` provides a memory-efficient lazy evaluation feature for HEOM Liouvillian superoperator (HEOMLS) matrices using [`SciMLOperators.TensorProductOperator`](https://docs.sciml.ai/SciMLOperators/stable/). This feature can significantly reduce memory usage for large systems, with savings proportional to the number of auxiliary density operators (ADOs), ``N_{\text{ADO}}``.
 
-By default, HEOMLS matrices are assembled as single large sparse matrices with memory scaling as:
+By default, a HEOMLS matrix is assembled as a single large sparse matrix with space complexity (memory scaling) as:
 
 ```math
 \mathcal{O}(N_{\text{ADO}}^2 \cdot d^4)
@@ -12,19 +12,19 @@ By default, HEOMLS matrices are assembled as single large sparse matrices with m
 
 where ``d`` is the system dimension and ``N_{\text{ADO}}`` grows rapidly with hierarchy tier and number of bath terms.
 
-Instead of assembling a single large matrix, the lazy operator feature represents the HEOM Liouvillian as a sum of Kronecker products:
+Instead of assembling a single large matrix, the lazy operator feature represents the HEOM Liouvillian superoperator as a sum of Kronecker products:
 
 ```math
-\mathcal{M} = \sum_i A_i \otimes B_i
+\mathcal{M} = \sum_i A_i \otimes B_i,
 ```
 
-This reduces memory to:
+where ``B_i`` represent the system coupling superoperators, and ``A_i`` encodes the hierarchy (ADO) connectivity pattern and corresponding prefix values of ``B_i``. In this case, the space complexity (memory allocation) has been reduced to
 
 ```math
-\mathcal{O}(N_{\text{ADO}} \cdot \text{nnz}(A_i) + d^4 \cdot k)
+\mathcal{O}(N_{\text{ADO}}^2 + d^4),
 ```
 
-where ``k`` is the number of bath terms. The key insight is that the ``B_i`` matrices (system superoperators) are small (size ``d^2 \times d^2``) and shared across terms, while only the ``A_i`` matrices (ADO connectivity patterns) need to scale with ``N_{\text{ADO}}``.
+which significantly lowers the memory requirements for high-dimensional simulations. The key insight is that the ``B_i`` (system coupling superoperator) matrices are small (size ``d^2 \times d^2``) and shared across different connections (coupling) between ADOs, while only the ``A_i`` matrices (hierarchy connectivity patterns) need to scale with ``N_{\text{ADO}}^2``.
 
 Memory savings scale with the number of ADOs, making this especially beneficial for:
 
@@ -51,7 +51,7 @@ L_full = M_Boson(Hsys, tier, bath; assemble = Val(:full))
 
 #### `assemble = Val(:combine)` - Combined Lazy Operators (Recommended)
 
-Combines terms with identical system operators (``B_i``) but does not materialize the full matrix. This provides excellent memory savings while maintaining computational efficiency. The lazy representation can leverage matrix-matrix multiplication patterns, which are more parallelizable than the sparse matrix-vector products used by full assembly.
+Combines terms with identical system coupling superoperators (``B_i``) but does not materialize the full matrix. This provides excellent memory savings while maintaining computational efficiency. The lazy representation can leverage matrix-matrix multiplication patterns, which are more parallelizable than the sparse matrix-vector products used by full assembly.
 
 ```julia
 L_combine = M_Boson(Hsys, tier, bath; assemble = Val(:combine))
@@ -61,7 +61,7 @@ Recommended for most applications, especially memory-constrained devices.
 
 #### `assemble = Val(:none)` - Individual Lazy Operators (For Sparsity Analysis)
 
-Keeps all tensor product terms separate without any combination. This mode actually uses more memory than `Val(:combine)` because `Val(:combine)` reduces the number of terms in the `SciMLOperators.AddedOperator` by grouping terms with identical system operators. However, `Val(:none)` provides flexibility for investigating sparsity patterns and analyzing the structure of individual tensor product terms.
+Keeps all tensor product terms separate without any combination. This mode actually uses more memory than `Val(:combine)` because `Val(:combine)` reduces the number of terms in the `SciMLOperators.AddedOperator` by grouping terms with identical system coupling superoperators. However, `Val(:none)` provides flexibility for investigating sparsity patterns and analyzing the structure of individual tensor product terms.
 
 ```julia
 L_none = M_Boson(Hsys, tier, bath; assemble = Val(:none))
@@ -101,14 +101,20 @@ mem_full = Base.summarysize(L_full.data) / 1024^2
 mem_combine = Base.summarysize(L_combine.data) / 1024^2
 mem_none = Base.summarysize(L_none.data) / 1024^2
 
-println("Number of ADOs: $(L_full.N)")
-println("Memory usage:")
-println("  full    : $(round(mem_full, digits=3)) MB")
-println("  combine : $(round(mem_combine, digits=3)) MB")
-println("  none    : $(round(mem_none, digits=3)) MB")
-println("Memory reduction:")
-println("  combine vs full : $(round(100 * (1 - mem_combine/mem_full), digits=1))%")
-println("   none   vs full : $(round(100 * (1 - mem_none/mem_full), digits=1))%")
+print(
+    "System dimension (d)     : $(size(Hsys, 1))\n",
+    "Number of ADOs   (N_ADO) : $(L_full.N)\n",
+    "L_full matrix size       : $(size(L_full, 1)) × $(size(L_full, 2))\n",
+    "L_full non-zero elements : $(nnz(L_full.data.A))\n",
+    "\n",
+    "Memory usage:\n",
+    "  full    : $(round(mem_full, digits=3)) MB\n",
+    "  combine : $(round(mem_combine, digits=3)) MB\n",
+    "  none    : $(round(mem_none, digits=3)) MB\n",
+    "Memory reduction:\n",
+    "  combine vs full : $(round(100 * (1 - mem_combine/mem_full), digits=1))%\n",
+    "   none   vs full : $(round(100 * (1 - mem_none/mem_full), digits=1))%\n",
+)
 ```
 
 In this case, you might see memory reductions of 80-90% with lazy operators. The savings increase dramatically with higher tiers and more ADOs.

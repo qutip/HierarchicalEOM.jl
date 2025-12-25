@@ -387,7 +387,7 @@ function addTerminator(M::Mtype, Bath::Union{BosonBath,FermionBath}) where {Mtyp
 end
 
 raw"""
-A sparse COO representation of the positions and prefix values for a single superoperator in HEOM Liouville space.
+A sparse COO representation of the hierarchy (ADO) connectivity patterns and corresponding prefix values for a specific superoperator. The `data` field stores the corresponding superoperator matrix.
 """
 struct COOFormat
     I::Vector{Int}
