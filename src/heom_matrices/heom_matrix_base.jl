@@ -207,7 +207,7 @@ cache_operator_with_check(op::SciMLOperators.AbstractSciMLOperator, cachevec::Ab
     iscached(op) ? op : SciMLOperators.cache_operator(op, cachevec)
 
 SciMLOperators.cache_operator(M::AbstractHEOMLSMatrix, cachevec::AbstractVector) =
-    _reset_HEOMLS_data(M, cache_operator_with_check(M.data, cachevec))
+    _reset_HEOMLS_data(M, get_cached_HEOMLS_data(M, cachevec))
 
 apply_cache(op::SciMLOperators.TensorProductOperator, tensor_cache, cachevec) =
     TensorProductOperator(op.ops, tensor_cache)
@@ -218,7 +218,8 @@ apply_cache(op::SciMLOperators.AbstractSciMLOperator, tensor_cache, cachevec) = 
 function get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T<:SciMLOperators.AddedOperator}
     iscached(M) && return M
     ops = M.ops
-    first_tensor = ops[findfirst(op -> op isa TensorProductOperator, ops)]
+    idx = findfirst(op -> op isa TensorProductOperator, ops)
+    first_tensor = ops[idx]
     tensor_cache = cache_operator_with_check(first_tensor, cachevec).cache
 
     cached_op = sum(op -> apply_cache(op, tensor_cache, cachevec), ops)
