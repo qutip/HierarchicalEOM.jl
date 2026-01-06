@@ -203,8 +203,7 @@ function Base.:(-)(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
     return _reset_HEOMLS_data(M, M.data - Sup)
 end
 
-get_cached_HEOMLS_data(M::AbstractHEOMLSMatrix, cachevec::AbstractVector) =
-    get_cached_HEOMLS_data(M.data, cachevec)
+get_cached_HEOMLS_data(M::AbstractHEOMLSMatrix, cachevec::AbstractVector) = get_cached_HEOMLS_data(M.data, cachevec)
 
 function get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T<:SciMLOperators.AddedOperator}
     ops = M.ops
