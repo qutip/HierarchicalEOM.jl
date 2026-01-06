@@ -7,7 +7,8 @@ import HierarchicalEOM:
     _HandleTraceVectorType,
     _HandleSteadyStateMatrix,
     _SteadyStateConstraint,
-    _get_SciML_matrix_wrapper
+    _get_SciML_matrix_wrapper,
+    get_cached_HEOMLS_data
 import QuantumToolbox: _complex_float_type, _convert_eltype_wordsize, makeVal, getVal, get_typename_wrapper
 import CUDA
 import CUDA: cu, CuArray
