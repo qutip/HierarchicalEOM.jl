@@ -1,7 +1,6 @@
 export HEOMSuperOp
 export Propagator
 export addBosonDissipator, addFermionDissipator, addTerminator
-export get_cached_HEOMLS_data
 
 @doc raw"""
     struct HEOMSuperOp
