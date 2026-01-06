@@ -203,25 +203,35 @@ function Base.:(-)(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
     return _reset_HEOMLS_data(M, M.data - Sup)
 end
 
-get_cached_HEOMLS_data(M::AbstractHEOMLSMatrix, cachevec::AbstractVector) = get_cached_HEOMLS_data(M.data, cachevec)
+cache_operator_with_check(op::SciMLOperators.AbstractSciMLOperator, cachevec::AbstractVector) =
+    iscached(op) ? op : SciMLOperators.cache_operator(op, cachevec)
+
+SciMLOperators.cache_operator(M::AbstractHEOMLSMatrix, cachevec::AbstractVector) =
+    _reset_HEOMLS_data(M, cache_operator_with_check(M.data, cachevec))
+
+apply_cache(op::SciMLOperators.TensorProductOperator, tensor_cache, cachevec) =
+    TensorProductOperator(op.ops, tensor_cache)
+apply_cache(op::SciMLOperators.ScaledOperator, tensor_cache, cachevec) =
+    op.λ * apply_cache(op.L, tensor_cache, cachevec)
+apply_cache(op::SciMLOperators.AbstractSciMLOperator, tensor_cache, cachevec) = cache_operator_with_check(op, cachevec)
 
 function get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T<:SciMLOperators.AddedOperator}
+    iscached(M) && return M
     ops = M.ops
-    tensor_cache = nothing
+    first_tensor = ops[findfirst(op -> op isa TensorProductOperator, ops)]
+    tensor_cache = cache_operator_with_check(first_tensor, cachevec).cache
 
-    cached_op = sum(ops) do op
-        if op isa TensorProductOperator
-            tensor_cache === nothing && (tensor_cache = SciMLOperators.cache_operator(op, cachevec).cache)
-            TensorProductOperator(op.ops, tensor_cache)
-        else
-            cache_operator(op, cachevec)
-        end
-    end
+    cached_op = sum(op -> apply_cache(op, tensor_cache, cachevec), ops)
 
     return cached_op
 end
 
+get_cached_HEOMLS_data(M::AbstractHEOMLSMatrix, cachevec::AbstractVector) = get_cached_HEOMLS_data(M.data, cachevec)
+
 get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T<:SciMLOperators.MatrixOperator} = M
+
+get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T<:SciMLOperators.AbstractSciMLOperator} =
+    cache_operator_with_check(M, cachevec)
 
 @doc raw"""
     SciMLOperators.iscached(M::AbstractHEOMLSMatrix)
