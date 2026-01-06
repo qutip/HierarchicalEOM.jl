@@ -1,6 +1,7 @@
 export HEOMSuperOp
 export Propagator
 export addBosonDissipator, addFermionDissipator, addTerminator
+export get_cached_HEOMLS_data
 
 @doc raw"""
     struct HEOMSuperOp
@@ -202,10 +203,28 @@ function Base.:(-)(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
     return _reset_HEOMLS_data(M, M.data - Sup)
 end
 
-SciMLOperators.cache_operator(
+function get_cached_HEOMLS_data(
     M::AbstractHEOMLSMatrix{T},
     cachevec::AbstractVector,
-) where {T<:SciMLOperators.AddedOperator} = _reset_HEOMLS_data(M, cache_operator(M.data, cachevec))
+) where {T<:SciMLOperators.AddedOperator}
+    ops = M.data.ops
+    tensor_cache = nothing
+
+    cached_op = sum(ops) do op
+        if op isa TensorProductOperator
+            tensor_cache === nothing && (tensor_cache = SciMLOperators.cache_operator(op, cachevec).cache)
+            TensorProductOperator(op.ops, tensor_cache)
+        elseif op isa MatrixOperator
+            op
+        else
+            throw(ArgumentError("Unsupported Operator type in HEOMLS matrix data."))
+        end
+    end
+
+    return _reset_HEOMLS_data(M, cached_op)
+end
+
+get_cached_HEOMLS_data(M::AbstractHEOMLSMatrix{T}, cachevec::AbstractVector) where {T<:SciMLOperators.MatrixOperator} = M.data
 
 @doc raw"""
     SciMLOperators.iscached(M::AbstractHEOMLSMatrix)

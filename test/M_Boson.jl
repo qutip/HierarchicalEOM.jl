@@ -29,7 +29,7 @@
     L = M_Boson(Hsys, tier, Bbath; verbose = true) # also test verbosity
     L_combine = M_Boson(Hsys, tier, Bbath; verbose = false, assemble = Val(:combine))
     L_lazy = M_Boson(Hsys, tier, Bbath; verbose = false, assemble = Val(:none))
-    L_combine_cached = cache_operator(L_combine, similar(zeros(eltype(L_combine), size(L_combine, 1))))
+    L_combine_cached = get_cached_HEOMLS_data(L_combine, similar(zeros(eltype(L_combine), size(L_combine, 1))))
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (336, 336)
     @test L.N == 84
