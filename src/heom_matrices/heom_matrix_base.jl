@@ -213,10 +213,11 @@ function get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T<:SciMLO
         if op isa TensorProductOperator
             tensor_cache === nothing && (tensor_cache = SciMLOperators.cache_operator(op, cachevec).cache)
             TensorProductOperator(op.ops, tensor_cache)
-        elseif op isa MatrixOperator
-            op
+        # elseif op isa MatrixOperator
+        #     op
         else
-            throw(ArgumentError("Unsupported Operator type in HEOMLS matrix data."))
+            cache_operator(op, cachevec)
+        #     throw(ArgumentError("Unsupported Operator type in HEOMLS matrix data."))
         end
     end
 
