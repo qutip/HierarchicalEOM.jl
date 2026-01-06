@@ -203,10 +203,10 @@ function Base.:(-)(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
     return _reset_HEOMLS_data(M, M.data - Sup)
 end
 
-function get_cached_HEOMLS_data(
-    M::AbstractHEOMLSMatrix{T},
-    cachevec::AbstractVector,
-) where {T<:SciMLOperators.AddedOperator}
+get_cached_HEOMLS_data(M::AbstractHEOMLSMatrix, cachevec::AbstractVector) =
+    _reset_HEOMLS_data(M, get_cached_HEOMLS_data(M.data, cachevec))
+
+function get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T<:SciMLOperators.AddedOperator}
     ops = M.data.ops
     tensor_cache = nothing
 
@@ -221,10 +221,10 @@ function get_cached_HEOMLS_data(
         end
     end
 
-    return _reset_HEOMLS_data(M, cached_op)
+    return cached_op
 end
 
-get_cached_HEOMLS_data(M::AbstractHEOMLSMatrix{T}, cachevec::AbstractVector) where {T<:SciMLOperators.MatrixOperator} = M.data
+get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T<:SciMLOperators.MatrixOperator} = M.data
 
 @doc raw"""
     SciMLOperators.iscached(M::AbstractHEOMLSMatrix)

@@ -88,5 +88,8 @@ _HandleSteadyStateMatrix(
 # To avoid scalar indexing in potential concretization, make the constraint the same type sparse format as M.data
 # Do not specify the element type for the CuSparseMatrix... (No method)
 _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AddedOperator{T}}, b::CuArray{T}) where {T<:Number} =
-    get_cached_HEOMLS_data(M.data + _get_SciML_matrix_wrapper(M)(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1))), b)
+    get_cached_HEOMLS_data(
+        M.data + _get_SciML_matrix_wrapper(M)(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1))),
+        b,
+    )
 end
