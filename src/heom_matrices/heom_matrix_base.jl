@@ -212,9 +212,11 @@ apply_cache(op::SciMLOperators.ScaledOperator, tensor_cache, cachevec) =
 apply_cache(op::SciMLOperators.AbstractSciMLOperator, tensor_cache, cachevec) = cache_operator_with_check(op, cachevec)
 
 function get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T<:SciMLOperators.AddedOperator}
-    iscached(M) && return M
+    iscached(M) && (return M)
     ops = M.ops
     idx = findfirst(op -> op isa TensorProductOperator, ops)
+    isnothing(idx) && (return cache_operator_with_check(M, cachevec))
+
     first_tensor = ops[idx]
     tensor_cache = cache_operator_with_check(first_tensor, cachevec).cache
 
