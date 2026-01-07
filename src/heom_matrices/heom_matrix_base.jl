@@ -211,7 +211,7 @@ apply_cache(op::SciMLOperators.TensorProductOperator, tensor_cache, cachevec) =
     TensorProductOperator(op.ops, tensor_cache)
 # ScaledOperator need to be handled recursively
 apply_cache(op::SciMLOperators.ScaledOperator, tensor_cache, cachevec) =
-    ScaledOperator(op.λ * apply_cache(op.L, tensor_cache, cachevec))
+    ScaledOperator(op.λ, apply_cache(op.L, tensor_cache, cachevec))
 # fallback for other AbstractSciMLOperator types
 apply_cache(op::SciMLOperators.AbstractSciMLOperator, tensor_cache, cachevec) = cache_operator_with_check(op, cachevec)
 
