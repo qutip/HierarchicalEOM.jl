@@ -202,13 +202,17 @@ function Base.:(-)(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
     return _reset_HEOMLS_data(M, M.data - Sup)
 end
 
+# wrapping cache_operator for checking existing cache
 cache_operator_with_check(op::SciMLOperators.AbstractSciMLOperator, cachevec::AbstractVector) =
     iscached(op) ? op : SciMLOperators.cache_operator(op, cachevec)
 
+# TensorProductOperator are the only ones that need special handling
 apply_cache(op::SciMLOperators.TensorProductOperator, tensor_cache, cachevec) =
     TensorProductOperator(op.ops, tensor_cache)
+# ScaledOperator need to be handled recursively
 apply_cache(op::SciMLOperators.ScaledOperator, tensor_cache, cachevec) =
-    op.λ * apply_cache(op.L, tensor_cache, cachevec)
+    ScaledOperator(op.λ * apply_cache(op.L, tensor_cache, cachevec))
+# fallback for other AbstractSciMLOperator types
 apply_cache(op::SciMLOperators.AbstractSciMLOperator, tensor_cache, cachevec) = cache_operator_with_check(op, cachevec)
 
 function get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T<:SciMLOperators.AddedOperator}
