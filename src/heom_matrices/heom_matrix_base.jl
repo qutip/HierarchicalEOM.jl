@@ -205,9 +205,6 @@ end
 cache_operator_with_check(op::SciMLOperators.AbstractSciMLOperator, cachevec::AbstractVector) =
     iscached(op) ? op : SciMLOperators.cache_operator(op, cachevec)
 
-SciMLOperators.cache_operator(M::AbstractHEOMLSMatrix, cachevec::AbstractVector) =
-    _reset_HEOMLS_data(M, get_cached_HEOMLS_data(M, cachevec))
-
 apply_cache(op::SciMLOperators.TensorProductOperator, tensor_cache, cachevec) =
     TensorProductOperator(op.ops, tensor_cache)
 apply_cache(op::SciMLOperators.ScaledOperator, tensor_cache, cachevec) =
@@ -232,6 +229,9 @@ get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T<:SciMLOperators.
 
 get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T<:SciMLOperators.AbstractSciMLOperator} =
     cache_operator_with_check(M, cachevec)
+
+SciMLOperators.cache_operator(M::AbstractHEOMLSMatrix, cachevec::AbstractVector) =
+    _reset_HEOMLS_data(M, get_cached_HEOMLS_data(M, cachevec))
 
 @doc raw"""
     SciMLOperators.iscached(M::AbstractHEOMLSMatrix)
