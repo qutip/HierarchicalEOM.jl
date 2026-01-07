@@ -609,8 +609,12 @@ end
 
 function combine_HEOMLS_terms(op::AddedOperator)
     Tensor_ops = op.ops |> collect # [ A_i ⊗ B_i ]
+    Id_terms = popfirst!(Tensor_ops)  # von Neumann term
+    Id_terms += popfirst!(Tensor_ops) # sum γ term
+
     A_list = Vector{AbstractMatrix}(undef, length(Tensor_ops))
     B_list = Vector{AbstractMatrix}(undef, length(Tensor_ops))
+
     for (idx, t_op) in pairs(Tensor_ops)
         t_op isa TensorProductOperator || throw(ArgumentError("The HEOMLS term should be a TensorProductOperator."))
         A_list[idx] = t_op.ops[1].A
@@ -627,7 +631,7 @@ function combine_HEOMLS_terms(op::AddedOperator)
         end
     end
 
-    return sum(pairs(unique_B_ops)) do (j, Bj)
+    return Id_terms + sum(pairs(unique_B_ops)) do (j, Bj)
         Aj = sum(k -> A_list[k], index_groups[j])
         return TensorProductOperator(Aj, Bj)
     end
