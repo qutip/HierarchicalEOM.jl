@@ -75,7 +75,7 @@ jobs:
           sed -i "s/^version = \".*\"/version = \"${{ steps.calc_ver.outputs.new_version }}\"/" Project.toml
           
           # Commit and Push
-          git commit -am "Bump version to ${{ steps.calc_ver.outputs.new_version }}"
+          git commit -am "[no ci] Bump version to v${{ steps.calc_ver.outputs.new_version }}"
           git push origin $BRANCH_NAME
 
       - name: Create Pull Request
@@ -86,5 +86,5 @@ jobs:
           gh pr create \
             --base main \
             --head $BRANCH_NAME \
-            --title "Bump version to ${{ steps.calc_ver.outputs.new_version }}" \
-            --body "This PR bumps the package version to ${{ steps.calc_ver.outputs.new_version }}."
+            --title "Bump version to v${{ steps.calc_ver.outputs.new_version }}" \
+            --body "This PR bumps the package version to v${{ steps.calc_ver.outputs.new_version }}."
