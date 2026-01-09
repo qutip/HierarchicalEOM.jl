@@ -1,6 +1,6 @@
 name = "HierarchicalEOM"
 uuid = "a62dbcb7-80f5-4d31-9a88-8b19fd92b128"
-version = "2.12.1"
+version = "2.13.0"
 authors = ["Yi-Te Huang"]
 
 [deps]
