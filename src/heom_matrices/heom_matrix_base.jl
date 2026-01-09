@@ -202,10 +202,42 @@ function Base.:(-)(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
     return _reset_HEOMLS_data(M, M.data - Sup)
 end
 
-SciMLOperators.cache_operator(
-    M::AbstractHEOMLSMatrix{T},
-    cachevec::AbstractVector,
-) where {T<:SciMLOperators.AddedOperator} = _reset_HEOMLS_data(M, cache_operator(M.data, cachevec))
+# wrapping cache_operator for checking existing cache
+cache_operator_with_check(op::SciMLOperators.AbstractSciMLOperator, cachevec::AbstractVector) =
+    iscached(op) ? op : SciMLOperators.cache_operator(op, cachevec)
+
+# TensorProductOperator are the only ones that need special handling
+apply_cache(op::SciMLOperators.TensorProductOperator, tensor_cache, cachevec) =
+    TensorProductOperator(op.ops, tensor_cache)
+# ScaledOperator need to be handled recursively
+apply_cache(op::SciMLOperators.ScaledOperator, tensor_cache, cachevec) =
+    ScaledOperator(op.λ, apply_cache(op.L, tensor_cache, cachevec))
+# fallback for other AbstractSciMLOperator types
+apply_cache(op::SciMLOperators.AbstractSciMLOperator, tensor_cache, cachevec) = cache_operator_with_check(op, cachevec)
+
+function get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T<:SciMLOperators.AddedOperator}
+    iscached(M) && (return M)
+    ops = M.ops
+    idx = findfirst(op -> op isa TensorProductOperator, ops)
+    isnothing(idx) && (return cache_operator_with_check(M, cachevec))
+
+    first_tensor = ops[idx]
+    tensor_cache = cache_operator_with_check(first_tensor, cachevec).cache
+
+    cached_op = sum(op -> apply_cache(op, tensor_cache, cachevec), ops)
+
+    return cached_op
+end
+
+get_cached_HEOMLS_data(M::AbstractHEOMLSMatrix, cachevec::AbstractVector) = get_cached_HEOMLS_data(M.data, cachevec)
+
+get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T<:SciMLOperators.MatrixOperator} = M
+
+get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T<:SciMLOperators.AbstractSciMLOperator} =
+    cache_operator_with_check(M, cachevec)
+
+SciMLOperators.cache_operator(M::AbstractHEOMLSMatrix, cachevec::AbstractVector) =
+    _reset_HEOMLS_data(M, get_cached_HEOMLS_data(M, cachevec))
 
 @doc raw"""
     SciMLOperators.iscached(M::AbstractHEOMLSMatrix)
@@ -581,8 +613,12 @@ end
 
 function combine_HEOMLS_terms(op::AddedOperator)
     Tensor_ops = op.ops |> collect # [ A_i ⊗ B_i ]
+    Id_terms = popfirst!(Tensor_ops)  # von Neumann term
+    Id_terms += popfirst!(Tensor_ops) # sum γ term
+
     A_list = Vector{AbstractMatrix}(undef, length(Tensor_ops))
     B_list = Vector{AbstractMatrix}(undef, length(Tensor_ops))
+
     for (idx, t_op) in pairs(Tensor_ops)
         t_op isa TensorProductOperator || throw(ArgumentError("The HEOMLS term should be a TensorProductOperator."))
         A_list[idx] = t_op.ops[1].A
@@ -599,7 +635,7 @@ function combine_HEOMLS_terms(op::AddedOperator)
         end
     end
 
-    return sum(pairs(unique_B_ops)) do (j, Bj)
+    return Id_terms + sum(pairs(unique_B_ops)) do (j, Bj)
         Aj = sum(k -> A_list[k], index_groups[j])
         return TensorProductOperator(Aj, Bj)
     end

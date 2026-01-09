@@ -84,7 +84,7 @@ Calculate density of states for the fermionic system in frequency domain.
         A0 = M.data.A
         I_total = LinearAlgebra.I
     else
-        A0 = cache_operator(M.data, b_m)
+        A0 = get_cached_HEOMLS_data(M.data, b_m)
         I_total = IdentityOperator(size(M, 1))
     end
     i = convert(ElType, 1im)

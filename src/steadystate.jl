@@ -107,7 +107,7 @@ function QuantumToolbox.steadystate(
         haskey(kwargs2, :callback) ? merge(kwargs2, (callback = CallbackSet(kwargs2.callback, cb),)) :
         merge(kwargs2, (callback = cb,))
 
-    A = cache_operator(M.data, u0)
+    A = get_cached_HEOMLS_data(M.data, u0)
 
     # define ODE problem
     prob = ODEProblem{true,FullSpecialize}(A, u0, Tspan; kwargs3...)
