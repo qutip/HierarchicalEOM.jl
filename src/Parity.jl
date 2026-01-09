@@ -19,7 +19,7 @@ value(p::EvenParity) = 0
 
 Base.:(!)(p::OddParity) = EVEN
 Base.:(!)(p::EvenParity) = ODD
-Base.:(*)(p1::TP1, p2::TP2) where {TP1,TP2<:AbstractParity} = TP1 == TP2 ? EVEN : ODD
+Base.:(*)(p1::TP1, p2::TP2) where {TP1, TP2 <: AbstractParity} = TP1 == TP2 ? EVEN : ODD
 
 Base.show(io::IO, p::OddParity) = print(io, "odd-parity")
 

@@ -50,7 +50,7 @@ function pade_NmN(N; fermion::Bool)
     κ = []
     for j in 1:N
         term = prefactor
-        for k1 in 1:(N-1)
+        for k1 in 1:(N - 1)
             term *= (χ[k1]^2 - ζ[j]^2) / (ζ[k1]^2 - ζ[j]^2 + δ(j, k1))
         end
 
@@ -64,7 +64,7 @@ end
 
 function _fermi_pade(x, κ, ζ, N)
     f = 0.5
-    for l in 2:(N+1)
+    for l in 2:(N + 1)
         f -= 2 * κ[l] * x / (x^2 + ζ[l]^2)
     end
     return f

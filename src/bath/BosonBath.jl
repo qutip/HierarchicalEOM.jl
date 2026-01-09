@@ -16,7 +16,7 @@ end
 
 _check_bosonic_RWA_coupling_operator(op) = HandleMatrixType(op, "op (coupling operator)", type = Operator())
 
-function _combine_same_gamma(η::Vector{Ti}, γ::Vector{Tj}) where {Ti,Tj<:Number}
+function _combine_same_gamma(η::Vector{Ti}, γ::Vector{Tj}) where {Ti, Tj <: Number}
     if length(η) != length(γ)
         error("The length of \'η\' and \'γ\' should be the same.")
     end
@@ -94,12 +94,12 @@ where ``J(\omega)`` is the spectral density of the bath and ``n(\omega)`` repres
 - `combine::Bool` : Whether to combine the exponential-expansion terms with the same frequency. Defaults to `true`.
 """
 function BosonBath(
-    op::QuantumObject,
-    η::Vector{Ti},
-    γ::Vector{Tj},
-    δ::Number = 0.0;
-    combine::Bool = true,
-) where {Ti,Tj<:Number}
+        op::QuantumObject,
+        η::Vector{Ti},
+        γ::Vector{Tj},
+        δ::Number = 0.0;
+        combine::Bool = true,
+    ) where {Ti, Tj <: Number}
     _op = HandleMatrixType(op, "op (coupling operator)", type = Operator())
     if combine
         ηnew, γnew = _combine_same_gamma(η, γ)
@@ -140,14 +140,14 @@ where ``\delta`` is the Kronecker delta function and ``C^{u}(\tau)=\sum_i \eta_i
 - `combine::Bool` : Whether to combine the exponential-expansion terms with the same frequency. Defaults to `true`.
 """
 function BosonBath(
-    op::QuantumObject,
-    η_real::Vector{Ti},
-    γ_real::Vector{Tj},
-    η_imag::Vector{Tk},
-    γ_imag::Vector{Tl},
-    δ::Tm = 0.0;
-    combine::Bool = true,
-) where {Ti,Tj,Tk,Tl,Tm<:Number}
+        op::QuantumObject,
+        η_real::Vector{Ti},
+        γ_real::Vector{Tj},
+        η_imag::Vector{Tk},
+        γ_imag::Vector{Tl},
+        δ::Tm = 0.0;
+        combine::Bool = true,
+    ) where {Ti, Tj, Tk, Tl, Tm <: Number}
     _op = HandleMatrixType(op, "op (coupling operator)", type = Operator())
 
     if combine
@@ -216,7 +216,7 @@ A bosonic bath for the real part of bath correlation function ``C^{u=\textrm{R}}
     For a given `b::bosonReal`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.
 """
 struct bosonReal <: AbstractBosonBath
-    Comm::SparseMatrixCSC{ComplexF64,Int64}
+    Comm::SparseMatrixCSC{ComplexF64, Int64}
     dimensions::Dimensions
     η::AbstractVector
     γ::AbstractVector
@@ -232,7 +232,7 @@ Generate bosonic bath for the real part of bath correlation function ``C^{u=\tex
 - `η_real::Vector{Ti<:Number}` : the coefficients ``\eta_i`` in real part of bath correlation function ``C^{u=\textrm{R}}``.
 - `γ_real::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` in real part of bath correlation function ``C^{u=\textrm{R}}``.
 """
-function bosonReal(op::QuantumObject, η_real::Vector{Ti}, γ_real::Vector{Tj}) where {Ti,Tj<:Number}
+function bosonReal(op::QuantumObject, η_real::Vector{Ti}, γ_real::Vector{Tj}) where {Ti, Tj <: Number}
     _op = _check_bosonic_coupling_operator(op)
 
     # check if the length of coefficients are valid
@@ -259,8 +259,8 @@ A bosonic bath for the imaginary part of bath correlation function ``C^{u=\textr
     For a given `b::bosonImag`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.
 """
 struct bosonImag <: AbstractBosonBath
-    Comm::SparseMatrixCSC{ComplexF64,Int64}
-    anComm::SparseMatrixCSC{ComplexF64,Int64}
+    Comm::SparseMatrixCSC{ComplexF64, Int64}
+    anComm::SparseMatrixCSC{ComplexF64, Int64}
     dimensions::Dimensions
     η::AbstractVector
     γ::AbstractVector
@@ -276,7 +276,7 @@ Generate bosonic bath for the imaginary part of correlation function ``C^{u=\tex
 - `η_imag::Vector{Ti<:Number}` : the coefficients ``\eta_i`` in imaginary part of bath correlation functions ``C^{u=\textrm{I}}``.
 - `γ_imag::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` in imaginary part of bath correlation functions ``C^{u=\textrm{I}}``.
 """
-function bosonImag(op::QuantumObject, η_imag::Vector{Ti}, γ_imag::Vector{Tj}) where {Ti,Tj<:Number}
+function bosonImag(op::QuantumObject, η_imag::Vector{Ti}, γ_imag::Vector{Tj}) where {Ti, Tj <: Number}
     _op = _check_bosonic_coupling_operator(op)
 
     # check if the length of coefficients are valid
@@ -306,8 +306,8 @@ A bosonic bath which the real part and imaginary part of the bath correlation fu
     For a given `b::bosonRealImag`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.
 """
 struct bosonRealImag <: AbstractBosonBath
-    Comm::SparseMatrixCSC{ComplexF64,Int64}
-    anComm::SparseMatrixCSC{ComplexF64,Int64}
+    Comm::SparseMatrixCSC{ComplexF64, Int64}
+    anComm::SparseMatrixCSC{ComplexF64, Int64}
     dimensions::Dimensions
     η_real::AbstractVector
     η_imag::AbstractVector
@@ -326,11 +326,11 @@ Generate bosonic bath which the real part and imaginary part of the bath correla
 - `γ::Vector{Tk<:Number}` : the coefficients ``\gamma_i`` in bath correlation function ``\sum_i \eta_i \exp(-\gamma_i t)``.
 """
 function bosonRealImag(
-    op::QuantumObject,
-    η_real::Vector{Ti},
-    η_imag::Vector{Tj},
-    γ::Vector{Tk},
-) where {Ti,Tj,Tk<:Number}
+        op::QuantumObject,
+        η_real::Vector{Ti},
+        η_imag::Vector{Tj},
+        γ::Vector{Tk},
+    ) where {Ti, Tj, Tk <: Number}
     _op = _check_bosonic_coupling_operator(op)
 
     # check if the length of coefficients are valid
@@ -368,13 +368,13 @@ where ``\nu=+`` (``\nu=-``) represents absorption (emission) process, ``J(\omega
 - `δ::Number` : The approximation discrepancy (Defaults to `0.0`) which is used for adding the terminator to HEOMLS matrix (see function: addTerminator)
 """
 function BosonBathRWA(
-    op::QuantumObject,
-    η_absorb::Vector{Ti},
-    γ_absorb::Vector{Tj},
-    η_emit::Vector{Tk},
-    γ_emit::Vector{Tl},
-    δ::Tm = 0.0,
-) where {Ti,Tj,Tk,Tl,Tm<:Number}
+        op::QuantumObject,
+        η_absorb::Vector{Ti},
+        γ_absorb::Vector{Tj},
+        η_emit::Vector{Tk},
+        γ_emit::Vector{Tl},
+        δ::Tm = 0.0,
+    ) where {Ti, Tj, Tk, Tl, Tm <: Number}
     _check_gamma_absorb_and_emit(γ_absorb, γ_emit)
     _op = HandleMatrixType(op, "op (coupling operator)", type = Operator())
 
@@ -401,9 +401,9 @@ An bath object which describes the absorption process of the bosonic system by a
     For a given `b::bosonAbsorb`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.
 """
 struct bosonAbsorb <: AbstractBosonBath
-    spre::SparseMatrixCSC{ComplexF64,Int64}
-    spost::SparseMatrixCSC{ComplexF64,Int64}
-    CommD::SparseMatrixCSC{ComplexF64,Int64}
+    spre::SparseMatrixCSC{ComplexF64, Int64}
+    spost::SparseMatrixCSC{ComplexF64, Int64}
+    CommD::SparseMatrixCSC{ComplexF64, Int64}
     dimensions::Dimensions
     η::AbstractVector
     γ::AbstractVector
@@ -422,11 +422,11 @@ Generate bosonic bath which describes the absorption process of the bosonic syst
 - `η_emit::Vector{Tk<:Number}` : the coefficients ``\eta_i`` of emission bath correlation function ``C^{\nu=-}``.
 """
 function bosonAbsorb(
-    op::QuantumObject,
-    η_absorb::Vector{Ti},
-    γ_absorb::Vector{Tj},
-    η_emit::Vector{Tk},
-) where {Ti,Tj,Tk<:Number}
+        op::QuantumObject,
+        η_absorb::Vector{Ti},
+        γ_absorb::Vector{Tj},
+        η_emit::Vector{Tk},
+    ) where {Ti, Tj, Tk <: Number}
     _op = _check_bosonic_RWA_coupling_operator(op)
 
     # check if the length of coefficients are valid
@@ -464,9 +464,9 @@ An bath object which describes the emission process of the bosonic system by a c
     For a given `b::bosonEmit`, `b.dims` or `getproperty(b, :dims)` returns its `dimensions` in the type of integer-vector.
 """
 struct bosonEmit <: AbstractBosonBath
-    spre::SparseMatrixCSC{ComplexF64,Int64}
-    spost::SparseMatrixCSC{ComplexF64,Int64}
-    CommD::SparseMatrixCSC{ComplexF64,Int64}
+    spre::SparseMatrixCSC{ComplexF64, Int64}
+    spost::SparseMatrixCSC{ComplexF64, Int64}
+    CommD::SparseMatrixCSC{ComplexF64, Int64}
     dimensions::Dimensions
     η::AbstractVector
     γ::AbstractVector
@@ -485,11 +485,11 @@ Generate bosonic bath which describes the emission process of the bosonic system
 - `η_absorb::Vector{Ti<:Number}` : the coefficients ``\eta_i`` of absorption bath correlation function ``C^{\nu=+}``.
 """
 function bosonEmit(
-    op::QuantumObject,
-    η_emit::Vector{Ti},
-    γ_emit::Vector{Tj},
-    η_absorb::Vector{Tk},
-) where {Ti,Tj,Tk<:Number}
+        op::QuantumObject,
+        η_emit::Vector{Ti},
+        γ_emit::Vector{Tj},
+        η_absorb::Vector{Tk},
+    ) where {Ti, Tj, Tk <: Number}
     _op = _check_bosonic_RWA_coupling_operator(op)
 
     # check if the length of coefficients are valid
@@ -510,9 +510,9 @@ function bosonEmit(
 end
 
 function Base.getproperty(
-    b::BType,
-    key::Symbol,
-) where {BType<:Union{bosonReal,bosonImag,bosonRealImag,bosonAbsorb,bosonEmit}}
+        b::BType,
+        key::Symbol,
+    ) where {BType <: Union{bosonReal, bosonImag, bosonRealImag, bosonAbsorb, bosonEmit}}
     # a comment here to avoid bad render by JuliaFormatter
     if key === :dims
         return dimensions_to_dims(getfield(b, :dimensions))

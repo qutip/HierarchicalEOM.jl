@@ -54,7 +54,7 @@
     @test J_me[4, 1] ≈ 0.0044570891355200214
     @test J_me.data * 2 ≈ (J_me - (-1) * J_me).data
     @test J_me.data * 2 ≈
-          (HEOMSuperOp(√(2) * γ_eR * spre(d), ODD, M_me) * HEOMSuperOp(√(2) * γ_eR * spost(d'), ODD, M_me)).data
+        (HEOMSuperOp(√(2) * γ_eR * spre(d), ODD, M_me) * HEOMSuperOp(√(2) * γ_eR * spost(d'), ODD, M_me)).data
     @test show(devnull, MIME("text/plain"), J_me) === nothing
 
     # create HEOM Liouvuillian superoperator without quantum jump
@@ -67,9 +67,9 @@
     trJρ = expect(J_me, ados_s)
     WTD_me = expect(J_me, ados_list) ./ trJρ
     for i in 1:length(tlist)
-        @test isapprox(WTD_me[i], WTD_ans[i]; atol = 1e-8)
+        @test isapprox(WTD_me[i], WTD_ans[i]; atol = 1.0e-8)
     end
-    @test isapprox(expect(J_me, ados_list[end]) / trJρ, WTD_ans[end]; atol = 1e-8)
+    @test isapprox(expect(J_me, ados_list[end]) / trJρ, WTD_ans[end]; atol = 1.0e-8)
 
     ## Left lead with HEOM method and Right lead with local master equation
     bath = Fermion_Lorentz_Pade(d, Γ, μ, W, kT, N)
@@ -90,7 +90,7 @@
     trJρ1 = expect(J_heom, ados_s1)
     WTD_heom = expect(J_heom, ados_list1) ./ trJρ1
     for i in 1:length(tlist)
-        @test WTD_heom[i] ≈ WTD_ans[i] atol = 1e-5
+        @test WTD_heom[i] ≈ WTD_ans[i] atol = 1.0e-5
     end
 
     ## test for error

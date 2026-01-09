@@ -4,11 +4,11 @@ function _fermion_lorentz_matsubara_param(σ::Real, λ::Real, μ::Real, W::Real,
     β = 1.0 / kT
     ϵ = matsubara(N, fermion = true)
 
-    η = ComplexF64[0.5*λ*W*_fermi(1.0im*β*W)]
-    γ = ComplexF64[W-σ*1.0im*μ]
+    η = ComplexF64[0.5 * λ * W * _fermi(1.0im * β * W)]
+    γ = ComplexF64[W - σ * 1.0im * μ]
 
     if N > 0
-        for l in 2:(N+1)
+        for l in 2:(N + 1)
             append!(η, -1.0im * λ * kT * W^2 / (-(ϵ[l] * kT)^2 + W^2))
             append!(γ, ϵ[l] * kT - σ * 1.0im * μ)
         end
@@ -42,11 +42,11 @@ function _fermion_lorentz_pade_param(ν::Real, λ::Real, μ::Real, W::Real, kT::
     β = 1.0 / kT
     κ, ζ = pade_NmN(N, fermion = true)
 
-    η = ComplexF64[0.5*λ*W*_fermi_pade(1.0im*β*W, κ, ζ, N)]
-    γ = ComplexF64[W-ν*1.0im*μ]
+    η = ComplexF64[0.5 * λ * W * _fermi_pade(1.0im * β * W, κ, ζ, N)]
+    γ = ComplexF64[W - ν * 1.0im * μ]
 
     if N > 0
-        for l in 2:(N+1)
+        for l in 2:(N + 1)
             append!(η, -1.0im * κ[l] * λ * kT * W^2 / (-(ζ[l] * kT)^2 + W^2))
             append!(γ, ζ[l] * kT - ν * 1.0im * μ)
         end

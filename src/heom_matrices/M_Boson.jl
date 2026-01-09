@@ -17,7 +17,7 @@ HEOM Liouvillian superoperator matrix for bosonic bath
 !!! note "`dims` property"
     For a given `M::M_Boson`, `M.dims` or `getproperty(M, :dims)` returns its `dimensions` in the type of integer-vector.
 """
-struct M_Boson{T<:AbstractSciMLOperator} <: AbstractHEOMLSMatrix{T}
+struct M_Boson{T <: AbstractSciMLOperator} <: AbstractHEOMLSMatrix{T}
     data::T
     tier::Int
     dimensions::Dimensions
@@ -29,14 +29,14 @@ struct M_Boson{T<:AbstractSciMLOperator} <: AbstractHEOMLSMatrix{T}
 end
 
 function M_Boson(
-    Hsys::QuantumObject,
-    tier::Int,
-    Bath::BosonBath,
-    parity::AbstractParity = EVEN;
-    threshold::Real = 0.0,
-    assemble::Union{Val,Symbol} = Val(:full),
-    verbose::Bool = true,
-)
+        Hsys::QuantumObject,
+        tier::Int,
+        Bath::BosonBath,
+        parity::AbstractParity = EVEN;
+        threshold::Real = 0.0,
+        assemble::Union{Val, Symbol} = Val(:full),
+        verbose::Bool = true,
+    )
     return M_Boson(Hsys, tier, [Bath], parity; threshold, assemble, verbose)
 end
 
@@ -58,14 +58,14 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 [1] [Phys. Rev. B 88, 235426 (2013)](https://doi.org/10.1103/PhysRevB.88.235426)
 """
 @noinline function M_Boson(
-    Hsys::QuantumObject,
-    tier::Int,
-    Bath::Vector{BosonBath},
-    parity::AbstractParity = EVEN;
-    threshold::Real = 0.0,
-    assemble::Union{Val,Symbol} = Val(:full),
-    verbose::Bool = true,
-)
+        Hsys::QuantumObject,
+        tier::Int,
+        Bath::Vector{BosonBath},
+        parity::AbstractParity = EVEN;
+        threshold::Real = 0.0,
+        assemble::Union{Val, Symbol} = Val(:full),
+        verbose::Bool = true,
+    )
     _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)") # Checking input type first
 
     assemble_method = makeVal(assemble)

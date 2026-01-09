@@ -22,7 +22,7 @@
 
     Δt = 10
     steps = 10
-    tlist = 0:Δt:(Δt*steps)
+    tlist = 0:Δt:(Δt * steps)
     # using the method based on propagator
     ados_list = heomsolve(L, ψ0, Δt, steps; progress_bar = Val(true)).ados # also test progress bar
     sol_p = heomsolve(L, ψ0, Δt, steps; e_ops = e_ops, progress_bar = Val(false))
@@ -80,10 +80,10 @@
     @test length(sol_e2.times) == length(tlist)
     @test length(sol_e2.times_ados) == 1
     @test all(expvals .≈ expvals_p .≈ expvals_e)
-    @test all([ρ_list_p[i] ≈ ρ_list_e[i] for i in 1:(steps+1)])
-    @test isapprox(ρs, ρ_list_p[end]; atol = 1e-4)
-    @test isapprox(ρs, ρ_list_e[end]; atol = 1e-4)
-    @test isapprox(ρs, getRho(sol_p.ados[1]); atol = 1e-4)
+    @test all([ρ_list_p[i] ≈ ρ_list_e[i] for i in 1:(steps + 1)])
+    @test isapprox(ρs, ρ_list_p[end]; atol = 1.0e-4)
+    @test isapprox(ρs, ρ_list_e[end]; atol = 1.0e-4)
+    @test isapprox(ρs, getRho(sol_p.ados[1]); atol = 1.0e-4)
 
     # time-dependent Hamiltonian
     σz = sigmaz()
@@ -119,8 +119,8 @@
         params = p_fast,
         e_ops = [P01],
         saveat = tlist,
-        reltol = 1e-12,
-        abstol = 1e-12,
+        reltol = 1.0e-12,
+        abstol = 1.0e-12,
         progress_bar = Val(false),
     )
     fastDD_sol = heomsolve(fastDD_prob)
@@ -188,8 +188,8 @@
         params = p_slow,
         e_ops = [P01],
         saveat = tlist,
-        reltol = 1e-12,
-        abstol = 1e-12,
+        reltol = 1.0e-12,
+        abstol = 1.0e-12,
         progress_bar = Val(false),
     )
     slowDD_sol_lazy = heomsolve(
@@ -200,8 +200,8 @@
         params = p_slow,
         e_ops = [P01],
         saveat = tlist,
-        reltol = 1e-12,
-        abstol = 1e-12,
+        reltol = 1.0e-12,
+        abstol = 1.0e-12,
         progress_bar = Val(false),
     )
     slowDD_ados = slowDD_sol.ados
@@ -296,8 +296,8 @@
         H_t = Ht2,
         params = (amp_list, delay_list, integral_list),
         e_ops = [P01],
-        reltol = 1e-12,
-        abstol = 1e-12,
+        reltol = 1.0e-12,
+        abstol = 1.0e-12,
         progress_bar = Val(true),
     ) # also test progress_bar
     mapDD_sol_lazy = heomsolve_map(
@@ -307,8 +307,8 @@
         H_t = Ht2,
         params = (amp_list, delay_list, integral_list),
         e_ops = [P01],
-        reltol = 1e-12,
-        abstol = 1e-12,
+        reltol = 1.0e-12,
+        abstol = 1.0e-12,
         progress_bar = Val(false),
     )
 

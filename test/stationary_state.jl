@@ -23,14 +23,14 @@
     ados_lazy = steadystate(L_lazy, ψ0; verbose = false)
     ρs = getRho(ados)
     O = qeye(2) + 0.5 * sigmax()
-    @test isapprox(ados.data, ados_lazy.data, atol = 1e-6)
+    @test isapprox(ados.data, ados_lazy.data, atol = 1.0e-6)
     @test expect(O, ados) ≈ real(tr(O * ρs))
     @test expect(O, ados, take_real = false) ≈ tr(O * ρs)
 
     ρ1 = getRho(steadystate(L; verbose = true)) # also test verbose
     ρ1_lazy = getRho(steadystate(L_lazy; verbose = false))
-    @test isapprox(ρ1, ρs, atol = 1e-6)
-    @test isapprox(ρ1_lazy, ρs, atol = 1e-6)
+    @test isapprox(ρ1, ρs, atol = 1.0e-6)
+    @test isapprox(ρ1_lazy, ρs, atol = 1.0e-6)
 
     mat = Qobj(zeros(ComplexF64, 2, 2))
     mat2 = Qobj(zeros(ComplexF64, 3, 3))

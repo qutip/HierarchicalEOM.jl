@@ -30,7 +30,7 @@ end
 ```
 """
 struct ADOs
-    data::SparseVector{ComplexF64,Int64}
+    data::SparseVector{ComplexF64, Int64}
     dimensions::Dimensions
     N::Int
     parity::AbstractParity
@@ -102,7 +102,7 @@ function Base.getindex(A::ADOs, i::Int)
     D = prod(A.dimensions)
     sup_dim = D^2
     back = sup_dim * i
-    return QuantumObject(reshape(A.data[(back-sup_dim+1):back], D, D), Operator(), A.dimensions)
+    return QuantumObject(reshape(A.data[(back - sup_dim + 1):back], D, D), Operator(), A.dimensions)
 end
 
 function Base.getindex(A::ADOs, r::UnitRange{Int})
@@ -114,7 +114,7 @@ function Base.getindex(A::ADOs, r::UnitRange{Int})
     sup_dim = D^2
     for i in r
         back = sup_dim * i
-        push!(result, QuantumObject(reshape(A.data[(back-sup_dim+1):back], D, D), Operator(), A.dimensions))
+        push!(result, QuantumObject(reshape(A.data[(back - sup_dim + 1):back], D, D), Operator(), A.dimensions))
     end
     return result
 end

@@ -18,14 +18,14 @@ A structure storing the results and some information from solving time evolution
 - `reltol::Real`: The relative tolerance which is used during the solving process.
 """
 struct TimeEvolutionHEOMSol{
-    TT1<:AbstractVector{<:Real},
-    TT2<:AbstractVector{<:Real},
-    TS<:Vector{ADOs},
-    TE<:Union{Nothing,AbstractMatrix},
-    RETT<:Union{Nothing,Enum},
-    AlgT<:Union{Nothing,AbstractODEAlgorithm},
-    TolT<:Union{Nothing,Real},
-}
+        TT1 <: AbstractVector{<:Real},
+        TT2 <: AbstractVector{<:Real},
+        TS <: Vector{ADOs},
+        TE <: Union{Nothing, AbstractMatrix},
+        RETT <: Union{Nothing, Enum},
+        AlgT <: Union{Nothing, AbstractODEAlgorithm},
+        TolT <: Union{Nothing, Real},
+    }
     Btier::Int
     Ftier::Int
     times::TT1
@@ -106,16 +106,16 @@ Generate the ODEProblem for the time evolution of auxiliary density operators.
 - `prob`: The `TimeEvolutionProblem` containing the `ODEProblem` for the time evolution of auxiliary density operators.
 """
 function HEOMsolveProblem(
-    M::AbstractHEOMLSMatrix,
-    ρ0::T_state,
-    tlist::AbstractVector;
-    e_ops::Union{Nothing,AbstractVector,Tuple} = nothing,
-    H_t::Union{Nothing,QuantumObjectEvolution} = nothing,
-    params = NullParameters(),
-    progress_bar::Union{Val,Bool} = Val(true),
-    inplace::Union{Val,Bool} = Val(true),
-    kwargs...,
-) where {T_state<:Union{QuantumObject,ADOs}}
+        M::AbstractHEOMLSMatrix,
+        ρ0::T_state,
+        tlist::AbstractVector;
+        e_ops::Union{Nothing, AbstractVector, Tuple} = nothing,
+        H_t::Union{Nothing, QuantumObjectEvolution} = nothing,
+        params = NullParameters(),
+        progress_bar::Union{Val, Bool} = Val(true),
+        inplace::Union{Val, Bool} = Val(true),
+        kwargs...,
+    ) where {T_state <: Union{QuantumObject, ADOs}}
     haskey(kwargs, :save_idxs) &&
         throw(ArgumentError("The keyword argument \"save_idxs\" is not supported in HierarchicalEOM."))
 
@@ -130,7 +130,7 @@ function HEOMsolveProblem(
     kwargs2 = _merge_saveat(tlist, e_ops, DEFAULT_ODE_SOLVER_OPTIONS; kwargs...)
     kwargs3 = _merge_tstops(kwargs2, isconstant(L), tlist)
     kwargs4 = _generate_heom_kwargs(e_ops, makeVal(progress_bar), tlist, kwargs3, SaveFuncHEOMSolve, M)
-    prob = ODEProblem{getVal(inplace),FullSpecialize}(L, u0, tspan, params; kwargs4...)
+    prob = ODEProblem{getVal(inplace), FullSpecialize}(L, u0, tspan, params; kwargs4...)
 
     return TimeEvolutionProblem(prob, tlist, ADOsType(), M.dimensions, (M = M,))
 end
@@ -168,17 +168,17 @@ Solve the time evolution for auxiliary density operators based on ordinary diffe
     `heomsolve` is a synonym of `HEOMsolve`.
 """
 function HEOMsolve(
-    M::AbstractHEOMLSMatrix,
-    ρ0::T_state,
-    tlist::AbstractVector;
-    e_ops::Union{Nothing,AbstractVector} = nothing,
-    alg::AbstractODEAlgorithm = DP5(),
-    H_t::Union{Nothing,QuantumObjectEvolution} = nothing,
-    params = NullParameters(),
-    progress_bar::Union{Val,Bool} = Val(true),
-    inplace::Union{Val,Bool} = Val(true),
-    kwargs...,
-) where {T_state<:Union{QuantumObject,ADOs}}
+        M::AbstractHEOMLSMatrix,
+        ρ0::T_state,
+        tlist::AbstractVector;
+        e_ops::Union{Nothing, AbstractVector} = nothing,
+        alg::AbstractODEAlgorithm = DP5(),
+        H_t::Union{Nothing, QuantumObjectEvolution} = nothing,
+        params = NullParameters(),
+        progress_bar::Union{Val, Bool} = Val(true),
+        inplace::Union{Val, Bool} = Val(true),
+        kwargs...,
+    ) where {T_state <: Union{QuantumObject, ADOs}}
     haskey(kwargs, :solver) && error("The keyword argument `solver` for HEOMsolve is deprecated, use `alg` instead.")
     haskey(kwargs, :verbose) &&
         error("The keyword argument `verbose` for HEOMsolve is deprecated, use `progress_bar` instead.")
@@ -244,7 +244,7 @@ function _generate_Eops(M::AbstractHEOMLSMatrix, e_ops)
     return tr_e_ops
 end
 
-struct SaveFuncHEOMSolve{TE,PT<:Union{Nothing,Progress},IT,TEXPV<:Union{Nothing,AbstractMatrix}} <: AbstractSaveFunc
+struct SaveFuncHEOMSolve{TE, PT <: Union{Nothing, Progress}, IT, TEXPV <: Union{Nothing, AbstractMatrix}} <: AbstractSaveFunc
     tr_e_ops::TE
     progr::PT
     iter::IT
@@ -262,13 +262,13 @@ function _save_func_heomsolve(u, integrator, tr_e_ops, progr, iter, expvals)
 end
 
 function _generate_heom_kwargs(
-    e_ops,
-    progress_bar,
-    tlist,
-    kwargs,
-    method::Type{SaveFuncHEOMSolve},
-    M::AbstractHEOMLSMatrix,
-)
+        e_ops,
+        progress_bar,
+        tlist,
+        kwargs,
+        method::Type{SaveFuncHEOMSolve},
+        M::AbstractHEOMLSMatrix,
+    )
     tr_e_ops = e_ops isa Nothing ? nothing : _generate_Eops(M, e_ops)
 
     progr =
@@ -344,17 +344,17 @@ This function computes the time evolution for all combinations (Cartesian produc
     `heomsolve_map` is a synonym of `HEOMsolve_map`.
 """
 function HEOMsolve_map(
-    M::AbstractHEOMLSMatrix,
-    ρ0::AbstractVector{<:T_state},
-    tlist::AbstractVector;
-    e_ops::Union{Nothing,AbstractVector} = nothing,
-    alg::AbstractODEAlgorithm = DP5(),
-    ensemblealg::EnsembleAlgorithm = EnsembleThreads(),
-    H_t::Union{Nothing,QuantumObjectEvolution} = nothing,
-    params::Union{NullParameters,Tuple} = NullParameters(),
-    progress_bar::Union{Val,Bool} = Val(true),
-    kwargs...,
-) where {T_state<:Union{QuantumObject,ADOs}}
+        M::AbstractHEOMLSMatrix,
+        ρ0::AbstractVector{<:T_state},
+        tlist::AbstractVector;
+        e_ops::Union{Nothing, AbstractVector} = nothing,
+        alg::AbstractODEAlgorithm = DP5(),
+        ensemblealg::EnsembleAlgorithm = EnsembleThreads(),
+        H_t::Union{Nothing, QuantumObjectEvolution} = nothing,
+        params::Union{NullParameters, Tuple} = NullParameters(),
+        progress_bar::Union{Val, Bool} = Val(true),
+        kwargs...,
+    ) where {T_state <: Union{QuantumObject, ADOs}}
 
     # mapping initial states and parameters
     ados_iter = map(ρ -> _gen_ados_ode_vector(ρ, M), ρ0)
@@ -383,7 +383,7 @@ HEOMsolve_map(
     ρ0::T_state,
     tlist::AbstractVector;
     kwargs...,
-) where {T_state<:Union{QuantumObject,ADOs}} = HEOMsolve_map(M, [ρ0], tlist; kwargs...)
+) where {T_state <: Union{QuantumObject, ADOs}} = HEOMsolve_map(M, [ρ0], tlist; kwargs...)
 
 # this method is for advanced usage
 # User can define their own iterator structure, prob_func and output_func
@@ -392,14 +392,14 @@ HEOMsolve_map(
 #
 # Return: An array of TimeEvolutionSol objects with the size same as the given iter.
 function HEOMsolve_map(
-    prob::TimeEvolutionProblem{<:QuantumObjectType,<:AbstractDimensions,<:ODEProblem},
-    iter::AbstractArray,
-    alg::AbstractODEAlgorithm = DP5(),
-    ensemblealg::EnsembleAlgorithm = EnsembleThreads();
-    prob_func::Union{Function,Nothing} = nothing,
-    output_func::Union{Tuple,Nothing} = nothing,
-    progress_bar::Union{Val,Bool} = Val(true),
-)
+        prob::TimeEvolutionProblem{<:QuantumObjectType, <:AbstractDimensions, <:ODEProblem},
+        iter::AbstractArray,
+        alg::AbstractODEAlgorithm = DP5(),
+        ensemblealg::EnsembleAlgorithm = EnsembleThreads();
+        prob_func::Union{Function, Nothing} = nothing,
+        output_func::Union{Tuple, Nothing} = nothing,
+        progress_bar::Union{Val, Bool} = Val(true),
+    )
     # generate ensemble problem
     ntraj = length(iter)
     _prob_func = isnothing(prob_func) ? (prob, i, repeat) -> _se_me_map_prob_func(prob, i, repeat, iter) : prob_func

@@ -33,17 +33,17 @@ end
 ```
 """
 mutable struct Nvec
-    data::SparseVector{Int,Int}
+    data::SparseVector{Int, Int}
     level::Int
 end
 
 Nvec(V::Vector{Int}) = Nvec(sparsevec(V), sum(V))
-Nvec(V::SparseVector{Int,Int}) = Nvec(copy(V), sum(V))
+Nvec(V::SparseVector{Int, Int}) = Nvec(copy(V), sum(V))
 
 Base.length(nvec::Nvec) = length(nvec.data)
 Base.lastindex(nvec::Nvec) = length(nvec)
 
-Base.getindex(nvec::Nvec, i::T) where {T<:Any} = nvec.data[i]
+Base.getindex(nvec::Nvec, i::T) where {T <: Any} = nvec.data[i]
 
 Base.keys(nvec::Nvec) = keys(nvec.data)
 
