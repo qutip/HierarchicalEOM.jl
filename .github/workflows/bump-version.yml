@@ -49,9 +49,14 @@ jobs:
             else
                 VersionNumber(v.major, v.minor, v.patch + 1)
             end
+
+            # --- PART 2: Output version number to GitHub Actions variables ---
             println("Bump version from v$v to v$new_v")
-            
-            # --- PART 2: Update Project.toml (using Regex to preserve formatting) ---
+            open(ENV["GITHUB_OUTPUT"], "a") do io
+              println(io, "new_version=$new_v")
+            end
+
+            # --- PART 3: Update Project.toml (using Regex to preserve formatting) ---
             project_content = read(project_file, String)
             new_project_content = replace(project_content, r"version = \".*\"" => "version = \"$new_v\"")
             write(project_file, new_project_content)
