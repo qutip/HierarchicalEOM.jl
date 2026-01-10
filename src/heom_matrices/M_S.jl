@@ -20,7 +20,7 @@ where ``[\cdot, \cdot]_-`` stands for commutator.
 !!! note "`dims` property"
     For a given `M::M_S`, `M.dims` or `getproperty(M, :dims)` returns its `dimensions` in the type of integer-vector.
 """
-struct M_S{T<:AbstractSciMLOperator} <: AbstractHEOMLSMatrix{T}
+struct M_S{T <: AbstractSciMLOperator} <: AbstractHEOMLSMatrix{T}
     data::T
     tier::Int
     dimensions::Dimensions

@@ -9,12 +9,12 @@ This function is equivalent to:
 """
 PowerSpectrum(
     M::AbstractHEOMLSMatrix,
-    ρ::Union{QuantumObject,ADOs},
+    ρ::Union{QuantumObject, ADOs},
     Q_op::QuantumObject,
     ωlist::AbstractVector,
     reverse::Bool = false;
-    alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14),
-    progress_bar::Union{Val,Bool} = Val(true),
+    alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1.0e-12, atol = 1.0e-14),
+    progress_bar::Union{Val, Bool} = Val(true),
     filename::String = "",
     kwargs...,
 ) = PowerSpectrum(
@@ -66,17 +66,17 @@ remember to set the parameters:
 - `spec::AbstractVector` : the spectrum list corresponds to the specified `ωlist`
 """
 @noinline function PowerSpectrum(
-    M::AbstractHEOMLSMatrix,
-    ρ::Union{QuantumObject,ADOs},
-    P_op,
-    Q_op,
-    ωlist::AbstractVector,
-    reverse::Bool = false;
-    alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14),
-    progress_bar::Union{Val,Bool} = Val(true),
-    filename::String = "",
-    kwargs...,
-)
+        M::AbstractHEOMLSMatrix,
+        ρ::Union{QuantumObject, ADOs},
+        P_op,
+        Q_op,
+        ωlist::AbstractVector,
+        reverse::Bool = false;
+        alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1.0e-12, atol = 1.0e-14),
+        progress_bar::Union{Val, Bool} = Val(true),
+        filename::String = "",
+        kwargs...,
+    )
     isconstant(M) || throw(ArgumentError("The HEOMLS matrix M must be time-independent to calculate PowerSpectrum."))
     haskey(kwargs, :solver) &&
         error("The keyword argument `solver` for PowerSpectrum is deprecated, use `alg` instead.")

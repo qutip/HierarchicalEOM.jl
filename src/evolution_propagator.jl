@@ -26,15 +26,15 @@ Solve the time evolution for auxiliary density operators based on propagator (ge
     `heomsolve` is a synonym of `HEOMsolve`.
 """
 function HEOMsolve(
-    M::AbstractHEOMLSMatrix,
-    ρ0::T_state,
-    Δt::Real,
-    steps::Int;
-    e_ops::Union{Nothing,AbstractVector} = nothing,
-    threshold = 1.0e-6,
-    nonzero_tol = 1.0e-14,
-    progress_bar::Union{Val,Bool} = Val(true),
-) where {T_state<:Union{QuantumObject,ADOs}}
+        M::AbstractHEOMLSMatrix,
+        ρ0::T_state,
+        Δt::Real,
+        steps::Int;
+        e_ops::Union{Nothing, AbstractVector} = nothing,
+        threshold = 1.0e-6,
+        nonzero_tol = 1.0e-14,
+        progress_bar::Union{Val, Bool} = Val(true),
+    ) where {T_state <: Union{QuantumObject, ADOs}}
 
     # handle initial state
     ados = (T_state <: QuantumObject) ? ADOs(ρ0, M.N, M.parity) : ρ0
@@ -51,7 +51,7 @@ function HEOMsolve(
         is_empty_e_ops = isempty(e_ops)
     end
 
-    t_end = Δt*steps
+    t_end = Δt * steps
     if is_empty_e_ops
         times = times_ados = collect(0:Δt:t_end)
         ADOs_list = Vector{ADOs}(undef, steps + 1)
@@ -77,10 +77,10 @@ function HEOMsolve(
         # calculate expectation values
         if !is_empty_e_ops
             _expect = op -> dot(op, ρvec)
-            @. expvals[:, n+1] = _expect(tr_e_ops)
+            @. expvals[:, n + 1] = _expect(tr_e_ops)
             n == steps ? ADOs_list[1] = ADOs(ρvec, M.dimensions, M.N, M.parity) : nothing
         else
-            ADOs_list[n+1] = ADOs(ρvec, M.dimensions, M.N, M.parity)
+            ADOs_list[n + 1] = ADOs(ρvec, M.dimensions, M.N, M.parity)
         end
 
         ρvec = exp_Mt * ρvec

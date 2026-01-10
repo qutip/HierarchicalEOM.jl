@@ -3,8 +3,8 @@
 
     Hsys = a' * a
 
-    λ = 1e-4
-    W = 2e-1
+    λ = 1.0e-4
+    W = 2.0e-1
     kT = 0.5
     N = 5
     bath = Boson_DrudeLorentz_Matsubara((a' + a), λ, W, kT, N)
@@ -12,9 +12,9 @@
     tier = 3
     L = M_Boson(Hsys, tier, bath; verbose = false)
     L_lazy = M_Boson(Hsys, tier, bath; verbose = false, assemble = Val(:combine))
-    L = addBosonDissipator(L, 1e-3 * a')
+    L = addBosonDissipator(L, 1.0e-3 * a')
     L = addTerminator(L, bath)
-    L_lazy = addBosonDissipator(L_lazy, 1e-3 * a')
+    L_lazy = addBosonDissipator(L_lazy, 1.0e-3 * a')
     L_lazy = addTerminator(L_lazy, bath)
 
     ados_s = steadystate(L; verbose = false)
@@ -49,8 +49,8 @@
         0.0004924518692553012,
     ]
     for i in 1:length(ωlist)
-        @test psd1[i] ≈ psd2[i] atol = 1e-6
-        @test psd_lazy[i] ≈ psd2[i] atol = 1e-6
+        @test psd1[i] ≈ psd2[i] atol = 1.0e-6
+        @test psd_lazy[i] ≈ psd2[i] atol = 1.0e-6
     end
     @test length(readlines("PSD.txt")) == length(ωlist)
 

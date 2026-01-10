@@ -15,9 +15,9 @@ An object which contains all dictionaries for pure (bosonic or fermionic) bath-A
 """
 struct HierarchyDict <: AbstractHierarchyDict
     idx2nvec::Vector{Nvec}
-    nvec2idx::Dict{Nvec,Int}
-    lvl2idx::Dict{Int,Vector{Int}}
-    bathPtr::Vector{Tuple{Int,Int}}
+    nvec2idx::Dict{Nvec, Int}
+    lvl2idx::Dict{Int, Vector{Int}}
+    bathPtr::Vector{Tuple{Int, Int}}
 end
 
 @doc raw"""
@@ -33,12 +33,12 @@ An object which contains all dictionaries for mixed (bosonic and fermionic) bath
 - `fermionPtr` : Records the tuple ``(\alpha, k)`` for each position in `Nvec_f`, where ``\alpha`` and ``k`` represents the ``k``-th exponential-expansion term of the ``\alpha``-th fermionic bath.
 """
 struct MixHierarchyDict <: AbstractHierarchyDict
-    idx2nvec::Vector{Tuple{Nvec,Nvec}}
-    nvec2idx::Dict{Tuple{Nvec,Nvec},Int}
-    Blvl2idx::Dict{Int,Vector{Int}}
-    Flvl2idx::Dict{Int,Vector{Int}}
-    bosonPtr::Vector{Tuple{Int,Int}}
-    fermionPtr::Vector{Tuple{Int,Int}}
+    idx2nvec::Vector{Tuple{Nvec, Nvec}}
+    nvec2idx::Dict{Tuple{Nvec, Nvec}, Int}
+    Blvl2idx::Dict{Int, Vector{Int}}
+    Flvl2idx::Dict{Int, Vector{Int}}
+    bosonPtr::Vector{Tuple{Int, Int}}
+    fermionPtr::Vector{Tuple{Int, Int}}
 end
 
 # generate index to n vector
@@ -62,17 +62,18 @@ function _Idx2Nvec(n_max::Vector{Int}, N_exc::Int)
                 return result
             end
 
-            nexc -= nvec[idx+1] - 1
-            nvec[idx+1] = 0
+            nexc -= nvec[idx + 1] - 1
+            nvec[idx + 1] = 0
             nvec[idx] += 1
             if nvec[idx] < n_max[idx]
                 push!(result, Nvec(nvec))
             end
         end
     end
+    return
 end
 
-function _Importance(B::Vector{T}, bathPtr::AbstractVector, nvec::Nvec) where {T<:AbstractBath}
+function _Importance(B::Vector{T}, bathPtr::AbstractVector, nvec::Nvec) where {T <: AbstractBath}
     sum_γ = 0.0
     value = 1.0 + 0.0im
 
@@ -100,11 +101,11 @@ _gen_n_max(::Vector{AbstractFermionBath}, tier::Int, Nterm::Int) = (tier == 0) ?
 
 # for pure hierarchy dictionary
 @noinline function genBathHierarchy(
-    B::Vector{T},
-    tier::Int,
-    dimensions::Dimensions;
-    threshold::Real = 0.0,
-) where {T<:AbstractBath}
+        B::Vector{T},
+        tier::Int,
+        dimensions::Dimensions;
+        threshold::Real = 0.0,
+    ) where {T <: AbstractBath}
     Nterm = 0
     bathPtr = Tuple[]
 
@@ -164,8 +165,8 @@ _gen_n_max(::Vector{AbstractFermionBath}, tier::Int, Nterm::Int) = (tier == 0) ?
     end
 
     # create lvl2idx and nvec2idx
-    lvl2idx = Dict{Int,Vector{Int}}()
-    nvec2idx = Dict{Nvec,Int}()
+    lvl2idx = Dict{Int, Vector{Int}}()
+    nvec2idx = Dict{Nvec, Int}()
     for level in 0:tier
         lvl2idx[level] = []
     end
@@ -180,13 +181,13 @@ end
 
 # for mixed hierarchy dictionary
 @noinline function genBathHierarchy(
-    bB::Vector{BosonBath},
-    fB::Vector{FermionBath},
-    tier_b::Int,
-    tier_f::Int,
-    dimensions::Dimensions;
-    threshold::Real = 0.0,
-)
+        bB::Vector{BosonBath},
+        fB::Vector{FermionBath},
+        tier_b::Int,
+        tier_f::Int,
+        dimensions::Dimensions;
+        threshold::Real = 0.0,
+    )
     # deal with boson bath
     Nterm_b = 0
     bosonPtr = Tuple[]
@@ -222,7 +223,7 @@ end
     idx2nvec_f = _Idx2Nvec(n_max_f, tier_f)
 
     # create idx2nvec and remove nvec when its value of importance is below threshold
-    idx2nvec = Tuple{Nvec,Nvec}[]
+    idx2nvec = Tuple{Nvec, Nvec}[]
     for nvec_b in idx2nvec_b
         for nvec_f in idx2nvec_f
             push!(idx2nvec, (nvec_b, nvec_f))
@@ -253,9 +254,9 @@ end
     end
 
     # create lvl2idx and nvec2idx
-    nvec2idx = Dict{Tuple{Nvec,Nvec},Int}()
-    blvl2idx = Dict{Int,Vector{Int}}()
-    flvl2idx = Dict{Int,Vector{Int}}()
+    nvec2idx = Dict{Tuple{Nvec, Nvec}, Int}()
+    blvl2idx = Dict{Int, Vector{Int}}()
+    flvl2idx = Dict{Int, Vector{Int}}()
     for level in 0:tier_b
         blvl2idx[level] = []
     end
@@ -308,12 +309,12 @@ for idx in idx_list
 end
 ```
 """
-function getIndexEnsemble(nvec::Nvec, bathPtr::Vector{Tuple{Int,Int}})
+function getIndexEnsemble(nvec::Nvec, bathPtr::Vector{Tuple{Int, Int}})
     if length(nvec) != length(bathPtr)
         error("The given \"nvec\" and \"bathPtr\" are not consistent.")
     end
 
-    result = Tuple{Int,Int,Int}[]
+    result = Tuple{Int, Int, Int}[]
     for idx in nvec.data.nzind
         α, k = bathPtr[idx]
         push!(result, (α, k, nvec[idx]))

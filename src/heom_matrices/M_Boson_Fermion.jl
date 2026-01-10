@@ -19,7 +19,7 @@ HEOM Liouvillian superoperator matrix for mixtured (bosonic and fermionic) bath
 !!! note "`dims` property"
     For a given `M::M_Boson_Fermion`, `M.dims` or `getproperty(M, :dims)` returns its `dimensions` in the type of integer-vector.
 """
-struct M_Boson_Fermion{T<:AbstractSciMLOperator} <: AbstractHEOMLSMatrix{T}
+struct M_Boson_Fermion{T <: AbstractSciMLOperator} <: AbstractHEOMLSMatrix{T}
     data::T
     Btier::Int
     Ftier::Int
@@ -33,44 +33,44 @@ struct M_Boson_Fermion{T<:AbstractSciMLOperator} <: AbstractHEOMLSMatrix{T}
 end
 
 function M_Boson_Fermion(
-    Hsys::QuantumObject,
-    Btier::Int,
-    Ftier::Int,
-    Bbath::BosonBath,
-    Fbath::FermionBath,
-    parity::AbstractParity = EVEN;
-    threshold::Real = 0.0,
-    assemble::Union{Val,Symbol} = Val(:full),
-    verbose::Bool = true,
-)
+        Hsys::QuantumObject,
+        Btier::Int,
+        Ftier::Int,
+        Bbath::BosonBath,
+        Fbath::FermionBath,
+        parity::AbstractParity = EVEN;
+        threshold::Real = 0.0,
+        assemble::Union{Val, Symbol} = Val(:full),
+        verbose::Bool = true,
+    )
     return M_Boson_Fermion(Hsys, Btier, Ftier, [Bbath], [Fbath], parity; threshold, assemble, verbose)
 end
 
 function M_Boson_Fermion(
-    Hsys::QuantumObject,
-    Btier::Int,
-    Ftier::Int,
-    Bbath::Vector{BosonBath},
-    Fbath::FermionBath,
-    parity::AbstractParity = EVEN;
-    threshold::Real = 0.0,
-    assemble::Union{Val,Symbol} = Val(:full),
-    verbose::Bool = true,
-)
+        Hsys::QuantumObject,
+        Btier::Int,
+        Ftier::Int,
+        Bbath::Vector{BosonBath},
+        Fbath::FermionBath,
+        parity::AbstractParity = EVEN;
+        threshold::Real = 0.0,
+        assemble::Union{Val, Symbol} = Val(:full),
+        verbose::Bool = true,
+    )
     return M_Boson_Fermion(Hsys, Btier, Ftier, Bbath, [Fbath], parity; threshold, assemble, verbose)
 end
 
 function M_Boson_Fermion(
-    Hsys::QuantumObject,
-    Btier::Int,
-    Ftier::Int,
-    Bbath::BosonBath,
-    Fbath::Vector{FermionBath},
-    parity::AbstractParity = EVEN;
-    threshold::Real = 0.0,
-    assemble::Union{Val,Symbol} = Val(:full),
-    verbose::Bool = true,
-)
+        Hsys::QuantumObject,
+        Btier::Int,
+        Ftier::Int,
+        Bbath::BosonBath,
+        Fbath::Vector{FermionBath},
+        parity::AbstractParity = EVEN;
+        threshold::Real = 0.0,
+        assemble::Union{Val, Symbol} = Val(:full),
+        verbose::Bool = true,
+    )
     return M_Boson_Fermion(Hsys, Btier, Ftier, [Bbath], Fbath, parity; threshold, assemble, verbose)
 end
 
@@ -95,16 +95,16 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 [2] [Phys. Rev. B 103, 235413 (2021)](https://doi.org/10.1103/PhysRevB.103.235413)
 """
 @noinline function M_Boson_Fermion(
-    Hsys::QuantumObject,
-    Btier::Int,
-    Ftier::Int,
-    Bbath::Vector{BosonBath},
-    Fbath::Vector{FermionBath},
-    parity::AbstractParity = EVEN;
-    threshold::Real = 0.0,
-    assemble::Union{Val,Symbol} = Val(:full),
-    verbose::Bool = true,
-)
+        Hsys::QuantumObject,
+        Btier::Int,
+        Ftier::Int,
+        Bbath::Vector{BosonBath},
+        Fbath::Vector{FermionBath},
+        parity::AbstractParity = EVEN;
+        threshold::Real = 0.0,
+        assemble::Union{Val, Symbol} = Val(:full),
+        verbose::Bool = true,
+    )
     _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)") # Checking input type first
 
     assemble_method = makeVal(assemble)
@@ -193,7 +193,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                     Nvec_minus!(nvec_neigh, mode)
                     if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
                         idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
-                        minus_i_C_op!(f_term, idx, idx_neigh, fB, k, nvec_f.level, sum(nvec_neigh[1:(mode-1)]), parity)
+                        minus_i_C_op!(f_term, idx, idx_neigh, fB, k, nvec_f.level, sum(nvec_neigh[1:(mode - 1)]), parity)
                     end
                     Nvec_plus!(nvec_neigh, mode)
 
@@ -202,7 +202,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
                     Nvec_plus!(nvec_neigh, mode)
                     if (threshold == 0.0) || haskey(nvec2idx, (nvec_b, nvec_neigh))
                         idx_neigh = nvec2idx[(nvec_b, nvec_neigh)]
-                        minus_i_A_op!(f_term, idx, idx_neigh, fB, nvec_f.level, sum(nvec_neigh[1:(mode-1)]), parity)
+                        minus_i_A_op!(f_term, idx, idx_neigh, fB, nvec_f.level, sum(nvec_neigh[1:(mode - 1)]), parity)
                     end
                     Nvec_minus!(nvec_neigh, mode)
                 end

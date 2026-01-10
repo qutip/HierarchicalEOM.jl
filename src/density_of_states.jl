@@ -26,15 +26,15 @@ Calculate density of states for the fermionic system in frequency domain.
 - `dos::AbstractVector` : the list of density of states corresponds to the specified `ωlist`
 """
 @noinline function DensityOfStates(
-    M::AbstractHEOMLSMatrix,
-    ρ::Union{QuantumObject,ADOs},
-    d_op::QuantumObject,
-    ωlist::AbstractVector;
-    alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14),
-    progress_bar::Union{Val,Bool} = Val(true),
-    filename::String = "",
-    kwargs...,
-)
+        M::AbstractHEOMLSMatrix,
+        ρ::Union{QuantumObject, ADOs},
+        d_op::QuantumObject,
+        ωlist::AbstractVector;
+        alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1.0e-12, atol = 1.0e-14),
+        progress_bar::Union{Val, Bool} = Val(true),
+        filename::String = "",
+        kwargs...,
+    )
     isconstant(M) || throw(ArgumentError("The HEOMLS matrix M must be time-independent to calculate DensityOfStates."))
     haskey(kwargs, :solver) &&
         error("The keyword argument `solver` for DensityOfStates is deprecated, use `alg` instead.")

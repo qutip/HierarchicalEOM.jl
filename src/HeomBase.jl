@@ -49,15 +49,15 @@ _get_SciML_matrix_wrapper(M::AbstractHEOMLSMatrix) = _get_SciML_matrix_wrapper(M
 # equal to : sparse(vec(system_identity_matrix))
 function _Tr(T::Type{<:Number}, dimensions::Dimensions, N::Int)
     D = prod(dimensions)
-    return SparseVector(N * D^2, [1 + n * (D + 1) for n in 0:(D-1)], ones(T, D))
+    return SparseVector(N * D^2, [1 + n * (D + 1) for n in 0:(D - 1)], ones(T, D))
 end
 _Tr(M::AbstractHEOMLSMatrix) = _Tr(eltype(M), M.dimensions, M.N)
 
 function HandleMatrixType(
-    M::AbstractQuantumObject,
-    MatrixName::String = "";
-    type::T = nothing,
-) where {T<:Union{Nothing,Operator,SuperOperator}}
+        M::AbstractQuantumObject,
+        MatrixName::String = "";
+        type::T = nothing,
+    ) where {T <: Union{Nothing, Operator, SuperOperator}}
     if (type isa Nothing)
         (M.type isa Operator) ||
             (M.type isa SuperOperator) ||
@@ -68,11 +68,11 @@ function HandleMatrixType(
     return M
 end
 function HandleMatrixType(
-    M::AbstractQuantumObject,
-    dimensions::Dimensions,
-    MatrixName::String = "";
-    type::T = nothing,
-) where {T<:Union{Nothing,Operator,SuperOperator}}
+        M::AbstractQuantumObject,
+        dimensions::Dimensions,
+        MatrixName::String = "";
+        type::T = nothing,
+    ) where {T <: Union{Nothing, Operator, SuperOperator}}
     if M.dimensions == dimensions
         return HandleMatrixType(M, MatrixName; type = type)
     else
@@ -84,8 +84,8 @@ HandleMatrixType(
     dimensions::Dimensions,
     MatrixName::String = "";
     type::T = nothing,
-) where {T<:Union{Nothing,Operator,SuperOperator}} = HandleMatrixType(M, MatrixName; type = type)
-HandleMatrixType(M, MatrixName::String = ""; type::T = nothing) where {T<:Union{Nothing,Operator,SuperOperator}} =
+) where {T <: Union{Nothing, Operator, SuperOperator}} = HandleMatrixType(M, MatrixName; type = type)
+HandleMatrixType(M, MatrixName::String = ""; type::T = nothing) where {T <: Union{Nothing, Operator, SuperOperator}} =
     error("HierarchicalEOM doesn't support matrix $(MatrixName) with type : $(typeof(M))")
 
 # change the type of `ADOs` to match the type of HEOMLS matrix
@@ -97,10 +97,10 @@ _HandleTraceVectorType(M::AbstractHEOMLSMatrix, V::SparseVector) =
 _HandleTraceVectorType(M::Type{<:SparseMatrixCSC}, V::SparseVector) = V
 
 _HandleSteadyStateMatrix(
-    M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}},
+    M::AbstractHEOMLSMatrix{<:MatrixOperator{T, MT}},
     ::AbstractVector{T},
-) where {T<:Number,MT<:SparseMatrixCSC} = M.data.A + _SteadyStateConstraint(T, prod(M.dimensions), size(M, 1))
-_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AbstractSciMLOperator{T}}, b::AbstractVector{T}) where {T<:Number} =
+) where {T <: Number, MT <: SparseMatrixCSC} = M.data.A + _SteadyStateConstraint(T, prod(M.dimensions), size(M, 1))
+_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AbstractSciMLOperator{T}}, b::AbstractVector{T}) where {T <: Number} =
     get_cached_HEOMLS_data(M.data + _SteadyStateConstraint(eltype(M), prod(M.dimensions), size(M, 1)), b)
 
 # this adds the trace == 1 constraint for reduced density operator during linear solve of steadystate
@@ -112,7 +112,7 @@ function _check_sys_dim_and_ADOs_num(A, B)
         error("Inconsistent system dimensions.")
     end
 
-    if (A.N != B.N)
+    return if (A.N != B.N)
         error("Inconsistent number of ADOs (\"N\").")
     end
 end
@@ -126,6 +126,7 @@ function _get_pkg_version(pkg_name::String)
             return D[uuid].version
         end
     end
+    return
 end
 
 @doc raw"""
@@ -234,7 +235,7 @@ function versioninfo(io::IO = stdout)
         "====================================\n",
         """OS       : $(OS_name) ($(Sys.MACHINE))\n""",
         """CPU      : $(length(cpu)) × $(cpu[1].model)\n""",
-        """Memory   : $(round(Sys.total_memory() / 2 ^ 30, digits=3)) GB\n""",
+        """Memory   : $(round(Sys.total_memory() / 2^30, digits = 3)) GB\n""",
         """WORD_SIZE: $(Sys.WORD_SIZE)\n""",
         """LIBM     : $(Base.libm_name)\n""",
         """LLVM     : libLLVM-$(Base.libllvm_version) ($(Sys.JIT), $(Sys.CPU_NAME))\n""",

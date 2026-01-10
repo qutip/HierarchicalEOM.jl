@@ -32,12 +32,12 @@ CUDA.@time @testset "CUDA Extension" begin
     L_gpu_csr = CUDA.CUSPARSE.CuSparseMatrixCSR(L_cpu)
     sol_cpu = heomsolve(L_cpu, ψ0, [0, 10]; e_ops = e_ops, progress_bar = Val(false))
     sol_gpu = heomsolve(L_gpu, ψ0, [0, 10]; e_ops = e_ops, progress_bar = Val(false))
-    @test L_cpu.data.A isa SparseMatrixCSC{ComplexF64,Int64}
+    @test L_cpu.data.A isa SparseMatrixCSC{ComplexF64, Int64}
     @test L_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC
     @test L_gpu_csc.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC
     @test L_gpu_csr.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSR
-    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1e-4))
-    @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu.ados[end]), atol = 1e-4)
+    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1.0e-4))
+    @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu.ados[end]), atol = 1.0e-4)
 
     ## Boson HEOMLS
     L_cpu = M_Boson(Hsys, tier, Bbath; verbose = false)
@@ -47,11 +47,11 @@ CUDA.@time @testset "CUDA Extension" begin
     sol_cpu = heomsolve(L_cpu, ψ0, [0, 10]; e_ops = e_ops, progress_bar = Val(false))
     sol_gpu = heomsolve(L_gpu, ψ0, [0, 10]; e_ops = e_ops, progress_bar = Val(false))
     sol_gpu_lazy = heomsolve(L_gpu_lazy, ψ0, [0, 10]; e_ops = e_ops, progress_bar = Val(false))
-    @test L_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64,Int32}
-    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1e-4))
-    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu_lazy.expect[1, :], atol = 1e-4))
-    @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu.ados[end]), atol = 1e-4)
-    @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu_lazy.ados[end]), atol = 1e-4)
+    @test L_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64, Int32}
+    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1.0e-4))
+    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu_lazy.expect[1, :], atol = 1.0e-4))
+    @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu.ados[end]), atol = 1.0e-4)
+    @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu_lazy.ados[end]), atol = 1.0e-4)
 
     ## Fermion HEOMLS
     L_cpu = M_Fermion(Hsys, tier, Fbath; verbose = false)
@@ -61,11 +61,11 @@ CUDA.@time @testset "CUDA Extension" begin
     sol_cpu = heomsolve(L_cpu, ψ0, [0, 10]; e_ops = e_ops, progress_bar = Val(false))
     sol_gpu = heomsolve(L_gpu, ψ0, [0, 10]; e_ops = e_ops, progress_bar = Val(false))
     sol_gpu_lazy = heomsolve(L_gpu_lazy, ψ0, [0, 10]; e_ops = e_ops, progress_bar = Val(false))
-    @test L_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64,Int32}
-    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1e-4))
-    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu_lazy.expect[1, :], atol = 1e-4))
-    @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu.ados[end]), atol = 1e-4)
-    @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu_lazy.ados[end]), atol = 1e-4)
+    @test L_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64, Int32}
+    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1.0e-4))
+    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu_lazy.expect[1, :], atol = 1.0e-4))
+    @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu.ados[end]), atol = 1.0e-4)
+    @test isapprox(getRho(sol_cpu.ados[end]), getRho(sol_gpu_lazy.ados[end]), atol = 1.0e-4)
 
     ## Boson Fermion HEOMLS
     L_cpu = M_Boson_Fermion(Hsys, tier, tier, Bbath, Fbath; verbose = false)
@@ -76,12 +76,12 @@ CUDA.@time @testset "CUDA Extension" begin
     sol_cpu = heomsolve(L_cpu, ψ0, tlist; e_ops = e_ops, saveat = tlist, progress_bar = Val(false))
     sol_gpu = heomsolve(L_gpu, ψ0, tlist; e_ops = e_ops, saveat = tlist, progress_bar = Val(false))
     sol_gpu_lazy = heomsolve(L_gpu_lazy, ψ0, tlist; e_ops = e_ops, saveat = tlist, progress_bar = Val(false))
-    @test L_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64,Int32}
-    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1e-4))
-    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu_lazy.expect[1, :], atol = 1e-4))
+    @test L_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64, Int32}
+    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu.expect[1, :], atol = 1.0e-4))
+    @test all(isapprox.(sol_cpu.expect[1, :], sol_gpu_lazy.expect[1, :], atol = 1.0e-4))
     for i in 1:length(tlist)
-        @test isapprox(getRho(sol_cpu.ados[i]), getRho(sol_gpu.ados[i]), atol = 1e-4)
-        @test isapprox(getRho(sol_cpu.ados[i]), getRho(sol_gpu_lazy.ados[i]), atol = 1e-4)
+        @test isapprox(getRho(sol_cpu.ados[i]), getRho(sol_gpu.ados[i]), atol = 1.0e-4)
+        @test isapprox(getRho(sol_cpu.ados[i]), getRho(sol_gpu_lazy.ados[i]), atol = 1.0e-4)
     end
 
     # SIAM
@@ -114,11 +114,11 @@ CUDA.@time @testset "CUDA Extension" begin
     ados_gpu2 = steadystate(CUDA.CUSPARSE.CuSparseMatrixCSR(L_even_cpu); verbose = false)
     ados_gpu3 = steadystate(L_even_gpu, ψ0, 10; verbose = false)
     ados_gpu_lazy = steadystate(L_even_gpu_lazy; verbose = false)
-    @test L_even_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64,Int32}
-    @test all(isapprox.(ados_cpu.data, ados_gpu1.data; atol = 1e-6))
-    @test all(isapprox.(ados_cpu.data, ados_gpu2.data; atol = 1e-6))
-    @test all(isapprox.(ados_cpu.data, ados_gpu3.data; atol = 1e-6))
-    @test all(isapprox.(ados_cpu.data, ados_gpu_lazy.data; atol = 1e-6))
+    @test L_even_gpu.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64, Int32}
+    @test all(isapprox.(ados_cpu.data, ados_gpu1.data; atol = 1.0e-6))
+    @test all(isapprox.(ados_cpu.data, ados_gpu2.data; atol = 1.0e-6))
+    @test all(isapprox.(ados_cpu.data, ados_gpu3.data; atol = 1.0e-6))
+    @test all(isapprox.(ados_cpu.data, ados_gpu_lazy.data; atol = 1.0e-6))
 
     ## solve density of states
     ωlist = -5:0.5:5
@@ -147,12 +147,12 @@ CUDA.@time @testset "CUDA Extension" begin
         alg = KrylovJL_BICGSTAB(rtol = 1.0f-12, atol = 1.0f-14), # somehow KrylovJL_GMRES doesn't work for Float32 (it takes forever to solve)
     )
     dos_gpu_64_lazy = DensityOfStates(L_odd_gpu_64_lazy, ados_cpu, d_up, ωlist; progress_bar = Val(false))
-    @test L_odd_gpu_32.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF32,Int32}
-    @test L_odd_gpu_64.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64,Int32}
+    @test L_odd_gpu_32.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF32, Int32}
+    @test L_odd_gpu_64.data.A isa CUDA.CUSPARSE.CuSparseMatrixCSC{ComplexF64, Int32}
     for (i, ω) in enumerate(ωlist)
-        @test dos_cpu[i] ≈ dos_gpu_32[i] atol = 1e-6
-        @test dos_cpu[i] ≈ dos_gpu_64[i] atol = 1e-6
-        @test dos_cpu[i] ≈ dos_gpu_32_lazy[i] atol = 1e-6
-        @test dos_cpu[i] ≈ dos_gpu_64_lazy[i] atol = 1e-6
+        @test dos_cpu[i] ≈ dos_gpu_32[i] atol = 1.0e-6
+        @test dos_cpu[i] ≈ dos_gpu_64[i] atol = 1.0e-6
+        @test dos_cpu[i] ≈ dos_gpu_32_lazy[i] atol = 1.0e-6
+        @test dos_cpu[i] ≈ dos_gpu_64_lazy[i] atol = 1.0e-6
     end
 end

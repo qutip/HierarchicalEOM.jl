@@ -30,17 +30,17 @@
             end
         end
 
-        eV_to_Joule = 1.60218E-19  # unit conversion
+        eV_to_Joule = 1.60218e-19  # unit conversion
 
-        # (e / ħ) * I  [change unit to μA] 
-        return 1.519270639695384E15 * real(1im * I) * eV_to_Joule * 1E6
+        # (e / ħ) * I  [change unit to μA]
+        return 1.519270639695384e15 * real(1im * I) * eV_to_Joule * 1.0e6
     end
 
     Btier = 2
     Ftier = 2
     Nb = 3
     Nf = 3
-    threshold = 1e-5
+    threshold = 1.0e-5
 
     Γ = 0.0025
     Dα = 30
@@ -50,26 +50,32 @@
     μR = -0.5
     kT = 0.025
 
-    Hsys = Qobj([
-        0 0 0 0
-        0 0.2 0 0
-        0 0 0.208 0.04
-        0 0 0.04 0.408
-    ])
+    Hsys = Qobj(
+        [
+            0 0 0 0
+            0 0.2 0 0
+            0 0 0.208 0.04
+            0 0 0.04 0.408
+        ]
+    )
 
-    cop = Qobj([
-        0 1 0 0
-        1 0 0 0
-        0 0 0 1
-        0 0 1 0
-    ])
+    cop = Qobj(
+        [
+            0 1 0 0
+            1 0 0 0
+            0 0 0 1
+            0 0 1 0
+        ]
+    )
 
-    dop = Qobj([
-        0 0 1 0
-        0 0 0 1
-        0 0 0 0
-        0 0 0 0
-    ])
+    dop = Qobj(
+        [
+            0 0 1 0
+            0 0 0 1
+            0 0 0 0
+            0 0 0 0
+        ]
+    )
 
     bbath = Boson_DrudeLorentz_Matsubara(cop, Λ, ωcα, kT, Nb)
     fbath = [Fermion_Lorentz_Pade(dop, Γ, μL, Dα, kT, Nf), Fermion_Lorentz_Pade(dop, Γ, μR, Dα, kT, Nf)]

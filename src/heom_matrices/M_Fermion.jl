@@ -17,7 +17,7 @@ HEOM Liouvillian superoperator matrix for fermionic bath
 !!! note "`dims` property"
     For a given `M::M_Fermion`, `M.dims` or `getproperty(M, :dims)` returns its `dimensions` in the type of integer-vector.
 """
-struct M_Fermion{T<:AbstractSciMLOperator} <: AbstractHEOMLSMatrix{T}
+struct M_Fermion{T <: AbstractSciMLOperator} <: AbstractHEOMLSMatrix{T}
     data::T
     tier::Int
     dimensions::Dimensions
@@ -29,14 +29,14 @@ struct M_Fermion{T<:AbstractSciMLOperator} <: AbstractHEOMLSMatrix{T}
 end
 
 function M_Fermion(
-    Hsys::QuantumObject,
-    tier::Int,
-    Bath::FermionBath,
-    parity::AbstractParity = EVEN;
-    threshold::Real = 0.0,
-    assemble::Union{Val,Symbol} = Val(:full),
-    verbose::Bool = true,
-)
+        Hsys::QuantumObject,
+        tier::Int,
+        Bath::FermionBath,
+        parity::AbstractParity = EVEN;
+        threshold::Real = 0.0,
+        assemble::Union{Val, Symbol} = Val(:full),
+        verbose::Bool = true,
+    )
     return M_Fermion(Hsys, tier, [Bath], parity; threshold, assemble, verbose)
 end
 
@@ -56,14 +56,14 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
 [1] [Phys. Rev. B 88, 235426 (2013)](https://doi.org/10.1103/PhysRevB.88.235426)
 """
 @noinline function M_Fermion(
-    Hsys::QuantumObject,
-    tier::Int,
-    Bath::Vector{FermionBath},
-    parity::AbstractParity = EVEN;
-    threshold::Real = 0.0,
-    assemble::Union{Val,Symbol} = Val(:full),
-    verbose::Bool = true,
-)
+        Hsys::QuantumObject,
+        tier::Int,
+        Bath::Vector{FermionBath},
+        parity::AbstractParity = EVEN;
+        threshold::Real = 0.0,
+        assemble::Union{Val, Symbol} = Val(:full),
+        verbose::Bool = true,
+    )
     _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)") # Checking input type first
 
     assemble_method = makeVal(assemble)
@@ -112,7 +112,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
                     Nvec_minus!(nvec_neigh, mode)
                     if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                         idx_neigh = nvec2idx[nvec_neigh]
-                        minus_i_C_op!(f_term, idx, idx_neigh, fB, k, nvec.level, sum(nvec_neigh[1:(mode-1)]), parity)
+                        minus_i_C_op!(f_term, idx, idx_neigh, fB, k, nvec.level, sum(nvec_neigh[1:(mode - 1)]), parity)
                     end
                     Nvec_plus!(nvec_neigh, mode)
 
@@ -121,7 +121,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
                     Nvec_plus!(nvec_neigh, mode)
                     if (threshold == 0.0) || haskey(nvec2idx, nvec_neigh)
                         idx_neigh = nvec2idx[nvec_neigh]
-                        minus_i_A_op!(f_term, idx, idx_neigh, fB, nvec.level, sum(nvec_neigh[1:(mode-1)]), parity)
+                        minus_i_A_op!(f_term, idx, idx_neigh, fB, nvec.level, sum(nvec_neigh[1:(mode - 1)]), parity)
                     end
                     Nvec_minus!(nvec_neigh, mode)
                 end

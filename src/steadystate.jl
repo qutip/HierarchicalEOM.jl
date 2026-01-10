@@ -16,11 +16,11 @@ Solve the steady state of the auxiliary density operators based on `LinearSolve.
 - `::ADOs` : The steady state of auxiliary density operators.
 """
 function QuantumToolbox.steadystate(
-    M::AbstractHEOMLSMatrix;
-    alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1e-12, atol = 1e-14),
-    verbose::Bool = true,
-    kwargs...,
-)
+        M::AbstractHEOMLSMatrix;
+        alg::SciMLLinearSolveAlgorithm = KrylovJL_GMRES(rtol = 1.0e-12, atol = 1.0e-14),
+        verbose::Bool = true,
+        kwargs...,
+    )
     isconstant(M) || throw(ArgumentError("The HEOMLS matrix M must be time-independent to solve steadystate."))
     haskey(kwargs, :solver) &&
         error("The keyword argument `solver` for solving HEOM steadystate is deprecated, use `alg` instead.")
@@ -70,13 +70,13 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 - `::ADOs` : The steady state of auxiliary density operators.
 """
 function QuantumToolbox.steadystate(
-    M::AbstractHEOMLSMatrix,
-    ρ0::T_state,
-    tspan::Number = Inf;
-    alg::AbstractODEAlgorithm = DP5(),
-    verbose::Bool = true,
-    kwargs...,
-) where {T_state<:Union{QuantumObject,ADOs}}
+        M::AbstractHEOMLSMatrix,
+        ρ0::T_state,
+        tspan::Number = Inf;
+        alg::AbstractODEAlgorithm = DP5(),
+        verbose::Bool = true,
+        kwargs...,
+    ) where {T_state <: Union{QuantumObject, ADOs}}
     isconstant(M) || throw(ArgumentError("The HEOMLS matrix M must be time-independent to solve steadystate."))
     haskey(kwargs, :solver) &&
         error("The keyword argument `solver` for solving HEOM steadystate is deprecated, use `alg` instead.")
@@ -110,7 +110,7 @@ function QuantumToolbox.steadystate(
     A = get_cached_HEOMLS_data(M.data, u0)
 
     # define ODE problem
-    prob = ODEProblem{true,FullSpecialize}(A, u0, Tspan; kwargs3...)
+    prob = ODEProblem{true, FullSpecialize}(A, u0, Tspan; kwargs3...)
 
     # solving steady state of the ODE problem
     if verbose

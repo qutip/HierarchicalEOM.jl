@@ -21,44 +21,44 @@ const MathEngine = MathJax3(
     ),
 )
 
-const PAGES = Any[
-    "Home"=>Any[
-        "Introduction"=>"index.md",
-        "Installation"=>"install.md",
-        "Quick Start"=>"quick_start.md",
-        "Cite HierarchicalEOM.jl"=>"cite.md",
+const PAGES = [
+    "Home" => [
+        "Introduction" => "index.md",
+        "Installation" => "install.md",
+        "Quick Start" => "quick_start.md",
+        "Cite HierarchicalEOM.jl" => "cite.md",
     ],
-    "Manual"=>Any[
-        "Bosonic Bath"=>Any[
-            "Introduction"=>"bath_boson/bosonic_bath_intro.md",
-            "Drude-Lorentz Spectral Density"=>"bath_boson/Boson_Drude_Lorentz.md",
-            "Underdamped Spectral Density"=>"bath_boson/Boson_Underdamped.md",
+    "Manual" => [
+        "Bosonic Bath" => [
+            "Introduction" => "bath_boson/bosonic_bath_intro.md",
+            "Drude-Lorentz Spectral Density" => "bath_boson/Boson_Drude_Lorentz.md",
+            "Underdamped Spectral Density" => "bath_boson/Boson_Underdamped.md",
         ],
-        "Bosonic Bath (RWA)"=>Any["Introduction"=>"bath_boson_RWA/bosonic_bath_RWA_intro.md"],
-        "Fermionic Bath"=>Any[
-            "Introduction"=>"bath_fermion/fermionic_bath_intro.md",
-            "Lorentz Spectral Density"=>"bath_fermion/Fermion_Lorentz.md",
+        "Bosonic Bath (RWA)" => ["Introduction" => "bath_boson_RWA/bosonic_bath_RWA_intro.md"],
+        "Fermionic Bath" => [
+            "Introduction" => "bath_fermion/fermionic_bath_intro.md",
+            "Lorentz Spectral Density" => "bath_fermion/Fermion_Lorentz.md",
         ],
-        "Auxiliary Density Operators"=>"ADOs.md",
-        "HEOMLS Matrices"=>Any[
-            "Introduction"=>"heom_matrix/HEOMLS_intro.md",
-            "HEOMLS for Schrödinger Equation"=>"heom_matrix/schrodinger_eq.md",
-            "HEOMLS for Bosonic Bath"=>"heom_matrix/M_Boson.md",
-            "HEOMLS for Fermionic Bath"=>"heom_matrix/M_Fermion.md",
-            "HEOMLS for Bosonic and Fermionic Bath"=>"heom_matrix/M_Boson_Fermion.md",
-            "HEOMLS for Master Equation"=>"heom_matrix/master_eq.md",
-            "Memory Optimization with Lazy Operators"=>"heom_matrix/lazy_operators.md",
+        "Auxiliary Density Operators" => "ADOs.md",
+        "HEOMLS Matrices" => [
+            "Introduction" => "heom_matrix/HEOMLS_intro.md",
+            "HEOMLS for Schrödinger Equation" => "heom_matrix/schrodinger_eq.md",
+            "HEOMLS for Bosonic Bath" => "heom_matrix/M_Boson.md",
+            "HEOMLS for Fermionic Bath" => "heom_matrix/M_Fermion.md",
+            "HEOMLS for Bosonic and Fermionic Bath" => "heom_matrix/M_Boson_Fermion.md",
+            "HEOMLS for Master Equation" => "heom_matrix/master_eq.md",
+            "Memory Optimization with Lazy Operators" => "heom_matrix/lazy_operators.md",
         ],
-        "Parity Support"=>"Parity.md",
-        "Hierarchy Dictionary"=>"hierarchy_dictionary.md",
-        "Time Evolution"=>"time_evolution.md",
-        "Stationary State"=>"stationary_state.md",
-        "Spectrum"=>"spectrum.md",
-        "Examples"=>"examples.md",
-        "Solvers Lists"=>Any["ODE_solvers.md", "LS_solvers.md"],
-        "Extensions"=>Any["CUDA.jl"=>"extensions/CUDA.md"],
+        "Parity Support" => "Parity.md",
+        "Hierarchy Dictionary" => "hierarchy_dictionary.md",
+        "Time Evolution" => "time_evolution.md",
+        "Stationary State" => "stationary_state.md",
+        "Spectrum" => "spectrum.md",
+        "Examples" => "examples.md",
+        "Solvers Lists" => ["ODE_solvers.md", "LS_solvers.md"],
+        "Extensions" => ["CUDA.jl" => "extensions/CUDA.md"],
     ],
-    "Library API"=>"libraryAPI.md",
+    "Library API" => "libraryAPI.md",
 ]
 
 makedocs(;

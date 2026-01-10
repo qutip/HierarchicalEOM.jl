@@ -19,10 +19,10 @@ function Boson_Underdamped_Matsubara(op, λ::Real, W::Real, ω0::Real, kT::Real,
     Ω = sqrt(ω0^2 - (W / 2)^2)
     ν = (2 * π * kT) .* (1:N)
 
-    η_real = ComplexF64[(λ^2/(4*Ω))*coth((Ω+1im*W/2)/(2*kT)), (λ^2/(4*Ω))*coth((Ω-1im*W/2)/(2*kT))]
-    γ_real = ComplexF64[W/2-1im*Ω, W/2+1im*Ω]
-    η_imag = ComplexF64[(λ^2/(4*Ω))*1im, -1im*(λ^2/(4*Ω))]
-    γ_imag = ComplexF64[W/2-1im*Ω, W/2+1im*Ω]
+    η_real = ComplexF64[(λ^2 / (4 * Ω)) * coth((Ω + 1im * W / 2) / (2 * kT)), (λ^2 / (4 * Ω)) * coth((Ω - 1im * W / 2) / (2 * kT))]
+    γ_real = ComplexF64[W / 2 - 1im * Ω, W / 2 + 1im * Ω]
+    η_imag = ComplexF64[(λ^2 / (4 * Ω)) * 1im, -1im * (λ^2 / (4 * Ω))]
+    γ_imag = ComplexF64[W / 2 - 1im * Ω, W / 2 + 1im * Ω]
 
     if N > 0
         for l in 1:N

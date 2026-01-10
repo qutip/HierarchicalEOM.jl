@@ -13,7 +13,7 @@ if (GROUP == "All") || (GROUP == "Core")
     HierarchicalEOM.about()
 
     println("\nStart running Core tests...\n")
-    @run_package_tests verbose=true
+    @run_package_tests verbose = true
 end
 
 ########################################################################
@@ -35,7 +35,7 @@ if (GROUP == "All") || (GROUP == "Code-Quality")
     include(joinpath(testdir, "code-quality", "code_quality.jl"))
 end
 
-if (GROUP == "CUDA_Ext")# || (GROUP == "All")
+if (GROUP == "CUDA_Ext") # || (GROUP == "All")
     Pkg.activate("gpu")
     Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
     Pkg.instantiate()

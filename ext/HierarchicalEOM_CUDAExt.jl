@@ -26,7 +26,7 @@ Return a new HEOMLS-matrix-type object with `M.data` is in the type of `CuSparse
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
 - `word_size::Union{Val,Int}` : The word size of the element type of `M`, can be either `32` or `64`. Default to `64`.
 """
-function cu(M::AbstractHEOMLSMatrix; word_size::Union{Val,Int} = Val(64))
+function cu(M::AbstractHEOMLSMatrix; word_size::Union{Val, Int} = Val(64))
     word_size_val = makeVal(word_size)
     _word_size = getVal(word_size_val)
 
@@ -42,9 +42,9 @@ Return a new HEOMLS-matrix-type object with `M.data` is in the type of `CUDA.CUS
 
 If `{T}` is not specified, default to `{eltype(M)}`.
 """
-CuSparseMatrixCSC(M::MT) where {MT<:AbstractHEOMLSMatrix} =
+CuSparseMatrixCSC(M::MT) where {MT <: AbstractHEOMLSMatrix} =
     _reset_HEOMLS_data(M, _convert_to_gpu_matrix(M.data, CuSparseMatrixCSC{eltype(M)}))
-CuSparseMatrixCSC{T}(M::MT) where {T,MT<:AbstractHEOMLSMatrix} =
+CuSparseMatrixCSC{T}(M::MT) where {T, MT <: AbstractHEOMLSMatrix} =
     _reset_HEOMLS_data(M, _convert_to_gpu_matrix(M.data, CuSparseMatrixCSC{T}))
 
 @doc raw"""
@@ -54,9 +54,9 @@ Return a new HEOMLS-matrix-type object with `M.data` is in the type of `CUDA.CUS
 
 If `{T}` is not specified, default to `{eltype(M)}`.
 """
-CuSparseMatrixCSR(M::MT) where {MT<:AbstractHEOMLSMatrix} =
+CuSparseMatrixCSR(M::MT) where {MT <: AbstractHEOMLSMatrix} =
     _reset_HEOMLS_data(M, _convert_to_gpu_matrix(M.data, CuSparseMatrixCSR{eltype(M)}))
-CuSparseMatrixCSR{T}(M::MT) where {T,MT<:AbstractHEOMLSMatrix} =
+CuSparseMatrixCSR{T}(M::MT) where {T, MT <: AbstractHEOMLSMatrix} =
     _reset_HEOMLS_data(M, _convert_to_gpu_matrix(M.data, CuSparseMatrixCSR{T}))
 
 CuSparseMatrixCSC{T}(M::HEOMSuperOp) where {T} =
@@ -64,8 +64,8 @@ CuSparseMatrixCSC{T}(M::HEOMSuperOp) where {T} =
 CuSparseMatrixCSR{T}(M::HEOMSuperOp) where {T} =
     HEOMSuperOp(_convert_to_gpu_matrix(M.data, CuSparseMatrixCSR{T}), M.dimensions, M.N, M.parity)
 
-_convert_to_gpu_matrix(A::AbstractSparseMatrix, MType::Type{T}) where {T<:AbstractCuSparseMatrix} = MType(A)
-_convert_to_gpu_matrix(A::AbstractMatrix, MType::Type{T}) where {T<:AbstractCuSparseMatrix} = MType(sparse(A))
+_convert_to_gpu_matrix(A::AbstractSparseMatrix, MType::Type{T}) where {T <: AbstractCuSparseMatrix} = MType(A)
+_convert_to_gpu_matrix(A::AbstractMatrix, MType::Type{T}) where {T <: AbstractCuSparseMatrix} = MType(sparse(A))
 
 _convert_to_gpu_matrix(A::MatrixOperator, MType) = MatrixOperator(_convert_to_gpu_matrix(A.A, MType))
 _convert_to_gpu_matrix(A::ScaledOperator, MType) = ScaledOperator(A.λ, _convert_to_gpu_matrix(A.L, MType))
@@ -81,17 +81,17 @@ _HandleTraceVectorType(M::Type{<:AbstractCuSparseMatrix}, V::SparseVector) =
     CuSparseVector{_complex_float_type(eltype(M))}(V)
 
 _HandleSteadyStateMatrix(
-    M::AbstractHEOMLSMatrix{<:MatrixOperator{T,MT}},
+    M::AbstractHEOMLSMatrix{<:MatrixOperator{T, MT}},
     ::CuArray{T},
-) where {T<:Number,MT<:AbstractCuSparseMatrix} =
+) where {T <: Number, MT <: AbstractCuSparseMatrix} =
     M.data.A + get_typename_wrapper(M.data.A)(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1)))
 
 # if the HEOMLS Matrix is transferred to GPU by proper apis, it should have all the operators in the same sparse format
 # To avoid scalar indexing in potential concretization, make the constraint the same type sparse format as M.data
 # Do not specify the element type for the CuSparseMatrix... (No method)
-_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AddedOperator{T}}, b::CuArray{T}) where {T<:Number} =
+_HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AddedOperator{T}}, b::CuArray{T}) where {T <: Number} =
     get_cached_HEOMLS_data(
-        M.data + _get_SciML_matrix_wrapper(M)(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1))),
-        b,
-    )
+    M.data + _get_SciML_matrix_wrapper(M)(_SteadyStateConstraint(T, prod(M.dimensions), size(M, 1))),
+    b,
+)
 end

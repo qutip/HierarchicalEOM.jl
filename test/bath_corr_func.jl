@@ -1,5 +1,5 @@
 @testitem "Bath correlation functions" begin
-    λ = 0.1450
+    λ = 0.145
     W = 0.6464
     kT = 0.7414
     μ = 0.8787
