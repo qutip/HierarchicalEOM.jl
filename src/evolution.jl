@@ -119,7 +119,9 @@ function HEOMsolveProblem(
     haskey(kwargs, :save_idxs) &&
         throw(ArgumentError("The keyword argument \"save_idxs\" is not supported in HierarchicalEOM."))
 
-    tlist = _check_tlist(tlist, _float_type(M))
+    T = _complex_float_type(Base.promote_eltype(M.data, ρ0.data))
+
+    tlist = _check_tlist(tlist, _float_type(T))
     tspan = (tlist[1], tlist[end])
 
     # handle initial state
