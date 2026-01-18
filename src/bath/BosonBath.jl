@@ -16,7 +16,7 @@ end
 
 _check_bosonic_RWA_coupling_operator(op) = HandleMatrixType(op, "op (coupling operator)", type = Operator())
 
-function _combine_same_gamma(η::Vector{Ti}, γ::Vector{Tj}) where {Ti, Tj <: Number}
+function _combine_same_gamma(η::Vector{Ti}, γ::Vector{Tj}) where {Ti <: Number, Tj <: Number}
     if length(η) != length(γ)
         error("The length of \'η\' and \'γ\' should be the same.")
     end
@@ -99,7 +99,7 @@ function BosonBath(
         γ::Vector{Tj},
         δ::Number = 0.0;
         combine::Bool = true,
-    ) where {Ti, Tj <: Number}
+    ) where {Ti <: Number, Tj <: Number}
     _op = HandleMatrixType(op, "op (coupling operator)", type = Operator())
     if combine
         ηnew, γnew = _combine_same_gamma(η, γ)
@@ -147,7 +147,7 @@ function BosonBath(
         γ_imag::Vector{Tl},
         δ::Tm = 0.0;
         combine::Bool = true,
-    ) where {Ti, Tj, Tk, Tl, Tm <: Number}
+    ) where {Ti <: Number, Tj <: Number, Tk <: Number, Tl <: Number, Tm <: Number}
     _op = HandleMatrixType(op, "op (coupling operator)", type = Operator())
 
     if combine
@@ -232,7 +232,7 @@ Generate bosonic bath for the real part of bath correlation function ``C^{u=\tex
 - `η_real::Vector{Ti<:Number}` : the coefficients ``\eta_i`` in real part of bath correlation function ``C^{u=\textrm{R}}``.
 - `γ_real::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` in real part of bath correlation function ``C^{u=\textrm{R}}``.
 """
-function bosonReal(op::QuantumObject, η_real::Vector{Ti}, γ_real::Vector{Tj}) where {Ti, Tj <: Number}
+function bosonReal(op::QuantumObject, η_real::Vector{Ti}, γ_real::Vector{Tj}) where {Ti <: Number, Tj <: Number}
     _op = _check_bosonic_coupling_operator(op)
 
     # check if the length of coefficients are valid
@@ -276,7 +276,7 @@ Generate bosonic bath for the imaginary part of correlation function ``C^{u=\tex
 - `η_imag::Vector{Ti<:Number}` : the coefficients ``\eta_i`` in imaginary part of bath correlation functions ``C^{u=\textrm{I}}``.
 - `γ_imag::Vector{Tj<:Number}` : the coefficients ``\gamma_i`` in imaginary part of bath correlation functions ``C^{u=\textrm{I}}``.
 """
-function bosonImag(op::QuantumObject, η_imag::Vector{Ti}, γ_imag::Vector{Tj}) where {Ti, Tj <: Number}
+function bosonImag(op::QuantumObject, η_imag::Vector{Ti}, γ_imag::Vector{Tj}) where {Ti <: Number, Tj <: Number}
     _op = _check_bosonic_coupling_operator(op)
 
     # check if the length of coefficients are valid
@@ -330,7 +330,7 @@ function bosonRealImag(
         η_real::Vector{Ti},
         η_imag::Vector{Tj},
         γ::Vector{Tk},
-    ) where {Ti, Tj, Tk <: Number}
+    ) where {Ti <: Number, Tj <: Number, Tk <: Number}
     _op = _check_bosonic_coupling_operator(op)
 
     # check if the length of coefficients are valid
@@ -374,7 +374,7 @@ function BosonBathRWA(
         η_emit::Vector{Tk},
         γ_emit::Vector{Tl},
         δ::Tm = 0.0,
-    ) where {Ti, Tj, Tk, Tl, Tm <: Number}
+    ) where {Ti <: Number, Tj <: Number, Tk <: Number, Tl <: Number, Tm <: Number}
     _check_gamma_absorb_and_emit(γ_absorb, γ_emit)
     _op = HandleMatrixType(op, "op (coupling operator)", type = Operator())
 
@@ -426,7 +426,7 @@ function bosonAbsorb(
         η_absorb::Vector{Ti},
         γ_absorb::Vector{Tj},
         η_emit::Vector{Tk},
-    ) where {Ti, Tj, Tk <: Number}
+    ) where {Ti <: Number, Tj <: Number, Tk <: Number}
     _op = _check_bosonic_RWA_coupling_operator(op)
 
     # check if the length of coefficients are valid
@@ -489,7 +489,7 @@ function bosonEmit(
         η_emit::Vector{Ti},
         γ_emit::Vector{Tj},
         η_absorb::Vector{Tk},
-    ) where {Ti, Tj, Tk <: Number}
+    ) where {Ti <: Number, Tj <: Number, Tk <: Number}
     _op = _check_bosonic_RWA_coupling_operator(op)
 
     # check if the length of coefficients are valid

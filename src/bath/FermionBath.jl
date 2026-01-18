@@ -74,7 +74,7 @@ function FermionBath(
         η_emit::Vector{Tk},
         γ_emit::Vector{Tl},
         δ::Tm = 0.0,
-    ) where {Ti, Tj, Tk, Tl, Tm <: Number}
+    ) where {Ti <: Number, Tj <: Number, Tk <: Number, Tl <: Number, Tm <: Number}
     _check_gamma_absorb_and_emit(γ_absorb, γ_emit)
 
     _op = HandleMatrixType(op, "op (coupling operator)", type = Operator())
@@ -128,7 +128,7 @@ function fermionAbsorb(
         η_absorb::Vector{Ti},
         γ_absorb::Vector{Tj},
         η_emit::Vector{Tk},
-    ) where {Ti, Tj, Tk <: Number}
+    ) where {Ti <: Number, Tj <: Number, Tk <: Number}
     _op = _check_fermionic_coupling_operator(op)
 
     # check if the length of coefficients are valid
@@ -194,7 +194,7 @@ function fermionEmit(
         η_emit::Vector{Ti},
         γ_emit::Vector{Tj},
         η_absorb::Vector{Tk},
-    ) where {Ti, Tj, Tk <: Number}
+    ) where {Ti <: Number, Tj <: Number, Tk <: Number}
     _op = _check_fermionic_coupling_operator(op)
 
     # check if the length of coefficients are valid

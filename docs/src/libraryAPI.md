@@ -18,25 +18,25 @@ Pages = ["libraryAPI.md"]
 correlation_function
 Exponent
 BosonBath
-BosonBath(op::QuantumObject, η::Vector{Ti}, γ::Vector{Tj}, δ::Number=0.0; combine::Bool=true) where {Ti, Tj <: Number}
-BosonBath(op::QuantumObject, η_real::Vector{Ti}, γ_real::Vector{Tj}, η_imag::Vector{Tk}, γ_imag::Vector{Tl}, δ::Tm=0.0; combine::Bool=true) where {Ti, Tj, Tk, Tl, Tm <: Number}
+BosonBath(op::QuantumObject, η::Vector{Ti}, γ::Vector{Tj}, δ::Number=0.0; combine::Bool=true) where {Ti <: Number, Tj <: Number}
+BosonBath(op::QuantumObject, η_real::Vector{Ti}, γ_real::Vector{Tj}, η_imag::Vector{Tk}, γ_imag::Vector{Tl}, δ::Tm=0.0; combine::Bool=true) where {Ti <: Number, Tj <: Number, Tk <: Number, Tl <: Number, Tm <: Number}
 bosonReal
-bosonReal(op::QuantumObject, η_real::Vector{Ti}, γ_real::Vector{Tj}) where {Ti, Tj <: Number}
+bosonReal(op::QuantumObject, η_real::Vector{Ti}, γ_real::Vector{Tj}) where {Ti <: Number, Tj <: Number}
 bosonImag
-bosonImag(op::QuantumObject, η_real::Vector{Ti}, γ_real::Vector{Tj}) where {Ti, Tj <: Number}
+bosonImag(op::QuantumObject, η_real::Vector{Ti}, γ_real::Vector{Tj}) where {Ti <: Number, Tj <: Number}
 bosonRealImag
-bosonRealImag(op::QuantumObject, η_real::Vector{Ti}, η_imag::Vector{Tj}, γ::Vector{Tk}) where {Ti, Tj, Tk <: Number}
+bosonRealImag(op::QuantumObject, η_real::Vector{Ti}, η_imag::Vector{Tj}, γ::Vector{Tk}) where {Ti <: Number, Tj <: Number, Tk <: Number}
 BosonBathRWA
 bosonAbsorb
-bosonAbsorb(op::QuantumObject, η_absorb::Vector{Ti}, γ_absorb::Vector{Tj}, η_emit::Vector{Tk}) where {Ti, Tj, Tk <: Number}
+bosonAbsorb(op::QuantumObject, η_absorb::Vector{Ti}, γ_absorb::Vector{Tj}, η_emit::Vector{Tk}) where {Ti <: Number, Tj <: Number, Tk <: Number}
 bosonEmit
-bosonEmit(op::QuantumObject, η_emit::Vector{Ti}, γ_emit::Vector{Tj}, η_absorb::Vector{Tk}) where {Ti, Tj, Tk <: Number}
+bosonEmit(op::QuantumObject, η_emit::Vector{Ti}, γ_emit::Vector{Tj}, η_absorb::Vector{Tk}) where {Ti <: Number, Tj <: Number, Tk <: Number}
 FermionBath
-FermionBath(op::QuantumObject, η_absorb::Vector{Ti}, γ_absorb::Vector{Tj}, η_emit::Vector{Tk}, γ_emit::Vector{Tl}, δ::Tm=0.0) where {Ti, Tj, Tk, Tl, Tm <: Number}
+FermionBath(op::QuantumObject, η_absorb::Vector{Ti}, γ_absorb::Vector{Tj}, η_emit::Vector{Tk}, γ_emit::Vector{Tl}, δ::Tm=0.0) where {Ti <: Number, Tj <: Number, Tk <: Number, Tl <: Number, Tm <: Number}
 fermionAbsorb
-fermionAbsorb(op::QuantumObject, η_absorb::Vector{Ti}, γ_absorb::Vector{Tj}, η_emit::Vector{Tk}) where {Ti, Tj, Tk <: Number}
+fermionAbsorb(op::QuantumObject, η_absorb::Vector{Ti}, γ_absorb::Vector{Tj}, η_emit::Vector{Tk}) where {Ti <: Number, Tj <: Number, Tk <: Number}
 fermionEmit
-fermionEmit(op::QuantumObject, η_emit::Vector{Ti}, γ_emit::Vector{Tj}, η_absorb::Vector{Tk}) where {Ti, Tj, Tk <: Number}
+fermionEmit(op::QuantumObject, η_emit::Vector{Ti}, γ_emit::Vector{Tj}, η_absorb::Vector{Tk}) where {Ti <: Number, Tj <: Number, Tk <: Number}
 ```
 
 ## Bath Correlation Functions
