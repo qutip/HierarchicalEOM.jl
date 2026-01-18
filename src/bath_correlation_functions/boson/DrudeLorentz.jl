@@ -7,7 +7,7 @@ function _boson_drude_lorentz_approx_discrepancy(
         N::Int,
         η::Vector{Ti},
         γ::Vector{Tj},
-    ) where {Ti, Tj <: Number}
+    ) where {Ti <: Number, Tj <: Number}
     δ = 2 * λ * kT / W - 1.0im * λ
     for k in 1:(N + 1)
         δ -= η[k] / γ[k]
