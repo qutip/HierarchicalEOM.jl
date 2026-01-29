@@ -5,7 +5,7 @@
 
 | **Release**       | [![Release][release-img]][release-url] [![License][license-img]][license-url] [![Cite][cite-img]][cite-url] |
 |:-----------------:|:-------------|
-| **Runtests**      | [![Runtests][runtests-img]][runtests-url] [![Coverage][codecov-img]][codecov-url] |
+| **Runtests**      | [![Runtests][runtests-img]][runtests-url] [![Buildkite][buildkite-img]][buildkite-url] [![Coverage][codecov-img]][codecov-url] |
 | **Code Quality**  | [![Code Quality][code-quality-img]][code-quality-url] [![Aqua QA][aqua-img]][aqua-url] [![JET][jet-img]][jet-url] [![code style: runic][runic-img]][runic-url] |
 | **Documentation** | [![Doc-Stable][docs-stable-img]][docs-stable-url] [![Doc-Dev][docs-develop-img]][docs-develop-url] |
 
@@ -20,6 +20,9 @@
 
 [runtests-img]: https://github.com/qutip/HierarchicalEOM.jl/actions/workflows/Runtests.yml/badge.svg
 [runtests-url]: https://github.com/qutip/HierarchicalEOM.jl/actions/workflows/Runtests.yml
+
+[buildkite-img]: https://badge.buildkite.com/673403f0f86c29f6e31e101205f778f9a42a5a689c523de90d.svg?branch=main
+[buildkite-url]: https://buildkite.com/julialang/hierarchicaleom-dot-jl
 
 [codecov-img]: https://codecov.io/gh/qutip/HierarchicalEOM.jl/graph/badge.svg?token=ICFVVNuLHW
 [codecov-url]: https://codecov.io/gh/qutip/HierarchicalEOM.jl
