@@ -94,8 +94,8 @@ function QuantumToolbox.steadystate(
 
     kwargs2 = merge(
         (
-            abstol = DEFAULT_ODE_SOLVER_OPTIONS.abstol,
-            reltol = DEFAULT_ODE_SOLVER_OPTIONS.reltol,
+            abstol = default_ode_solver_options(eltype(M)).abstol,
+            reltol = default_ode_solver_options(eltype(M)).reltol,
             save_everystep = false,
             saveat = ftype[],
         ),

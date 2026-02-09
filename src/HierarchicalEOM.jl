@@ -37,7 +37,7 @@ import QuantumToolbox:
     getVal,
     TimeEvolutionProblem,
     AbstractSaveFunc,
-    DEFAULT_ODE_SOLVER_OPTIONS,
+    default_ode_solver_options,
     SteadyStateODECondition
 
 # SciML packages (for OrdinaryDiffEq and LinearSolve)
