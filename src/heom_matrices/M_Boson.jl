@@ -135,9 +135,8 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 
     # Create SciML lazy HEOM Liouvillian superoperator
     sup_dim = prod(_Hsys.dimensions)^2
-    L_t_indep = kron(IdentityOperator(Nado), minus_i_L_op(_Hsys)) # the Liouvillian operator for free Hamiltonian term
-    L_t_indep += kron(DiagonalOperator(minus_γ_term), IdentityOperator(sup_dim)) # minus sum γ terms
-    # L_t_indep += kron(MatrixOperator(spdiagm(minus_γ_term)), IdentityOperator(sup_dim)) # minus sum γ terms
+    L_t_indep = TensorProductOperator(IdentityOperator(Nado), minus_i_L_op(_Hsys)) # the Liouvillian operator for free Hamiltonian term
+    L_t_indep += TensorProductOperator(DiagonalOperator(minus_γ_term), IdentityOperator(sup_dim)) # minus sum γ terms
 
     # Superoperator cross level terms
     for b_term in B_terms
