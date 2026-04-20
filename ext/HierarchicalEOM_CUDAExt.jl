@@ -16,7 +16,7 @@ import CUDA.CUSPARSE: CuSparseVector, CuSparseMatrixCSC, CuSparseMatrixCSR, Abst
 import SparseArrays: AbstractSparseMatrix, sparse, SparseVector, SparseMatrixCSC
 import LinearAlgebra: Diagonal
 import SciMLOperators:
-    MatrixOperator, ScaledOperator, AddedOperator, IdentityOperator, TensorProductOperator, AbstractSciMLOperator
+    MatrixOperator, ScaledOperator, AddedOperator, IdentityOperator, TensorProductOperator, AbstractSciMLOperator, DiagonalOperator
 
 @doc raw"""
     cu(M::AbstractHEOMLSMatrix; word_size::Union{Val,Int} = Val(64))
@@ -66,6 +66,8 @@ CuSparseMatrixCSR{T}(M::HEOMSuperOp) where {T} =
 
 _convert_to_gpu_matrix(A::AbstractSparseMatrix, MType::Type{T}) where {T <: AbstractCuSparseMatrix} = MType(A)
 _convert_to_gpu_matrix(A::AbstractMatrix, MType::Type{T}) where {T <: AbstractCuSparseMatrix} = MType(sparse(A))
+_convert_to_gpu_matrix(A::Diagonal{Etype}, ::Type{T}) where {T <: AbstractCuSparseMatrix, Etype <: Number} = Diagonal(CuArray{Etype, 1}(A.diag))
+
 
 _convert_to_gpu_matrix(A::MatrixOperator, MType) = MatrixOperator(_convert_to_gpu_matrix(A.A, MType))
 _convert_to_gpu_matrix(A::ScaledOperator, MType) = ScaledOperator(A.λ, _convert_to_gpu_matrix(A.L, MType))
