@@ -625,11 +625,11 @@ function combine_HEOMLS_terms(op::AddedOperator)
         B_list[idx] = t_op.ops[2].A
     end
 
-    unique_B_ops = unique(B_list)
+    unique_B_ops = unique(B -> (B.colptr, B.rowval, B.nzval), B_list)
     index_groups = [[] for i in unique_B_ops]
     for i in eachindex(Tensor_ops)
         for j in eachindex(unique_B_ops)
-            if isequal(unique_B_ops[j], B_list[i])
+            if B_list[i] == unique_B_ops[j]
                 push!(index_groups[j], i)
             end
         end
