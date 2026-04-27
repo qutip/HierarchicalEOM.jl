@@ -219,9 +219,9 @@ function get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T <: SciM
     iscached(M) && (return M)
     ops = collect(M.ops)
 
-    # The von Neumann term I ⊗ L caches nothing, so we treat it separately 
+    # The von Neumann term I ⊗ L caches nothing, so we treat it separately
     cached_op = cache_operator_with_check(popfirst!(ops), cachevec)
-    
+
     idx = findfirst(op -> op isa TensorProductOperator, ops)
     isnothing(idx) && (return cache_operator_with_check(M, cachevec))
 
