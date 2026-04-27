@@ -217,14 +217,18 @@ apply_cache(op::SciMLOperators.AbstractSciMLOperator, tensor_cache, cachevec) = 
 
 function get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T <: SciMLOperators.AddedOperator}
     iscached(M) && (return M)
-    ops = M.ops
+    ops = collect(M.ops)
+
+    # The von Neumann term I ⊗ L caches nothing, so we treat it separately
+    cached_op = cache_operator_with_check(popfirst!(ops), cachevec)
+
     idx = findfirst(op -> op isa TensorProductOperator, ops)
     isnothing(idx) && (return cache_operator_with_check(M, cachevec))
 
     first_tensor = ops[idx]
     tensor_cache = cache_operator_with_check(first_tensor, cachevec).cache
 
-    cached_op = sum(op -> apply_cache(op, tensor_cache, cachevec), ops)
+    cached_op += sum(op -> apply_cache(op, tensor_cache, cachevec), ops)
 
     return cached_op
 end
