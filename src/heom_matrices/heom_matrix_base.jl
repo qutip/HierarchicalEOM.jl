@@ -217,7 +217,7 @@ apply_cache(op::SciMLOperators.AbstractSciMLOperator, tensor_cache, cachevec) = 
 
 function get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T <: SciMLOperators.AddedOperator}
     iscached(M) && (return M)
-    ops = collect(M.ops)
+    ops = M.ops
 
     idx = Base.findlast(op -> op isa TensorProductOperator, ops)
     isnothing(idx) && (return cache_operator_with_check(M, cachevec))
