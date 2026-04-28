@@ -19,14 +19,7 @@
     )
 
     # system-bath coupling operator
-    Q = Qobj(
-        [
-            0.1234 0.1357 + 0.2468im
-            0.1357 - 0.2468im 0.5678
-        ]
-    )
-    Bbath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
-    Fbath = Fermion_Lorentz_Pade(Q, λ, μ, W, kT, N)
+    Fbath = Fermion_Lorentz_Pade(destroy(2), λ, μ, W, kT, N)
 
     # jump operator
     J = Qobj([0 0.145 - 0.7414im; 0.145 + 0.7414im 0])
@@ -38,7 +31,7 @@
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (1196, 1196)
     @test L.N == 299
-    @test nnz(L.data.A) == nnz(L(0).data.A) == nnz(concretize(L_lazy)(0).data.A) == 21318
+    @test nnz(L.data.A) == nnz(L(0).data.A) == nnz(concretize(L_lazy)(0).data.A) == 10018
     @test L(0).data.A == concretize(L_combine).data.A
     @test L.data isa SciMLOperators.MatrixOperator
     @test L_combine.data isa SciMLOperators.AddedOperator
@@ -46,7 +39,7 @@
     @test length(L_combine.data.ops) == 4 * 1 + 2 # 4 ops per fermion bath + 2 free terms
     @test length(L_lazy.data.ops) == 8 * 1 + 2 # 8 ops per fermion bath + 2 free terms
     L = addFermionDissipator(L, J)
-    @test nnz(L.data.A) == nnz(L(0).data.A) == 22516
+    @test nnz(L.data.A) == nnz(L(0).data.A) == 11216
     @test isconstant(L)
     @test iscached(L)
     @test iscached(L_combine_cached)
@@ -58,8 +51,8 @@
     @test getRho(ados) == ρ0
     ρ1 = Qobj(
         [
-            0.49971864340781574 + 1.5063528845574697e-11im -0.00025004129095353573 + 0.00028356932981729176im
-            -0.0002500413218393161 - 0.0002835693203755187im 0.5002813565929579 - 1.506436545359778e-11im
+            0.5014373576999699 - 1.3892567817792988e-17im  -0.0015662233262583364 - 0.009015267133592107im
+            -0.0015662233262584758 + 0.009015267133592103im      0.4985626423000295 - 6.95905692573837e-18im
         ],
     )
     @test ρ0 ≈ ρ1 atol = 1.0e-6
@@ -68,7 +61,7 @@
     L = addFermionDissipator(L, J)
     @test size(L) == (148, 148)
     @test L.N == 37
-    @test nnz(L.data.A) == nnz(L(0).data.A) == 2054
+    @test nnz(L.data.A) == nnz(L(0).data.A) == 1112
     ados = steadystate(L; verbose = false)
     ρ2 = ados[1]
     @test ρ0 ≈ ρ2 atol = 1.0e-6
@@ -76,9 +69,9 @@
     L = M_Fermion(Hsys, tier, [Fbath, Fbath]; verbose = false)
     @test size(L) == (9300, 9300)
     @test L.N == 2325
-    @test nnz(L.data.A) == nnz(L(0).data.A) == 174338
+    @test nnz(L.data.A) == nnz(L(0).data.A) == 81082
     L = addFermionDissipator(L, J)
-    @test nnz(L.data.A) == nnz(L(0).data.A) == 183640
+    @test nnz(L.data.A) == nnz(L(0).data.A) == 90384
     ados = steadystate(L; verbose = false)
     @test ados.dims == L.dims
     @test length(ados) == L.N
@@ -86,8 +79,8 @@
     @test getRho(ados) == ρ0
     ρ1 = Qobj(
         [
-            0.4994229368103249 + 2.6656157051929377e-12im -0.0005219753638749304 + 0.0005685093274121244im
-            -0.0005219753958601764 - 0.0005685092413099392im 0.5005770631903512 - 2.6376966158390854e-12im
+            0.5024605153620629 - 3.452236695213822e-17im  -0.003127033937084677 - 0.017184962302082486im
+            -0.0031270339370842257 + 0.01718496230208245im        0.4975394846379351 + 3.9008249021550266e-17im
         ],
     )
     @test ρ0 ≈ ρ1
