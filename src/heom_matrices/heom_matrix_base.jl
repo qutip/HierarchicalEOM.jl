@@ -218,15 +218,14 @@ apply_cache(op::SciMLOperators.AbstractSciMLOperator, tensor_cache, cachevec) = 
 function get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T <: SciMLOperators.AddedOperator}
     iscached(M) && (return M)
     ops = M.ops
-    idx = findfirst(op -> op isa TensorProductOperator, ops)
+
+    idx = Base.findlast(op -> op isa TensorProductOperator, ops)
     isnothing(idx) && (return cache_operator_with_check(M, cachevec))
 
-    first_tensor = ops[idx]
-    tensor_cache = cache_operator_with_check(first_tensor, cachevec).cache
+    last_tensor = cache_operator_with_check(ops[idx], cachevec)
+    tensor_cache = last_tensor.cache
 
-    cached_op = sum(op -> apply_cache(op, tensor_cache, cachevec), ops)
-
-    return cached_op
+    return sum(op -> apply_cache(op, tensor_cache, cachevec), ops)
 end
 
 get_cached_HEOMLS_data(M::AbstractHEOMLSMatrix, cachevec::AbstractVector) = get_cached_HEOMLS_data(M.data, cachevec)
@@ -611,6 +610,25 @@ function minus_i_A_op!(
     return nothing
 end
 
+function _unique_sparse_groups(B_list)
+    unique_Bs = eltype(B_list)[]
+    index_groups = Vector{Vector{Int}}() # list of index groups corresponding to each unique B
+    for (i, B) in pairs(B_list)
+        j = findfirst(
+            uB -> uB.colptr == B.colptr &&
+                uB.rowval == B.rowval &&
+                uB.nzval == B.nzval, unique_Bs
+        )
+        if j === nothing
+            push!(unique_Bs, B)
+            push!(index_groups, [i])
+        else
+            push!(index_groups[j], i)
+        end
+    end
+    return unique_Bs, index_groups
+end
+
 function combine_HEOMLS_terms(op::AddedOperator)
     Tensor_ops = op.ops |> collect # [ A_i ⊗ B_i ]
     Id_terms = popfirst!(Tensor_ops)  # von Neumann term
@@ -618,28 +636,22 @@ function combine_HEOMLS_terms(op::AddedOperator)
 
     A_list = Vector{AbstractMatrix}(undef, length(Tensor_ops))
     B_list = Vector{AbstractMatrix}(undef, length(Tensor_ops))
-
     for (idx, t_op) in pairs(Tensor_ops)
         t_op isa TensorProductOperator || throw(ArgumentError("The HEOMLS term should be a TensorProductOperator."))
         A_list[idx] = t_op.ops[1].A
         B_list[idx] = t_op.ops[2].A
     end
 
-    unique_B_ops = unique(B_list)
-    index_groups = [[] for i in unique_B_ops]
-    for i in eachindex(Tensor_ops)
-        for j in eachindex(unique_B_ops)
-            if isequal(unique_B_ops[j], B_list[i])
-                push!(index_groups[j], i)
-            end
-        end
-    end
+    # B part (Liouville space super operator) is SparseMatrixCSC; use == to avoid -0.0 vs 0.0 issue
+    unique_Bs, index_groups = _unique_sparse_groups(B_list)
 
-    return Id_terms + sum(pairs(unique_B_ops)) do (j, Bj)
-        Aj = sum(k -> A_list[k], index_groups[j])
+    other_terms = sum(zip(unique_Bs, index_groups)) do (Bj, idx_group)
+        Aj = sum(k -> A_list[k], idx_group)
         return TensorProductOperator(Aj, Bj)
     end
+    return Id_terms + other_terms
 end
+
 combine_HEOMLS_terms(op::TensorProductOperator) = op
 
 function assemble_HEOMLS_terms(M::Vector{<:AbstractSciMLOperator}, ::Val{:full}, verbose::Bool)
