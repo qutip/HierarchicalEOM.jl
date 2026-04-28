@@ -129,7 +129,7 @@ function HEOMsolveProblem(
 
     # define ODE problem (L should be an AbstractSciMLOperator)
     L = get_cached_HEOMLS_data(_make_L(M, H_t), u0)
-    kwargs2 = _merge_saveat(tlist, e_ops, DEFAULT_ODE_SOLVER_OPTIONS; kwargs...)
+    kwargs2 = _merge_saveat(tlist, e_ops, default_ode_solver_options(T); kwargs...)
     kwargs3 = _merge_tstops(kwargs2, isconstant(L), tlist)
     kwargs4 = _generate_heom_kwargs(e_ops, makeVal(progress_bar), tlist, kwargs3, SaveFuncHEOMSolve, M)
     prob = ODEProblem{getVal(inplace), FullSpecialize}(L, u0, tspan, params; kwargs4...)
@@ -394,7 +394,7 @@ HEOMsolve_map(
 #
 # Return: An array of TimeEvolutionSol objects with the size same as the given iter.
 function HEOMsolve_map(
-        prob::TimeEvolutionProblem{<:QuantumObjectType, <:AbstractDimensions, <:ODEProblem},
+        prob::TimeEvolutionProblem{<:QuantumObjectType, <:Dimensions, <:ODEProblem},
         iter::AbstractArray,
         alg::AbstractODEAlgorithm = DP5(),
         ensemblealg::EnsembleAlgorithm = EnsembleThreads();

@@ -36,9 +36,9 @@ struct ADOs
     parity::AbstractParity
 
     function ADOs(data::AbstractVector, dims, N::Int, parity::AbstractParity)
-        dimensions = _gen_dimensions(dims)
+        dimensions = _gen_dimensions(SuperOperator(), dims) # pretend it is a SuperOperator for now
         Vsize = size(data, 1)
-        ((Vsize / N) == prod(dimensions)^2) || error("The `dimensions` is not consistent with the ADOs number `N`.")
+        ((Vsize / N) == get_size(dimensions)[1]^2) || error("The `dimensions` is not consistent with the ADOs number `N`.")
         return new(sparsevec(data), dimensions, N, parity)
     end
 end
@@ -99,7 +99,7 @@ Base.lastindex(A::ADOs) = length(A)
 function Base.getindex(A::ADOs, i::Int)
     checkbounds(A, i)
 
-    D = prod(A.dimensions)
+    D = get_size(A.dimensions)[1]
     sup_dim = D^2
     back = sup_dim * i
     return QuantumObject(reshape(A.data[(back - sup_dim + 1):back], D, D), Operator(), A.dimensions)
@@ -110,7 +110,7 @@ function Base.getindex(A::ADOs, r::UnitRange{Int})
     checkbounds(A, r[end])
 
     result = []
-    D = prod(A.dimensions)
+    D = get_size(A.dimensions)[1]
     sup_dim = D^2
     for i in r
         back = sup_dim * i
@@ -139,7 +139,7 @@ Return the density matrix of the reduced state (system) from a given auxiliary d
 - `ρ::QuantumObject` : The density matrix of the reduced state
 """
 function getRho(ados::ADOs)
-    D = prod(ados.dimensions)
+    D = get_size(ados.dimensions)[1]
     return QuantumObject(reshape(ados.data[1:(D^2)], D, D), Operator(), ados.dimensions)
 end
 

@@ -71,7 +71,7 @@ During the multiplication on all the `ADOs`, the parity of the output `ADOs` mig
 - `N::Int` : the number of `ADOs`.
 """
 function HEOMSuperOp(op, opParity::AbstractParity, dims, N::Int)
-    dimensions = _gen_dimensions(dims)
+    dimensions = _gen_dimensions(SuperOperator(), dims) # pretend it is a SuperOperator for now
     sup_op = HandleMatrixType(op, dimensions, "op (operator)"; type = SuperOperator())
 
     return HEOMSuperOp(kron(Eye(N), sup_op.data), dimensions, N, opParity)
