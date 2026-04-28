@@ -1,7 +1,33 @@
-export ADOs
+export ADOs, ADOsSpace
 export getRho, getADO
 
 struct ADOsType <: QuantumObjectType end
+
+@doc raw"""
+    struct ADOsSpace{N, DT<:Dimensions} <: AbstractSuperSpace
+
+Describes the Liouville space of the system coupled to the HEOM bath,
+together with the number of auxiliary density operators `N`.
+Wraps a [`LiouvilleSpace`](@ref) and acts as the space type for [`ADOs`](@ref),
+[`HEOMSuperOp`](@ref), and all HEOMLS matrices' `dimensions` field.
+
+The type parameter `N` is the number of ADOs (same as `M.N` for an HEOMLS matrix).
+"""
+struct ADOsSpace{N, DT <: Dimensions} <: AbstractSuperSpace
+    liouville::LiouvilleSpace{DT}
+end
+ADOsSpace{N}(ls::LiouvilleSpace{DT}) where {N, DT <: Dimensions} = ADOsSpace{N, DT}(ls)
+ADOsSpace(N::Int, ls::LiouvilleSpace) = ADOsSpace{N}(ls)
+ADOsSpace(N::Int, dims::Dimensions) = ADOsSpace{N}(LiouvilleSpace(dims))
+
+QuantumToolbox.get_size(s::ADOsSpace{N}) where {N} = N * get_size(s.liouville)
+QuantumToolbox.dimensions_to_dims(s::ADOsSpace) = dimensions_to_dims(s.liouville.op_dims.to)
+QuantumToolbox._get_dims_string(s::ADOsSpace) = _get_dims_string(s.liouville.op_dims)
+function Base.:(==)(s1::ADOsSpace{N1}, s2::ADOsSpace{N2}) where {N1, N2}
+    N1 == N2 || return false
+    return s1.liouville == s2.liouville
+end
+Base.length(::ADOsSpace) = 1
 
 @doc raw"""
     struct ADOs
@@ -36,9 +62,19 @@ struct ADOs
     parity::AbstractParity
 
     function ADOs(data::AbstractVector, dims, N::Int, parity::AbstractParity)
-        dimensions = _gen_dimensions(SuperOperator(), dims) # pretend it is a SuperOperator for now
+        ls = if dims isa Dimensions{<:ADOsSpace}
+            dims.to.liouville
+        elseif dims isa Dimensions
+            LiouvilleSpace(dims)
+        elseif dims isa Int
+            LiouvilleSpace(Dimensions(Space(dims), Space(dims)))
+        else
+            error("HierarchicalEOM: unsupported dims type $(typeof(dims)) for ADOs constructor.")
+        end
+        s = ADOsSpace(N, ls)
+        dimensions = Dimensions(s, Space(1))
         Vsize = size(data, 1)
-        ((Vsize / N) == get_size(dimensions)[1]^2) || error("The `dimensions` is not consistent with the ADOs number `N`.")
+        Vsize == get_size(s) || error("The `dimensions` is not consistent with the ADOs number `N`.")
         return new(sparsevec(data), dimensions, N, parity)
     end
 end
@@ -64,8 +100,9 @@ Generate the object of auxiliary density operators for HEOM model.
 - `parity::AbstractParity` : the parity label (`EVEN` or `ODD`). Default to `EVEN`.
 """
 function ADOs(ρ::QuantumObject, N::Int = 1, parity::AbstractParity = EVEN)
-    _ρ = sparse(vec(ket2dm(ρ).data)) # to avoid _ρ begin reshape type, which cannot do _ρ.nzind and _ρ.nzval
-    return ADOs(sparsevec(_ρ.nzind, _ρ.nzval, N * length(_ρ)), ρ.dimensions, N, parity)
+    _dm = ket2dm(ρ)
+    _ρ = sparse(vec(_dm.data)) # to avoid _ρ begin reshape type, which cannot do _ρ.nzind and _ρ.nzval
+    return ADOs(sparsevec(_ρ.nzind, _ρ.nzval, N * length(_ρ)), _dm.dimensions, N, parity)
 end
 ADOs(ρ, N::Int = 1, parity::AbstractParity = EVEN) =
     error("HierarchicalEOM doesn't support input `ρ` with type : $(typeof(ρ))")
@@ -73,7 +110,7 @@ ADOs(ρ, N::Int = 1, parity::AbstractParity = EVEN) =
 function Base.getproperty(ados::ADOs, key::Symbol)
     # a comment here to avoid bad render by JuliaFormatter
     if key === :dims
-        return dimensions_to_dims(getfield(ados, :dimensions))
+        return dimensions_to_dims(getfield(ados, :dimensions).to)
     else
         return getfield(ados, key)
     end
@@ -99,10 +136,10 @@ Base.lastindex(A::ADOs) = length(A)
 function Base.getindex(A::ADOs, i::Int)
     checkbounds(A, i)
 
-    D = get_size(A.dimensions)[1]
-    sup_dim = D^2
+    sup_dim = get_size(A.dimensions.to.liouville)
+    D = isqrt(sup_dim)
     back = sup_dim * i
-    return QuantumObject(reshape(A.data[(back - sup_dim + 1):back], D, D), Operator(), A.dimensions)
+    return QuantumObject(reshape(A.data[(back - sup_dim + 1):back], D, D), Operator(), A.dimensions.to.liouville.op_dims)
 end
 
 function Base.getindex(A::ADOs, r::UnitRange{Int})
@@ -110,11 +147,12 @@ function Base.getindex(A::ADOs, r::UnitRange{Int})
     checkbounds(A, r[end])
 
     result = []
-    D = get_size(A.dimensions)[1]
-    sup_dim = D^2
+    sup_dim = get_size(A.dimensions.to.liouville)
+    D = isqrt(sup_dim)
+    op_dims = A.dimensions.to.liouville.op_dims
     for i in r
         back = sup_dim * i
-        push!(result, QuantumObject(reshape(A.data[(back - sup_dim + 1):back], D, D), Operator(), A.dimensions))
+        push!(result, QuantumObject(reshape(A.data[(back - sup_dim + 1):back], D, D), Operator(), op_dims))
     end
     return result
 end
@@ -124,7 +162,7 @@ Base.iterate(A::ADOs, state::Int = 1) = state > length(A) ? nothing : (A[state],
 
 Base.show(io::IO, A::ADOs) = print(
     io,
-    "$(A.N) Auxiliary Density Operators with $(A.parity) and (system) dims = $(_get_dims_string(A.dimensions))\n",
+    "$(A.N) Auxiliary Density Operators with $(A.parity) and (system) dims = $(_get_dims_string(A.dimensions.to))\n",
 )
 Base.show(io::IO, m::MIME"text/plain", A::ADOs) = show(io, A)
 
@@ -139,8 +177,9 @@ Return the density matrix of the reduced state (system) from a given auxiliary d
 - `ρ::QuantumObject` : The density matrix of the reduced state
 """
 function getRho(ados::ADOs)
-    D = get_size(ados.dimensions)[1]
-    return QuantumObject(reshape(ados.data[1:(D^2)], D, D), Operator(), ados.dimensions)
+    sup_dim = get_size(ados.dimensions.to.liouville)
+    D = isqrt(sup_dim)
+    return QuantumObject(reshape(ados.data[1:sup_dim], D, D), Operator(), ados.dimensions.to.liouville.op_dims)
 end
 
 @doc raw"""
