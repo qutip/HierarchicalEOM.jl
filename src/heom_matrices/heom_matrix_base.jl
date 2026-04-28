@@ -645,12 +645,12 @@ function combine_HEOMLS_terms(op::AddedOperator)
     # B part (Liouville space super operator) is SparseMatrixCSC; use == to avoid -0.0 vs 0.0 issue
     unique_Bs, index_groups = _unique_sparse_groups(B_list)
 
-    other_terms = sum(zip(unique_Bs, index_groups)) do (Bj, idx_group)  
-        Aj = sum(k -> A_list[k], idx_group)  
-        return TensorProductOperator(Aj, Bj)  
-    end  
-    return Id_terms + other_terms  
-end  
+    other_terms = sum(zip(unique_Bs, index_groups)) do (Bj, idx_group)
+        Aj = sum(k -> A_list[k], idx_group)
+        return TensorProductOperator(Aj, Bj)
+    end
+    return Id_terms + other_terms
+end
 
 combine_HEOMLS_terms(op::TensorProductOperator) = op
 
