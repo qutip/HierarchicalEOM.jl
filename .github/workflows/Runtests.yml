@@ -48,7 +48,7 @@ jobs:
           - os: 'macOS-latest'
             arch: 'arm64'
         group:
-          - 'Core'
+          - 'Main'
 
         include:
           # for core tests (intermediate versions)
@@ -56,7 +56,7 @@ jobs:
             node:
               os: 'ubuntu-latest'
               arch: 'x64'
-            group: 'Core'
+            group: 'Main'
 
     steps:
       - uses: actions/checkout@v6
