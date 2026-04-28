@@ -13,24 +13,27 @@
 
     # System Hamiltonian
     Hsys = Qobj(
-        [
+        sparse([
             0.6969 0.4364
             0.4364 0.3215
-        ]
+        ])
     )
 
     # system-bath coupling operator
     Q = Qobj(
-        [
+        sparse([
             0.1234 0.1357 + 0.2468im
             0.1357 - 0.2468im 0.5678
-        ]
+        ])
     )
     Bbath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
     Fbath = Fermion_Lorentz_Pade(Q, λ, μ, W, kT, N)
 
     # jump operator
-    J = Qobj([0 0.145 - 0.7414im; 0.145 + 0.7414im 0])
+    J = Qobj(sparse([
+        0 0.145 - 0.7414im
+        0.145 + 0.7414im 0
+    ]))
 
     L = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose = true) # also test verbosity
     L_combine = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose = false, assemble = Val(:combine)) # test combined tensor assembly with assemble = Val(:combine)

@@ -12,17 +12,20 @@
 
     # System Hamiltonian
     Hsys = Qobj(
-        [
+        sparse([
             0.6969 0.4364
             0.4364 0.3215
-        ]
+        ])
     )
 
     # system-bath coupling operator
     Fbath = Fermion_Lorentz_Pade(destroy(2), λ, μ, W, kT, N)
 
     # jump operator
-    J = Qobj([0 0.145 - 0.7414im; 0.145 + 0.7414im 0])
+    J = Qobj(sparse([
+        0 0.145 - 0.7414im
+        0.145 + 0.7414im 0
+    ]))
 
     L = M_Fermion(Hsys, tier, Fbath; verbose = true) # also test verbosity
     L_combine = M_Fermion(Hsys, tier, Fbath; verbose = false, assemble = Val(:combine))
