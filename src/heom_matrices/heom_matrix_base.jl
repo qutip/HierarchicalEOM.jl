@@ -632,7 +632,7 @@ end
 function combine_HEOMLS_terms(op::AddedOperator)
     Tensor_ops = op.ops |> collect # [ A_i ⊗ B_i ]
     Id_terms = popfirst!(Tensor_ops)  # von Neumann term
-    Id_terms += popfirst!(Tensor_ops)  # sum γ term
+    Id_terms += popfirst!(Tensor_ops) # sum γ term
 
     A_list = Vector{AbstractMatrix}(undef, length(Tensor_ops))
     B_list = Vector{AbstractMatrix}(undef, length(Tensor_ops))
@@ -647,7 +647,7 @@ function combine_HEOMLS_terms(op::AddedOperator)
 
     return Id_terms + sum(zip(unique_Bs, groups)) do (Bj, idx_group)
         Aj = sum(k -> A_list[k], idx_group)
-        return TensorProductOperator(Aj, Bj)
+        TensorProductOperator(Aj, Bj)
     end
 end
 combine_HEOMLS_terms(op::TensorProductOperator) = op
