@@ -19,15 +19,7 @@
     )
 
     # system-bath coupling operator
-    Qb = Qobj(
-        [
-            0.1234 0.1357 + 0.2468im
-            0.1357 - 0.2468im 0.5678
-        ]
-    )
-    Qf = destroy(2)
-    Bbath = Boson_DrudeLorentz_Pade(Qb, λ, W, kT, N)
-    Fbath = Fermion_Lorentz_Pade(Qf, λ, μ, W, kT, N)
+    Fbath = Fermion_Lorentz_Pade(destroy(2), λ, μ, W, kT, N)
 
     # jump operator
     J = Qobj([0 0.145 - 0.7414im; 0.145 + 0.7414im 0])
