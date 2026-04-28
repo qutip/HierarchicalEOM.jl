@@ -612,7 +612,7 @@ end
 
 function _unique_sparse_groups(B_list)
     unique_Bs = eltype(B_list)[]
-    groups = Vector{Vector{Int}}() # list of index groups corresponding to each unique B
+    index_groups = Vector{Vector{Int}}() # list of index groups corresponding to each unique B
     for (i, B) in pairs(B_list)
         j = findfirst(
             uB -> uB.colptr == B.colptr &&
@@ -621,12 +621,12 @@ function _unique_sparse_groups(B_list)
         )
         if j === nothing
             push!(unique_Bs, B)
-            push!(groups, [i])
+            push!(index_groups, [i])
         else
-            push!(groups[j], i)
+            push!(index_groups[j], i)
         end
     end
-    return unique_Bs, groups
+    return unique_Bs, index_groups
 end
 
 function combine_HEOMLS_terms(op::AddedOperator)
@@ -643,13 +643,15 @@ function combine_HEOMLS_terms(op::AddedOperator)
     end
 
     # B part (Liouville space super operator) is SparseMatrixCSC; use == to avoid -0.0 vs 0.0 issue
-    unique_Bs, groups = _unique_sparse_groups(B_list)
+    unique_Bs, index_groups = _unique_sparse_groups(B_list)
 
-    return Id_terms + sum(zip(unique_Bs, groups)) do (Bj, idx_group)
-        Aj = sum(k -> A_list[k], idx_group)
-        TensorProductOperator(Aj, Bj)
-    end
-end
+    other_terms = sum(zip(unique_Bs, index_groups)) do (Bj, idx_group)  
+        Aj = sum(k -> A_list[k], idx_group)  
+        return TensorProductOperator(Aj, Bj)  
+    end  
+    return Id_terms + other_terms  
+end  
+
 combine_HEOMLS_terms(op::TensorProductOperator) = op
 
 function assemble_HEOMLS_terms(M::Vector{<:AbstractSciMLOperator}, ::Val{:full}, verbose::Bool)
