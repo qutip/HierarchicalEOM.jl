@@ -235,7 +235,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
     end
 
     L_heom = assemble_HEOMLS_terms(L_t_indep, assemble_method, verbose)[1]
-    return M_Boson_Fermion(L_heom, Btier, Ftier, _Hsys.dimensions, Nado, sup_dim, parity, Bbath, Fbath, hierarchy)
+    return M_Boson_Fermion(L_heom, Btier, Ftier, _gen_heomls_dimensions(Nado, _Hsys.dimensions), Nado, sup_dim, parity, Bbath, Fbath, hierarchy)
 end
 
 _getBtier(M::M_Boson_Fermion) = M.Btier

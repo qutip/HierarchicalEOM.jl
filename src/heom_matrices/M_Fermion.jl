@@ -148,7 +148,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
     end
 
     L_heom = assemble_HEOMLS_terms(L_t_indep, assemble_method, verbose)[1]
-    return M_Fermion(L_heom, tier, _Hsys.dimensions, Nado, sup_dim, parity, Bath, hierarchy)
+    return M_Fermion(L_heom, tier, _gen_heomls_dimensions(Nado, _Hsys.dimensions), Nado, sup_dim, parity, Bath, hierarchy)
 end
 
 _getBtier(M::M_Fermion) = 0

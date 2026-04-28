@@ -25,11 +25,40 @@ end
 function Base.getproperty(M::HEOMSuperOp, key::Symbol)
     # a comment here to avoid bad render by JuliaFormatter
     if key === :dims
-        return dimensions_to_dims(getfield(M, :dimensions))
+        return dimensions_to_dims(getfield(M, :dimensions).to)
     else
         return getfield(M, key)
     end
 end
+
+# Convert any dims form to the endomorphic HEOMLS Dimensions{ADOsSpace{N}, ADOsSpace{N}}
+_gen_heomls_dimensions(::Int, dims::Dimensions{<:ADOsSpace, <:ADOsSpace}) = dims
+_gen_heomls_dimensions(N::Int, dims::Dimensions{<:ADOsSpace}) = let s = ADOsSpace(N, dims.to.liouville); Dimensions(s, s) end
+_gen_heomls_dimensions(N::Int, dims::Dimensions) = let s = ADOsSpace(N, LiouvilleSpace(dims)); Dimensions(s, s) end
+_gen_heomls_dimensions(N::Int, dims) = _gen_heomls_dimensions(N, _gen_dimensions(Operator(), dims))
+
+function HandleMatrixType(
+        M::AbstractQuantumObject,
+        dimensions::Dimensions{<:ADOsSpace},
+        MatrixName::String = "";
+        type::T = nothing,
+    ) where {T <: Union{Nothing, Operator, SuperOperator}}
+    liouville = dimensions.to.liouville
+    if M.type isa SuperOperator
+        M.dimensions.to == liouville ||
+            error("The dimensions of $(MatrixName) should be: $(_get_dims_string(liouville.op_dims))")
+    else
+        M.dimensions == liouville.op_dims ||
+            error("The dimensions of $(MatrixName) should be: $(_get_dims_string(liouville.op_dims))")
+    end
+    return HandleMatrixType(M, MatrixName; type = type)
+end
+HandleMatrixType(
+    M,
+    dimensions::Dimensions{<:ADOsSpace},
+    MatrixName::String = "";
+    type::T = nothing,
+) where {T <: Union{Nothing, Operator, SuperOperator}} = HandleMatrixType(M, MatrixName; type = type)
 
 @doc raw"""
     HEOMSuperOp(op, opParity, refHEOMLS)
@@ -71,7 +100,7 @@ During the multiplication on all the `ADOs`, the parity of the output `ADOs` mig
 - `N::Int` : the number of `ADOs`.
 """
 function HEOMSuperOp(op, opParity::AbstractParity, dims, N::Int)
-    dimensions = _gen_dimensions(SuperOperator(), dims) # pretend it is a SuperOperator for now
+    dimensions = _gen_heomls_dimensions(N, dims)
     sup_op = HandleMatrixType(op, dimensions, "op (operator)"; type = SuperOperator())
 
     return HEOMSuperOp(kron(Eye(N), sup_op.data), dimensions, N, opParity)
@@ -120,7 +149,7 @@ function Base.show(io::IO, M::HEOMSuperOp)
     print(
         io,
         "$(M.parity) HEOM superoperator matrix acting on arbitrary-parity-ADOs\n",
-        "system dims = $(_get_dims_string(M.dimensions))\n",
+        "system dims = $(_get_dims_string(M.dimensions.to))\n",
         "number of ADOs N = $(M.N)\n",
         "data =\n",
     )
@@ -143,7 +172,7 @@ function Base.show(io::IO, M::AbstractHEOMLSMatrix)
         io,
         type,
         " type HEOMLS matrix acting on $(M.parity) ADOs\n",
-        "system dims = $(_get_dims_string(M.dimensions))\n",
+        "system dims = $(_get_dims_string(M.dimensions.to))\n",
         "number of ADOs N = $(M.N)\n",
         "data =\n",
     )
@@ -361,7 +390,7 @@ Note that the parity of the dissipator will be determined by the parity of the g
 function addFermionDissipator(M::AbstractHEOMLSMatrix, jumpOP::Vector{T} = QuantumObject[]) where {T <: QuantumObject}
     if length(jumpOP) > 0
         L_data = mapreduce(J -> _fermion_lindblad_dissipator(J, M.parity), +, jumpOP)
-        L = QuantumObject(L_data, type = SuperOperator(), dims = M.dimensions)
+        L = QuantumObject(L_data, type = SuperOperator(), dims = M.dimensions.to.liouville)
 
         return M + HEOMSuperOp(L, M.parity, M)
     else
@@ -404,7 +433,7 @@ function addTerminator(M::Mtype, Bath::Union{BosonBath, FermionBath}) where {Mty
         error("The type of input HEOMLS matrix does not support this functionality.")
     end
 
-    if M.dimensions != Bath.op.dimensions
+    if M.dimensions.to.liouville.op_dims != Bath.op.dimensions
         error("The system dimensions between the HEOMLS matrix and Bath coupling operator are not consistent.")
     end
 
