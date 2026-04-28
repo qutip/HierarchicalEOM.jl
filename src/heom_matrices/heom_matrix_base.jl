@@ -612,7 +612,7 @@ end
 
 function _unique_sparse_groups(B_list)
     unique_Bs = eltype(B_list)[]
-    groups = Vector{Vector{Int}}()
+    groups = Vector{Vector{Int}}() # list of index groups corresponding to each unique B
     for (i, B) in pairs(B_list)
         j = findfirst(
             uB -> uB.colptr == B.colptr &&
