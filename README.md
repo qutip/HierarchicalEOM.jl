@@ -7,7 +7,7 @@
 |:-----------------:|:-------------|
 | **Runtests**      | [![Runtests][runtests-img]][runtests-url] [![Buildkite][buildkite-img]][buildkite-url] [![Coverage][codecov-img]][codecov-url] |
 | **Code Quality**  | [![Code Quality][code-quality-img]][code-quality-url] [![Aqua QA][aqua-img]][aqua-url] [![JET][jet-img]][jet-url] [![code style: runic][runic-img]][runic-url] |
-| **Documentation** | [![Doc-Stable][docs-stable-img]][docs-stable-url] [![Doc-Dev][docs-develop-img]][docs-develop-url] |
+| **Documentation** | [![Doc-Stable][docs-stable-img]][docs-stable-url] [![Doc-Dev][docs-develop-img]][docs-develop-url] [![Doc-Contributor-Guide][docs-contributor-guide-img]][docs-contributor-guide-url] |
 
 [release-img]: https://img.shields.io/github/release/qutip/HierarchicalEOM.jl.svg
 [release-url]: https://github.com/qutip/HierarchicalEOM.jl/releases
@@ -43,6 +43,8 @@
 [docs-stable-url]: https://qutip.org/HierarchicalEOM.jl/stable/
 [docs-develop-img]: https://img.shields.io/badge/docs-dev-blue.svg
 [docs-develop-url]: https://qutip.org/HierarchicalEOM.jl/dev/
+[docs-contributor-guide-img]: https://img.shields.io/badge/docs-Contributor's%20Guide-blue
+[docs-contributor-guide-url]: https://qutip.org/QuantumToolbox.jl/stable/resources/contributing
 
 `HierarchicalEOM.jl` is a numerical framework written in [`Julia`](https://julialang.org/). It provides a user-friendly and efficient tool based on hierarchical equations of motion (HEOM) approach to simulate complex open quantum systems, including non-Markovian effects due to non-perturbative interaction with one (or multiple) environment(s). It is built upon [`QuantumToolbox.jl`](https://github.com/qutip/QuantumToolbox.jl).
 
@@ -121,5 +123,5 @@ Since this package is built on top of [`QuantumToolbox.jl`](https://qutip.org/Qu
 
 You are most welcome to contribute to `HierarchicalEOM.jl` development by forking this repository and sending pull requests (PRs), or filing bug reports at the issues page. You can also help out with users' questions, or discuss proposed changes in the [QuTiP discussion group](https://groups.google.com/g/qutip).
 
-For more information about contribution, including technical advice, please see the [Contributing to Quantum Toolbox in Julia](https://qutip.org/QuantumToolbox.jl/stable/resources/contributing).
+For more information about contribution, including technical advice, please see the [![Doc-ColGuide][docs-contributor-guide-img]][docs-contributor-guide-url].
 
