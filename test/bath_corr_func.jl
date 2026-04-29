@@ -1,10 +1,12 @@
 @testitem "Bath correlation functions" begin
+    import SparseArrays: spzeros
+
     λ = 0.145
     W = 0.6464
     kT = 0.7414
     μ = 0.8787
     N = 4
-    op = Qobj([0 0; 0 0])
+    op = Qobj(spzeros(ComplexF64, 2, 2))
 
     # Boson DrudeLorentz Matsubara
     b = Boson_DrudeLorentz_Matsubara(op, λ, W, kT, N)

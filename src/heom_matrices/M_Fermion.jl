@@ -64,7 +64,9 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         assemble::Union{Val, Symbol} = Val(:full),
         verbose::Bool = true,
     )
-    _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)") # Checking input type first
+    # Checking input type first
+    _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)")
+    issparse(_Hsys.data) || (@warn "The system Hamiltonian or Liouvillian is recommended to be a sparse matrix for better performance.")
 
     assemble_method = makeVal(assemble)
     check_assemble_method(assemble_method)
