@@ -18,6 +18,10 @@ import LinearAlgebra: Diagonal
 import SciMLOperators:
     MatrixOperator, ScaledOperator, AddedOperator, IdentityOperator, TensorProductOperator, AbstractSciMLOperator, DiagonalOperator
 
+# the supported CUDA sparse matrix types for GPU calculations
+# TODO: make GPUArraysExt to use `GPUArrays.AbstractGPUSparseArray`
+const _CuSparseType = Union{CuSparseMatrixCSC, CuSparseMatrixCSR}
+
 @doc raw"""
     cu(M::AbstractHEOMLSMatrix; word_size::Union{Val,Int} = Val(64))
 Return a new HEOMLS-matrix-type object with `M.data` is in the type of `CuSparseMatrixCSC{ComplexF32, Int32}` for gpu calculations.
@@ -64,12 +68,9 @@ CuSparseMatrixCSC{T}(M::HEOMSuperOp) where {T} =
 CuSparseMatrixCSR{T}(M::HEOMSuperOp) where {T} =
     HEOMSuperOp(_convert_to_gpu_matrix(M.data, CuSparseMatrixCSR{T}), M.dimensions, M.N, M.parity)
 
-_convert_to_gpu_matrix(A::AbstractSparseMatrix, MType::Type{<:CuSparseMatrixCSC}) = MType(A)
-_convert_to_gpu_matrix(A::AbstractSparseMatrix, MType::Type{<:CuSparseMatrixCSR}) = MType(A)
-_convert_to_gpu_matrix(A::AbstractMatrix, MType::Type{<:CuSparseMatrixCSC}) = MType(sparse(A))
-_convert_to_gpu_matrix(A::AbstractMatrix, MType::Type{<:CuSparseMatrixCSR}) = MType(sparse(A))
-_convert_to_gpu_matrix(A::Diagonal{Etype}, ::Type{<:Union{CuSparseMatrixCSC, CuSparseMatrixCSR}}) where {Etype <: Number} = Diagonal(CuArray{Etype, 1}(A.diag))
-
+_convert_to_gpu_matrix(A::AbstractSparseMatrix, MType::Type{<:_CuSparseType}) = MType(A)
+_convert_to_gpu_matrix(A::AbstractMatrix, MType::Type{<:_CuSparseType}) = MType(sparse(A))
+_convert_to_gpu_matrix(A::Diagonal{Etype}, ::Type{<:_CuSparseType}) where {Etype <: Number} = Diagonal(CuArray{Etype, 1}(A.diag))
 
 _convert_to_gpu_matrix(A::MatrixOperator, MType) = MatrixOperator(_convert_to_gpu_matrix(A.A, MType))
 _convert_to_gpu_matrix(A::ScaledOperator, MType) = ScaledOperator(A.λ, _convert_to_gpu_matrix(A.L, MType))
@@ -79,23 +80,23 @@ _convert_to_gpu_matrix(A::TensorProductOperator, MType) =
     TensorProductOperator(_convert_to_gpu_matrix(A.ops[1], MType), _convert_to_gpu_matrix(A.ops[2], MType))
 
 # change the type of `ADOs` to match the type of HEOMLS matrix
-_HandleVectorType(M::Type{<:AbstractCuSparseMatrix}, V::SparseVector) = CuArray{_complex_float_type(eltype(M))}(V)
+_HandleVectorType(M::Type{<:_CuSparseType}, V::SparseVector) = CuArray{_complex_float_type(eltype(M))}(V)
 
-_HandleTraceVectorType(M::Type{<:AbstractCuSparseMatrix}, V::SparseVector) =
+_HandleTraceVectorType(M::Type{<:_CuSparseType}, V::SparseVector) =
     CuSparseVector{_complex_float_type(eltype(M))}(V)
 
 _HandleSteadyStateMatrix(
     M::AbstractHEOMLSMatrix{<:MatrixOperator{T, MT}},
     ::CuArray{T},
-) where {T <: Number, MT <: AbstractCuSparseMatrix} =
-    M.data.A + get_typename_wrapper(M.data.A)(_SteadyStateConstraint(T, get_size(M.dimensions)[1], size(M, 1)))
+) where {T <: Number, MT <: _CuSparseType} =
+    M.data.A + get_typename_wrapper(M.data.A)(_SteadyStateConstraint(T, get_size(M.dimensions.to.space.op_dims)[1], size(M, 1)))
 
 # if the HEOMLS Matrix is transferred to GPU by proper apis, it should have all the operators in the same sparse format
 # To avoid scalar indexing in potential concretization, make the constraint the same type sparse format as M.data
 # Do not specify the element type for the CuSparseMatrix... (No method)
 _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AddedOperator{T}}, b::CuArray{T}) where {T <: Number} =
     get_cached_HEOMLS_data(
-    M.data + _get_SciML_matrix_wrapper(M)(_SteadyStateConstraint(T, get_size(M.dimensions)[1], size(M, 1))),
+    M.data + _get_SciML_matrix_wrapper(M)(_SteadyStateConstraint(T, get_size(M.dimensions.to.space.op_dims)[1], size(M, 1))),
     b,
 )
 end
