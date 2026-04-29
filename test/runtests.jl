@@ -41,6 +41,7 @@ if (GROUP == "CUDA_Ext") # || (GROUP == "All")
     Pkg.instantiate()
 
     using HierarchicalEOM
+    using SparseArrays
     using LinearSolve
     using CUDA
     CUDA.allowscalar(false) # Avoid unexpected scalar indexing
