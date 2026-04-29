@@ -134,7 +134,7 @@ function Base.getindex(A::ADOs, i::Int)
     checkbounds(A, i)
 
     sup_dim = get_size(A.dimensions.to.space)
-    D = isqrt(sup_dim)
+    D = get_size(A.dimensions.to.space.op_dims)[1]
     back = sup_dim * i
     return QuantumObject(reshape(A.data[(back - sup_dim + 1):back], D, D), Operator(), A.dimensions.to.space.op_dims)
 end
@@ -145,8 +145,8 @@ function Base.getindex(A::ADOs, r::UnitRange{Int})
 
     result = []
     sup_dim = get_size(A.dimensions.to.space)
-    D = isqrt(sup_dim)
     op_dims = A.dimensions.to.space.op_dims
+    D = get_size(op_dims)[1]
     for i in r
         back = sup_dim * i
         push!(result, QuantumObject(reshape(A.data[(back - sup_dim + 1):back], D, D), Operator(), op_dims))
@@ -175,7 +175,7 @@ Return the density matrix of the reduced state (system) from a given auxiliary d
 """
 function getRho(ados::ADOs)
     sup_dim = get_size(ados.dimensions.to.space)
-    D = isqrt(sup_dim)
+    D = get_size(ados.dimensions.to.space.op_dims)[1]
     return QuantumObject(reshape(ados.data[1:sup_dim], D, D), Operator(), ados.dimensions.to.space.op_dims)
 end
 

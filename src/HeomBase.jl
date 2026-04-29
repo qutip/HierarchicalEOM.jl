@@ -103,10 +103,10 @@ _HandleSteadyStateMatrix(
     M::AbstractHEOMLSMatrix{<:MatrixOperator{T, MT}},
     ::AbstractVector{T},
 ) where {T <: Number, MT <: SparseMatrixCSC} =
-    M.data.A + _SteadyStateConstraint(T, isqrt(get_size(M.dimensions.to.space)), size(M, 1))
+    M.data.A + _SteadyStateConstraint(T, get_size(M.dimensions.to.space.op_dims)[1], size(M, 1))
 _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AbstractSciMLOperator{T}}, b::AbstractVector{T}) where {T <: Number} =
     get_cached_HEOMLS_data(
-    M.data + _SteadyStateConstraint(eltype(M), isqrt(get_size(M.dimensions.to.space)), size(M, 1)),
+    M.data + _SteadyStateConstraint(eltype(M), get_size(M.dimensions.to.space.op_dims)[1], size(M, 1)),
     b,
 )
 
