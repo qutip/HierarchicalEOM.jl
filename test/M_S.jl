@@ -14,9 +14,10 @@
     @test L.data == L_super.data
     @test isconstant(L)
     @test iscached(L)
+    @test issparse(L.data.A) # check if it's a sparse matrix
     ados_list = heomsolve(L, ψ0, 0:1:t; reltol = 1.0e-8, abstol = 1.0e-10, progress_bar = Val(false)).ados
     ados = ados_list[end]
-    @test ados.dims == L.dims
+    @test ados.dims.to == L.dims.to
     @test length(ados) == L.N
     @test eltype(L) == eltype(ados)
     ρ1 = ados[1]

@@ -46,7 +46,7 @@ function QuantumToolbox.steadystate(
         flush(stdout)
     end
 
-    return ADOs(Vector{ComplexF64}(sol.u), M.dimensions, M.N, M.parity)
+    return ADOs(Vector{ComplexF64}(sol.u), M.dimensions.to, M.N, M.parity)
 end
 
 @doc raw"""
@@ -76,8 +76,8 @@ function QuantumToolbox.steadystate(
         ρ0::T_state,
         tspan::Number = Inf;
         alg::AbstractODEAlgorithm = DP5(),
-        terminate_reltol::Real = 1e-6,
-        terminate_abstol::Real = 1e-8,
+        terminate_reltol::Real = 1.0e-6,
+        terminate_abstol::Real = 1.0e-8,
         verbose::Bool = true,
         kwargs...,
     ) where {T_state <: Union{QuantumObject, ADOs}}
@@ -89,7 +89,7 @@ function QuantumToolbox.steadystate(
 
     # handle initial state
     ados = (T_state <: QuantumObject) ? ADOs(ρ0, M.N, EVEN) : ρ0
-    _check_sys_dim_and_ADOs_num(M, ados)
+    _check_sys_dim_and_ADOs_num(M.dimensions.from, ados.dimensions.to)
     _check_parity(M, ados)
     u0 = _HandleVectorType(M, ados.data)
 
@@ -130,5 +130,5 @@ function QuantumToolbox.steadystate(
         flush(stdout)
     end
 
-    return ADOs(Vector{ComplexF64}(sol.u[end]), M.dimensions, M.N, M.parity)
+    return ADOs(Vector{ComplexF64}(sol.u[end]), M.dimensions.to, M.N, M.parity)
 end

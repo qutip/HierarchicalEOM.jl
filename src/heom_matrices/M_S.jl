@@ -12,7 +12,7 @@ where ``[\cdot, \cdot]_-`` stands for commutator.
 # Fields
 - `data<:AbstractSciMLOperator` : the matrix of HEOM Liouvillian superoperator
 - `tier` : the tier (cutoff level) for the hierarchy, which equals to `0` in this case
-- `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
+- `dimensions` : the `Dimensions` structure of the [`ADOsSpace`](@ref).
 - `N` : the number of total ADOs, which equals to `1` (only the reduced density operator) in this case
 - `sup_dim` : the dimension of system superoperator
 - `parity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
@@ -49,6 +49,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 
     # check for system dimension
     _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)")
+    issparse(_Hsys.data) || (@warn "The system Hamiltonian or Liouvillian is recommended to be a sparse matrix for better performance.")
     sup_dim = get_size(_Hsys.dimensions)[1]^2
 
     # the Liouvillian operator for free Hamiltonian
@@ -61,7 +62,9 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
         println("[DONE]")
         flush(stdout)
     end
-    return M_S(Lsys, 0, _Hsys.dimensions, 1, sup_dim, parity)
+
+    ados_space = ADOsSpace(1, LiouvilleSpace(_Hsys.dimensions))
+    return M_S(Lsys, 0, Dimensions(ados_space, ados_space), 1, sup_dim, parity)
 end
 
 _getBtier(M::M_S) = 0

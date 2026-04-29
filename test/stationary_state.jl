@@ -1,4 +1,5 @@
 @testitem "Stationary state" begin
+    import SparseArrays: spzeros
 
     # System Hamiltonian and initial state
     d = sigmam()
@@ -32,8 +33,8 @@
     @test isapprox(ρ1, ρs, atol = 1.0e-6)
     @test isapprox(ρ1_lazy, ρs, atol = 1.0e-6)
 
-    mat = Qobj(zeros(ComplexF64, 2, 2))
-    mat2 = Qobj(zeros(ComplexF64, 3, 3))
+    mat = Qobj(spzeros(ComplexF64, 2, 2))
+    mat2 = Qobj(spzeros(ComplexF64, 3, 3))
     bathf = Fermion_Lorentz_Pade(mat, 1, 1, 1, 1, 2)
     @test_logs (:warn,) SteadyState(L; verbose = false) # deprecated function
     @test_logs (:warn,) SteadyState(L, ψ0; verbose = false) # deprecated function

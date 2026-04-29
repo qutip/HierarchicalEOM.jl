@@ -12,17 +12,26 @@
 
     # System Hamiltonian
     Hsys = Qobj(
-        [
-            0.6969 0.4364
-            0.4364 0.3215
-        ]
+        sparse(
+            [
+                0.6969 0.4364
+                0.4364 0.3215
+            ]
+        )
     )
 
     # system-bath coupling operator
     Fbath = Fermion_Lorentz_Pade(destroy(2), λ, μ, W, kT, N)
 
     # jump operator
-    J = Qobj([0 0.145 - 0.7414im; 0.145 + 0.7414im 0])
+    J = Qobj(
+        sparse(
+            [
+                0 0.145 - 0.7414im
+                0.145 + 0.7414im 0
+            ]
+        )
+    )
 
     L = M_Fermion(Hsys, tier, Fbath; verbose = true) # also test verbosity
     L_combine = M_Fermion(Hsys, tier, Fbath; verbose = false, assemble = Val(:combine))
@@ -34,6 +43,7 @@
     @test nnz(L.data.A) == nnz(L(0).data.A) == nnz(concretize(L_lazy)(0).data.A) == 10018
     @test L(0).data.A == concretize(L_combine).data.A
     @test L.data isa SciMLOperators.MatrixOperator
+    @test issparse(L.data.A) # check if it's a sparse matrix
     @test L_combine.data isa SciMLOperators.AddedOperator
     @test L_lazy.data isa SciMLOperators.AddedOperator
     @test length(L_combine.data.ops) == 4 * 1 + 2 # 4 ops per fermion bath + 2 free terms
@@ -44,7 +54,7 @@
     @test iscached(L)
     @test iscached(L_combine_cached)
     ados = steadystate(L; verbose = false)
-    @test ados.dims == L.dims
+    @test ados.dims.to == L.dims.to
     @test length(ados) == L.N
     @test eltype(L) == eltype(ados)
     ρ0 = ados[1]
@@ -73,7 +83,7 @@
     L = addFermionDissipator(L, J)
     @test nnz(L.data.A) == nnz(L(0).data.A) == 90384
     ados = steadystate(L; verbose = false)
-    @test ados.dims == L.dims
+    @test ados.dims.to == L.dims.to
     @test length(ados) == L.N
     ρ0 = ados[1]
     @test getRho(ados) == ρ0

@@ -7,7 +7,7 @@ HEOM Liouvillian superoperator matrix for fermionic bath
 # Fields
 - `data<:AbstractSciMLOperator` : the matrix of HEOM Liouvillian superoperator
 - `tier` : the tier (cutoff level) for the fermionic hierarchy
-- `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
+- `dimensions` : the `Dimensions` structure of the [`ADOsSpace`](@ref).
 - `N` : the number of total ADOs
 - `sup_dim` : the dimension of system superoperator
 - `parity` : the parity label of the operator which HEOMLS is acting on (usually `EVEN`, only set as `ODD` for calculating spectrum of fermionic system).
@@ -64,7 +64,9 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         assemble::Union{Val, Symbol} = Val(:full),
         verbose::Bool = true,
     )
-    _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)") # Checking input type first
+    # Checking input type first
+    _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)")
+    issparse(_Hsys.data) || (@warn "The system Hamiltonian or Liouvillian is recommended to be a sparse matrix for better performance.")
 
     assemble_method = makeVal(assemble)
     check_assemble_method(assemble_method)
@@ -148,7 +150,9 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
     end
 
     L_heom = assemble_HEOMLS_terms(L_t_indep, assemble_method, verbose)[1]
-    return M_Fermion(L_heom, tier, _Hsys.dimensions, Nado, sup_dim, parity, Bath, hierarchy)
+
+    ados_space = ADOsSpace(Nado, LiouvilleSpace(_Hsys.dimensions))
+    return M_Fermion(L_heom, tier, Dimensions(ados_space, ados_space), Nado, sup_dim, parity, Bath, hierarchy)
 end
 
 _getBtier(M::M_Fermion) = 0

@@ -7,7 +7,11 @@ Base.show(io::IO, B::AbstractFermionBath) =
     print(io, "$(typeof(B))-type bath with $(B.Nterm) exponential-expansion terms\n")
 Base.show(io::IO, m::MIME"text/plain", B::AbstractFermionBath) = show(io, B)
 
-_check_fermionic_coupling_operator(op) = HandleMatrixType(op, "op (coupling operator)", type = Operator())
+function _check_fermionic_coupling_operator(op)
+    _op = HandleMatrixType(op, "op (coupling operator)", type = Operator())
+    issparse(_op.data) || (@warn "The system-fermionic-bath coupling operator \"op\" is recommended to be a sparse matrix for better performance.")
+    return _op
+end
 
 @doc raw"""
     struct FermionBath <: AbstractBath

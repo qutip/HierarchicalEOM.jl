@@ -88,7 +88,7 @@ function QuantumToolbox.correlation_2op_2t(
         reverse::Bool = false,
         kwargs...,
     ) where {T_state <: Union{QuantumObject, ADOs}}
-    C = eye(get_size(M.dimensions), dims = M.dimensions)[1]
+    C = qeye_like(A)
 
     if reverse
         corr = correlation_3op_2t(M, state, tlist, τlist, A, B, C; kwargs...)
