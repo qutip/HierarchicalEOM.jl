@@ -54,7 +54,7 @@
     @test iscached(L)
     @test iscached(L_combine_cached)
     ados = steadystate(L; verbose = false)
-    @test ados.dims == L.dims
+    @test ados.dims.to == L.dims.to
     @test length(ados) == L.N
     @test eltype(L) == eltype(ados)
     ρ0 = ados[1]
@@ -74,7 +74,7 @@
     L = addBosonDissipator(L, J)
     @test nnz(L.data.A) == nnz(L(0).data.A) == 29484
     ados = steadystate(L; verbose = false)
-    @test ados.dims == L.dims
+    @test ados.dims.to == L.dims.to
     @test length(ados) == L.N
     ρ0 = ados[1]
     @test getRho(ados) == ρ0

@@ -10,7 +10,7 @@ abstract type AbstractHEOMLSMatrix{T} end
 function Base.getproperty(M::AbstractHEOMLSMatrix, key::Symbol)
     # a comment here to avoid bad render by JuliaFormatter
     if key === :dims
-        return dimensions_to_dims(getfield(M, :dimensions).to)
+        return getfield(M, :dimensions)
     else
         return getfield(M, key)
     end
@@ -47,8 +47,9 @@ _get_SciML_matrix_wrapper(M::TensorProductOperator) = _get_SciML_matrix_wrapper(
 _get_SciML_matrix_wrapper(M::AbstractHEOMLSMatrix) = _get_SciML_matrix_wrapper(M.data)
 
 # equal to : sparse(vec(system_identity_matrix))
+# The dimensions must be Dimensions{<:ADOsSpace}
 function _Tr(T::Type{<:Number}, dimensions::Dimensions, N::Int)
-    D = isqrt(get_size(dimensions.to.liouville))
+    D = get_size(dimensions.to.space.op_dims)[1]
     return SparseVector(N * D^2, [1 + n * (D + 1) for n in 0:(D - 1)], ones(T, D))
 end
 _Tr(M::AbstractHEOMLSMatrix) = _Tr(eltype(M), M.dimensions, M.N)
@@ -102,25 +103,17 @@ _HandleSteadyStateMatrix(
     M::AbstractHEOMLSMatrix{<:MatrixOperator{T, MT}},
     ::AbstractVector{T},
 ) where {T <: Number, MT <: SparseMatrixCSC} =
-    M.data.A + _SteadyStateConstraint(T, isqrt(get_size(M.dimensions.to.liouville)), size(M, 1))
+    M.data.A + _SteadyStateConstraint(T, isqrt(get_size(M.dimensions.to.space)), size(M, 1))
 _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AbstractSciMLOperator{T}}, b::AbstractVector{T}) where {T <: Number} =
     get_cached_HEOMLS_data(
-        M.data + _SteadyStateConstraint(eltype(M), isqrt(get_size(M.dimensions.to.liouville)), size(M, 1)),
-        b,
-    )
+    M.data + _SteadyStateConstraint(eltype(M), isqrt(get_size(M.dimensions.to.space)), size(M, 1)),
+    b,
+)
 
 # this adds the trace == 1 constraint for reduced density operator during linear solve of steadystate
 _SteadyStateConstraint(T::Type{<:Number}, D::Int, S::Int) =
     sparse(ones(T, D), [(n - 1) * (D + 1) + 1 for n in 1:D], ones(T, D), S, S)
 
-function _check_sys_dim_and_ADOs_num(A, B)
-    if A.dimensions.from.liouville != B.dimensions.to.liouville
-        error("Inconsistent system dimensions.")
-    end
-    return if A.N != B.N
-        error("Inconsistent number of ADOs (\"N\").")
-    end
-end
 
 _check_parity(A, B) = (typeof(A.parity) != typeof(B.parity)) ? error("Inconsistent parity.") : nothing
 

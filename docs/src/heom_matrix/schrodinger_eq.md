@@ -31,7 +31,7 @@ M_odd  = M_S(Hs, ODD)
 The fields of the structure [`M_S`](@ref) are as follows:
  - `data` : the sparse matrix of HEOM Liouvillian superoperator
  - `tier` : the tier (cutoff level) for the hierarchy, which equals to `0` in this case
- - `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
+ - `dimensions` : the `Dimensions` structure of the [`ADOsSpace`](@ref).
  - `N` : the number of total [ADOs](@ref doc-ADOs), which equals to `1` (only the reduced density operator) in this case
  - `sup_dim` : the dimension of system superoperator
  - `parity::AbstractParity` : the [parity](@ref doc-Parity) label of the operator which HEOMLS is acting on.

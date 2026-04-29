@@ -61,7 +61,7 @@ function _gen_ados_ode_vector(ρ::QuantumObject, M::AbstractHEOMLSMatrix)
     return _HandleVectorType(M, ados.data)
 end
 function _gen_ados_ode_vector(ados::ADOs, M::AbstractHEOMLSMatrix)
-    _check_sys_dim_and_ADOs_num(M, ados)
+    _check_sys_dim_and_ADOs_num(M.dimensions.from, ados.dimensions.to)
     _check_parity(M, ados)
     return _HandleVectorType(M, ados.data)
 end
@@ -218,7 +218,7 @@ function HEOMsolve(prob::TimeEvolutionProblem, alg::AbstractODEAlgorithm = DP5()
 end
 
 function _gen_HEOMsolve_solution(sol, times, M::AbstractHEOMLSMatrix)
-    ADOs_list = map(ρvec -> ADOs(Vector{ComplexF64}(ρvec), M.dimensions, M.N, M.parity), sol.u)
+    ADOs_list = map(ρvec -> ADOs(Vector{ComplexF64}(ρvec), M.dimensions.to, M.N, M.parity), sol.u)
 
     kwargs = NamedTuple(sol.prob.kwargs) # Convert to NamedTuple for Zygote.jl compatibility
 

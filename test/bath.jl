@@ -69,7 +69,7 @@
     @test_throws ErrorException BosonBath(op, [0, 0], [0], [0, 0], [0, 0])
     @test_throws ErrorException BosonBath(Qobj([0, 0]), [0, 0], [0, 0], [0, 0], [0, 0])
     @test_warn "The system-bosonic-bath coupling operator \"op\" should be Hermitian Operator" BosonBath(
-        Qobj([0 1; 0 0]),
+        destroy(2),
         [0, 0],
         [0, 0],
         [0, 0],

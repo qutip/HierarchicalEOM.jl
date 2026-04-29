@@ -8,7 +8,7 @@ General HEOM superoperator matrix.
 
 # Fields
 - `data` : the HEOM superoperator matrix
-- `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
+- `dimensions` : the `Dimensions` structure of the [`ADOsSpace`](@ref).
 - `N` : the number of auxiliary density operators
 - `parity`: the parity label (`EVEN` or `ODD`).
 
@@ -17,7 +17,7 @@ General HEOM superoperator matrix.
 """
 struct HEOMSuperOp
     data::SparseMatrixCSC{ComplexF64, Int64}
-    dimensions::Dimensions
+    dimensions::Dimensions{<:ADOsSpace, <:ADOsSpace}
     N::Int
     parity::AbstractParity
 end
@@ -25,17 +25,11 @@ end
 function Base.getproperty(M::HEOMSuperOp, key::Symbol)
     # a comment here to avoid bad render by JuliaFormatter
     if key === :dims
-        return dimensions_to_dims(getfield(M, :dimensions).to)
+        return getfield(M, :dimensions)
     else
         return getfield(M, key)
     end
 end
-
-# Convert any dims form to the endomorphic HEOMLS Dimensions{ADOsSpace{N}, ADOsSpace{N}}
-_gen_heomls_dimensions(::Int, dims::Dimensions{<:ADOsSpace, <:ADOsSpace}) = dims
-_gen_heomls_dimensions(N::Int, dims::Dimensions{<:ADOsSpace}) = let s = ADOsSpace(N, dims.to.liouville); Dimensions(s, s) end
-_gen_heomls_dimensions(N::Int, dims::Dimensions) = let s = ADOsSpace(N, LiouvilleSpace(dims)); Dimensions(s, s) end
-_gen_heomls_dimensions(N::Int, dims) = _gen_heomls_dimensions(N, _gen_dimensions(Operator(), dims))
 
 function HandleMatrixType(
         M::AbstractQuantumObject,
@@ -43,13 +37,13 @@ function HandleMatrixType(
         MatrixName::String = "";
         type::T = nothing,
     ) where {T <: Union{Nothing, Operator, SuperOperator}}
-    liouville = dimensions.to.liouville
+    liouville_space = dimensions.to.space
     if M.type isa SuperOperator
-        M.dimensions.to == liouville ||
-            error("The dimensions of $(MatrixName) should be: $(_get_dims_string(liouville.op_dims))")
+        M.dimensions.to == liouville_space ||
+            error("The dimensions of $(MatrixName) should be: $(_get_dims_string(Dimensions(liouville_space)))")
     else
-        M.dimensions == liouville.op_dims ||
-            error("The dimensions of $(MatrixName) should be: $(_get_dims_string(liouville.op_dims))")
+        M.dimensions == liouville_space.op_dims ||
+            error("The dimensions of $(MatrixName) should be: $(_get_dims_string(liouville_space.op_dims))")
     end
     return HandleMatrixType(M, MatrixName; type = type)
 end
@@ -85,7 +79,10 @@ During the multiplication on all the `ADOs`, the parity of the output `ADOs` mig
 - `opParity::AbstractParity` : the parity label of the given operator (`op`), should be `EVEN` or `ODD`.
 - `refADOs::ADOs` : copy the system `dimensions` and number of `ADOs` (`N`) from this reference `ADOs`   
 """
-HEOMSuperOp(op, opParity::AbstractParity, refADOs::ADOs) = HEOMSuperOp(op, opParity, refADOs.dimensions, refADOs.N)
+function HEOMSuperOp(op, opParity::AbstractParity, refADOs::ADOs)
+    ados_space = refADOs.dimensions.to
+    return HEOMSuperOp(op, opParity, Dimensions(ados_space, ados_space), refADOs.N)
+end
 
 @doc raw"""
     HEOMSuperOp(op, opParity, dims, N)
@@ -99,11 +96,10 @@ During the multiplication on all the `ADOs`, the parity of the output `ADOs` mig
 - `dims` : the dimension list of the coupling operator (should be equal to the system `dimensions`).
 - `N::Int` : the number of `ADOs`.
 """
-function HEOMSuperOp(op, opParity::AbstractParity, dims, N::Int)
-    dimensions = _gen_heomls_dimensions(N, dims)
-    sup_op = HandleMatrixType(op, dimensions, "op (operator)"; type = SuperOperator())
+function HEOMSuperOp(op, opParity::AbstractParity, dims::Dimensions{<:ADOsSpace, <:ADOsSpace}, N::Int)
+    sup_op = HandleMatrixType(op, dims, "op (operator)"; type = SuperOperator())
 
-    return HEOMSuperOp(kron(Eye(N), sup_op.data), dimensions, N, opParity)
+    return HEOMSuperOp(kron(Eye(N), sup_op.data), dims, N, opParity)
 end
 
 @doc raw"""
@@ -149,7 +145,7 @@ function Base.show(io::IO, M::HEOMSuperOp)
     print(
         io,
         "$(M.parity) HEOM superoperator matrix acting on arbitrary-parity-ADOs\n",
-        "system dims = $(_get_dims_string(M.dimensions.to))\n",
+        "system dims = $(_get_dims_string(M.dimensions.to.space.op_dims))\n",
         "number of ADOs N = $(M.N)\n",
         "data =\n",
     )
@@ -172,7 +168,7 @@ function Base.show(io::IO, M::AbstractHEOMLSMatrix)
         io,
         type,
         " type HEOMLS matrix acting on $(M.parity) ADOs\n",
-        "system dims = $(_get_dims_string(M.dimensions.to))\n",
+        "system dims = $(_get_dims_string(M.dimensions.to.space.op_dims))\n",
         "number of ADOs N = $(M.N)\n",
         "data =\n",
     )
@@ -183,13 +179,13 @@ Base.show(io::IO, m::MIME"text/plain", M::HEOMSuperOp) = show(io, M)
 Base.show(io::IO, m::MIME"text/plain", M::AbstractHEOMLSMatrix) = show(io, M)
 
 function Base.:(*)(Sup::HEOMSuperOp, ados::ADOs)
-    _check_sys_dim_and_ADOs_num(Sup, ados)
+    _check_sys_dim_and_ADOs_num(Sup.dimensions.from, ados.dimensions.to)
 
-    return ADOs(Sup.data * ados.data, ados.dimensions, ados.N, Sup.parity * ados.parity)
+    return ADOs(Sup.data * ados.data, Sup.dimensions.to.space, ados.N, Sup.parity * ados.parity)
 end
 
 function Base.:(*)(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
-    _check_sys_dim_and_ADOs_num(Sup1, Sup2)
+    _check_sys_dim_and_ADOs_num(Sup1.dimensions.from, Sup2.dimensions.to)
 
     return HEOMSuperOp(Sup1.data * Sup2.data, Sup1.dimensions, Sup1.N, Sup1.parity * Sup2.parity)
 end
@@ -198,7 +194,7 @@ Base.:(*)(n::Number, Sup::HEOMSuperOp) = HEOMSuperOp(n * Sup.data, Sup.dimension
 Base.:(*)(Sup::HEOMSuperOp, n::Number) = n * Sup
 
 function Base.:(+)(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
-    _check_sys_dim_and_ADOs_num(Sup1, Sup2)
+    _check_sys_dim_and_ADOs_num(Sup1.dimensions.from, Sup2.dimensions.to)
     _check_parity(Sup1, Sup2)
 
     return HEOMSuperOp(Sup1.data + Sup2.data, Sup1.dimensions, Sup1.N, Sup1.parity)
@@ -208,14 +204,14 @@ Base.:(+)(M::MatrixOperator, Sup::HEOMSuperOp) = MatrixOperator(M.A + Sup.data)
 Base.:(+)(M::AbstractSciMLOperator, Sup::HEOMSuperOp) = M + Sup.data
 
 function Base.:(+)(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
-    _check_sys_dim_and_ADOs_num(M, Sup)
+    _check_sys_dim_and_ADOs_num(M.dimensions.from, Sup.dimensions.to)
     _check_parity(M, Sup)
 
     return _reset_HEOMLS_data(M, M.data + Sup)
 end
 
 function Base.:(-)(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
-    _check_sys_dim_and_ADOs_num(Sup1, Sup2)
+    _check_sys_dim_and_ADOs_num(Sup1.dimensions.from, Sup2.dimensions.to)
     _check_parity(Sup1, Sup2)
 
     return HEOMSuperOp(Sup1.data - Sup2.data, Sup1.dimensions, Sup1.N, Sup1.parity)
@@ -225,7 +221,7 @@ Base.:(-)(M::MatrixOperator, Sup::HEOMSuperOp) = MatrixOperator(M.A - Sup.data)
 Base.:(-)(M::AbstractSciMLOperator, Sup::HEOMSuperOp) = M - Sup.data
 
 function Base.:(-)(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
-    _check_sys_dim_and_ADOs_num(M, Sup)
+    _check_sys_dim_and_ADOs_num(M.dimensions.from, Sup.dimensions.to)
     _check_parity(M, Sup)
 
     return _reset_HEOMLS_data(M, M.data - Sup)
@@ -390,7 +386,7 @@ Note that the parity of the dissipator will be determined by the parity of the g
 function addFermionDissipator(M::AbstractHEOMLSMatrix, jumpOP::Vector{T} = QuantumObject[]) where {T <: QuantumObject}
     if length(jumpOP) > 0
         L_data = mapreduce(J -> _fermion_lindblad_dissipator(J, M.parity), +, jumpOP)
-        L = QuantumObject(L_data, type = SuperOperator(), dims = M.dimensions.to.liouville)
+        L = QuantumObject(L_data, type = SuperOperator(), dims = M.dimensions.to.space)
 
         return M + HEOMSuperOp(L, M.parity, M)
     else
@@ -433,7 +429,7 @@ function addTerminator(M::Mtype, Bath::Union{BosonBath, FermionBath}) where {Mty
         error("The type of input HEOMLS matrix does not support this functionality.")
     end
 
-    if M.dimensions.to.liouville.op_dims != Bath.op.dimensions
+    if M.dimensions.to.space.op_dims != Bath.op.dimensions
         error("The system dimensions between the HEOMLS matrix and Bath coupling operator are not consistent.")
     end
 

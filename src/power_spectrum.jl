@@ -89,11 +89,11 @@ remember to set the parameters:
     else
         ados = ADOs(ρ, M.N)
     end
-    _check_sys_dim_and_ADOs_num(M, ados)
+    _check_sys_dim_and_ADOs_num(M.dimensions.from, ados.dimensions.to)
 
     # Handle P_op
     if P_op isa HEOMSuperOp
-        _check_sys_dim_and_ADOs_num(M, P_op)
+        _check_sys_dim_and_ADOs_num(P_op.dimensions.from, M.dimensions.to)
         _P = P_op
     else
         _P = HEOMSuperOp(spre(P_op), EVEN, M)
@@ -102,7 +102,7 @@ remember to set the parameters:
 
     # Handle Q_op
     if Q_op isa HEOMSuperOp
-        _check_sys_dim_and_ADOs_num(M, Q_op)
+        _check_sys_dim_and_ADOs_num(M.dimensions.from, Q_op.dimensions.to)
         _Q_ados = Q_op * ados
         _check_parity(M, _Q_ados)
     else
