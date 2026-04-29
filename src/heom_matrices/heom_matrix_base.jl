@@ -93,7 +93,7 @@ During the multiplication on all the `ADOs`, the parity of the output `ADOs` mig
 # Parameters
 - `op` : The system SuperOperator which will act on all `ADOs`.
 - `opParity::AbstractParity` : the parity label of the given operator (`op`), should be `EVEN` or `ODD`.
-- `dims` : the dimension list of the coupling operator (should be equal to the system `dimensions`).
+- `dims` : the `Dimensions` structure of the [`ADOsSpace`](@ref).
 - `N::Int` : the number of `ADOs`.
 """
 function HEOMSuperOp(op, opParity::AbstractParity, dims::Dimensions{<:ADOsSpace, <:ADOsSpace}, N::Int)
