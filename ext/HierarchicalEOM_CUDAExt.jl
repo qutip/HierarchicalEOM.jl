@@ -12,7 +12,7 @@ import HierarchicalEOM:
 import QuantumToolbox: _complex_float_type, _convert_eltype_wordsize, makeVal, getVal, get_typename_wrapper, get_size
 import CUDA
 import CUDA: cu, CuArray
-import CUDA.CUSPARSE: CuSparseVector, CuSparseMatrixCSC, CuSparseMatrixCSR, AbstractCuSparseMatrix
+import CUDA.CUSPARSE: CuSparseVector, CuSparseMatrixCSC, CuSparseMatrixCSR
 import SparseArrays: AbstractSparseMatrix, sparse, SparseVector, SparseMatrixCSC
 import LinearAlgebra: Diagonal
 import SciMLOperators:
@@ -64,9 +64,11 @@ CuSparseMatrixCSC{T}(M::HEOMSuperOp) where {T} =
 CuSparseMatrixCSR{T}(M::HEOMSuperOp) where {T} =
     HEOMSuperOp(_convert_to_gpu_matrix(M.data, CuSparseMatrixCSR{T}), M.dimensions, M.N, M.parity)
 
-_convert_to_gpu_matrix(A::AbstractSparseMatrix, MType::Type{T}) where {T <: AbstractCuSparseMatrix} = MType(A)
-_convert_to_gpu_matrix(A::AbstractMatrix, MType::Type{T}) where {T <: AbstractCuSparseMatrix} = MType(sparse(A))
-_convert_to_gpu_matrix(A::Diagonal{Etype}, ::Type{T}) where {T <: AbstractCuSparseMatrix, Etype <: Number} = Diagonal(CuArray{Etype, 1}(A.diag))
+_convert_to_gpu_matrix(A::AbstractSparseMatrix, MType::Type{<:CuSparseMatrixCSC}) = MType(A)
+_convert_to_gpu_matrix(A::AbstractSparseMatrix, MType::Type{<:CuSparseMatrixCSR}) = MType(A)
+_convert_to_gpu_matrix(A::AbstractMatrix, MType::Type{<:CuSparseMatrixCSC}) = MType(sparse(A))
+_convert_to_gpu_matrix(A::AbstractMatrix, MType::Type{<:CuSparseMatrixCSR}) = MType(sparse(A))
+_convert_to_gpu_matrix(A::Diagonal{Etype}, ::Type{<:Union{CuSparseMatrixCSC, CuSparseMatrixCSR}}) where {Etype <: Number} = Diagonal(CuArray{Etype, 1}(A.diag))
 
 
 _convert_to_gpu_matrix(A::MatrixOperator, MType) = MatrixOperator(_convert_to_gpu_matrix(A.A, MType))

@@ -8,14 +8,13 @@
         tier = 3
 
         # System Hamiltonian
-        Hsys = Qobj(zeros(ComplexF64, 2, 2))
+        Hsys = Qobj(spzeros(ComplexF64, 2, 2))
 
         # system-bath coupling operator
         Qb = sigmax()
         Qf = sigmam()
 
-        E = Qobj(rand(ComplexF64, 2, 2))
-        e_ops = [E]
+        e_ops = [sigmax()]
 
         # initial state
         ψ0 = basis(2, 1)
