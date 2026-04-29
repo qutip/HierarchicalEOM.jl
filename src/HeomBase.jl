@@ -10,11 +10,15 @@ abstract type AbstractHEOMLSMatrix{T} end
 function Base.getproperty(M::AbstractHEOMLSMatrix, key::Symbol)
     # a comment here to avoid bad render by JuliaFormatter
     if key === :dims
-        return dimensions_to_dims(getfield(M, :dimensions))
+        return getfield(M, :dimensions)
     else
         return getfield(M, key)
     end
 end
+
+get_liouville_space(M::AbstractHEOMLSMatrix) = get_liouville_space(M.dimensions.to)
+get_op_dims(M::AbstractHEOMLSMatrix) = get_op_dims(M.dimensions.to)
+get_sys_size(M::AbstractHEOMLSMatrix) = get_size(get_op_dims(M))
 
 @doc raw"""
     (M::AbstractHEOMLSMatrix)(p, t)
@@ -47,8 +51,9 @@ _get_SciML_matrix_wrapper(M::TensorProductOperator) = _get_SciML_matrix_wrapper(
 _get_SciML_matrix_wrapper(M::AbstractHEOMLSMatrix) = _get_SciML_matrix_wrapper(M.data)
 
 # equal to : sparse(vec(system_identity_matrix))
+# The dimensions must be Dimensions{<:ADOsSpace}
 function _Tr(T::Type{<:Number}, dimensions::Dimensions, N::Int)
-    D = prod(dimensions)
+    D = get_sys_size(dimensions.to)[1]
     return SparseVector(N * D^2, [1 + n * (D + 1) for n in 0:(D - 1)], ones(T, D))
 end
 _Tr(M::AbstractHEOMLSMatrix) = _Tr(eltype(M), M.dimensions, M.N)
@@ -91,31 +96,28 @@ HandleMatrixType(M, MatrixName::String = ""; type::T = nothing) where {T <: Unio
 # change the type of `ADOs` to match the type of HEOMLS matrix
 _HandleVectorType(M::AbstractHEOMLSMatrix, V::SparseVector) = _HandleVectorType(_get_SciML_matrix_wrapper(M), V)
 _HandleVectorType(M::Type{<:SparseMatrixCSC}, V::SparseVector) = Vector{_complex_float_type(eltype(M))}(V)
+_HandleVectorType(M::Type{<:AbstractArray}, V::SparseVector) = Vector{_complex_float_type(eltype(M))}(V)
 
 _HandleTraceVectorType(M::AbstractHEOMLSMatrix, V::SparseVector) =
     _HandleTraceVectorType(_get_SciML_matrix_wrapper(M), V)
 _HandleTraceVectorType(M::Type{<:SparseMatrixCSC}, V::SparseVector) = V
+_HandleTraceVectorType(M::Type{<:AbstractArray}, V::SparseVector) = V
 
 _HandleSteadyStateMatrix(
     M::AbstractHEOMLSMatrix{<:MatrixOperator{T, MT}},
     ::AbstractVector{T},
-) where {T <: Number, MT <: SparseMatrixCSC} = M.data.A + _SteadyStateConstraint(T, prod(M.dimensions), size(M, 1))
+) where {T <: Number, MT <: SparseMatrixCSC} =
+    M.data.A + _SteadyStateConstraint(T, get_sys_size(M)[1], size(M, 1))
 _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AbstractSciMLOperator{T}}, b::AbstractVector{T}) where {T <: Number} =
-    get_cached_HEOMLS_data(M.data + _SteadyStateConstraint(eltype(M), prod(M.dimensions), size(M, 1)), b)
+    get_cached_HEOMLS_data(
+    M.data + _SteadyStateConstraint(eltype(M), get_sys_size(M)[1], size(M, 1)),
+    b,
+)
 
 # this adds the trace == 1 constraint for reduced density operator during linear solve of steadystate
 _SteadyStateConstraint(T::Type{<:Number}, D::Int, S::Int) =
     sparse(ones(T, D), [(n - 1) * (D + 1) + 1 for n in 1:D], ones(T, D), S, S)
 
-function _check_sys_dim_and_ADOs_num(A, B)
-    if (A.dimensions != B.dimensions)
-        error("Inconsistent system dimensions.")
-    end
-
-    return if (A.N != B.N)
-        error("Inconsistent number of ADOs (\"N\").")
-    end
-end
 
 _check_parity(A, B) = (typeof(A.parity) != typeof(B.parity)) ? error("Inconsistent parity.") : nothing
 
