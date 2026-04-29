@@ -49,6 +49,7 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
 
     # check for system dimension
     _Hsys = HandleMatrixType(Hsys, "Hsys (system Hamiltonian or Liouvillian)")
+    issparse(_Hsys.data) || (@warn "The system Hamiltonian or Liouvillian is recommended to be a sparse matrix for better performance.")
     sup_dim = get_size(_Hsys.dimensions)[1]^2
 
     # the Liouvillian operator for free Hamiltonian

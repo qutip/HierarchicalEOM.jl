@@ -12,20 +12,26 @@
 
     # System Hamiltonian
     Hsys = Qobj(
-        sparse([
-            0.6969 0.4364
-            0.4364 0.3215
-        ])
+        sparse(
+            [
+                0.6969 0.4364
+                0.4364 0.3215
+            ]
+        )
     )
 
     # system-bath coupling operator
     Fbath = Fermion_Lorentz_Pade(destroy(2), λ, μ, W, kT, N)
 
     # jump operator
-    J = Qobj(sparse([
-        0 0.145 - 0.7414im
-        0.145 + 0.7414im 0
-    ]))
+    J = Qobj(
+        sparse(
+            [
+                0 0.145 - 0.7414im
+                0.145 + 0.7414im 0
+            ]
+        )
+    )
 
     L = M_Fermion(Hsys, tier, Fbath; verbose = true) # also test verbosity
     L_combine = M_Fermion(Hsys, tier, Fbath; verbose = false, assemble = Val(:combine))
@@ -37,6 +43,7 @@
     @test nnz(L.data.A) == nnz(L(0).data.A) == nnz(concretize(L_lazy)(0).data.A) == 10018
     @test L(0).data.A == concretize(L_combine).data.A
     @test L.data isa SciMLOperators.MatrixOperator
+    @test issparse(L.data.A) # check if it's a sparse matrix
     @test L_combine.data isa SciMLOperators.AddedOperator
     @test L_lazy.data isa SciMLOperators.AddedOperator
     @test length(L_combine.data.ops) == 4 * 1 + 2 # 4 ops per fermion bath + 2 free terms

@@ -12,36 +12,39 @@
 
     # System Hamiltonian
     Hsys = Qobj(
-        sparse([
-            0.6969 0.4364
-            0.4364 0.3215
-        ])
+        sparse(
+            [
+                0.6969 0.4364
+                0.4364 0.3215
+            ]
+        )
     )
 
     # system-bath coupling operator
     Q = Qobj(
-        sparse([
-            0.1234 0.1357 + 0.2468im
-            0.1357 - 0.2468im 0.5678
-        ])
+        sparse(
+            [
+                0.1234 0.1357 + 0.2468im
+                0.1357 - 0.2468im 0.5678
+            ]
+        )
     )
     Bbath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
 
     # jump operator
-    J = Qobj(sparse([
-        0 0.145 - 0.7414im
-        0.145 + 0.7414im 0
-    ]))
+    J = Qobj(sparse([0 0.145 - 0.7414im; 0.145 + 0.7414im 0]))
 
     L = M_Boson(Hsys, tier, Bbath; verbose = true) # also test verbosity
     L_combine = M_Boson(Hsys, tier, Bbath; verbose = false, assemble = Val(:combine))
     L_lazy = M_Boson(Hsys, tier, Bbath; verbose = false, assemble = Val(:none))
     L_combine_cached = cache_operator(L_combine, similar(zeros(eltype(L_combine), size(L_combine, 1))))
+
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (336, 336)
     @test L.N == 84
     @test nnz(L.data.A) == nnz(L(0).data.A) == nnz(concretize(L_combine.data)) == nnz(concretize(L_lazy.data)) == 4422
     @test L.data isa SciMLOperators.MatrixOperator
+    @test issparse(L.data.A) # check if it's a sparse matrix
     @test L_combine.data isa SciMLOperators.AddedOperator
     @test L_lazy.data isa SciMLOperators.AddedOperator
     @test length(L_combine.data.ops) == length(L_lazy.data.ops) == 2 * 1 + 2 # 2 ops per boson bath + 2 free terms

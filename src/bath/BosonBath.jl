@@ -8,13 +8,16 @@ Base.show(io::IO, m::MIME"text/plain", B::AbstractBosonBath) = show(io, B)
 
 function _check_bosonic_coupling_operator(op)
     _op = HandleMatrixType(op, "op (coupling operator)", type = Operator())
-    if !ishermitian(_op)
-        @warn "The system-bosonic-bath coupling operator \"op\" should be Hermitian Operator."
-    end
+    ishermitian(_op) || (@warn "The system-bosonic-bath coupling operator \"op\" should be Hermitian Operator.")
+    issparse(_op.data) || (@warn "The system-bosonic-bath coupling operator \"op\" is recommended to be a sparse matrix for better performance.")
     return _op
 end
 
-_check_bosonic_RWA_coupling_operator(op) = HandleMatrixType(op, "op (coupling operator)", type = Operator())
+function _check_bosonic_RWA_coupling_operator(op)
+    _op = HandleMatrixType(op, "op (coupling operator)", type = Operator())
+    issparse(_op.data) || (@warn "The system-bosonic-bath coupling operator \"op\" is recommended to be a sparse matrix for better performance.")
+    return _op
+end
 
 function _combine_same_gamma(η::Vector{Ti}, γ::Vector{Tj}) where {Ti <: Number, Tj <: Number}
     if length(η) != length(γ)
@@ -75,6 +78,7 @@ end
 
 @doc raw"""
     BosonBath(op, η, γ, δ=0.0; combine=true)
+
 Generate BosonBath object for the case where real part and imaginary part of the correlation function are combined.
 
 ```math
@@ -85,6 +89,8 @@ C(\tau)
 \end{aligned}
 ```
 where ``J(\omega)`` is the spectral density of the bath and ``n(\omega)`` represents the Bose-Einstein distribution.
+
+Note that this method is only applicable when the coefficients ``\gamma_i`` are the same for the real part and imaginary part of the correlation function ``C(\tau)``. When this condition is not satisfied, one should use the method `BosonBath(op, η_real, γ_real, η_imag, γ_imag)` to generate the `BosonBath` object.
 
 # Parameters
 - `op::QuantumObject` : The system coupling operator, must be Hermitian and, for fermionic systems, even-parity to be compatible with charge conservation.
@@ -101,6 +107,9 @@ function BosonBath(
         combine::Bool = true,
     ) where {Ti <: Number, Tj <: Number}
     _op = HandleMatrixType(op, "op (coupling operator)", type = Operator())
+
+    all(v -> imag(v) == 0, γ) || @warn "The coefficients γ should all be real numbers for the method `BosonBath(op, η, γ)`. Please use `BosonBath(op, η_real, γ_real, η_imag, γ_imag)` if the coefficients γ are complex numbers."
+
     if combine
         ηnew, γnew = _combine_same_gamma(η, γ)
         bRI = bosonRealImag(_op, real.(ηnew), imag.(ηnew), γnew)

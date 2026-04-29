@@ -13,27 +13,28 @@
 
     # System Hamiltonian
     Hsys = Qobj(
-        sparse([
-            0.6969 0.4364
-            0.4364 0.3215
-        ])
+        sparse(
+            [
+                0.6969 0.4364
+                0.4364 0.3215
+            ]
+        )
     )
 
     # system-bath coupling operator
     Q = Qobj(
-        sparse([
-            0.1234 0.1357 + 0.2468im
-            0.1357 - 0.2468im 0.5678
-        ])
+        sparse(
+            [
+                0.1234 0.1357 + 0.2468im
+                0.1357 - 0.2468im 0.5678
+            ]
+        )
     )
     Bbath = Boson_DrudeLorentz_Pade(Q, λ, W, kT, N)
     Fbath = Fermion_Lorentz_Pade(Q, λ, μ, W, kT, N)
 
     # jump operator
-    J = Qobj(sparse([
-        0 0.145 - 0.7414im
-        0.145 + 0.7414im 0
-    ]))
+    J = Qobj(sparse([0 0.145 - 0.7414im; 0.145 + 0.7414im 0]))
 
     L = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose = true) # also test verbosity
     L_combine = M_Boson_Fermion(Hsys, tierb, tierf, Bbath, Fbath; verbose = false, assemble = Val(:combine)) # test combined tensor assembly with assemble = Val(:combine)
@@ -44,6 +45,7 @@
     @test L.N == 555
     @test nnz(L.data.A) == nnz(L(0).data.A) == nnz(concretize(L_lazy.data)) == 43368
     @test L.data isa SciMLOperators.MatrixOperator
+    @test issparse(L.data.A) # check if it's a sparse matrix
     @test L_combine.data isa SciMLOperators.AddedOperator
     @test L_lazy.data isa SciMLOperators.AddedOperator
     L = addBosonDissipator(L, J)
