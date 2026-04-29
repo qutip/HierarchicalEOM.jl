@@ -15,21 +15,26 @@ The type parameter `N` is the number of [`ADOs`](@ref) (same as `M.N` for an HEO
 struct ADOsSpace{N, T <: LiouvilleSpace} <: AbstractSpace
     space::T
 end
-
 ADOsSpace{N}(ls::T) where {N, T <: LiouvilleSpace} = ADOsSpace{N, T}(ls)
 ADOsSpace(N::Int, ls::LiouvilleSpace) = ADOsSpace{N}(ls)
-
-QuantumToolbox.get_size(s::ADOsSpace{N}) where {N} = N * get_size(s.space)
-function Base.:(==)(s1::ADOsSpace{N1}, s2::ADOsSpace{N2}) where {N1, N2}
-    N1 == N2 || return false
-    return s1.space == s2.space
-end
-Base.length(::ADOsSpace{N}) where {N} = N
 
 function Base.show(io::IO, s::ADOsSpace{N}) where {N}
     print(io, "ADOsSpace{$N}(", s.space, ")")
     return nothing
 end
+
+function Base.:(==)(s1::ADOsSpace{N1}, s2::ADOsSpace{N2}) where {N1, N2}
+    N1 == N2 || return false
+    return s1.space == s2.space
+end
+
+Base.length(::ADOsSpace{N}) where {N} = N
+
+QuantumToolbox.get_size(s::ADOsSpace{N}) where {N} = N * get_size(s.space)
+
+get_liouville_space(s::ADOsSpace) = s.space
+get_op_dims(s::ADOsSpace) = s.space.op_dims
+get_sys_size(s::ADOsSpace) = get_size(get_op_dims(s))
 
 function _check_sys_dim_and_ADOs_num(A::ADOsSpace, B::ADOsSpace)
     (A == B) || error("Inconsistent ADOsSpace (system dimensions or number of ADOs).")
@@ -113,6 +118,10 @@ function Base.getproperty(ados::ADOs, key::Symbol)
     end
 end
 
+get_liouville_space(A::ADOs) = get_liouville_space(A.dimensions.to)
+get_op_dims(A::ADOs) = get_op_dims(A.dimensions.to)
+get_sys_size(A::ADOs) = get_size(get_op_dims(A))
+
 Base.checkbounds(A::ADOs, i::Int) =
     ((i > A.N) || (i < 1)) ? error("Attempt to access $(A.N)-element ADOs at index [$(i)]") : nothing
 
@@ -133,10 +142,10 @@ Base.lastindex(A::ADOs) = length(A)
 function Base.getindex(A::ADOs, i::Int)
     checkbounds(A, i)
 
-    sup_dim = get_size(A.dimensions.to.space)
-    D = get_size(A.dimensions.to.space.op_dims)[1]
+    sup_dim = get_size(get_liouville_space(A))
+    D = get_sys_size(A)[1]
     back = sup_dim * i
-    return QuantumObject(reshape(A.data[(back - sup_dim + 1):back], D, D), Operator(), A.dimensions.to.space.op_dims)
+    return QuantumObject(reshape(A.data[(back - sup_dim + 1):back], D, D), Operator(), get_op_dims(A))
 end
 
 function Base.getindex(A::ADOs, r::UnitRange{Int})
@@ -144,8 +153,8 @@ function Base.getindex(A::ADOs, r::UnitRange{Int})
     checkbounds(A, r[end])
 
     result = []
-    sup_dim = get_size(A.dimensions.to.space)
-    op_dims = A.dimensions.to.space.op_dims
+    sup_dim = get_size(get_liouville_space(A))
+    op_dims = get_op_dims(A)
     D = get_size(op_dims)[1]
     for i in r
         back = sup_dim * i
@@ -159,7 +168,7 @@ Base.iterate(A::ADOs, state::Int = 1) = state > length(A) ? nothing : (A[state],
 
 Base.show(io::IO, A::ADOs) = print(
     io,
-    "$(A.N) Auxiliary Density Operators with $(A.parity) and (system) dims = $(_get_dims_string(A.dimensions.to.space.op_dims))\n",
+    "$(A.N) Auxiliary Density Operators with $(A.parity) and (system) dims = $(_get_dims_string(get_op_dims(A)))\n",
 )
 Base.show(io::IO, m::MIME"text/plain", A::ADOs) = show(io, A)
 
@@ -174,9 +183,10 @@ Return the density matrix of the reduced state (system) from a given auxiliary d
 - `ρ::QuantumObject` : The density matrix of the reduced state
 """
 function getRho(ados::ADOs)
-    sup_dim = get_size(ados.dimensions.to.space)
-    D = get_size(ados.dimensions.to.space.op_dims)[1]
-    return QuantumObject(reshape(ados.data[1:sup_dim], D, D), Operator(), ados.dimensions.to.space.op_dims)
+    sup_dim = get_size(get_liouville_space(ados))
+    op_dims = get_op_dims(ados)
+    D = get_size(op_dims)[1]
+    return QuantumObject(reshape(ados.data[1:sup_dim], D, D), Operator(), op_dims)
 end
 
 @doc raw"""

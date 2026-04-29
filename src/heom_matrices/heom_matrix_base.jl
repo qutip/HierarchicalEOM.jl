@@ -145,7 +145,7 @@ function Base.show(io::IO, M::HEOMSuperOp)
     print(
         io,
         "$(M.parity) HEOM superoperator matrix acting on arbitrary-parity-ADOs\n",
-        "system dims = $(_get_dims_string(M.dimensions.to.space.op_dims))\n",
+        "system dims = $(_get_dims_string(get_op_dims(M)))\n",
         "number of ADOs N = $(M.N)\n",
         "data =\n",
     )
@@ -168,7 +168,7 @@ function Base.show(io::IO, M::AbstractHEOMLSMatrix)
         io,
         type,
         " type HEOMLS matrix acting on $(M.parity) ADOs\n",
-        "system dims = $(_get_dims_string(M.dimensions.to.space.op_dims))\n",
+        "system dims = $(_get_dims_string(get_op_dims(M)))\n",
         "number of ADOs N = $(M.N)\n",
         "data =\n",
     )
@@ -178,10 +178,14 @@ end
 Base.show(io::IO, m::MIME"text/plain", M::HEOMSuperOp) = show(io, M)
 Base.show(io::IO, m::MIME"text/plain", M::AbstractHEOMLSMatrix) = show(io, M)
 
+get_liouville_space(M::HEOMSuperOp) = get_liouville_space(M.dimensions.to)
+get_op_dims(M::HEOMSuperOp) = get_op_dims(M.dimensions.to)
+get_sys_size(M::HEOMSuperOp) = get_size(get_op_dims(M))
+
 function Base.:(*)(Sup::HEOMSuperOp, ados::ADOs)
     _check_sys_dim_and_ADOs_num(Sup.dimensions.from, ados.dimensions.to)
 
-    return ADOs(Sup.data * ados.data, Sup.dimensions.to.space, ados.N, Sup.parity * ados.parity)
+    return ADOs(Sup.data * ados.data, get_liouville_space(Sup), ados.N, Sup.parity * ados.parity)
 end
 
 function Base.:(*)(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
@@ -386,7 +390,7 @@ Note that the parity of the dissipator will be determined by the parity of the g
 function addFermionDissipator(M::AbstractHEOMLSMatrix, jumpOP::Vector{T} = QuantumObject[]) where {T <: QuantumObject}
     if length(jumpOP) > 0
         L_data = mapreduce(J -> _fermion_lindblad_dissipator(J, M.parity), +, jumpOP)
-        L = QuantumObject(L_data, type = SuperOperator(), dims = M.dimensions.to.space)
+        L = QuantumObject(L_data, type = SuperOperator(), dims = get_liouville_space(M))
 
         return M + HEOMSuperOp(L, M.parity, M)
     else
@@ -429,7 +433,7 @@ function addTerminator(M::Mtype, Bath::Union{BosonBath, FermionBath}) where {Mty
         error("The type of input HEOMLS matrix does not support this functionality.")
     end
 
-    if M.dimensions.to.space.op_dims != Bath.op.dimensions
+    if get_op_dims(M) != Bath.op.dimensions
         error("The system dimensions between the HEOMLS matrix and Bath coupling operator are not consistent.")
     end
 

@@ -16,6 +16,10 @@ function Base.getproperty(M::AbstractHEOMLSMatrix, key::Symbol)
     end
 end
 
+get_liouville_space(M::AbstractHEOMLSMatrix) = get_liouville_space(M.dimensions.to)
+get_op_dims(M::AbstractHEOMLSMatrix) = get_op_dims(M.dimensions.to)
+get_sys_size(M::AbstractHEOMLSMatrix) = get_size(get_op_dims(M))
+
 @doc raw"""
     (M::AbstractHEOMLSMatrix)(p, t)
 
@@ -49,7 +53,7 @@ _get_SciML_matrix_wrapper(M::AbstractHEOMLSMatrix) = _get_SciML_matrix_wrapper(M
 # equal to : sparse(vec(system_identity_matrix))
 # The dimensions must be Dimensions{<:ADOsSpace}
 function _Tr(T::Type{<:Number}, dimensions::Dimensions, N::Int)
-    D = get_size(dimensions.to.space.op_dims)[1]
+    D = get_sys_size(dimensions.to)[1]
     return SparseVector(N * D^2, [1 + n * (D + 1) for n in 0:(D - 1)], ones(T, D))
 end
 _Tr(M::AbstractHEOMLSMatrix) = _Tr(eltype(M), M.dimensions, M.N)
@@ -103,10 +107,10 @@ _HandleSteadyStateMatrix(
     M::AbstractHEOMLSMatrix{<:MatrixOperator{T, MT}},
     ::AbstractVector{T},
 ) where {T <: Number, MT <: SparseMatrixCSC} =
-    M.data.A + _SteadyStateConstraint(T, get_size(M.dimensions.to.space.op_dims)[1], size(M, 1))
+    M.data.A + _SteadyStateConstraint(T, get_sys_size(M)[1], size(M, 1))
 _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AbstractSciMLOperator{T}}, b::AbstractVector{T}) where {T <: Number} =
     get_cached_HEOMLS_data(
-    M.data + _SteadyStateConstraint(eltype(M), get_size(M.dimensions.to.space.op_dims)[1], size(M, 1)),
+    M.data + _SteadyStateConstraint(eltype(M), get_sys_size(M)[1], size(M, 1)),
     b,
 )
 
