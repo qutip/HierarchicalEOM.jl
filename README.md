@@ -8,6 +8,7 @@
 | **Runtests**      | [![Runtests][runtests-img]][runtests-url] [![Buildkite][buildkite-img]][buildkite-url] [![Coverage][codecov-img]][codecov-url] |
 | **Code Quality**  | [![Code Quality][code-quality-img]][code-quality-url] [![Aqua QA][aqua-img]][aqua-url] [![JET][jet-img]][jet-url] [![code style: runic][runic-img]][runic-url] |
 | **Documentation** | [![Doc-Stable][docs-stable-img]][docs-stable-url] [![Doc-Dev][docs-develop-img]][docs-develop-url] [![Doc-Contributor-Guide][docs-contributor-guide-img]][docs-contributor-guide-url] |
+| **Community** | [![Zulip][zulip-img]][zulip-url] [![QuTiP-discussion][QuTiP-discussion-img]][QuTiP-discussion-url] |
 
 [release-img]: https://img.shields.io/github/release/qutip/HierarchicalEOM.jl.svg
 [release-url]: https://github.com/qutip/HierarchicalEOM.jl/releases
@@ -46,6 +47,12 @@
 [docs-contributor-guide-img]: https://img.shields.io/badge/docs-Contributor's%20Guide-blue
 [docs-contributor-guide-url]: https://qutip.org/QuantumToolbox.jl/stable/resources/contributing
 
+[zulip-img]: https://img.shields.io/badge/Zulip%20Chat-join-6f73af.svg
+[zulip-url]: https://quantumtoolbox-jl.zulipchat.com/#narrow/stream/General
+
+[QuTip-discussion-img]: https://img.shields.io/badge/QuTiP%20discussion%20group-join-6f73af.svg
+[QuTip-discussion-url]: https://groups.google.com/g/qutip
+
 `HierarchicalEOM.jl` is a numerical framework written in [`Julia`](https://julialang.org/). It provides a user-friendly and efficient tool based on hierarchical equations of motion (HEOM) approach to simulate complex open quantum systems, including non-Markovian effects due to non-perturbative interaction with one (or multiple) environment(s). It is built upon [`QuantumToolbox.jl`](https://github.com/qutip/QuantumToolbox.jl).
 
 ![](./docs/src/assets/heom_ecosystem.jpeg)
@@ -77,6 +84,16 @@ HierarchicalEOM.about()
 The documentation can be found in :
 - [**STABLE**](https://qutip.org/HierarchicalEOM.jl/stable) : most recently tagged version.
 - [**DEVELOP**](https://qutip.org/HierarchicalEOM.jl/dev/) : in-development version.
+
+## Contributing to HierarchicalEOM.jl
+
+You are most welcome to contribute to `HierarchicalEOM.jl` development by forking this repository and sending pull requests (PRs), or filing bug reports at the issues page.
+
+Contributors and users for `HierarchicalEOM.jl` are invited to [![Zulip][zulip-img]][zulip-url] for questions, development discussions, and community updates.
+
+You can also help out with users' questions, or discuss proposed changes for the entire QuTiP organization in the [![QuTiP-discussion][QuTiP-discussion-img]][QuTiP-discussion-url].
+
+For more information about contribution, including technical advice, please see the [![Doc-ColGuide][docs-contributor-guide-img]][docs-contributor-guide-url].
 
 ## Cite `HierarchicalEOM.jl`
 
@@ -115,13 +132,3 @@ Since this package is built on top of [`QuantumToolbox.jl`](https://qutip.org/Qu
   url = {https://doi.org/10.22331/q-2025-09-29-1866}
 }
 ```
-
-## License
-`HierarchicalEOM.jl` is released under the [BSD 3-Clause License](./LICENSE.md).
-
-## Contributing to HierarchicalEOM.jl
-
-You are most welcome to contribute to `HierarchicalEOM.jl` development by forking this repository and sending pull requests (PRs), or filing bug reports at the issues page. You can also help out with users' questions, or discuss proposed changes in the [QuTiP discussion group](https://groups.google.com/g/qutip).
-
-For more information about contribution, including technical advice, please see the [![Doc-ColGuide][docs-contributor-guide-img]][docs-contributor-guide-url].
-
