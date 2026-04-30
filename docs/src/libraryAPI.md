@@ -62,7 +62,7 @@ ODD
 HEOMSuperOp
 HEOMSuperOp(op, opParity::AbstractParity, refHEOMLS::AbstractHEOMLSMatrix)
 HEOMSuperOp(op, opParity::AbstractParity, refADOs::ADOs)
-HEOMSuperOp(op, opParity::AbstractParity, dims, N::Int)
+HEOMSuperOp(op, opParity::AbstractParity, dims::Dimensions{<:ADOsSpace, <:ADOsSpace}, N::Int)
 AbstractHEOMLSMatrix
 M_S
 M_S(Hsys::QuantumObject, parity::AbstractParity=EVEN; verbose::Bool=true)
@@ -89,6 +89,7 @@ addTerminator
 
 ## Auxiliary Density Operators (ADOs)
 ```@docs
+ADOsSpace
 ADOs
 ADOs(V::AbstractVector, N::Int)
 Base.length(A::ADOs)

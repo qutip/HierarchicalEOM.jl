@@ -8,7 +8,7 @@ General HEOM superoperator matrix.
 
 # Fields
 - `data` : the HEOM superoperator matrix
-- `dimensions` : the dimension list of the coupling operator (should be equal to the system dimensions).
+- `dimensions` : the `Dimensions` structure of the [`ADOsSpace`](@ref).
 - `N` : the number of auxiliary density operators
 - `parity`: the parity label (`EVEN` or `ODD`).
 
@@ -17,7 +17,7 @@ General HEOM superoperator matrix.
 """
 struct HEOMSuperOp
     data::SparseMatrixCSC{ComplexF64, Int64}
-    dimensions::Dimensions
+    dimensions::Dimensions{<:ADOsSpace, <:ADOsSpace}
     N::Int
     parity::AbstractParity
 end
@@ -25,11 +25,34 @@ end
 function Base.getproperty(M::HEOMSuperOp, key::Symbol)
     # a comment here to avoid bad render by JuliaFormatter
     if key === :dims
-        return dimensions_to_dims(getfield(M, :dimensions))
+        return getfield(M, :dimensions)
     else
         return getfield(M, key)
     end
 end
+
+function HandleMatrixType(
+        M::AbstractQuantumObject,
+        dimensions::Dimensions{<:ADOsSpace},
+        MatrixName::String = "";
+        type::T = nothing,
+    ) where {T <: Union{Nothing, Operator, SuperOperator}}
+    liouville_space = dimensions.to.space
+    if M.type isa SuperOperator
+        M.dimensions.to == liouville_space ||
+            error("The dimensions of $(MatrixName) should be: $(_get_dims_string(Dimensions(liouville_space)))")
+    else
+        M.dimensions == liouville_space.op_dims ||
+            error("The dimensions of $(MatrixName) should be: $(_get_dims_string(liouville_space.op_dims))")
+    end
+    return HandleMatrixType(M, MatrixName; type = type)
+end
+HandleMatrixType(
+    M,
+    dimensions::Dimensions{<:ADOsSpace},
+    MatrixName::String = "";
+    type::T = nothing,
+) where {T <: Union{Nothing, Operator, SuperOperator}} = HandleMatrixType(M, MatrixName; type = type)
 
 @doc raw"""
     HEOMSuperOp(op, opParity, refHEOMLS)
@@ -56,7 +79,10 @@ During the multiplication on all the `ADOs`, the parity of the output `ADOs` mig
 - `opParity::AbstractParity` : the parity label of the given operator (`op`), should be `EVEN` or `ODD`.
 - `refADOs::ADOs` : copy the system `dimensions` and number of `ADOs` (`N`) from this reference `ADOs`   
 """
-HEOMSuperOp(op, opParity::AbstractParity, refADOs::ADOs) = HEOMSuperOp(op, opParity, refADOs.dimensions, refADOs.N)
+function HEOMSuperOp(op, opParity::AbstractParity, refADOs::ADOs)
+    ados_space = refADOs.dimensions.to
+    return HEOMSuperOp(op, opParity, Dimensions(ados_space, ados_space), refADOs.N)
+end
 
 @doc raw"""
     HEOMSuperOp(op, opParity, dims, N)
@@ -67,14 +93,13 @@ During the multiplication on all the `ADOs`, the parity of the output `ADOs` mig
 # Parameters
 - `op` : The system SuperOperator which will act on all `ADOs`.
 - `opParity::AbstractParity` : the parity label of the given operator (`op`), should be `EVEN` or `ODD`.
-- `dims` : the dimension list of the coupling operator (should be equal to the system `dimensions`).
+- `dims` : the `Dimensions` structure of the [`ADOsSpace`](@ref).
 - `N::Int` : the number of `ADOs`.
 """
-function HEOMSuperOp(op, opParity::AbstractParity, dims, N::Int)
-    dimensions = _gen_dimensions(dims)
-    sup_op = HandleMatrixType(op, dimensions, "op (operator)"; type = SuperOperator())
+function HEOMSuperOp(op, opParity::AbstractParity, dims::Dimensions{<:ADOsSpace, <:ADOsSpace}, N::Int)
+    sup_op = HandleMatrixType(op, dims, "op (operator)"; type = SuperOperator())
 
-    return HEOMSuperOp(kron(Eye(N), sup_op.data), dimensions, N, opParity)
+    return HEOMSuperOp(kron(Eye(N), sup_op.data), dims, N, opParity)
 end
 
 @doc raw"""
@@ -120,7 +145,7 @@ function Base.show(io::IO, M::HEOMSuperOp)
     print(
         io,
         "$(M.parity) HEOM superoperator matrix acting on arbitrary-parity-ADOs\n",
-        "system dims = $(_get_dims_string(M.dimensions))\n",
+        "system dims = $(_get_dims_string(get_op_dims(M)))\n",
         "number of ADOs N = $(M.N)\n",
         "data =\n",
     )
@@ -143,7 +168,7 @@ function Base.show(io::IO, M::AbstractHEOMLSMatrix)
         io,
         type,
         " type HEOMLS matrix acting on $(M.parity) ADOs\n",
-        "system dims = $(_get_dims_string(M.dimensions))\n",
+        "system dims = $(_get_dims_string(get_op_dims(M)))\n",
         "number of ADOs N = $(M.N)\n",
         "data =\n",
     )
@@ -153,14 +178,18 @@ end
 Base.show(io::IO, m::MIME"text/plain", M::HEOMSuperOp) = show(io, M)
 Base.show(io::IO, m::MIME"text/plain", M::AbstractHEOMLSMatrix) = show(io, M)
 
-function Base.:(*)(Sup::HEOMSuperOp, ados::ADOs)
-    _check_sys_dim_and_ADOs_num(Sup, ados)
+get_liouville_space(M::HEOMSuperOp) = get_liouville_space(M.dimensions.to)
+get_op_dims(M::HEOMSuperOp) = get_op_dims(M.dimensions.to)
+get_sys_size(M::HEOMSuperOp) = get_size(get_op_dims(M))
 
-    return ADOs(Sup.data * ados.data, ados.dimensions, ados.N, Sup.parity * ados.parity)
+function Base.:(*)(Sup::HEOMSuperOp, ados::ADOs)
+    _check_sys_dim_and_ADOs_num(Sup.dimensions.from, ados.dimensions.to)
+
+    return ADOs(Sup.data * ados.data, get_liouville_space(Sup), ados.N, Sup.parity * ados.parity)
 end
 
 function Base.:(*)(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
-    _check_sys_dim_and_ADOs_num(Sup1, Sup2)
+    _check_sys_dim_and_ADOs_num(Sup1.dimensions.from, Sup2.dimensions.to)
 
     return HEOMSuperOp(Sup1.data * Sup2.data, Sup1.dimensions, Sup1.N, Sup1.parity * Sup2.parity)
 end
@@ -169,7 +198,7 @@ Base.:(*)(n::Number, Sup::HEOMSuperOp) = HEOMSuperOp(n * Sup.data, Sup.dimension
 Base.:(*)(Sup::HEOMSuperOp, n::Number) = n * Sup
 
 function Base.:(+)(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
-    _check_sys_dim_and_ADOs_num(Sup1, Sup2)
+    _check_sys_dim_and_ADOs_num(Sup1.dimensions.from, Sup2.dimensions.to)
     _check_parity(Sup1, Sup2)
 
     return HEOMSuperOp(Sup1.data + Sup2.data, Sup1.dimensions, Sup1.N, Sup1.parity)
@@ -179,14 +208,14 @@ Base.:(+)(M::MatrixOperator, Sup::HEOMSuperOp) = MatrixOperator(M.A + Sup.data)
 Base.:(+)(M::AbstractSciMLOperator, Sup::HEOMSuperOp) = M + Sup.data
 
 function Base.:(+)(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
-    _check_sys_dim_and_ADOs_num(M, Sup)
+    _check_sys_dim_and_ADOs_num(M.dimensions.from, Sup.dimensions.to)
     _check_parity(M, Sup)
 
     return _reset_HEOMLS_data(M, M.data + Sup)
 end
 
 function Base.:(-)(Sup1::HEOMSuperOp, Sup2::HEOMSuperOp)
-    _check_sys_dim_and_ADOs_num(Sup1, Sup2)
+    _check_sys_dim_and_ADOs_num(Sup1.dimensions.from, Sup2.dimensions.to)
     _check_parity(Sup1, Sup2)
 
     return HEOMSuperOp(Sup1.data - Sup2.data, Sup1.dimensions, Sup1.N, Sup1.parity)
@@ -196,7 +225,7 @@ Base.:(-)(M::MatrixOperator, Sup::HEOMSuperOp) = MatrixOperator(M.A - Sup.data)
 Base.:(-)(M::AbstractSciMLOperator, Sup::HEOMSuperOp) = M - Sup.data
 
 function Base.:(-)(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
-    _check_sys_dim_and_ADOs_num(M, Sup)
+    _check_sys_dim_and_ADOs_num(M.dimensions.from, Sup.dimensions.to)
     _check_parity(M, Sup)
 
     return _reset_HEOMLS_data(M, M.data - Sup)
@@ -218,15 +247,14 @@ apply_cache(op::SciMLOperators.AbstractSciMLOperator, tensor_cache, cachevec) = 
 function get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T <: SciMLOperators.AddedOperator}
     iscached(M) && (return M)
     ops = M.ops
-    idx = findfirst(op -> op isa TensorProductOperator, ops)
+
+    idx = Base.findlast(op -> op isa TensorProductOperator, ops)
     isnothing(idx) && (return cache_operator_with_check(M, cachevec))
 
-    first_tensor = ops[idx]
-    tensor_cache = cache_operator_with_check(first_tensor, cachevec).cache
+    last_tensor = cache_operator_with_check(ops[idx], cachevec)
+    tensor_cache = last_tensor.cache
 
-    cached_op = sum(op -> apply_cache(op, tensor_cache, cachevec), ops)
-
-    return cached_op
+    return sum(op -> apply_cache(op, tensor_cache, cachevec), ops)
 end
 
 get_cached_HEOMLS_data(M::AbstractHEOMLSMatrix, cachevec::AbstractVector) = get_cached_HEOMLS_data(M.data, cachevec)
@@ -362,7 +390,7 @@ Note that the parity of the dissipator will be determined by the parity of the g
 function addFermionDissipator(M::AbstractHEOMLSMatrix, jumpOP::Vector{T} = QuantumObject[]) where {T <: QuantumObject}
     if length(jumpOP) > 0
         L_data = mapreduce(J -> _fermion_lindblad_dissipator(J, M.parity), +, jumpOP)
-        L = QuantumObject(L_data, type = SuperOperator(), dims = M.dimensions)
+        L = QuantumObject(L_data, type = SuperOperator(), dims = get_liouville_space(M))
 
         return M + HEOMSuperOp(L, M.parity, M)
     else
@@ -405,7 +433,7 @@ function addTerminator(M::Mtype, Bath::Union{BosonBath, FermionBath}) where {Mty
         error("The type of input HEOMLS matrix does not support this functionality.")
     end
 
-    if M.dimensions != Bath.op.dimensions
+    if get_op_dims(M) != Bath.op.dimensions
         error("The system dimensions between the HEOMLS matrix and Bath coupling operator are not consistent.")
     end
 
@@ -611,6 +639,25 @@ function minus_i_A_op!(
     return nothing
 end
 
+function _unique_sparse_groups(B_list)
+    unique_Bs = eltype(B_list)[]
+    index_groups = Vector{Vector{Int}}() # list of index groups corresponding to each unique B
+    for (i, B) in pairs(B_list)
+        j = findfirst(
+            uB -> uB.colptr == B.colptr &&
+                uB.rowval == B.rowval &&
+                uB.nzval == B.nzval, unique_Bs
+        )
+        if j === nothing
+            push!(unique_Bs, B)
+            push!(index_groups, [i])
+        else
+            push!(index_groups[j], i)
+        end
+    end
+    return unique_Bs, index_groups
+end
+
 function combine_HEOMLS_terms(op::AddedOperator)
     Tensor_ops = op.ops |> collect # [ A_i ⊗ B_i ]
     Id_terms = popfirst!(Tensor_ops)  # von Neumann term
@@ -618,28 +665,22 @@ function combine_HEOMLS_terms(op::AddedOperator)
 
     A_list = Vector{AbstractMatrix}(undef, length(Tensor_ops))
     B_list = Vector{AbstractMatrix}(undef, length(Tensor_ops))
-
     for (idx, t_op) in pairs(Tensor_ops)
         t_op isa TensorProductOperator || throw(ArgumentError("The HEOMLS term should be a TensorProductOperator."))
         A_list[idx] = t_op.ops[1].A
         B_list[idx] = t_op.ops[2].A
     end
 
-    unique_B_ops = unique(B_list)
-    index_groups = [[] for i in unique_B_ops]
-    for i in eachindex(Tensor_ops)
-        for j in eachindex(unique_B_ops)
-            if isequal(unique_B_ops[j], B_list[i])
-                push!(index_groups[j], i)
-            end
-        end
-    end
+    # B part (Liouville space super operator) is SparseMatrixCSC; use == to avoid -0.0 vs 0.0 issue
+    unique_Bs, index_groups = _unique_sparse_groups(B_list)
 
-    return Id_terms + sum(pairs(unique_B_ops)) do (j, Bj)
-        Aj = sum(k -> A_list[k], index_groups[j])
+    other_terms = sum(zip(unique_Bs, index_groups)) do (Bj, idx_group)
+        Aj = sum(k -> A_list[k], idx_group)
         return TensorProductOperator(Aj, Bj)
     end
+    return Id_terms + other_terms
 end
+
 combine_HEOMLS_terms(op::TensorProductOperator) = op
 
 function assemble_HEOMLS_terms(M::Vector{<:AbstractSciMLOperator}, ::Val{:full}, verbose::Bool)

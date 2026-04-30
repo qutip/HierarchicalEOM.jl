@@ -20,7 +20,7 @@ C(t_1, t_2)=\sum_i \eta_i e^{-\gamma_i (t_1-t_2)}.
 This allows us to define an iterative procedure which leads to the hierarchical equations of motion (HEOM).
 
 ## Construct BosonBath (with real and imaginary parts are combined)
-One can construct the [`BosonBath`](@ref) object with the coupling operator `Vs::QuantumObject` and the two lists `η::AbstractVector` and `γ::AbstractVector` which corresponds to the exponential terms ``\{\eta_i\}_i`` and ``\{\gamma_i\}_i``, respectively.
+If all exponents ``\gamma_i`` are real-valued, one can construct the [`BosonBath`](@ref) object with the coupling operator `Vs::QuantumObject` and the two lists `η::AbstractVector` and `γ::AbstractVector` which corresponds to the exponential terms ``\{\eta_i\}_i`` and ``\{\gamma_i\}_i``, respectively.
 ```julia
 bath = BosonBath(Vs, η, γ)
 ```

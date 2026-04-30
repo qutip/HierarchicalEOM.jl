@@ -46,11 +46,11 @@ function QuantumToolbox.steadystate(
         flush(stdout)
     end
 
-    return ADOs(Vector{ComplexF64}(sol.u), M.dimensions, M.N, M.parity)
+    return ADOs(Vector{ComplexF64}(sol.u), M.dimensions.to, M.N, M.parity)
 end
 
 @doc raw"""
-    steadystate(M::AbstractHEOMLSMatrix, ρ0, tspan; alg, verbose, kwargs...)
+    steadystate(M::AbstractHEOMLSMatrix, ρ0, tspan; alg, terminate_reltol, terminate_abstol, verbose, kwargs...)
 Solve the steady state of the auxiliary density operators based on time evolution (`OrdinaryDiffEq.jl`) with initial state is given in the type of density-matrix (`ρ0`).
 
 # Parameters
@@ -58,6 +58,8 @@ Solve the steady state of the auxiliary density operators based on time evolutio
 - `ρ0::Union{QuantumObject,ADOs}` : system initial state (density matrix) or initial auxiliary density operators (`ADOs`)
 - `tspan::Number` : the time limit to find stationary state. Default to `Inf`
 - `alg::AbstractODEAlgorithm` : The ODE algorithm in package `DifferentialEquations.jl`. Default to `DP5()`.
+- `terminate_reltol` = The relative tolerance for stationary state terminate condition. Default to `1e-6`.
+- `terminate_abstol` = The absolute tolerance for stationary state terminate condition. Default to `1e-8`.
 - `verbose::Bool` : To display verbose output or not. Defaults to `true`.
 - `kwargs` : The keyword arguments in `ODEProblem`
 
@@ -74,6 +76,8 @@ function QuantumToolbox.steadystate(
         ρ0::T_state,
         tspan::Number = Inf;
         alg::AbstractODEAlgorithm = DP5(),
+        terminate_reltol::Real = 1.0e-6,
+        terminate_abstol::Real = 1.0e-8,
         verbose::Bool = true,
         kwargs...,
     ) where {T_state <: Union{QuantumObject, ADOs}}
@@ -85,24 +89,27 @@ function QuantumToolbox.steadystate(
 
     # handle initial state
     ados = (T_state <: QuantumObject) ? ADOs(ρ0, M.N, EVEN) : ρ0
-    _check_sys_dim_and_ADOs_num(M, ados)
+    _check_sys_dim_and_ADOs_num(M.dimensions.from, ados.dimensions.to)
     _check_parity(M, ados)
     u0 = _HandleVectorType(M, ados.data)
 
     ftype = _float_type(M)
     Tspan = (ftype(0), ftype(tspan))
+    ode_options = default_ode_solver_options(ftype)
 
     kwargs2 = merge(
         (
-            abstol = DEFAULT_ODE_SOLVER_OPTIONS.abstol,
-            reltol = DEFAULT_ODE_SOLVER_OPTIONS.reltol,
+            abstol = ode_options.abstol,
+            reltol = ode_options.reltol,
             save_everystep = false,
             saveat = ftype[],
         ),
         kwargs,
     )
+
+    # handle callbacks
     _ss_condition = SteadyStateODECondition(similar(u0))
-    cb = TerminateSteadyState(kwargs2.abstol, kwargs2.reltol, _ss_condition)
+    cb = TerminateSteadyState(terminate_abstol, terminate_reltol, _ss_condition)
     kwargs3 =
         haskey(kwargs2, :callback) ? merge(kwargs2, (callback = CallbackSet(kwargs2.callback, cb),)) :
         merge(kwargs2, (callback = cb,))
@@ -123,5 +130,5 @@ function QuantumToolbox.steadystate(
         flush(stdout)
     end
 
-    return ADOs(Vector{ComplexF64}(sol.u[end]), M.dimensions, M.N, M.parity)
+    return ADOs(Vector{ComplexF64}(sol.u[end]), M.dimensions.to, M.N, M.parity)
 end

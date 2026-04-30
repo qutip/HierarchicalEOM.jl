@@ -38,7 +38,7 @@ function HEOMsolve(
 
     # handle initial state
     ados = (T_state <: QuantumObject) ? ADOs(ρ0, M.N, M.parity) : ρ0
-    _check_sys_dim_and_ADOs_num(M, ados)
+    _check_sys_dim_and_ADOs_num(M.dimensions.from, ados.dimensions.to)
     _check_parity(M, ados)
     ρvec = _HandleVectorType(M, ados.data)
 
@@ -78,9 +78,9 @@ function HEOMsolve(
         if !is_empty_e_ops
             _expect = op -> dot(op, ρvec)
             @. expvals[:, n + 1] = _expect(tr_e_ops)
-            n == steps ? ADOs_list[1] = ADOs(ρvec, M.dimensions, M.N, M.parity) : nothing
+            n == steps ? ADOs_list[1] = ADOs(ρvec, M.dimensions.to, M.N, M.parity) : nothing
         else
-            ADOs_list[n + 1] = ADOs(ρvec, M.dimensions, M.N, M.parity)
+            ADOs_list[n + 1] = ADOs(ρvec, M.dimensions.to, M.N, M.parity)
         end
 
         ρvec = exp_Mt * ρvec

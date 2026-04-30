@@ -1,4 +1,5 @@
 @testitem "Bath and Exponent" begin
+    import SparseArrays: spzeros
 
     # prepare coupling operator and coefficients of exponential-exponential-expansion terms
     η0 = [1]
@@ -9,7 +10,7 @@
     γ2 = [0.1, 0.2, 0.5, 0.6, 0.9]
     γ3 = [0.1, 0.2 + 0.3im, 0.4 - 0.5im, 0.6 + 0.7im, 0.8 - 0.9im]
     γ4 = [0.1, 0.2 - 0.3im, 0.4 + 0.5im, 0.6 - 0.7im, 0.8 + 0.9im]
-    op = Qobj([0 0; 0 0])
+    op = Qobj(spzeros(ComplexF64, 2, 2))
 
     ################################################
     # Boson bath
@@ -68,7 +69,7 @@
     @test_throws ErrorException BosonBath(op, [0, 0], [0], [0, 0], [0, 0])
     @test_throws ErrorException BosonBath(Qobj([0, 0]), [0, 0], [0, 0], [0, 0], [0, 0])
     @test_warn "The system-bosonic-bath coupling operator \"op\" should be Hermitian Operator" BosonBath(
-        Qobj([0 1; 0 0]),
+        destroy(2),
         [0, 0],
         [0, 0],
         [0, 0],

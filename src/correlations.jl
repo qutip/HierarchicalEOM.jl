@@ -30,7 +30,7 @@ function QuantumToolbox.correlation_3op_2t(
     AC = HEOMSuperOp(sprepost(C, A), M.parity, M)
 
     kwargs2 = merge((saveat = collect(tlist),), (; kwargs...))
-    ados_t_list = HEOMsolve(M, state, tlist; kwargs2...).ados
+    ados_t_list = (tlist == [0]) ? [state] : HEOMsolve(M, state, tlist; kwargs2...).ados
 
     corr = map((t, ρt) -> HEOMsolve(M, AC * ρt, τlist .+ t, e_ops = [B]; kwargs...).expect[1, :], tlist, ados_t_list)
     return reduce(vcat, transpose.(corr))
@@ -88,7 +88,7 @@ function QuantumToolbox.correlation_2op_2t(
         reverse::Bool = false,
         kwargs...,
     ) where {T_state <: Union{QuantumObject, ADOs}}
-    C = eye(prod(M.dimensions), dims = M.dimensions)
+    C = qeye_like(A)
 
     if reverse
         corr = correlation_3op_2t(M, state, tlist, τlist, A, B, C; kwargs...)

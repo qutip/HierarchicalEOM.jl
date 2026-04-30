@@ -1,4 +1,6 @@
 @testitem "Density of states" begin
+    import SparseArrays: sparse
+
     e = -5
     U = 10
     d_up = tensor(sigmam(), qeye(2))
@@ -67,8 +69,8 @@
     end
     @test length(readlines("DOS.txt")) == length(ωlist)
 
-    mat = rand_dm(2)
-    mat2 = rand_dm(3)
+    mat = sparse(rand_dm(2))
+    mat2 = sparse(rand_dm(3))
     bathb = Boson_DrudeLorentz_Pade(mat, 1, 1, 1, 2)
     @test_throws ErrorException DensityOfStates(Lo, ados_s, d_up, ωlist; verbose = true) # deprecated function
     @test_throws ErrorException DensityOfStates(Lo, ados_s, d_up, ωlist; progress_bar = Val(false), filename = "DOS")

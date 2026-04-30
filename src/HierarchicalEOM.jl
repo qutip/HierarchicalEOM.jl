@@ -24,6 +24,7 @@ import QuantumToolbox:
     _gen_dimensions,
     _get_dims_string,
     dimensions_to_dims,
+    get_size,
     _save_func,
     _merge_saveat,
     _merge_tstops,
@@ -37,7 +38,7 @@ import QuantumToolbox:
     getVal,
     TimeEvolutionProblem,
     AbstractSaveFunc,
-    DEFAULT_ODE_SOLVER_OPTIONS,
+    default_ode_solver_options,
     SteadyStateODECondition
 
 # SciML packages (for OrdinaryDiffEq and LinearSolve)
@@ -57,6 +58,7 @@ import SciMLBase:
 import SciMLOperators:
     SciMLOperators,
     AbstractSciMLOperator,
+    DiagonalOperator,
     MatrixOperator,
     ScaledOperator,
     IdentityOperator,

@@ -51,7 +51,7 @@ Calculate density of states for the fermionic system in frequency domain.
     else
         ados = ADOs(ρ, M.N)
     end
-    _check_sys_dim_and_ADOs_num(M, ados)
+    _check_sys_dim_and_ADOs_num(M.dimensions.from, ados.dimensions.to)
 
     # Handle d_op
     _tr = _Tr(M)
