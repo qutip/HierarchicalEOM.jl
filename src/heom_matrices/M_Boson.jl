@@ -20,7 +20,7 @@ HEOM Liouvillian superoperator matrix for bosonic bath
 struct M_Boson{T <: AbstractSciMLOperator} <: AbstractHEOMLSMatrix{T}
     data::T
     tier::Int
-    dimensions::Dimensions
+    dimensions::Dimensions{<:ADOsSpace, <:ADOsSpace}
     N::Int
     sup_dim::Int
     parity::AbstractParity

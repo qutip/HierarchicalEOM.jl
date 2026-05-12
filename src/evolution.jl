@@ -404,7 +404,7 @@ function HEOMsolve_map(
     )
     # generate ensemble problem
     ntraj = length(iter)
-    _prob_func = isnothing(prob_func) ? (prob, i, repeat) -> _se_me_map_prob_func(prob, i, repeat, iter) : prob_func
+    _prob_func = isnothing(prob_func) ? (prob, ctx) -> _se_me_map_prob_func(prob, ctx, iter) : prob_func
     _output_func =
         isnothing(output_func) ?
         _ensemble_dispatch_output_func(
@@ -425,7 +425,7 @@ function HEOMsolve_map(
     sol = _ensemble_dispatch_solve(ens_prob, alg, ensemblealg, ntraj)
 
     # handle solution and make it become an Array of TimeEvolutionHEOMSol
-    sol_vec = [_gen_HEOMsolve_solution(sol[:, i], prob.times, prob.kwargs.M) for i in eachindex(sol)] # map is type unstable
+    sol_vec = [_gen_HEOMsolve_solution(sol.u[i], prob.times, prob.kwargs.M) for i in eachindex(sol.u)] # map is type unstable
     return reshape(sol_vec, size(iter))
 end
 
