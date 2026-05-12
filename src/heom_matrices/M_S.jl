@@ -23,7 +23,7 @@ where ``[\cdot, \cdot]_-`` stands for commutator.
 struct M_S{T <: AbstractSciMLOperator} <: AbstractHEOMLSMatrix{T}
     data::T
     tier::Int
-    dimensions::Dimensions
+    dimensions::Dimensions{<:ADOsSpace, <:ADOsSpace}
     N::Int
     sup_dim::Int
     parity::AbstractParity

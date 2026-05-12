@@ -20,7 +20,7 @@ HEOM Liouvillian superoperator matrix for fermionic bath
 struct M_Fermion{T <: AbstractSciMLOperator} <: AbstractHEOMLSMatrix{T}
     data::T
     tier::Int
-    dimensions::Dimensions
+    dimensions::Dimensions{<:ADOsSpace, <:ADOsSpace}
     N::Int
     sup_dim::Int
     parity::AbstractParity
