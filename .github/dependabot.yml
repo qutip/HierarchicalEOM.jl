@@ -12,4 +12,3 @@ updates:
       interval: "daily"
     labels:
       - "dependencies"
-      - "Skip ChangeLog"
