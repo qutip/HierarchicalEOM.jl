@@ -11,9 +11,8 @@ import HierarchicalEOM:
     get_cached_HEOMLS_data,
     get_sys_size
 import QuantumToolbox: _complex_float_type, _convert_eltype_wordsize, makeVal, getVal, get_typename_wrapper
-import CUDA
-import CUDA: cu, CuArray
-import CUDA.CUSPARSE: CuSparseVector, CuSparseMatrixCSC, CuSparseMatrixCSR
+import CUDACore: CUDACore, cu, CuArray
+import cuSPARSE: CuSparseVector, CuSparseMatrixCSC, CuSparseMatrixCSR
 import SparseArrays: AbstractSparseMatrix, sparse, SparseVector, SparseMatrixCSC
 import LinearAlgebra: Diagonal
 import SciMLOperators:
@@ -43,7 +42,7 @@ end
 @doc raw"""
     CuSparseMatrixCSC{T}(M::AbstractHEOMLSMatrix)
 
-Return a new HEOMLS-matrix-type object with `M.data` is in the type of `CUDA.CUSPARSE.CuSparseMatrixCSC` with element type `T` for gpu calculations.
+Return a new HEOMLS-matrix-type object with `M.data` is in the type of `cuSPARSE.CuSparseMatrixCSC` with element type `T` for gpu calculations.
 
 If `{T}` is not specified, default to `{eltype(M)}`.
 """
@@ -55,7 +54,7 @@ CuSparseMatrixCSC{T}(M::MT) where {T, MT <: AbstractHEOMLSMatrix} =
 @doc raw"""
     CuSparseMatrixCSR{T}(M::AbstractHEOMLSMatrix)
 
-Return a new HEOMLS-matrix-type object with `M.data` is in the type of `CUDA.CUSPARSE.CuSparseMatrixCSR` with element type `T` for gpu calculations.
+Return a new HEOMLS-matrix-type object with `M.data` is in the type of `cuSPARSE.CuSparseMatrixCSR` with element type `T` for gpu calculations.
 
 If `{T}` is not specified, default to `{eltype(M)}`.
 """

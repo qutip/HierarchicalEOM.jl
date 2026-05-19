@@ -22,13 +22,15 @@ SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 StaticArraysCore = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
 
 [weakdeps]
-CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+CUDACore = "bd0ed864-bdfe-4181-a5ed-ce625a5fdea2"
+cuSPARSE = "b26da814-b3bc-49ef-b0ee-c816305aa060"
 
 [extensions]
-HierarchicalEOM_CUDAExt = "CUDA"
+HierarchicalEOM_CUDAExt = ["CUDACore", "cuSPARSE"]
 
 [compat]
-CUDA = "5.9.6"
+CUDACore = "6"
+cuSPARSE = "6"
 DiffEqCallbacks = "4.2.1 - 4"
 FastExpm = "1.1"
 FillArrays = "1"
@@ -39,7 +41,7 @@ OrdinaryDiffEqCore = "4"
 OrdinaryDiffEqLowOrderRK = "2"
 Pkg = "1"
 ProgressMeter = "1.11.0"
-QuantumToolbox = "0.46"
+QuantumToolbox = "0.47"
 Reexport = "1"
 SciMLBase = "3"
 SciMLOperators = "1.11"
