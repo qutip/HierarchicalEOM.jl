@@ -1,7 +1,7 @@
 [deps]
 CUDACore = "bd0ed864-bdfe-4181-a5ed-ce625a5fdea2"
-HierarchicalEOM = "a62dbcb7-80f5-4d31-9a88-8b19fd92b128"
 cuSPARSE = "b26da814-b3bc-49ef-b0ee-c816305aa060"
+HierarchicalEOM = "a62dbcb7-80f5-4d31-9a88-8b19fd92b128"
 
 [compat]
 CUDACore = "6"
