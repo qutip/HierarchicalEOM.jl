@@ -23,8 +23,8 @@ import SciMLOperators:
 const _CuSparseType = Union{CuSparseMatrixCSC, CuSparseMatrixCSR}
 
 @doc raw"""
-    cu(M::AbstractHEOMLSMatrix; word_size::Union{Val,Int} = Val(64))
-Return a new HEOMLS-matrix-type object with `M.data` is in the type of `CuSparseMatrixCSC{ComplexF32, Int32}` for gpu calculations.
+    CUDACore.cu(M::AbstractHEOMLSMatrix; word_size::Union{Val,Int} = Val(64))
+Return a new HEOMLS-matrix-type object with `M.data` is in the type of `cuSPARSE.CuSparseMatrixCSC{ComplexF32, Int32}` for gpu calculations.
 
 # Arguments
 - `M::AbstractHEOMLSMatrix` : the matrix given from HEOM model
@@ -40,7 +40,7 @@ function cu(M::AbstractHEOMLSMatrix; word_size::Union{Val, Int} = Val(64))
 end
 
 @doc raw"""
-    CuSparseMatrixCSC{T}(M::AbstractHEOMLSMatrix)
+    cuSPARSE.CuSparseMatrixCSC{T}(M::AbstractHEOMLSMatrix)
 
 Return a new HEOMLS-matrix-type object with `M.data` is in the type of `cuSPARSE.CuSparseMatrixCSC` with element type `T` for gpu calculations.
 
@@ -52,7 +52,7 @@ CuSparseMatrixCSC{T}(M::MT) where {T, MT <: AbstractHEOMLSMatrix} =
     _reset_HEOMLS_data(M, _convert_to_gpu_matrix(M.data, CuSparseMatrixCSC{T}))
 
 @doc raw"""
-    CuSparseMatrixCSR{T}(M::AbstractHEOMLSMatrix)
+    cuSPARSE.CuSparseMatrixCSR{T}(M::AbstractHEOMLSMatrix)
 
 Return a new HEOMLS-matrix-type object with `M.data` is in the type of `cuSPARSE.CuSparseMatrixCSR` with element type `T` for gpu calculations.
 
