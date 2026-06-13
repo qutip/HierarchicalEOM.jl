@@ -11,7 +11,7 @@ steps:
         !build.pull_request.draft      &&
         (build.branch =~ /main/ || build.pull_request.base_branch =~ /main/)
     agents:
-      queue: "juliagpu"
+      queue: "cuda"
     plugins:
       - staticfloat/forerunner: # only trigger the pipeline if the following folders are updated
           watch:
