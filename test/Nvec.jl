@@ -24,7 +24,7 @@
     @test a == copy(a)
 
     # Nvecs must behave as distinct keys in a Dict (the core use in HierarchyDict)
-    dict = Dict{Nvec,Int}()
+    dict = Dict{Nvec, Int}()
     dict[c] = 1
     dict[d] = 2
     dict[e] = 3
