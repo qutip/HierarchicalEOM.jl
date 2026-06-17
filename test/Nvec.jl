@@ -1,5 +1,4 @@
 @testitem "Nvec equality and hashing" begin
-    using SparseArrays
     using HierarchicalEOM: Nvec
 
     # `==` must compare the actual data, not the hashes. Defining equality via hash
