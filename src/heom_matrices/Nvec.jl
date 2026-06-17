@@ -53,7 +53,12 @@ Base.show(io::IO, nvec::Nvec) = print(io, "Nvec($(nvec[:]))")
 Base.show(io::IO, m::MIME"text/plain", nvec::Nvec) = show(io, nvec)
 
 Base.hash(nvec::Nvec, h::UInt) = hash(nvec.data, h)
-Base.:(==)(nvec1::Nvec, nvec2::Nvec) = hash(nvec1) == hash(nvec2)
+# Compare the actual data (not the hashes). Defining `==` via hash equality breaks the
+# `hash`/`==` contract that `Dict` relies on: once two distinct `Nvec`s collide in their
+# 64-bit hash (likely once the number of ADOs approaches ~2^32, the birthday bound), a
+# hash-based `==` would declare them equal, conflating two different ADOs into one key and
+# corrupting the hierarchy mapping. See issue #298.
+Base.:(==)(nvec1::Nvec, nvec2::Nvec) = nvec1.level == nvec2.level && nvec1.data == nvec2.data
 
 Base.copy(nvec::Nvec) = Nvec(copy(nvec.data), nvec.level)
 
