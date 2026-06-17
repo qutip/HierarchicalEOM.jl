@@ -52,6 +52,7 @@ Base.iterate(nvec::Nvec, state::Int = 1) = state > length(nvec) ? nothing : (nve
 Base.show(io::IO, nvec::Nvec) = print(io, "Nvec($(nvec[:]))")
 Base.show(io::IO, m::MIME"text/plain", nvec::Nvec) = show(io, nvec)
 
+Base.hash(nvec::Nvec, h::UInt) = hash(nvec.data, h) # require for Dict key access
 Base.:(==)(nvec1::Nvec, nvec2::Nvec) = nvec1.level == nvec2.level && nvec1.data == nvec2.data
 
 Base.copy(nvec::Nvec) = Nvec(copy(nvec.data), nvec.level)
