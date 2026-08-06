@@ -37,7 +37,8 @@
     L = M_Boson(Hsys, tier, Bbath; verbose = true) # also test verbosity
     L_combine = M_Boson(Hsys, tier, Bbath; verbose = false, assemble = Val(:combine))
     L_lazy = M_Boson(Hsys, tier, Bbath; verbose = false, assemble = Val(:none))
-    L_combine_cached = cache_operator(L_combine, similar(zeros(eltype(L_combine), size(L_combine, 1))))
+    cachevec = similar(zeros(eltype(L_combine), size(L_combine, 1)))
+    L_combine_cached = cache_operator(L_combine, cachevec)
 
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (336, 336)
@@ -53,6 +54,16 @@
     @test isconstant(L)
     @test iscached(L)
     @test iscached(L_combine_cached)
+
+    # the summands of the HEOMLS matrix share one set of scratch buffers instead of each
+    # allocating its own (done inside `SciMLOperators.AddedOperator` since v1.26)
+    function scratch(op)
+        cache = SciMLOperators.getcache(op)
+        return isnothing(cache) ? [] : filter(!isnothing, collect(cache))
+    end
+    n_buffers(ops) = length(unique(objectid, mapreduce(scratch, vcat, ops; init = [])))
+    @test n_buffers(L_combine_cached.data.ops) == n_buffers([cache_operator(L_combine.data.ops[end], cachevec)])
+
     ados = steadystate(L; verbose = false)
     @test ados.dims.to == L.dims.to
     @test length(ados) == L.N
