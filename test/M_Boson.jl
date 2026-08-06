@@ -37,8 +37,7 @@
     L = M_Boson(Hsys, tier, Bbath; verbose = true) # also test verbosity
     L_combine = M_Boson(Hsys, tier, Bbath; verbose = false, assemble = Val(:combine))
     L_lazy = M_Boson(Hsys, tier, Bbath; verbose = false, assemble = Val(:none))
-    cachevec = similar(zeros(eltype(L_combine), size(L_combine, 1)))
-    L_combine_cached = cache_operator(L_combine, cachevec)
+    L_combine_cached = cache_operator(L_combine, similar(zeros(eltype(L_combine), size(L_combine, 1))))
 
     @test show(devnull, MIME("text/plain"), L) === nothing
     @test size(L) == (336, 336)
@@ -62,7 +61,9 @@
         return isnothing(cache) ? [] : filter(!isnothing, collect(cache))
     end
     n_buffers(ops) = length(unique(objectid, mapreduce(scratch, vcat, ops; init = [])))
-    @test n_buffers(L_combine_cached.data.ops) == n_buffers([cache_operator(L_combine.data.ops[end], cachevec)])
+    per_summand = map(op -> n_buffers([op]), L_combine_cached.data.ops)
+    @test sum(per_summand) > maximum(per_summand) # several summands hold scratch, so the next test is not vacuous
+    @test n_buffers(L_combine_cached.data.ops) == maximum(per_summand) # nothing was allocated twice
 
     ados = steadystate(L; verbose = false)
     @test ados.dims.to == L.dims.to
