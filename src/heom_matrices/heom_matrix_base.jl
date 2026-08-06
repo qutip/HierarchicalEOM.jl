@@ -231,41 +231,15 @@ function Base.:(-)(M::AbstractHEOMLSMatrix, Sup::HEOMSuperOp)
     return _reset_HEOMLS_data(M, M.data - Sup)
 end
 
-# wrapping cache_operator for checking existing cache
-cache_operator_with_check(op::SciMLOperators.AbstractSciMLOperator, cachevec::AbstractVector) =
+# `SciMLOperators.cache_operator` allocates unconditionally, so skip it when the operator
+# already carries its caches. Sharing scratch between the summands of an `AddedOperator`
+# (the HEOMLS matrix of a time-dependent problem is a sum of `TensorProductOperator`s) is
+# done by SciMLOperators itself since v1.26.
+_cache_operator(op::SciMLOperators.AbstractSciMLOperator, cachevec::AbstractVector) =
     iscached(op) ? op : SciMLOperators.cache_operator(op, cachevec)
 
-# TensorProductOperator are the only ones that need special handling
-apply_cache(op::SciMLOperators.TensorProductOperator, tensor_cache, cachevec) =
-    TensorProductOperator(op.ops, tensor_cache)
-# ScaledOperator need to be handled recursively
-apply_cache(op::SciMLOperators.ScaledOperator, tensor_cache, cachevec) =
-    ScaledOperator(op.λ, apply_cache(op.L, tensor_cache, cachevec))
-# fallback for other AbstractSciMLOperator types
-apply_cache(op::SciMLOperators.AbstractSciMLOperator, tensor_cache, cachevec) = cache_operator_with_check(op, cachevec)
-
-function get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T <: SciMLOperators.AddedOperator}
-    iscached(M) && (return M)
-    ops = M.ops
-
-    idx = Base.findlast(op -> op isa TensorProductOperator, ops)
-    isnothing(idx) && (return cache_operator_with_check(M, cachevec))
-
-    last_tensor = cache_operator_with_check(ops[idx], cachevec)
-    tensor_cache = last_tensor.cache
-
-    return sum(op -> apply_cache(op, tensor_cache, cachevec), ops)
-end
-
-get_cached_HEOMLS_data(M::AbstractHEOMLSMatrix, cachevec::AbstractVector) = get_cached_HEOMLS_data(M.data, cachevec)
-
-get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T <: SciMLOperators.MatrixOperator} = M
-
-get_cached_HEOMLS_data(M::T, cachevec::AbstractVector) where {T <: SciMLOperators.AbstractSciMLOperator} =
-    cache_operator_with_check(M, cachevec)
-
 SciMLOperators.cache_operator(M::AbstractHEOMLSMatrix, cachevec::AbstractVector) =
-    _reset_HEOMLS_data(M, get_cached_HEOMLS_data(M, cachevec))
+    _reset_HEOMLS_data(M, _cache_operator(M.data, cachevec))
 
 @doc raw"""
     SciMLOperators.iscached(M::AbstractHEOMLSMatrix)
