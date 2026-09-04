@@ -131,7 +131,7 @@ function HEOMsolveProblem(
     L = get_cached_HEOMLS_data(_make_L(M, H_t), u0)
     kwargs2 = _merge_saveat(tlist, e_ops, default_ode_solver_options(T); kwargs...)
     kwargs3 = _merge_tstops(kwargs2, isconstant(L), tlist)
-    kwargs4 = _generate_heom_kwargs(e_ops, makeVal(progress_bar), tlist, kwargs3, SaveFuncHEOMSolve, M)
+    kwargs4 = _generate_heom_kwargs(e_ops, makeVal(progress_bar), tlist, kwargs3, SaveFuncHEOMSolve, M, T)
     prob = ODEProblem{getVal(inplace), FullSpecialize}(L, u0, tspan, params; kwargs4...)
 
     return TimeEvolutionProblem(prob, tlist, ADOsType(), M.dimensions, (M = M,))
@@ -257,8 +257,9 @@ end
 (f::SaveFuncHEOMSolve{Nothing})(u, t, integrator) = _save_func(integrator, f.progr) # Common for both mesolve and sesolve
 
 function _save_func_heomsolve(u, integrator, tr_e_ops, progr, iter, expvals)
-    _expect = op -> dot(op, u)
-    @. expvals[:, iter[]] = _expect(tr_e_ops)
+    for (i, op) in enumerate(tr_e_ops)
+        @inbounds expvals[i, iter[]] = dot(op, u)
+    end
     iter[] += 1
     return _save_func(integrator, progr)
 end
@@ -270,7 +271,8 @@ function _generate_heom_kwargs(
         kwargs,
         method::Type{SaveFuncHEOMSolve},
         M::AbstractHEOMLSMatrix,
-    )
+        ::Type{T},
+    ) where {T <: Number}
     tr_e_ops = e_ops isa Nothing ? nothing : _generate_Eops(M, e_ops)
 
     progr =
@@ -282,7 +284,7 @@ function _generate_heom_kwargs(
             QuantumToolbox.settings.ProgressMeterKWARGS...,
         ) : nothing
 
-    expvals = e_ops isa Nothing ? nothing : Array{ComplexF64}(undef, length(e_ops), length(tlist))
+    expvals = e_ops isa Nothing ? nothing : Array{_complex_float_type(T)}(undef, length(e_ops), length(tlist))
 
     _save_func = method(tr_e_ops, progr, Ref(1), expvals)
     cb = FunctionCallingCallback(_save_func, funcat = tlist)
@@ -296,7 +298,8 @@ _generate_heom_kwargs(
     kwargs,
     method::Type{SaveFuncHEOMSolve},
     M::AbstractHEOMLSMatrix,
-) = kwargs
+    ::Type{T},
+) where {T <: Number} = kwargs
 
 _make_L(M::AbstractHEOMLSMatrix, H_t::Nothing) = M.data
 function _make_L(M::AbstractHEOMLSMatrix, H_t::QuantumObjectEvolution)
@@ -391,6 +394,7 @@ HEOMsolve_map(
 # User can define their own iterator structure, prob_func and output_func
 #   - `prob_func`: Function to use for generating the ODEProblem.
 #   - `output_func`: a `Tuple` containing the `Function` to use for generating the output of a single trajectory, the (optional) `Progress` object, and the (optional) `RemoteChannel` object.
+#   - `safetycopy`: Whether to deep copy the problem before generating each trajectory. Defaults to `false` when using the built-in `prob_func` (already safe), and to `true` when a custom `prob_func` is supplied, since a custom `prob_func` that doesn't independently reset per-trajectory callback state (e.g. the e_ops save counter) would otherwise alias that state across trajectories (see issue #645). Pass `safetycopy = false` explicitly to opt back into the faster path with a custom `prob_func`, at your own risk.
 #
 # Return: An array of TimeEvolutionSol objects with the size same as the given iter.
 function HEOMsolve_map(
@@ -400,11 +404,13 @@ function HEOMsolve_map(
         ensemblealg::EnsembleAlgorithm = EnsembleThreads();
         prob_func::Union{Function, Nothing} = nothing,
         output_func::Union{Tuple, Nothing} = nothing,
+        safetycopy::Union{Bool, Nothing} = nothing,
         progress_bar::Union{Val, Bool} = Val(true),
     )
     # generate ensemble problem
     ntraj = length(iter)
     _prob_func = isnothing(prob_func) ? (prob, ctx) -> _se_me_map_prob_func(prob, ctx, iter) : prob_func
+    _safetycopy = isnothing(safetycopy) ? !isnothing(prob_func) : safetycopy
     _output_func =
         isnothing(output_func) ?
         _ensemble_dispatch_output_func(
@@ -415,7 +421,7 @@ function HEOMsolve_map(
             progr_desc = "[HEOMsolve_map] ",
         ) : output_func
     ens_prob = TimeEvolutionProblem(
-        EnsembleProblem(prob.prob, prob_func = _prob_func, output_func = _output_func[1], safetycopy = false),
+        EnsembleProblem(prob.prob, prob_func = _prob_func, output_func = _output_func[1], safetycopy = _safetycopy),
         prob.times,
         ADOsType(),
         prob.dimensions,
