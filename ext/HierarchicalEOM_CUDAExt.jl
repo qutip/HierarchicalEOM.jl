@@ -8,7 +8,7 @@ import HierarchicalEOM:
     _HandleSteadyStateMatrix,
     _SteadyStateConstraint,
     _get_SciML_matrix_wrapper,
-    get_cached_HEOMLS_data,
+    _cache_operator,
     get_sys_size
 import QuantumToolbox: _complex_float_type, _convert_eltype_wordsize, makeVal, getVal, get_typename_wrapper
 import CUDACore: CUDACore, cu, CuArray
@@ -95,7 +95,7 @@ _HandleSteadyStateMatrix(
 # To avoid scalar indexing in potential concretization, make the constraint the same type sparse format as M.data
 # Do not specify the element type for the CuSparseMatrix... (No method)
 _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AddedOperator{T}}, b::CuArray{T}) where {T <: Number} =
-    get_cached_HEOMLS_data(
+    _cache_operator(
     M.data + _get_SciML_matrix_wrapper(M)(_SteadyStateConstraint(T, get_sys_size(M)[1], size(M, 1))),
     b,
 )

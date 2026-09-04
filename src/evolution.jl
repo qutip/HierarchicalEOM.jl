@@ -128,7 +128,7 @@ function HEOMsolveProblem(
     u0 = _gen_ados_ode_vector(ρ0, M)
 
     # define ODE problem (L should be an AbstractSciMLOperator)
-    L = get_cached_HEOMLS_data(_make_L(M, H_t), u0)
+    L = _cache_operator(_make_L(M, H_t), u0)
     kwargs2 = _merge_saveat(tlist, e_ops, default_ode_solver_options(T); kwargs...)
     kwargs3 = _merge_tstops(kwargs2, isconstant(L), tlist)
     kwargs4 = _generate_heom_kwargs(e_ops, makeVal(progress_bar), tlist, kwargs3, SaveFuncHEOMSolve, M, T)

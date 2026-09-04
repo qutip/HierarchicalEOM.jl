@@ -109,10 +109,7 @@ _HandleSteadyStateMatrix(
 ) where {T <: Number, MT <: SparseMatrixCSC} =
     M.data.A + _SteadyStateConstraint(T, get_sys_size(M)[1], size(M, 1))
 _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AbstractSciMLOperator{T}}, b::AbstractVector{T}) where {T <: Number} =
-    get_cached_HEOMLS_data(
-    M.data + _SteadyStateConstraint(eltype(M), get_sys_size(M)[1], size(M, 1)),
-    b,
-)
+    _cache_operator(M.data + _SteadyStateConstraint(eltype(M), get_sys_size(M)[1], size(M, 1)), b)
 
 # this adds the trace == 1 constraint for reduced density operator during linear solve of steadystate
 _SteadyStateConstraint(T::Type{<:Number}, D::Int, S::Int) =

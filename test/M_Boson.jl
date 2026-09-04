@@ -53,6 +53,18 @@
     @test isconstant(L)
     @test iscached(L)
     @test iscached(L_combine_cached)
+
+    # the summands of the HEOMLS matrix share one set of scratch buffers instead of each
+    # allocating its own (done inside `SciMLOperators.AddedOperator` since v1.26)
+    function scratch(op)
+        cache = SciMLOperators.getcache(op)
+        return isnothing(cache) ? [] : filter(!isnothing, collect(cache))
+    end
+    n_buffers(ops) = length(unique(objectid, mapreduce(scratch, vcat, ops; init = [])))
+    per_summand = map(op -> n_buffers([op]), L_combine_cached.data.ops)
+    @test sum(per_summand) > maximum(per_summand) # several summands hold scratch, so the next test is not vacuous
+    @test n_buffers(L_combine_cached.data.ops) == maximum(per_summand) # nothing was allocated twice
+
     ados = steadystate(L; verbose = false)
     @test ados.dims.to == L.dims.to
     @test length(ados) == L.N
