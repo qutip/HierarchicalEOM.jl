@@ -2,7 +2,7 @@ using Test
 using TestItemRunner
 using Pkg
 
-const GROUP_LIST = String["All", "Main", "Code-Quality", "CUDA_Ext"]
+const GROUP_LIST = String["All", "Main", "Code-Quality", "CUDA-Ext"]
 
 const GROUP = get(ENV, "GROUP", "All")
 (GROUP in GROUP_LIST) || throw(ArgumentError("Unknown GROUP = $GROUP\nThe allowed groups are: $GROUP_LIST\n"))
@@ -35,7 +35,7 @@ if (GROUP == "All") || (GROUP == "Code-Quality")
     include(joinpath(testdir, "code-quality", "code_quality.jl"))
 end
 
-if (GROUP == "CUDA_Ext") # || (GROUP == "All")
+if (GROUP == "CUDA-Ext") # || (GROUP == "All")
     Pkg.activate("gpu")
     Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
     Pkg.instantiate()
