@@ -9,7 +9,6 @@ updates:
   - package-ecosystem: "julia"
     directories:
       - "/"
-      - "/test/*"
     schedule:
       interval: "daily"
     open-pull-requests-limit: 10
