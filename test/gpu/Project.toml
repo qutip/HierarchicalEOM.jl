@@ -4,3 +4,4 @@ HierarchicalEOM = "a62dbcb7-80f5-4d31-9a88-8b19fd92b128"
 
 [compat]
 CUDA = "6"
+HierarchicalEOM = "2.15.1"
