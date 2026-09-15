@@ -22,4 +22,5 @@ steps:
             - "test/runtests.jl"
             - "test/gpu/**"
             - "Project.toml"
+            - "codecov.yml"
           target: ".buildkite/CUDA_Ext.yml"

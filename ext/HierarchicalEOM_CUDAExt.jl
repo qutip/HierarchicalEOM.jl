@@ -10,7 +10,7 @@ import HierarchicalEOM:
     _get_SciML_matrix_wrapper,
     _cache_operator,
     get_sys_size
-import QuantumToolbox: _complex_float_type, _convert_eltype_wordsize, makeVal, getVal, get_typename_wrapper
+import QuantumToolboxCore: _complex_float_type, _convert_eltype_wordsize, makeVal, getVal, get_typename_wrapper
 import CUDACore: CUDACore, cu, CuArray
 import cuSPARSE: CuSparseVector, CuSparseMatrixCSC, CuSparseMatrixCSR
 import SparseArrays: AbstractSparseMatrix, sparse, SparseVector, SparseMatrixCSC
@@ -99,4 +99,13 @@ _HandleSteadyStateMatrix(M::AbstractHEOMLSMatrix{<:AddedOperator{T}}, b::CuArray
     M.data + _get_SciML_matrix_wrapper(M)(_SteadyStateConstraint(T, get_sys_size(M)[1], size(M, 1))),
     b,
 )
+
+function __init__()
+    # register to QuantumToolboxCore.EXT_PKGS
+    (CUDACore ∉ QuantumToolboxCore.EXT_PKGS) && push!(QuantumToolboxCore.EXT_PKGS, CUDACore)
+    (cuSPARSE ∉ QuantumToolboxCore.EXT_PKGS) && push!(QuantumToolboxCore.EXT_PKGS, cuSPARSE)
+
+    return nothing
+end
+
 end
