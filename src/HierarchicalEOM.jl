@@ -12,10 +12,10 @@ import Reexport: @reexport
 @reexport using QuantumToolbox
 
 # intrinsic QuantumToolbox functions
-import QuantumToolbox:
+import QuantumToolboxCore:
+    QuantumToolboxCore,
     _float_type,
     _complex_float_type,
-    _check_tlist,
     _spre,
     _spost,
     _sprepost,
@@ -25,6 +25,10 @@ import QuantumToolbox:
     _get_dims_string,
     dimensions_to_dims,
     get_size,
+    makeVal,
+    getVal
+import QuantumToolbox:
+    _check_tlist,
     _save_func,
     _merge_saveat,
     _merge_tstops,
@@ -34,8 +38,6 @@ import QuantumToolbox:
     _standard_output_func,
     _ensemble_dispatch_output_func,
     _ensemble_dispatch_solve,
-    makeVal,
-    getVal,
     TimeEvolutionProblem,
     AbstractSaveFunc,
     default_ode_solver_options,
@@ -43,6 +45,7 @@ import QuantumToolbox:
 
 # SciML packages (for OrdinaryDiffEq and LinearSolve)
 import SciMLBase:
+    SciMLBase,
     init,
     solve,
     solve!,
@@ -68,7 +71,7 @@ import SciMLOperators:
     concretize
 import OrdinaryDiffEqLowOrderRK: DP5
 import DiffEqCallbacks: FunctionCallingCallback, TerminateSteadyState
-import LinearSolve: LinearProblem, needs_concrete_A, SciMLLinearSolveAlgorithm, KrylovJL_GMRES
+import LinearSolve: LinearSolve, LinearProblem, needs_concrete_A, SciMLLinearSolveAlgorithm, KrylovJL_GMRES
 
 # other dependencies (in alphabetical order)
 import FastExpm: fastExpm
@@ -108,5 +111,21 @@ include("correlations.jl")
 
 # deprecated functions
 include("deprecated.jl")
+
+function __init__()
+    # register QuantumToolbox library and its dependencies
+    if (HierarchicalEOM ∉ QuantumToolboxCore.QT_LIBRARIES)
+        # use pushfirst! so that main API libraries are at the front of the registry (for better display order in versioninfo)
+        pushfirst!(QuantumToolboxCore.QT_LIBRARIES, HierarchicalEOM)
+
+        # dependencies
+        m_list = Module[SciMLBase, SciMLOperators, LinearSolve]
+        foreach(m_list) do m
+            (m ∉ QuantumToolboxCore.DEP_PKGS) && push!(QuantumToolboxCore.DEP_PKGS, m)
+        end
+    end
+
+    return nothing
+end
 
 end

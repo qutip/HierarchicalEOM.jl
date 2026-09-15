@@ -118,16 +118,6 @@ _SteadyStateConstraint(T::Type{<:Number}, D::Int, S::Int) =
 
 _check_parity(A, B) = (typeof(A.parity) != typeof(B.parity)) ? error("Inconsistent parity.") : nothing
 
-function _get_pkg_version(pkg_name::String)
-    D = Pkg.dependencies()
-    for uuid in keys(D)
-        if D[uuid].name == pkg_name
-            return D[uuid].version
-        end
-    end
-    return
-end
-
 @doc raw"""
     HierarchicalEOM.print_logo(io::IO=stdout)
 
@@ -194,10 +184,6 @@ end
 Command line output of information on HierarchicalEOM, dependencies, and system information, same as [`HierarchicalEOM.about`](@ref).
 """
 function versioninfo(io::IO = stdout)
-    cpu = Sys.cpu_info()
-    BLAS_info = BLAS.get_config().loaded_libs[1]
-    Sys.iswindows() ? OS_name = "Windows" : Sys.isapple() ? OS_name = "macOS" : OS_name = Sys.KERNEL
-
     # print the logo of HEOM package
     print("\n")
     print_logo(io)
@@ -214,33 +200,8 @@ function versioninfo(io::IO = stdout)
         "    Simon Cross, Neill Lambert, Po-Chen Kuo and Shen-Liang Yang\n",
     )
 
-    # print package information
-    println(
-        io,
-        "Package information:\n",
-        "====================================\n",
-        "Julia              Ver. $(VERSION)\n",
-        "HierarchicalEOM    Ver. $(_get_pkg_version("HierarchicalEOM"))\n",
-        "QuantumToolbox     Ver. $(_get_pkg_version("QuantumToolbox"))\n",
-        "SciMLOperators     Ver. $(_get_pkg_version("SciMLOperators"))\n",
-        "LinearSolve        Ver. $(_get_pkg_version("LinearSolve"))\n",
-        "OrdinaryDiffEqCore Ver. $(_get_pkg_version("OrdinaryDiffEqCore"))\n",
-    )
-
-    # print System information
-    println(
-        io,
-        "System information:\n",
-        "====================================\n",
-        """OS       : $(OS_name) ($(Sys.MACHINE))\n""",
-        """CPU      : $(length(cpu)) × $(cpu[1].model)\n""",
-        """Memory   : $(round(Sys.total_memory() / 2^30, digits = 3)) GB\n""",
-        """WORD_SIZE: $(Sys.WORD_SIZE)\n""",
-        """LIBM     : $(Base.libm_name)\n""",
-        """LLVM     : libLLVM-$(Base.libllvm_version) ($(Sys.JIT), $(Sys.CPU_NAME))\n""",
-        """BLAS     : $(basename(BLAS_info.libname)) ($(BLAS_info.interface))\n""",
-        """Threads  : $(Threads.nthreads()) (on $(Sys.CPU_THREADS) virtual cores)\n""",
-    )
+    QuantumToolboxCore.pkginfo(io)
+    QuantumToolboxCore.sysinfo(io)
 
     # print citation information
     println(
