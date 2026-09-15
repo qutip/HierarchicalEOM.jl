@@ -9,5 +9,6 @@ TestItemRunner = "f8b46487-2199-4994-9208-9a1283c18c0a"
 
 [compat]
 Pkg = "1"
+SciMLOperators = "1.30.1"
 Test = "1"
 TestItemRunner = "1"
