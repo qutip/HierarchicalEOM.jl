@@ -12,7 +12,7 @@ import HierarchicalEOM:
     get_sys_size
 import QuantumToolboxCore: _complex_float_type, _convert_eltype_wordsize, makeVal, getVal, get_typename_wrapper
 import CUDACore: CUDACore, cu, CuArray
-import cuSPARSE: CuSparseVector, CuSparseMatrixCSC, CuSparseMatrixCSR
+import cuSPARSE: cuSPARSE, CuSparseVector, CuSparseMatrixCSC, CuSparseMatrixCSR
 import SparseArrays: AbstractSparseMatrix, sparse, SparseVector, SparseMatrixCSC
 import LinearAlgebra: Diagonal
 import SciMLOperators:
