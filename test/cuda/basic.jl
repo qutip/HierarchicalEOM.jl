@@ -1,6 +1,7 @@
 using Test
 using HierarchicalEOM
 using CUDA
+import SparseArrays: spzeros
 
 @testset "CUDA (Basic)" begin
     λ = 0.01

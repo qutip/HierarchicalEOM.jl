@@ -1,6 +1,7 @@
 using Test
 using HierarchicalEOM
 using CUDA
+import LinearSolve: KrylovJL_BICGSTAB
 
 @testset "CUDA (Single impurity Anderson model)" begin
     ϵ = -5

@@ -42,11 +42,11 @@ if (GROUP == "All") || (GROUP == "Code-Quality")
     include(joinpath(path, "code_quality.jl"))
 end
 
-##############
-# CUDA tests #
-##############
+###################
+# Extension tests #
+###################
 if GROUP ∈ EXTENSION_LIST
-    path = joinpath(testdir, "cuda")
+    path = EXTENSION_PATH[GROUP]
     setup_subtest_env(path)
 
     println("[Tests for GROUP = $GROUP]")
