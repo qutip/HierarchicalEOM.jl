@@ -1,4 +1,7 @@
-@testitem "Time evolution" begin
+using Test
+using HierarchicalEOM
+
+@testset "Time evolution" begin
 
     # System Hamiltonian and initial state
     Hsys = 0.25 * sigmaz() + 0.5 * sigmax()

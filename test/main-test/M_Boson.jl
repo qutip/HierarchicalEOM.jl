@@ -1,7 +1,10 @@
-@testitem "M_Boson" begin
-    using SparseArrays
-    using SciMLOperators
+using Test
+using HierarchicalEOM
+import SparseArrays: sparse, nnz, issparse
+import SciMLOperators
+import SciMLOperators: concretize
 
+@testset "M_Boson" begin
     # Test Boson-type HEOM Liouvillian superoperator matrix
     λ = 0.145
     W = 0.6464

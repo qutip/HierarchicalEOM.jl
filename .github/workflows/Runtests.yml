@@ -37,26 +37,29 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # for core tests (latest and oldest supported versions)
+        # # Main tests in ubuntu with different version
         julia-version:
           - '1.10'  # oldest
+          - '1.12'
           - '1'    # latest
         node:
           - os: 'ubuntu-latest'
             arch: 'x64'
-          - os: 'windows-latest'
-            arch: 'x64'
-          - os: 'macOS-latest'
-            arch: 'arm64'
         group:
           - 'Main'
 
         include:
-          # for core tests (intermediate versions)
-          - julia-version: '1.11'
+          # Main tests in different platforms
+          - julia-version: '1' # latest
             node:
-              os: 'ubuntu-latest'
+              os: 'windows-latest'
               arch: 'x64'
+            group: 'Main'
+          
+          - julia-version: '1' # latest
+            node:
+              os: 'macOS-latest'
+              arch: 'arm64'
             group: 'Main'
 
     steps:
@@ -69,8 +72,9 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
         env:
-          JULIA_NUM_THREADS: 4
           GROUP: ${{ matrix.group }}
+          JULIA_NUM_THREADS: auto
+          PTR_NUM_JOBS: 4
       - uses: julia-actions/julia-processcoverage@v1
         with:
           directories: src,ext

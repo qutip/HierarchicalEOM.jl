@@ -20,7 +20,7 @@ steps:
             - "src/**"
             - "ext/HierarchicalEOM_CUDAExt.jl"
             - "test/runtests.jl"
-            - "test/gpu/**"
+            - "test/cuda/**"
             - "Project.toml"
             - "codecov.yml"
           target: ".buildkite/CUDA_Ext.yml"

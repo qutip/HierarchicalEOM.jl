@@ -1,5 +1,8 @@
-@testitem "M_Boson (RWA)" begin
+using Test
+using HierarchicalEOM
 
+
+@testset "M_Boson (RWA)" begin
     # Test Boson-type HEOM Liouvillian superoperator matrix under rotating wave approximation
     ωq = 1.1
     Λ = 0.01

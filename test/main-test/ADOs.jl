@@ -1,4 +1,7 @@
-@testitem "Auxiliary density operators" begin
+using Test
+using HierarchicalEOM
+
+@testset "Auxiliary density operators" begin
     ados_b = ADOs(zeros(20), 5)
     ados_f = ADOs(zeros(8), 2)
     ados_bf = ADOs(zeros(40), 10)
