@@ -1,6 +1,8 @@
-@testitem "Stationary state" begin
-    import SparseArrays: spzeros
+using Test
+using HierarchicalEOM
+import SparseArrays: spzeros
 
+@testset "Stationary state" begin
     # System Hamiltonian and initial state
     d = sigmam()
     Hsys = d' * d

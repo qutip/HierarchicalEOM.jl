@@ -1,53 +1,54 @@
-using Test
-using TestItemRunner
+using ParallelTestRunner
 using Pkg
 
-const GROUP_LIST = String["All", "Main", "Code-Quality", "CUDA-Ext"]
+include("group_list.jl")
 
 const GROUP = get(ENV, "GROUP", "All")
-(GROUP in GROUP_LIST) || throw(ArgumentError("Unknown GROUP = $GROUP\nThe allowed groups are: $GROUP_LIST\n"))
+(GROUP in GROUP_LIST) || throw(ArgumentError("Unknown GROUP = $GROUP\nAvailable test GROUP are:\n$SHOW_GROUP_LIST\n"))
 
-if (GROUP == "All") || (GROUP == "Main")
-    import HierarchicalEOM
-
-    HierarchicalEOM.about()
-
-    println("\nStart running Main tests...\n")
-    @run_package_tests verbose = true
+# function to set up the environment for subtests
+function setup_subtest_env(path::String)
+    Pkg.activate(path)
+    Pkg.update()
+    return nothing
 end
 
-########################################################################
-# Use traditional Test.jl instead of TestItemRunner.jl for other tests #
-########################################################################
+######################
+# Main package tests #
+######################
+if (GROUP == "All") || (GROUP == "Main")
+    testsuite = find_tests(joinpath(testdir, "main-test"))
 
-const testdir = dirname(@__FILE__)
+    import HierarchicalEOM
+    HierarchicalEOM.about()
+    println("[Tests for GROUP = $GROUP]")
+    runtests(HierarchicalEOM, ARGS; testsuite)
+end
+
+######################
+# Code Quality tests #
+######################
 
 if (GROUP == "All") || (GROUP == "Code-Quality")
-    Pkg.activate("code-quality")
-    Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
-    Pkg.instantiate()
+    path = joinpath(testdir, "code-quality")
+    setup_subtest_env(path)
 
     using HierarchicalEOM
     using Aqua, JET
 
     (GROUP == "Code-Quality") && HierarchicalEOM.about() # print version info. for code quality CI in GitHub
 
-    include(joinpath(testdir, "code-quality", "code_quality.jl"))
+    println("[Tests for GROUP = $GROUP]")
+    include(joinpath(path, "code_quality.jl"))
 end
 
-if (GROUP == "CUDA-Ext") # || (GROUP == "All")
-    Pkg.activate("gpu")
-    Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
-    Pkg.instantiate()
+###################
+# Extension tests #
+###################
+if GROUP ∈ EXTENSION_LIST
+    path = EXTENSION_PATH[GROUP]
+    setup_subtest_env(path)
 
-    using HierarchicalEOM
-    using SparseArrays
-    using LinearSolve
-    using CUDA
-    CUDA.allowscalar(false) # Avoid unexpected scalar indexing
-
-    HierarchicalEOM.about()
-    CUDA.versioninfo()
-
-    include(joinpath(testdir, "gpu", "CUDAExt.jl"))
+    println("[Tests for GROUP = $GROUP]")
+    include(joinpath(path, "runtests.jl"))
 end

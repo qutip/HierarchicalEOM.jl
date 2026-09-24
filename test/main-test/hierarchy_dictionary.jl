@@ -1,6 +1,8 @@
-@testitem "Hierarchy Dictionary" begin
-    using SparseArrays
+using Test
+using HierarchicalEOM
+import SparseArrays: sparse, nnz
 
+@testset "Hierarchy Dictionary" begin
     # calculate current for a given ADOs
     # bathIdx: 1 means 1st fermion bath (bath_L); 2 means 2nd fermion bath (bath_R)
     function Ic(ados, M::M_Boson_Fermion, bathIdx::Int)

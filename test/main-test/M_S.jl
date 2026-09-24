@@ -1,6 +1,8 @@
-@testitem "M_S" begin
-    using SparseArrays
+using Test
+using HierarchicalEOM
+import SparseArrays: nnz, issparse
 
+@testset "M_S" begin
     # Test Schrodinger type HEOM Liouvillian superoperator matrix
     t = 10
     Hsys = sigmax()

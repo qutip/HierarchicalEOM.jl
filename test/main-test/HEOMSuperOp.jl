@@ -1,6 +1,8 @@
-@testitem "HEOM superoperator" begin
-    using SparseArrays
+using Test
+using HierarchicalEOM
+import SparseArrays: nnz
 
+@testset "HEOM superoperator" begin
     # Take waiting time distribution as an example
     WTD_ans = [
         0.0,

@@ -1,6 +1,8 @@
-@testitem "Density of states" begin
-    import SparseArrays: sparse
+using Test
+using HierarchicalEOM
+import SparseArrays: sparse
 
+@testset "Density of states" begin
     e = -5
     U = 10
     d_up = tensor(sigmam(), qeye(2))

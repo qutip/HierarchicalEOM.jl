@@ -1,6 +1,8 @@
-@testitem "Power spectrum" begin
-    import SparseArrays: spzeros
+using Test
+using HierarchicalEOM
+import SparseArrays: spzeros
 
+@testset "Power spectrum" begin
     a = destroy(2)
 
     Hsys = a' * a

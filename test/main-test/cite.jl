@@ -1,4 +1,7 @@
-@testitem "Citation Bibtex" begin
+using Test
+using HierarchicalEOM
+
+@testset "Citation Bibtex" begin
     # citation bibtex
     HEOM_buffer = IOBuffer()
     HierarchicalEOM.cite(HEOM_buffer)

@@ -1,6 +1,8 @@
-@testitem "Bath correlation functions" begin
-    import SparseArrays: spzeros
+using Test
+using HierarchicalEOM
+import SparseArrays: spzeros
 
+@testset "Bath correlation functions" begin
     λ = 0.145
     W = 0.6464
     kT = 0.7414

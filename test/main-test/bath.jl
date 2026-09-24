@@ -1,6 +1,8 @@
-@testitem "Bath and Exponent" begin
-    import SparseArrays: spzeros
+using Test
+using HierarchicalEOM
+import SparseArrays: spzeros
 
+@testset "Bath and Exponent" begin
     # prepare coupling operator and coefficients of exponential-exponential-expansion terms
     η0 = [1]
     γ0 = [2]

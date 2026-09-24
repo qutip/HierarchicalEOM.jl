@@ -1,4 +1,6 @@
-@testset "Code quality" verbose = true begin
+using Test
+
+@testset "Code Quality" verbose = true begin
     @testset "Aqua.jl" begin
         Aqua.test_all(HierarchicalEOM; ambiguities = false, unbound_args = false)
     end
