@@ -9,6 +9,7 @@ const GROUP = get(ENV, "GROUP", "All")
 # function to set up the environment for subtests
 function setup_subtest_env(path::String)
     Pkg.activate(path)
+    Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
     Pkg.update()
     return nothing
 end
