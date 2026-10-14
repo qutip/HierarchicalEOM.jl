@@ -1,6 +1,6 @@
 name = "HierarchicalEOM"
 uuid = "a62dbcb7-80f5-4d31-9a88-8b19fd92b128"
-version = "2.16.2"
+version = "2.16.3"
 authors = ["Yi-Te Huang"]
 
 [deps]
@@ -42,7 +42,7 @@ OrdinaryDiffEqCore = "4"
 OrdinaryDiffEqLowOrderRK = "2"
 Pkg = "1"
 ProgressMeter = "1.11.0"
-QuantumToolbox = "0.49"
+QuantumToolbox = "0.51"
 QuantumToolboxCore = "0.3"
 Reexport = "1"
 SciMLBase = "3"
