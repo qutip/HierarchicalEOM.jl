@@ -9,7 +9,11 @@ const GROUP = get(ENV, "GROUP", "All")
 # function to set up the environment for subtests
 function setup_subtest_env(path::String)
     Pkg.activate(path)
-    Pkg.develop(PackageSpec(path = dirname(@__DIR__)))
+
+    # `cd` into `path` first; otherwise `Pkg.develop` writes an absolute (machine-specific) path to Project.toml
+    cd(path) do
+        Pkg.develop(PackageSpec(path = relpath(dirname(@__DIR__), path))) # must `develop` otherwise the code coverage for libraries (like CUDA) will not be collected
+    end
     Pkg.update()
     return nothing
 end

@@ -63,10 +63,8 @@ Calculate density of states for the fermionic system in frequency domain.
     _tr_d_dagger = _HandleTraceVectorType(M, adjoint(d_dagger.data) * _tr) # another adjoint will be applied in dot function later
 
     SAVE::Bool = (filename != "")
-    if SAVE
-        FILENAME = filename * ".txt"
-        isfile(FILENAME) && error("FILE: $(FILENAME) already exist.")
-    end
+    FILENAME = filename * ".txt"
+    SAVE && isfile(FILENAME) && error("FILE: $(FILENAME) already exist.")
 
     ElType = eltype(M)
     ωList = convert(Vector{_float_type(M)}, ωlist) # Convert it to support GPUs and avoid type instabilities

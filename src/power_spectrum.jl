@@ -116,10 +116,8 @@ remember to set the parameters:
     b = _HandleVectorType(M, _Q_ados.data)
 
     SAVE::Bool = (filename != "")
-    if SAVE
-        FILENAME = filename * ".txt"
-        isfile(FILENAME) && error("FILE: $(FILENAME) already exist.")
-    end
+    FILENAME = filename * ".txt"
+    SAVE && isfile(FILENAME) && error("FILE: $(FILENAME) already exist.")
 
     ElType = eltype(M)
     ωList = convert(Vector{_float_type(M)}, ωlist) # Convert it to support GPUs and avoid type instabilities

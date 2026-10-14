@@ -94,8 +94,8 @@ Note that the parity only need to be set as `ODD` when the system contains fermi
     if verbose
         println("Preparing HEOM Liouvillian sparsity structure...")
         flush(stdout)
-        progr = Progress(Nado; enabled = verbose, desc = "[M_Boson] ", QuantumToolbox.settings.ProgressMeterKWARGS...)
     end
+    progr = Progress(Nado; enabled = verbose, desc = "[M_Boson] ", QuantumToolbox.settings.ProgressMeterKWARGS...)
     for idx in 1:Nado
         # boson (current level) superoperator
         nvec = idx2nvec[idx]
