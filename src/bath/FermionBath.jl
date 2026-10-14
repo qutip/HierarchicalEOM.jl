@@ -229,6 +229,15 @@ function Base.getproperty(b::BType, key::Symbol) where {BType <: Union{fermionAb
     end
 end
 
+# used by `Base.getindex(B::AbstractBath, ...)` to build the `Exponent`
+_bath_term_types(b::fermionAbsorb) = "fA"
+_bath_term_types(b::fermionEmit) = "fE"
+
+_bath_term_op(B::AbstractBath, b::fermionAbsorb) = B.op'
+_bath_term_op(B::AbstractBath, b::fermionEmit) = B.op
+
+_bath_term_eta(b::Union{fermionAbsorb, fermionEmit}, k::Int) = b.η[k]
+
 @doc raw"""
     correlation_function(bath, tlist)
 Calculate the correlation function ``C^{\nu=+}(t)`` and ``C^{\nu=-}(t)`` for a given fermionic bath and time list.

@@ -136,6 +136,8 @@ _gen_n_max(::Vector{AbstractFermionBath}, tier::Int, Nterm::Int) = (tier == 0) ?
             Nterm += b.Nterm
         end
         n_max = _gen_n_max(baths, tier, Nterm)
+    else
+        error("Unsupported bath type: $T")
     end
 
     # create idx2nvec and remove nvec when its value of importance is below threshold

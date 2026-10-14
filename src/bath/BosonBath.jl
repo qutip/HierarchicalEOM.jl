@@ -530,6 +530,19 @@ function Base.getproperty(
     end
 end
 
+# used by `Base.getindex(B::AbstractBath, ...)` to build the `Exponent`
+_bath_term_types(b::bosonReal) = "bR"
+_bath_term_types(b::bosonImag) = "bI"
+_bath_term_types(b::bosonRealImag) = "bRI"
+_bath_term_types(b::bosonAbsorb) = "bA"
+_bath_term_types(b::bosonEmit) = "bE"
+
+_bath_term_op(B::AbstractBath, b::Union{bosonReal, bosonImag, bosonRealImag, bosonEmit}) = B.op
+_bath_term_op(B::AbstractBath, b::bosonAbsorb) = B.op'
+
+_bath_term_eta(b::bosonRealImag, k::Int) = b.η_real[k] + 1.0im * b.η_imag[k]
+_bath_term_eta(b::Union{bosonReal, bosonImag, bosonAbsorb, bosonEmit}, k::Int) = b.η[k]
+
 @doc raw"""
     correlation_function(bath, tlist)
 Calculate the correlation function ``C(t)`` for a given bosonic bath and time list.

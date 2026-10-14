@@ -44,6 +44,7 @@ function HEOMsolve(
 
     if e_ops isa Nothing
         expvals = Array{ComplexF64}(undef, 0, steps + 1)
+        tr_e_ops = nothing
         is_empty_e_ops = true
     else
         expvals = Array{ComplexF64}(undef, length(e_ops), steps + 1)
