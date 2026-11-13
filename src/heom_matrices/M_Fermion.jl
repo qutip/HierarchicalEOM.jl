@@ -93,7 +93,7 @@ Generate the fermion-type HEOM Liouvillian superoperator matrix
         println("Preparing HEOM Liouvillian sparsity structure...")
         flush(stdout)
     end
-    progr = Progress(Nado; enabled = verbose, desc = "[M_Fermion] ", QuantumToolbox.settings.ProgressMeterKWARGS...)
+    progr = Progress(Nado; enabled = verbose, desc = "[M_Fermion] ", QuantumToolboxCore.settings.progressmeter_kwargs...)
     for idx in 1:Nado
         # fermion (current level) superoperator
         nvec = idx2nvec[idx]
