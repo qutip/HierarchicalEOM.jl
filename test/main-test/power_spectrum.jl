@@ -78,12 +78,39 @@ import SparseArrays: spzeros
     rm("PSD.txt")
 
     # two time correlation functions
-    tlist = 0:0.1:1000
+    Nt = 10
+    Nτ = 8
+    tlist = range(0, Nt, length = Nt)
+    τlist = range(0, Nτ, length = Nτ)
+    time_cutoff = 5.0 # exclude the cases where t + τ > time_cutoff
     corr1 = correlation_2op_1t(L, ados_s, tlist, a', a; progress_bar = Val(false))
-    corr2 = correlation_3op_2t(L, ados_s, [0], tlist, qeye(2), a', a; progress_bar = Val(false))
-    corr3 = correlation_3op_1t(L, ados_s, tlist, a', a, qeye(2), progress_bar = Val(false))
-    corr4 = correlation_2op_2t(L, ados_s, [0], tlist, a', a, reverse = true, progress_bar = Val(false))
+    corr2 = correlation_3op_1t(L, ados_s, tlist, qeye(2), a', a; progress_bar = Val(false))
+    corr3 = correlation_3op_2t(L, ados_s, tlist, τlist, a', a, qeye(2); progress_bar = Val(false))
+    corr4 = correlation_2op_2t(L, ados_s, tlist, τlist, a', a, reverse = true, progress_bar = Val(false))
+    corr_cut = correlation_3op_2t(L, ados_s, tlist, τlist, a', a, qeye(2); max_t_plus_tau = time_cutoff, progress_bar = Val(false))
+    @test all(corr1 .≈ corr2)
+    @test all(corr3 .≈ corr4)
+    @test size(corr3) == size(corr_cut) == (Nt, Nτ)
+    for (i, t) in enumerate(tlist)
+        for (j, τ) in enumerate(τlist)
+            if t + τ > time_cutoff
+                @test corr_cut[i, j] == 0 # exact zero
+            else
+                @test isapprox(corr_cut[i, j], corr3[i, j]; atol = 1.0e-5)
+            end
+        end
+    end
 
-    @test corr1 == corr2[1, :]
-    @test corr3 == corr4[1, :]
+    # check two-time correlation function with time-dependent Hamiltonian
+    # reference: the τ-evolution starting from t must run over t .+ τlist
+    H_t = QobjEvo(a + a', (p, t) -> p[1] * cos(t))
+    params = [0.5]
+    A = a'
+    B = a' * a
+    C = a
+    ados_t = HEOMsolve(L, ados_s, tlist; H_t, params, saveat = tlist, progress_bar = Val(false)).ados
+    C_A = HEOMSuperOp(sprepost(C, A), L.parity, L)
+    ref = reduce(vcat, [transpose(HEOMsolve(L, C_A * ados_t[i], τlist .+ t; H_t, params, e_ops = [B], progress_bar = Val(false)).expect[1, :]) for (i, t) in enumerate(tlist)])
+    corr_td = correlation_3op_2t(L, ados_s, tlist, τlist, A, B, C; H_t, params, progress_bar = Val(false))
+    @test all(isapprox.(corr_td, ref; atol = 1.0e-5))
 end
