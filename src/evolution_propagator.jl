@@ -72,7 +72,7 @@ function HEOMsolve(
         steps + 1;
         enabled = getVal(progress_bar),
         desc = "[HEOMsolve (propagator)] ",
-        QuantumToolbox.settings.ProgressMeterKWARGS...,
+        QuantumToolboxCore.settings.progressmeter_kwargs...,
     )
     for n in 0:steps
         # calculate expectation values

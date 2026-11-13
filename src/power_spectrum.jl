@@ -128,7 +128,7 @@ remember to set the parameters:
         Length;
         enabled = getVal(progress_bar),
         desc = "[PowerSpectrum] ",
-        QuantumToolbox.settings.ProgressMeterKWARGS...,
+        QuantumToolboxCore.settings.progressmeter_kwargs...,
     )
 
     if M.data isa MatrixOperator

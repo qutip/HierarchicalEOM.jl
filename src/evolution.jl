@@ -281,7 +281,7 @@ function _generate_heom_kwargs(
             length(tlist);
             enabled = getVal(progress_bar),
             desc = "[HEOMsolve (ODE)] ",
-            QuantumToolbox.settings.ProgressMeterKWARGS...,
+            QuantumToolboxCore.settings.progressmeter_kwargs...,
         ) : nothing
 
     expvals = e_ops isa Nothing ? nothing : Array{_complex_float_type(T)}(undef, length(e_ops), length(tlist))

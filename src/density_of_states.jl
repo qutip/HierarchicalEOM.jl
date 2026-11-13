@@ -75,7 +75,7 @@ Calculate density of states for the fermionic system in frequency domain.
         Length;
         enabled = getVal(progress_bar),
         desc = "[DensityOfStates] ",
-        QuantumToolbox.settings.ProgressMeterKWARGS...,
+        QuantumToolboxCore.settings.progressmeter_kwargs...,
     )
 
     if M.data isa MatrixOperator
